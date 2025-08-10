@@ -16,6 +16,7 @@
   <link rel="icon" href="/icon.png" type="image/png">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon.png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" rel="stylesheet">
 
   <%# Includes all stylesheet files in app/assets/stylesheets %>
   <%= stylesheet_link_tag :"application", "data-turbo-track": "reload" %>
@@ -75,45 +76,77 @@
 
 <body>
 <div class="container">
-<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-  <div class="col-md-3 mb-2 mb-md-0">
-    <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-      <div class="d-flex align-items-center p-2" style="gap: 10px;">
-        <!-- Icono -->
-        <div class="d-flex align-items-center justify-content-center icon-bg rounded-circle" style="width: 50px; height: 50px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradiente)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin h-6 w-6">
-            <defs>
-              <linearGradient id="gradiente" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#000000"/>
-                <stop offset="100%" stop-color="#000000"/>
-              </linearGradient>
-            </defs>
-            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-        </div>
+  <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+        <div class="d-flex align-items-center p-2" style="gap: 10px;">
+          <!-- Icono -->
+          <div class="d-flex align-items-center justify-content-center icon-bg rounded-circle" style="width: 50px; height: 50px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradiente)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin h-6 w-6">
+              <defs>
+                <linearGradient id="gradiente" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#000000"/>
+                  <stop offset="100%" stop-color="#000000"/>
+                </linearGradient>
+              </defs>
+              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
 
-        <!-- Texto -->
-        <div class="d-flex flex-column">
-          <span class="gradient-text">IyaiClub</span>
-          <span class="text-muted" style="font-size: 0.85rem;">Descubre • Reserva • Disfruta</span>
+          <!-- Texto -->
+          <div class="d-flex flex-column">
+            <span class="gradient-text">IyaiClub</span>
+            <span class="text-muted" style="font-size: 0.85rem;">Descubre • Reserva • Disfruta</span>
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
 
-  </div>
-  <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-    <li><a href="#" class="nav-link px-2 link-secondary">Inicio</a></li>
-    <li><a href="#" class="nav-link px-2">Explorar</a></li>
-    <li><a href="#" class="nav-link px-2">Planes</a></li>
-    <li><a href="#" class="nav-link px-2">Quiénes Somos</a></li>
-    <li><a href="#" class="nav-link px-2">Contacto</a></li>
-  </ul>
-  <div class="col-md-3 text-end">
-    <button type="button" class="btn btn-outline-primary me-2">Iniciar sesión</button>
-    <button type="button" class="btn btn-primary">Regístrate</button>
-  </div>
-</header>
+    </div>
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="#" class="nav-link px-2 link-secondary">Inicio</a></li>
+      <li><a href="#" class="nav-link px-2">Explorar</a></li>
+      <li><a href="#" class="nav-link px-2">Planes</a></li>
+      <li><a href="#" class="nav-link px-2">Quiénes Somos</a></li>
+      <li><a href="#" class="nav-link px-2">Contacto</a></li>
+      <% if user_signed_in? && current_user.administrador? %>
+        <li><a href="/admin/users" class="nav-link px-2">Usuarios</a></li>
+
+      <% end %>
+
+    </ul>
+    <div class="col-md-3 text-end">
+      <% if user_signed_in? %>
+        <%= link_to destroy_user_session_path, class: "btn btn-outline-primary me-2" do %>
+          <% if current_user.administrador? %>
+            <i class="fa-solid fa-user-tie"></i>
+
+          <% end %>
+          <% if current_user.afiliado? %>
+            <i class="fa-solid fa-people-roof"></i>
+          <% end %>
+          <% if current_user.turista? %>
+            <i class="fa-solid fa-passport"></i>
+
+          <% end %>
+          <!-- icono a la izquierda con margen derecha -->
+          <%= current_user.name %>
+        <% end %>
+        <%= link_to "Cerrar sesión", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-danger" %>
+
+
+      <% else %>
+        <%= link_to "Iniciar sesión", new_user_session_path,
+                    class: "btn btn-outline-primary me-2" %>
+
+        <%= link_to "Regístrate", new_user_registration_path,
+                    class: "btn btn-primary" %>
+      <% end %>
+
+    </div>
+
+
+  </header>
 </div>
 <%= yield %>
 </body>
