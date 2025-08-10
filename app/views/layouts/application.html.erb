@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= content_for(:title) || "Iyaib Club App" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= yield :head %>
+
+  <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+  <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.png">
+
+  <%# Includes all stylesheet files in app/assets/stylesheets %>
+  <%= stylesheet_link_tag :"application", "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  <style>
+      .gradient-text {
+          font-size: 1.5rem;
+          font-weight: bold;
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+      }
+
+      .icon-bg {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      .gradient-btn {
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          border: none;
+          color: white;
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          transition: 0.3s ease;
+      }
+
+      .gradient-btn:hover {
+          filter: brightness(1.1);
+          transform: scale(1.05);
+      }
+
+      .gradient-outline-btn {
+          background: transparent;
+          color: #34c759; /* Color inicial del texto */
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border: 2px solid transparent;
+          border-image: linear-gradient(to right, #34c759, #c0aa40, #ff9500) 1;
+          border-radius: 8px;
+          transition: 0.3s ease;
+      }
+
+      .gradient-outline-btn:hover {
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          color: white;
+      }
+  </style>
+</head>
+
+<body>
+<div class="container">
+<header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+  <div class="col-md-3 mb-2 mb-md-0">
+    <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+      <div class="d-flex align-items-center p-2" style="gap: 10px;">
+        <!-- Icono -->
+        <div class="d-flex align-items-center justify-content-center icon-bg rounded-circle" style="width: 50px; height: 50px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradiente)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin h-6 w-6">
+            <defs>
+              <linearGradient id="gradiente" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#000000"/>
+                <stop offset="100%" stop-color="#000000"/>
+              </linearGradient>
+            </defs>
+            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+
+        <!-- Texto -->
+        <div class="d-flex flex-column">
+          <span class="gradient-text">IyaiClub</span>
+          <span class="text-muted" style="font-size: 0.85rem;">Descubre • Reserva • Disfruta</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+  <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+    <li><a href="#" class="nav-link px-2 link-secondary">Inicio</a></li>
+    <li><a href="#" class="nav-link px-2">Explorar</a></li>
+    <li><a href="#" class="nav-link px-2">Planes</a></li>
+    <li><a href="#" class="nav-link px-2">Quiénes Somos</a></li>
+    <li><a href="#" class="nav-link px-2">Contacto</a></li>
+  </ul>
+  <div class="col-md-3 text-end">
+    <button type="button" class="btn btn-outline-primary me-2">Iniciar sesión</button>
+    <button type="button" class="btn btn-primary">Regístrate</button>
+  </div>
+</header>
+</div>
+<%= yield %>
+</body>
+</html>
