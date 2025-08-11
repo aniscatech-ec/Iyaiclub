@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+
+  resources :establishments
   namespace :turista do
     get "dashboard/index"
   end
@@ -31,6 +33,5 @@ Rails.application.routes.draw do
     get "dashboard/index"
     resources :users
   end
-
 
 end

@@ -1,0 +1,40 @@
+<%= form_with(model: establishment, local: true) do |form| %>
+  <% if establishment.errors.any? %>
+    <div class="alert alert-danger">
+      <ul>
+        <% establishment.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if current_user.administrador? %>
+    <div class="mb-3">
+      <%= form.label :user_id, "Afiliado" %>
+      <%= form.collection_select :user_id, User.where(role: :afiliado), :id, :email, prompt: "Seleccione afiliado" %>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :description %>
+    <%= form.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :category %>
+    <%= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :images, "Imágenes" %>
+    <%= form.file_field :images, multiple: true, class: "form-control" %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

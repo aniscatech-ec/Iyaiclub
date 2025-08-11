@@ -1,0 +1,28 @@
+<h1>Establecimientos</h1>
+
+<%= link_to "Nuevo Establecimiento", new_establishment_path, class: "btn btn-success mb-3" %>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th>Nombre</th>
+    <th>Categoría</th>
+    <th>Afiliado</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @establishments.each do |est| %>
+    <tr>
+      <td><%= est.name %></td>
+      <td><%= est.category.titleize %></td>
+      <td><%= est.user.email %></td>
+      <td>
+        <%= link_to "Ver", est %>
+        <%= link_to "Editar", edit_establishment_path(est) %>
+        <%= link_to "Eliminar", est, method: :delete, data: { confirm: "¿Seguro?" } %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

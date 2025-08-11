@@ -5,5 +5,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
 
   enum :role, administrador: 0, afiliado: 1, turista: 2
+  has_many :establishments
 
 end
