@@ -1,0 +1,2 @@
+module Afiliado::DashboardHelper
+end

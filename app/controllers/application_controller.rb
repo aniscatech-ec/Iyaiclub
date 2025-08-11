@@ -25,4 +25,18 @@ class ApplicationController < ActionController::Base
     authenticate_user!
     redirect_to root_path, alert: "Acceso denegado" unless current_user.administrador?
   end
+  # al iniciar sesión cada usuario vaya a su dashboard
+  def after_sign_in_path_for(resource)
+    case resource.role
+    when "administrador"
+      admin_dashboard_index_path
+    when "afiliado"
+      afiliado_dashboard_index_path
+    when "turista"
+      turista_dashboard_index_path
+    else
+      root_path
+    end
+  end
+
 end

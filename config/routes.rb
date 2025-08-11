@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  namespace :turista do
+    get "dashboard/index"
+  end
+  namespace :afiliado do
+    get "dashboard/index"
+  end
   devise_for :users
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -14,7 +20,17 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root "home#index"
+  # authenticated :user do
+  #   root to: "dashboard#index", as: :authenticated_root
+  # end
+  #
+  # unauthenticated do
+  #   root to: "home#index", as: :unauthenticated_root
+  # end
   namespace :admin do
+    get "dashboard/index"
     resources :users
   end
+
+
 end

@@ -1,0 +1,46 @@
+<div class="container my-4">
+  <h2 class="mb-4">Bienvenido, <%= current_user.name %> 👋</h2>
+
+  <!-- Búsqueda rápida -->
+  <div class="mb-4">
+    <form class="d-flex">
+      <input class="form-control me-2" type="search" placeholder="Buscar destinos o establecimientos">
+      <button class="btn btn-primary" type="submit">Buscar</button>
+    </form>
+  </div>
+
+  <!-- Próximas reservas -->
+  <h4>Mis Próximas Reservas</h4>
+  <div class="row g-3">
+    <% 2.times do %>
+      <div class="col-md-6">
+        <div class="card">
+          <img src="https://via.placeholder.com/600x200" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Hotel Costa Azul</h5>
+            <p class="card-text">Check-in: 12/08/2025 - Check-out: 15/08/2025</p>
+            <a href="#" class="btn btn-outline-primary btn-sm">Ver detalles</a>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Recomendaciones -->
+  <div class="mt-5">
+    <h4>Recomendaciones para ti</h4>
+    <div class="row g-3">
+      <% ["Playa Dorada", "Montaña Verde", "Tour Gastronómico"].each do |nombre| %>
+        <div class="col-md-4">
+          <div class="card">
+            <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="<%= nombre %>">
+            <div class="card-body">
+              <h5 class="card-title"><%= nombre %></h5>
+              <a href="#" class="btn btn-outline-success btn-sm">Explorar</a>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

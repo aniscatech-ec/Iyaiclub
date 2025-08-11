@@ -1,0 +1,2 @@
+module Turista::DashboardHelper
+end
