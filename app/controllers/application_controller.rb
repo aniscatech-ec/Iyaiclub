@@ -39,4 +39,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  layout :layout_by_resource
+
+  private
+
+  def layout_by_resource
+    if devise_controller? && action_name == "edit" && controller_name == "registrations"
+      "dashboard"
+    else
+      "application"
+    end
+  end
+
 end

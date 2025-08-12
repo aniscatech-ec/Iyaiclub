@@ -1,7 +1,6 @@
-<h1>Establecimientos</h1>
-
-<%= link_to "Nuevo Establecimiento", new_establishment_path, class: "btn btn-success mb-3" %>
-
+<%= link_to new_establishment_path, class: "btn btn-success btn-lg mb-3" do %>
+  <i class="fa-solid fa-plus"></i> Nuevo establecimiento
+<% end %>
 <table class="table">
   <thead>
   <tr>
@@ -18,9 +17,17 @@
       <td><%= est.category.titleize %></td>
       <td><%= est.user.email %></td>
       <td>
-        <%= link_to "Ver", est %>
-        <%= link_to "Editar", edit_establishment_path(est) %>
-        <%= link_to "Eliminar", est, method: :delete, data: { confirm: "¿Seguro?" } %>
+
+        <%= link_to est, class: "btn btn-info btn-sm" do %>
+          <i class="fa-solid fa-eye"></i>
+        <% end %>
+        <%= link_to edit_establishment_path(est), class: "btn btn-warning btn-sm" do %>
+          <i class="fa-solid fa-pen-to-square"></i>
+        <% end %>
+        <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este establecimiento?" }, class: "btn btn-danger btn-sm" do %>
+          <i class="fa-solid fa-trash-can"></i>
+        <% end %>
+
       </td>
     </tr>
   <% end %>

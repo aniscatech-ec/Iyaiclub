@@ -7,7 +7,7 @@
       <div class="card bg-primary text-white text-center">
         <div class="card-body">
           <h5 class="card-title">Usuarios</h5>
-          <p class="display-6">124</p>
+          <p class="display-6"><%= User.count-1 %></p>
         </div>
       </div>
     </div>
@@ -15,7 +15,7 @@
       <div class="card bg-success text-white text-center">
         <div class="card-body">
           <h5 class="card-title">Establecimientos</h5>
-          <p class="display-6">58</p>
+          <p class="display-6"><%= Establishment.count %></p>
         </div>
       </div>
     </div>
@@ -42,17 +42,28 @@
     <div class="row g-4">
       <div class="col-md-4">
         <div class="list-group">
-          <a href="/admin/users" class="list-group-item list-group-item-action active">Usuarios</a>
-          <a href="#" class="list-group-item list-group-item-action">Afiliados</a>
-          <a href="#" class="list-group-item list-group-item-action">Turistas</a>
+<!--          <a href="/admin/users" class="list-group-item list-group-item-action active">Usuarios</a>-->
+<!--          <a href="#" class="list-group-item list-group-item-action">Afiliados</a>-->
+<!--          <a href="#" class="list-group-item list-group-item-action">Turistas</a>-->
+
+          <%= link_to "Usuarios", admin_users_path, class: "list-group-item list-group-item-action active" %>
+          <%= link_to "Afiliados", admin_users_path(role: "afiliado"), class: "list-group-item list-group-item-action" %>
+          <%= link_to "Turistas", admin_users_path(role: "turista"), class: "list-group-item list-group-item-action" %>
+
         </div>
       </div>
       <div class="col-md-4">
         <div class="list-group">
-          <a href="#" class="list-group-item list-group-item-action active">Establecimientos</a>
-          <a href="#" class="list-group-item list-group-item-action">Hoteles</a>
-          <a href="#" class="list-group-item list-group-item-action">Restaurantes</a>
-          <a href="#" class="list-group-item list-group-item-action">Agencias de viaje</a>
+<!--          <a href="/establishments" class="list-group-item list-group-item-action active">Establecimientos</a>-->
+<!--          <a href="#" class="list-group-item list-group-item-action">Hoteles</a>-->
+<!--          <a href="#" class="list-group-item list-group-item-action">Restaurantes</a>-->
+          <%= link_to "Establecimientos", establishments_path, class: "list-group-item list-group-item-action active" %>
+          <%= link_to "Hoteles", establishments_path(establishment: "hotel"), class: "list-group-item list-group-item-action" %>
+          <%= link_to "Restaurantes", establishments_path(establishment: "restaurante"), class: "list-group-item list-group-item-action" %>
+
+
+<!--          <a href="#" class="list-group-item list-group-item-action">Agencias de viaje</a>-->
+          <a href="/amenities" class="list-group-item list-group-item-action">Comodidades</a>
         </div>
       </div>
       <div class="col-md-4">

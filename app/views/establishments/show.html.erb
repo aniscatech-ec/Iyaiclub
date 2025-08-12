@@ -1,30 +1,112 @@
-<!-- app/views/establishments/show.html.erb -->
-
-<h1><%= @establishment.name %></h1>
+<p>
+  <strong>Afiliado:</strong>
+  <%= @establishment.user&.email || "No asignado" %>
+</p>
 
 <p>
-  <strong>Descripción:</strong><br>
+  <strong>Nombre:</strong>
+  <%= @establishment.name %>
+</p>
+
+<p>
+  <strong>Descripción:</strong>
   <%= @establishment.description %>
 </p>
 
 <p>
-  <strong>Categoría:</strong> <%= @establishment.category.humanize %>
+  <strong>Categoría:</strong>
+  <%= @establishment.category.titleize %>
 </p>
 
 <p>
-  <strong>Afiliado:</strong> <%= @establishment.user.email %>
+  <strong>Dirección:</strong>
+  <%= @establishment.address %>
 </p>
 
-<h3>Imágenes</h3>
-<% if @establishment.images.attached? %>
-  <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-    <% @establishment.images.each do |image| %>
-      <%= image_tag image.variant(resize_to_limit: [300, 300]), style: "border-radius: 8px;" %>
-    <% end %>
-  </div>
-<% else %>
-  <p>No hay imágenes disponibles.</p>
-<% end %>
+<p>
+  <strong>Ciudad:</strong>
+  <%= @establishment.city %>
+</p>
 
-<%= link_to "Editar", edit_establishment_path(@establishment), class: "btn btn-primary" %> |
+<p>
+  <strong>País:</strong>
+  <%= @establishment.country %>
+</p>
+
+<p>
+  <strong>Teléfono:</strong>
+  <%= @establishment.phone %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= mail_to @establishment.email %>
+</p>
+
+<p>
+  <strong>Website:</strong>
+  <%= link_to @establishment.website, @establishment.website, target: "_blank", rel: "noopener" if @establishment.website.present? %>
+</p>
+
+<p>
+  <strong>Check-in:</strong>
+  <%= @establishment.check_in_time %>
+</p>
+
+<p>
+  <strong>Check-out:</strong>
+  <%= @establishment.check_out_time %>
+</p>
+
+<p>
+  <strong>Precio por noche:</strong>
+  $<%= number_with_precision(@establishment.price_per_night, precision: 2) %>
+</p>
+
+<p>
+  <strong>Total habitaciones:</strong>
+  <%= @establishment.total_rooms %>
+</p>
+
+<p>
+  <strong>Habitaciones disponibles:</strong>
+  <%= @establishment.available_rooms %>
+</p>
+
+<p>
+  <strong>Coordenadas:</strong>
+  Lat: <%= @establishment.latitude %>, Long: <%= @establishment.longitude %>
+</p>
+
+<p>
+  <strong>Calificación:</strong>
+  <%= @establishment.rating %> / 5
+</p>
+
+<p>
+  <strong>Políticas:</strong><br>
+  <%= simple_format(@establishment.policies) %>
+</p>
+
+<p>
+  <strong>Imágenes:</strong><br>
+  <% if @establishment.images.attached? %>
+    <% @establishment.images.each do |image| %>
+      <%= image_tag image.variant(resize_to_limit: [300, 200]), class: "img-thumbnail me-2 mb-2" %>
+    <% end %>
+  <% else %>
+    No hay imágenes disponibles.
+  <% end %>
+</p>
+
+<p>
+  <strong>Comodidades:</strong>
+<ul>
+  <% @establishment.amenities.each do |amenity| %>
+    <li><%= amenity.name %></li>
+  <% end %>
+</ul>
+</p>
+
+<%= link_to "Editar", edit_establishment_path(@establishment), class: "btn btn-warning" %>
 <%= link_to "Volver", establishments_path, class: "btn btn-secondary" %>

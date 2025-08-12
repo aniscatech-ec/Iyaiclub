@@ -1,44 +1,106 @@
-<%= form_with(model: [:admin, @user], local: true) do |f| %>
-  <% if @user.errors.any? %>
-    <div class="alert alert-danger">
-      <h4>Errores:</h4>
-      <ul>
-        <% @user.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow rounded-4">
+        <div class="card-body p-4">
+
+          <% if @user.errors.any? %>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+              <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
+              <div>
+                <strong>Por favor corrige los siguientes errores:</strong>
+                <ul class="mb-0">
+                  <% @user.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          <% end %>
+
+          <%= form_with(model: [:admin, @user], local: true, html: { class: "needs-validation", novalidate: true }) do |f| %>
+
+            <div class="mb-3">
+              <%= f.label :name, "Nombre", class: "form-label" %>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-regular fa-circle-user"></i></span>
+                <%= f.text_field :name, class: "form-control", placeholder: "Nombre completo", required: true %>
+                <div class="invalid-feedback">
+                  Por favor ingresa un nombre válido.
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :email, "Correo", class: "form-label" %>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                <%= f.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+                <div class="invalid-feedback">
+                  Por favor ingresa un correo válido.
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :phone, "Teléfono", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                <%= f.text_field :phone, class: "form-control", placeholder: "0981234567" %>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :role, "Rol", class: "form-label" %>
+              <div class="input-group has-validation">
+                <span class="input-group-text"><i class="fa-regular fa-id-badge"></i></span>
+                <%= f.select :role, User.roles.keys.map { |r| [r.titleize, r] }, {}, class: "form-select", required: true %>
+                <div class="invalid-feedback">
+                  Por favor selecciona un rol.
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password, "Contraseña", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                <%= f.password_field :password, class: "form-control" %>
+              </div>
+              <small class="form-text text-muted">Dejar vacío para no cambiar la contraseña.</small>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password_confirmation, "Confirmar Contraseña", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                <%= f.password_field :password_confirmation, class: "form-control" %>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Guardar cambios", class: "btn btn-success btn-lg" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
     </div>
-  <% end %>
-
-  <div class="mb-3">
-    <%= f.label :name, "Nombre" %>
-    <%= f.text_field :name, class: "form-control" %>
   </div>
+</div>
 
-  <div class="mb-3">
-    <%= f.label :email, "Correo" %>
-    <%= f.email_field :email, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :phone, "Teléfono" %>
-    <%= f.text_field :phone, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :role, "Rol" %>
-    <%= f.select :role, User.roles.keys.map { |r| [r.titleize, r] }, {}, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :password, "Contraseña" %>
-    <%= f.password_field :password, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :password_confirmation, "Confirmar Contraseña" %>
-    <%= f.password_field :password_confirmation, class: "form-control" %>
-  </div>
-
-  <%= f.submit class: "btn btn-success" %>
-<% end %>
+<script>
+    (() => {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>

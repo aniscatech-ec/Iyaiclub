@@ -3,9 +3,17 @@ class Admin::UsersController < ApplicationController
   before_action :authenticate_admin!
   before_action :set_user, only: [:show, :edit, :update, :destroy]
 
+  # def index
+  #   @users = User.all
+  # end
   def index
-    @users = User.all
+    if params[:role].present? && User.roles.key?(params[:role])
+      @users = User.where(role: User.roles[params[:role]])
+    else
+      @users = User.all
+    end
   end
+
 
   def new
     @user = User.new

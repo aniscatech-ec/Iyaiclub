@@ -2,10 +2,15 @@ class EstablishmentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_establishment, only: %i[show edit update destroy]
   before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
+  layout "dashboard"
 
   def index
     if current_user.administrador?
-      @establishments = Establishment.all
+      if params[:establishment].present? && Establishment.categories.key?(params[:establishment])
+        @establishments = Establishment.where(category: Establishment.categories[params[:establishment]])
+      else
+        @establishments = Establishment.all
+      end
     else
       @establishments = current_user.establishments
     end
@@ -59,8 +64,17 @@ class EstablishmentsController < ApplicationController
   end
 
   def establishment_params
-    allowed = [:name, :description, :category, { images: [] }]
+    allowed = [
+      :name, :description, :category, :address, :city, :country,
+      :phone, :email, :website, :check_in_time, :check_out_time,
+      :price_per_night, :total_rooms, :available_rooms, :latitude,
+      :longitude, :rating, :policies,
+      { images: [] },          # para subir múltiples imágenes
+      amenity_ids: []          # para asignar amenities (array de ids)
+    ]
     allowed << :user_id if current_user.administrador?
+
     params.require(:establishment).permit(*allowed)
   end
+
 end

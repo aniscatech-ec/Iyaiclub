@@ -1,2 +1,5 @@
-<h1>Establishments#edit</h1>
-<p>Find me in app/views/establishments/edit.html.erb</p>
+<h1>Editar Establecimiento</h1>
+
+<%= render 'form', establishment: @establishment %>
+
+<%= link_to "Volver", establishment_path(@establishment), class: "btn btn-secondary mt-3" %>

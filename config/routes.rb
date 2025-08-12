@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :amenities
 
   resources :establishments
   namespace :turista do

@@ -1,0 +1,171 @@
+<style>
+    .badge-custom {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    .search-box {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .search-box input {
+        border: none;
+        outline: none;
+    }
+    .stats h4 {
+        font-weight: bold;
+    }
+
+    .category-card {
+        background: white;
+        border: 1px solid #21C188;
+        border-radius: 15px;
+        padding: 20px;
+        transition: transform 0.2s ease;
+    }
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+    .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 10px;
+    }
+</style>
+
+<!-- Fragmento dentro del body -->
+<div class="container-fluid py-5"
+     style="background: linear-gradient(90deg, #21C188, #FF9800); color: white;">
+  <div class="container text-center">
+
+    <!-- Badge superior -->
+    <div class="badge-custom mb-3">
+      🎁 ¡Gana puntos en cada reserva!
+    </div>
+
+    <!-- Título y descripción -->
+    <h1 class="fw-bold">Descubre tu próxima aventura</h1>
+    <p class="fs-5">
+      Explora destinos únicos, reserva experiencias increíbles y acumula<br>
+      puntos para obtener descuentos exclusivos
+    </p>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-box mx-auto mt-4" style="max-width: 600px;">
+      <span>🔍</span>
+      <input type="text" placeholder="¿A dónde quieres ir?" class="form-control border-0">
+      <input type="date" class="form-control border-0">
+      <button class="btn text-white" style="background:#7B3F00;">Buscar</button>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row stats mt-5 text-white">
+      <div class="col">
+        <h4>10+</h4>
+        <p>Establecimientos</p>
+      </div>
+      <div class="col">
+        <h4>10+</h4>
+        <p>Destinos</p>
+      </div>
+      <div class="col">
+        <h4>1+</h4>
+        <p>Viajeros Felices</p>
+      </div>
+      <div class="col">
+        <h4>0+</h4>
+        <p>Reseñas</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fragmento de Categorías -->
+<div class="container-fluid py-5" style="background-color: #f2f7f8;">
+  <div class="container text-center">
+
+    <!-- Título -->
+    <h2 class="fw-bold" style="color: #7B3F00;">Explora por Categorías</h2>
+    <p style="color: #7B3F00;">
+      Encuentra exactamente lo que buscas para tu próxima aventura
+    </p>
+
+    <!-- Grid de categorías -->
+    <div class="row g-4 mt-4 justify-content-center">
+
+      <!-- Tarjeta -->
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #E6F4F1;">
+            🏨
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Hospedajes</h5>
+          <p class="mb-0" style="color:#7B3F00;">2 lugares</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #FFF2E0;">
+            🏠
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Alojamientos Temporales</h5>
+          <p class="mb-0" style="color:#7B3F00;">0 lugares</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #E0F0FF;">
+            🚗
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Transporte</h5>
+          <p class="mb-0" style="color:#7B3F00;">4 lugares</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #FFE6F0;">
+            🌴
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Escapadas de Momento</h5>
+          <p class="mb-0" style="color:#7B3F00;">1 lugares</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #F0F3FF;">
+            ✈️
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Agencias de Viajes</h5>
+          <p class="mb-0" style="color:#7B3F00;">0 lugares</p>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="category-card">
+          <div class="icon-box" style="background-color: #FFEAE8;">
+            🍽
+          </div>
+          <h5 class="fw-bold" style="color:#7B3F00;">Restaurantes</h5>
+          <p class="mb-0" style="color:#7B3F00;">3 lugares</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

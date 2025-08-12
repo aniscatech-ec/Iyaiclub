@@ -28,7 +28,82 @@
 
   <div class="mb-3">
     <%= form.label :category %>
-    <%= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría" %>
+    <%= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría", class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :address %>
+    <%= form.text_field :address, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :city %>
+    <%= form.text_field :city, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :country %>
+    <%= form.text_field :country, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :phone %>
+    <%= form.telephone_field :phone, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :email %>
+    <%= form.email_field :email, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :website %>
+    <%= form.url_field :website, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :check_in_time, "Hora Check-in" %>
+    <%= form.time_field :check_in_time, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :check_out_time, "Hora Check-out" %>
+    <%= form.time_field :check_out_time, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :price_per_night, "Precio por noche" %>
+    <%= form.number_field :price_per_night, step: 0.01, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :total_rooms, "Total de habitaciones" %>
+    <%= form.number_field :total_rooms, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :available_rooms, "Habitaciones disponibles" %>
+    <%= form.number_field :available_rooms, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :latitude %>
+    <%= form.number_field :latitude, step: 0.000001, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :longitude %>
+    <%= form.number_field :longitude, step: 0.000001, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :rating, "Calificación" %>
+    <%= form.number_field :rating, step: 0.1, min: 0, max: 5, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :policies, "Políticas" %>
+    <%= form.text_area :policies, class: "form-control" %>
   </div>
 
   <div class="mb-3">
@@ -36,5 +111,17 @@
     <%= form.file_field :images, multiple: true, class: "form-control" %>
   </div>
 
-  <%= form.submit class: "btn btn-primary" %>
+  <div class="mb-3">
+    <%= form.label :amenities, "Comodidades" %><br>
+    <% Amenity.all.each do |amenity| %>
+      <div class="form-check form-check-inline">
+        <%= check_box_tag "establishment[amenity_ids][]", amenity.id, establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
+        <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+      </div>
+    <% end %>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-lg">
+    <i class="fa-solid fa-floppy-disk"></i> Guardar
+  </button>
 <% end %>

@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @amenity %>
+
+<div>
+  <%= link_to "Edit this amenity", edit_amenity_path(@amenity) %> |
+  <%= link_to "Back to amenities", amenities_path %>
+
+  <%= button_to "Destroy this amenity", @amenity, method: :delete %>
+</div>
