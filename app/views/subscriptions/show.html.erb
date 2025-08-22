@@ -1,0 +1,38 @@
+<div class="container py-4">
+  <h2 class="mb-4">Detalles de la Suscripción</h2>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <%# -------------------- Usuario -------------------- %>
+<!--      <p><strong>Afiliado:</strong> <%#= @subscription.user_id || "N/A" %></p>-->
+
+      <%# -------------------- Establecimiento -------------------- %>
+      <p><strong>Establecimiento:</strong> <%= @subscription.establishment_id || "N/A" %></p>
+
+      <%# -------------------- Plan -------------------- %>
+      <p><strong>Plan:</strong> <%= @subscription.plan_type || "N/A" %></p>
+
+
+      <%# -------------------- Estado -------------------- %>
+      <p><strong>Estado:</strong> <%= @subscription.status.humanize %></p>
+
+      <%# -------------------- Fechas -------------------- %>
+      <p><strong>Fecha de inicio:</strong> <%= @subscription.start_date.present? ? l(@subscription.start_date) : "N/A" %></p>
+      <p><strong>Fecha de fin:</strong> <%= @subscription.end_date.present? ? l(@subscription.end_date) : "N/A" %></p>
+
+
+      <%# -------------------- Método de pago -------------------- %>
+      <p><strong>Método de pago:</strong> <%= @subscription.payment_method.humanize %></p>
+
+      <%# -------------------- Instrucciones de pago -------------------- %>
+      <p><strong>Instrucciones de pago:</strong></p>
+      <p class="border p-2 bg-light"><%= simple_format(@subscription.payment_instructions) %></p>
+    </div>
+  </div>
+
+  <%# -------------------- Botones -------------------- %>
+  <div class="d-flex gap-2">
+    <%= link_to "Editar", edit_subscription_path(@subscription), class: "btn btn-primary" %>
+    <%= link_to "Volver", subscriptions_path, class: "btn btn-secondary" %>
+  </div>
+</div>

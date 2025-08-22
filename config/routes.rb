@@ -1,4 +1,20 @@
 Rails.application.routes.draw do
+
+  resources :plan_prices
+  resources :subscriptions do
+    member do
+      patch :approve
+      patch :cancel
+    end
+    collection do
+      get :establishments_for_user
+      get :selector
+      get :index_establishments # Para afiliados → mostrar sus establecimientos
+      get :establishment_plans
+      get :tourist_plans
+    end
+  end
+
   resources :amenities
 
   resources :establishments
@@ -9,6 +25,7 @@ Rails.application.routes.draw do
     get "dashboard/index"
   end
   devise_for :users
+
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -32,7 +49,26 @@ Rails.application.routes.draw do
   # end
   namespace :admin do
     get "dashboard/index"
-    resources :users
+    resources :users do
+      get :establishments, on: :member
+      collection do
+        get :users_by_role
+      end
+    end
+  end
+
+  namespace :admin do
+    get "dashboard/index"
+
+    resources :users do
+      get :establishments, on: :member
+      collection do
+        get :users_by_role
+      end
+
+      # 👇 Aquí anidamos las suscripciones
+      resources :subscriptions, only: [:index, :new, :create]
+    end
   end
 
 end

@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  establishment: one
+  plan_type: 1
+  duration: 1
+  status: 1
+  start_date: 2025-08-12
+  end_date: 2025-08-12
+  amount: 9.99
+  payment_method: 1
+  payment_instructions: MyText
+
+two:
+  user: two
+  establishment: two
+  plan_type: 1
+  duration: 1
+  status: 1
+  start_date: 2025-08-12
+  end_date: 2025-08-12
+  amount: 9.99
+  payment_method: 1
+  payment_instructions: MyText

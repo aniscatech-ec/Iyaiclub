@@ -26,9 +26,14 @@
     <%= form.text_area :description, class: "form-control" %>
   </div>
 
+<!--  <div class="mb-3">-->
+    <%#= form.label :category %>
+    <%#= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría", class: "form-select" %>
+<!--  </div>-->
+
   <div class="mb-3">
-    <%= form.label :category %>
-    <%= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría", class: "form-select" %>
+    <%= form.label :category, "Categoría", class: "form-label" %>
+    <%= form.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] }, { prompt: "Seleccione categoría" }, class: "form-select" %>
   </div>
 
   <div class="mb-3">

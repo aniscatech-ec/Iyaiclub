@@ -1,0 +1,30 @@
+<!--<h1>Detalle del Plan</h1>-->
+
+<div class="card mb-3">
+  <div class="card-body">
+    <h5 class="card-title"><strong>Tipo de plan:</strong> <%= @plan_price.plan_type %></h5>
+    <p class="card-text"><strong>Duración:</strong>
+      <% if @plan_price.class.defined_enums["duration"] %>
+        <%= @plan_price.duration.humanize %>
+      <% else %>
+        <%= @plan_price.duration %> meses
+      <% end %>
+    </p>
+    <p class="card-text"><strong>Precio:</strong>
+      $<%= number_to_currency(@plan_price.price, unit: "", separator: ".", delimiter: ",") %></p>
+    <ul>
+      <% if @plan_price.features.nil? %>
+      <% else %>
+        <h4>Beneficios incluidos:</h4>
+        <% @plan_price.features.each do |f| %>
+          <li><%= f %></li>
+        <% end %>
+      <% end %>
+
+    </ul>
+
+  </div>
+</div>
+
+<%= link_to 'Editar', edit_plan_price_path(@plan_price), class: "btn btn-primary" %>
+<%= link_to 'Volver', plan_prices_path, class: "btn btn-secondary" %>

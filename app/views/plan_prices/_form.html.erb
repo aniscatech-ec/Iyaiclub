@@ -1,0 +1,65 @@
+<%= form_with(model: plan_price, local: true, class: "needs-validation") do |form| %>
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <% if plan_price.errors.any? %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>⚠ Por favor corrige los siguientes errores:</strong>
+          <ul class="mb-0">
+            <% plan_price.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      <% end %>
+
+      <div class="mb-3">
+        <%= form.label :target_role, "Rol del plan", class: "form-label fw-bold" %>
+        <%= form.select :target_role,
+                        PlanPrice.target_roles.keys.map { |r| [r.titleize, r] },
+                        { prompt: "Seleccione el tipo de usuario" },
+                        class: "form-select" %>
+      </div>
+
+
+      <!-- Tipo de plan -->
+      <div class="mb-3">
+        <%= form.label :plan_type, "Tipo de Plan", class: "form-label fw-bold" %>
+        <%= form.text_field :plan_type, class: "form-control", placeholder: "Ej. Básico, Premium, Empresarial" %>
+      </div>
+
+      <!-- Duración -->
+      <div class="mb-3">
+        <%= form.label :duration, "Duración (meses)", class: "form-label fw-bold" %>
+        <%= form.select :duration, (0..12).map { |m| [m, m] }, { prompt: "Seleccione duración" }, class: "form-select" %>
+      </div>
+
+
+      <div class="mb-3">
+        <%= form.label :features, "Beneficios del plan", class: "form-label fw-bold" %>
+        <%= form.text_area :features,
+                           value: plan_price.features&.join("\n"),
+                           rows: 5,
+                           class: "form-control",
+                           placeholder: "Escriba un beneficio por línea..." %>
+      </div>
+
+      <!-- Precio -->
+      <div class="mb-3">
+        <%= form.label :price, "Precio (USD)", class: "form-label fw-bold" %>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <%= form.number_field :price, step: 0.01, min: 0, class: "form-control", placeholder: "0.00" %>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <%= link_to "Cancelar", plan_prices_path, class: "btn btn-outline-secondary" %>
+        <%= form.submit "Guardar", class: "btn btn-primary px-4" %>
+      </div>
+
+    </div>
+  </div>
+<% end %>

@@ -6,7 +6,7 @@
       <div class="card text-center">
         <div class="card-body">
           <h5 class="card-title">Mis Establecimientos</h5>
-          <p class="display-6">12</p>
+          <p class="display-6"><%= current_user.establishments.count %></p>
           <a href="/establishments" class="btn btn-primary btn-sm">Ver todos</a>
         </div>
       </div>

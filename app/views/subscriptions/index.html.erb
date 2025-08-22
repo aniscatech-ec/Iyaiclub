@@ -1,0 +1,97 @@
+<h1>Suscripciones</h1>
+<% if current_user.administrador? %>
+  <%= link_to selector_subscriptions_path, class: "btn btn-success btn-lg mb-3" do %>
+    <i class="fa-solid fa-plus"></i> Nueva suscripción
+  <% end %>
+
+
+<% elsif current_user.afiliado? %>
+  <%= link_to index_establishments_subscriptions_path, class: "btn btn-success btn-lg mb-3" do %>
+    <i class="fa-solid fa-plus"></i> Nueva suscripción
+  <% end %>
+<% elsif current_user.turista? %>
+  <%= link_to tourist_plans_subscriptions_path, class: "btn btn-success btn-lg mb-3" do %>
+    <i class="fa-solid fa-plus"></i> Nueva suscripción
+  <% end %>
+<% end %>
+<table class="table">
+  <thead>
+  <tr>
+    <th>Afiliado</th>
+    <th>Establecimiento</th>
+    <th>Tipo de Plan</th>
+    <th>Duración</th>
+    <th>Estado</th>
+    <th>Fecha Inicio</th>
+    <th>Fecha Fin</th>
+    <th>Monto</th>
+    <th>Método de Pago</th>
+    <th>Acciones</th>
+    <th>Suscripción</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if @subscriptions.nil? %>
+  <%else %>
+    <% @subscriptions.each do |subscription| %>
+      <tr>
+        <td><%= subscription.affiliate.name %></td>
+        <td><%= subscription.establishment.name %></td>
+        <td><%= PlanPrice.find(subscription.plan_type).plan_type %></td>
+        <td><%= PlanPrice.find(subscription.plan_type).display_duration %></td>
+        <!--      <td><%#= subscription.duration %> meses</td>-->
+        <td><%= subscription.status %></td>
+        <td><%= subscription.start_date %></td>
+        <td><%= subscription.end_date %></td>
+        <td><%= number_to_currency(PlanPrice.find(subscription.plan_type).price) %></td>
+        <td><%= subscription.payment_method.humanize %></td>
+        <td>
+
+          <%= link_to subscription, class: "btn btn-info btn-sm" do %>
+            <i class="fa-solid fa-eye"></i>
+          <% end %>
+          <%= link_to edit_subscription_path(subscription), class: "btn btn-warning btn-sm" do %>
+            <i class="fa-solid fa-pen-to-square"></i>
+          <% end %>
+          <%= link_to subscription_path(subscription), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar esta suscripción?" }, class: "btn btn-danger btn-sm" do %>
+            <i class="fa-solid fa-trash-can"></i>
+          <% end %>
+
+
+        </td>
+        <td>
+
+          <% if current_user.administrador? %>
+            <% if subscription.pendiente? %>
+              <%= link_to approve_subscription_path(subscription), method: :patch, class: "btn btn-success btn-sm", data: { turbo_method: :patch } do %>
+                <i class="fa-solid fa-circle-check"></i>
+              <% end %>
+              <%#= button_to "Rechazar", reject_subscription_path(subscription), method: :patch %>
+            <% end %>
+          <% end %>
+
+          <% if (current_user.administrador? || subscription.affiliate.id == current_user.id) && subscription.activada? %>
+            <%= button_to cancel_subscription_path(subscription),
+                          method: :patch,
+                          data: { confirm: "¿Seguro que deseas cancelar esta suscripción?" },
+                          class: "btn btn-danger btn-sm" do %>
+              <i class="fa-solid fa-ban"></i>
+            <% end %>
+          <% end %>
+
+          <% if current_user.administrador? %>
+            <% if subscription.cancelada? %>
+              <%= link_to approve_subscription_path(subscription), method: :patch, class: "btn btn-success btn-sm", data: { turbo_method: :patch } do %>
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+              <% end %>
+              <%#= button_to "Rechazar", reject_subscription_path(subscription), method: :patch %>
+            <% end %>
+          <% end %>
+
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+
+  </tbody>
+</table>

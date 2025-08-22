@@ -1,0 +1,58 @@
+<div class="container my-5">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <% @plans.each do |plan| %>
+      <div class="col">
+        <div class="card h-100 shadow border-0 rounded-4 overflow-hidden">
+
+          <!-- Header del plan -->
+<!--          <div class="card-header bg-primary text-white text-center py-3">-->
+<!--            <h4 class="mb-0 fw-bold"><%#= plan.plan_type %></h4>-->
+<!--          </div>-->
+
+          <!-- Header del plan -->
+          <div class="card-header text-white text-center py-4
+            <%= 'bg-secondary' if plan.plan_type == 'Básico - gratis' %>
+            <%= 'bg-warning text-dark' if plan.plan_type == 'Bronce' %>
+            <%= 'bg-warning fw-bold' if plan.plan_type == 'Gold' %>
+            <%= 'bg-dark fw-bold' if plan.plan_type == 'Platinum' %>
+            <%= 'bg-dark fw-bold' if plan.plan_type == 'Gold Estudiantil' %>">
+
+            <h4 class="mb-0 fw-bold"><%= plan.plan_type %></h4>
+          </div>
+
+          <!-- Body del plan -->
+          <div class="card-body d-flex flex-column text-center">
+            <h2 class="text-success fw-bold mb-3">
+              <%= number_to_currency(plan.price) %>
+            </h2>
+
+            <p class="text-muted mb-4">USD / mes</p>
+
+            <ul class="list-group list-group-flush text-start mb-4">
+              <% plan.features.each do |feature| %>
+                <li class="list-group-item d-flex align-items-start">
+                  <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                  <span><%= feature %></span>
+                </li>
+              <% end %>
+            </ul>
+
+
+              <% if plan.plan_type == 'Básico - gratis'  %>
+
+              <% else %>
+              <div class="mt-auto">
+
+                <%= link_to "Suscribirme", new_subscription_path(plan_id: plan.id),
+                              class: "btn btn-lg btn-success w-100 fw-bold shadow-sm" %>
+
+              </div>
+
+              <% end %>
+
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

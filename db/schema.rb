@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_174334) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -77,6 +77,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_174334) do
     t.decimal "rating", precision: 2, scale: 1
     t.text "policies"
     t.index ["user_id"], name: "index_establishments_on_user_id"
+  end
+
+  create_table "plan_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "plan_type"
+    t.integer "duration", default: 0
+    t.decimal "price", precision: 10, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.json "features"
+    t.integer "target_role"
+  end
+
+  create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "plan_type"
+    t.integer "status", default: 0
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "payment_method"
+    t.text "payment_instructions"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "subscribable_type", null: false
+    t.bigint "subscribable_id", null: false
+    t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

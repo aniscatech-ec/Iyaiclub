@@ -60,6 +60,22 @@ class Admin::UsersController < ApplicationController
     redirect_to admin_users_path, notice: "Usuario eliminado."
   end
 
+  def establishments
+    user = User.find(params[:id])
+    establishments = user.establishments
+
+    respond_to do |format|
+      format.json { render json: establishments.select(:id, :name) }
+    end
+  end
+
+  # GET /admin/users/by_role?role=afiliado
+  def users_by_role
+    role = params[:role]
+    users = User.where(role: role)
+    render json: users.select(:id, :name)
+  end
+
   private
 
   def set_user
