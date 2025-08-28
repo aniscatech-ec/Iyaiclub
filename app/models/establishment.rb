@@ -10,4 +10,6 @@ class Establishment < ApplicationRecord
   enum :category, hotel: 0, restaurante: 1
 
   validates :name, :description, :category, presence: true
+  belongs_to :city
+
 end

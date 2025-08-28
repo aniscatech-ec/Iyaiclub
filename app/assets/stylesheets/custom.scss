@@ -1,0 +1,113 @@
+:root {
+  --brand-green: #3FBD02;
+  --brand-orange: #EB633B;
+  --brand-cofee: #88682B;
+  --brand-cofee-black: #7F5935;
+  //--hero-bg: url("https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=1600&q=80&auto=format&fit=crop");
+}
+
+/* Navbar */
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--brand-green);
+}
+
+.navbar .nav-link {
+  transition: color 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+  color:  var(--brand-orange); /* naranja */
+}
+
+/*Sobreescribe los colores del botón primario*/
+.btn-primary {
+  --bd-custom-bg: #3FBD02;
+  --bd-custom-rgb: 63, 189, 2; /* valores en RGB */
+
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--bd-custom-bg);
+  --bs-btn-border-color: var(--bd-custom-bg);
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: #3aa90d;
+  --bs-btn-hover-border-color: #3aa90d;
+  --bs-btn-focus-shadow-rgb: var(--bd-custom-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: #33950b;
+  --bs-btn-active-border-color: #33950b;
+}
+
+.btn-outline-primary {
+  --bd-custom-bg: #3FBD02;
+  --bd-custom-rgb: 63, 189, 2;
+
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bd-custom-bg); /* color del texto */
+  --bs-btn-border-color: var(--bd-custom-bg); /* borde */
+  --bs-btn-hover-color: #fff; /* texto al hacer hover */
+  --bs-btn-hover-bg: var(--bd-custom-bg); /* fondo al hacer hover */
+  --bs-btn-hover-border-color: var(--bd-custom-bg);
+  --bs-btn-focus-shadow-rgb: var(--bd-custom-rgb);
+  --bs-btn-active-color: #fff; /* texto cuando está activo */
+  --bs-btn-active-bg: #33950b; /* verde más oscuro */
+  --bs-btn-active-border-color: #33950b;
+}
+
+
+.text-primary {
+  --bs-text-opacity: 1;
+  --bd-custom-rgb: 63, 189, 2; /* valores en RGB */
+
+  color: rgba(var(--bd-custom-rgb), var(--bs-text-opacity)) !important;
+}
+
+.navbar-brand {
+  color: #3FBD02;       // tu verde
+  font-weight: bold;     // opcional
+  text-decoration: none; // quita subrayado si lo hubiera
+}
+
+// Opcional: cambiar color al pasar el mouse
+.navbar-brand:hover {
+  color: #36a30c;
+}
+
+
+
+// 2. Luego tus estilos personalizados
+.my-custom-btn {
+  background-color: #ff6678;
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+}
+
+/*Categories*/
+.category-card {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+/* Íconos grandes con tu verde */
+.category-card .icon {
+  font-size: 2.5rem;
+  color: var(--brand-green);
+}
+
+/* Hover dinámico con tu paleta */
+.category-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--brand-orange);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.category-card:hover .icon {
+  color: var(--brand-orange);
+}
+

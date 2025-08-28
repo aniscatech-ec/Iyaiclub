@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -45,6 +45,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "cities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.bigint "province_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["province_id"], name: "index_cities_on_province_id"
+  end
+
   create_table "establishment_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.bigint "amenity_id", null: false
@@ -62,7 +70,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "address"
-    t.string "city"
     t.string "country"
     t.string "phone"
     t.string "email"
@@ -76,6 +83,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
     t.decimal "longitude", precision: 10, scale: 6
     t.decimal "rating", precision: 2, scale: 1
     t.text "policies"
+    t.bigint "city_id", null: false
+    t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["user_id"], name: "index_establishments_on_user_id"
   end
 
@@ -87,6 +96,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
     t.datetime "updated_at", null: false
     t.json "features"
     t.integer "target_role"
+  end
+
+  create_table "provinces", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -120,7 +135,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_21_203232) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "cities", "provinces"
   add_foreign_key "establishment_amenities", "amenities"
   add_foreign_key "establishment_amenities", "establishments"
+  add_foreign_key "establishments", "cities"
   add_foreign_key "establishments", "users"
 end

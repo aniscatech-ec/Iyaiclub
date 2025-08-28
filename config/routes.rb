@@ -1,5 +1,13 @@
 Rails.application.routes.draw do
 
+  # resources :provinces
+  resources :provinces do
+    resources :cities, only: [:index, :new, :create]
+  end
+  resources :cities do
+    get :autocomplete, on: :collection
+  end
+
   resources :plan_prices
   resources :subscriptions do
     member do
@@ -16,6 +24,7 @@ Rails.application.routes.draw do
   end
 
   resources :amenities
+  get "home/home"
 
   resources :establishments
   namespace :turista do

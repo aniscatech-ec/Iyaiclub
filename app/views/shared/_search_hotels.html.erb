@@ -1,0 +1,188 @@
+<section class="search-hotels bg-white p-3 rounded-3 shadow-sm">
+  <form action="/search" method="get" class="row g-2 align-items-end">
+
+    <!-- Ciudad -->
+    <div class="col-md-2" data-controller="autocomplete">
+      <label class="form-label fw-semibold">Ciudad</label>
+      <input type="text"
+             name="city"
+             class="form-control"
+             placeholder="Ej: Quito, Cuenca..."
+             data-autocomplete-target="input"
+             data-action="input->autocomplete#search">
+      <div class="list-group position-absolute" data-autocomplete-target="results"></div>
+    </div>
+
+
+    <!-- Check-in -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold">Check-in</label>
+      <input type="date" name="checkin" class="form-control">
+    </div>
+
+    <!-- Check-out -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold">Check-out</label>
+      <input type="date" name="checkout" class="form-control">
+    </div>
+
+    <!-- Huéspedes -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold d-block">Huéspedes</label>
+      <button id="guestsSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
+        <i class="bi bi-people me-2"></i> Seleccionar
+      </button>
+    </div>
+
+    <!-- Comodidades -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold d-block">Comodidades</label>
+      <button id="amenitiesSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#amenitiesModal">
+        <i class="bi bi-star me-2"></i> Seleccionar
+      </button>
+    </div>
+
+    <!-- Botón Buscar -->
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-primary btn-lg">Buscar</button>
+    </div>
+
+  </form>
+</section>
+
+<!-- Modal Huéspedes -->
+<div class="modal fade" id="guestsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Selecciona los huéspedes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Adultos</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', -1)">-</button>
+            <input type="text" id="adults" name="adults" class="form-control text-center" value="2" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Niños</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', -1)">-</button>
+            <input type="text" id="children" name="children" class="form-control text-center" value="0" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Habitaciones</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', -1)">-</button>
+            <input type="text" id="rooms" name="rooms" class="form-control text-center" value="1" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', 1)">+</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal" onclick="applyGuests()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Comodidades -->
+<div class="modal fade" id="amenitiesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Elige las comodidades</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row row-cols-2 row-cols-md-3 g-3">
+          <div class="col">
+            <div class="form-check">
+              <input class="form-check-input amenity" type="checkbox" value="WiFi" id="wifi">
+              <label class="form-check-label" for="wifi"><i class="bi bi-wifi me-1"></i> WiFi gratuito</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input class="form-check-input amenity" type="checkbox" value="Piscina" id="pool">
+              <label class="form-check-label" for="pool"><i class="bi bi-water me-1"></i> Piscina</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input class="form-check-input amenity" type="checkbox" value="Parqueadero" id="parking">
+              <label class="form-check-label" for="parking"><i class="bi bi-car-front me-1"></i> Parqueadero</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input class="form-check-input amenity" type="checkbox" value="Gimnasio" id="gym">
+              <label class="form-check-label" for="gym"><i class="bi bi-heart-pulse me-1"></i> Gimnasio</label>
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input class="form-check-input amenity" type="checkbox" value="Desayuno" id="breakfast">
+              <label class="form-check-label" for="breakfast"><i class="bi bi-cup-straw me-1"></i> Desayuno incluido</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal" onclick="applyAmenities()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Huéspedes
+    function updateGuests(type, change) {
+        const input = document.getElementById(type);
+        let value = parseInt(input.value) + change;
+        if (type === 'adults' || type === 'rooms') {
+            if (value < 1) value = 1;
+        } else if (value < 0) value = 0;
+        input.value = value;
+    }
+
+    function applyGuests() {
+        const adults = document.getElementById("adults").value;
+        const children = document.getElementById("children").value;
+        const rooms = document.getElementById("rooms").value;
+
+        let summary = `${adults} adulto${adults != 1 ? "s" : ""}`;
+        if (children > 0) summary += ` · ${children} niño${children != 1 ? "s" : ""}`;
+        summary += ` · ${rooms} habitación${rooms != 1 ? "es" : ""}`;
+
+        document.getElementById("guestsSummaryBtn").innerHTML = `<i class="bi bi-people me-2"></i> ${summary}`;
+    }
+
+    // Comodidades
+    function applyAmenities() {
+        const checkboxes = document.querySelectorAll('.amenity:checked');
+        const selected = Array.from(checkboxes).map(cb => cb.value);
+
+        let summary = `<i class="bi bi-star me-2"></i> Seleccionar`;
+        if (selected.length > 0) {
+            if (selected.length <= 3) {
+                summary = `<i class="bi bi-star me-2"></i> ${selected.join(" · ")}`;
+            } else {
+                summary = `<i class="bi bi-star me-2"></i> ${selected.length} comodidades seleccionadas`;
+            }
+        }
+
+        document.getElementById("amenitiesSummaryBtn").innerHTML = summary;
+    }
+</script>

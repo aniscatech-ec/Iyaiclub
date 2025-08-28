@@ -1,0 +1,19 @@
+<%= form_with(model: province, local: true) do |form| %>
+  <% if province.errors.any? %>
+    <div class="alert alert-danger">
+      <h4>Errors:</h4>
+      <ul>
+        <% province.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>
