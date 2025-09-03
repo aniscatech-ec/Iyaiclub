@@ -1,0 +1,72 @@
+<h2>Paso 3 – Ubicación</h2>
+
+<%= form_with model: @establishment, url: wizard_path, method: :put do |f| %>
+  <div class="mb-3">
+    <%= f.label :address, "Dirección completa" %>
+    <%= f.text_field :address, class: "form-control" %>
+  </div>
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :province_id, "Provincia" %>
+    <%#= f.collection_select :province_id, Province.all, :id, :name, { prompt: "Seleccione provincia" }, class: "form-select" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :city_id, "Ciudad" %>
+    <%#= f.collection_select :city_id, City.all, :id, :name, { prompt: "Seleccione ciudad" }, class: "form-select" %>
+<!--  </div>-->
+
+  <div data-controller="location">
+
+    <div class="mb-3">
+      <%= f.label :country_id, "País" %>
+      <%= f.collection_select :country_id, Country.all, :id, :name, { prompt: "Seleccionar país" },
+                                 { class: "form-select",
+                                   data: { action: "change->location#updateProvinces", location_target: "country" } } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :province_id, "Provincia" %>
+      <%= f.collection_select :province_id, [], :id, :name, { prompt: "Seleccionar provincia" },
+                                 { class: "form-select", data: { action: "change->location#updateCities", location_target: "province" } } %>
+    </div>
+
+
+    <div class="mb-3">
+      <%#= f.label :province_id, "Provincia" %>
+      <%#= f.collection_select :province_id, Province.all, :id, :name, { prompt: "Seleccione provincia" }, class: "form-select", data: { action: "change->location#updateCities", location_target: "province" } %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :city_id, "Ciudad" %>
+      <%= f.collection_select :city_id, [],
+                              :id, :name,
+                              { prompt: "Seleccione ciudad" },
+                              class: "form-select",
+                              data: { location_target: "city" } %>
+    </div>
+  </div>
+
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :country, "País" %>
+    <%#= f.text_field :country, class: "form-control" %>
+<!--  </div>-->
+
+  <div class="mb-3">
+    <%= f.label :latitude, "Latitud" %>
+    <%= f.text_field :latitude, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :longitude, "Longitud" %>
+    <%= f.text_field :longitude, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :arrival_instructions, "Instrucciones de llegada" %>
+    <%= f.text_area :arrival_instructions, rows: 3, class: "form-control" %>
+  </div>
+
+  <%= f.submit "Siguiente", class: "btn btn-primary" %>
+<% end %>

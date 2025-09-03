@@ -1,0 +1,14 @@
+<h2>Datos Básicos</h2>
+
+<%= form_for @establishment, url: wizard_path do |f| %>
+  <%= f.label :name, "Nombre" %>
+  <%= f.text_field :name %>
+
+  <%= f.label :description, "Descripción" %>
+  <%= f.text_area :description %>
+
+  <%= f.label :category, "Categoría" %>
+  <%= f.number_field :category %>
+
+  <%= f.submit "Siguiente" %>
+<% end %>

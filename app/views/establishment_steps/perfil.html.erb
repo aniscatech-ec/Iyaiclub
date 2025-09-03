@@ -1,0 +1,59 @@
+<h2>Paso 2 – Perfil del establecimiento</h2>
+
+<%= form_with model: @establishment, url: wizard_path, method: :put do |f| %>
+  <div class="mb-3">
+    <%= f.label :name, "Nombre público" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :short_description, "Descripción breve" %>
+    <%= f.text_field :short_description, maxlength: 150, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :long_description, "Descripción detallada" %>
+    <%= f.text_area :long_description, maxlength: 2000, rows: 6, class: "form-control" %>
+  </div>
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :category, "Categoría" %>
+    <%#= f.select :category, ["Hotel", "Hostal", "Casa", "Departamento", "Restaurante", "Actividad"], {}, class: "form-select" %>
+<!--  </div>-->
+  <div class="mb-3">
+    <%= f.label :category, "Categoría", class: "form-label" %>
+    <%= f.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] }, { prompt: "Seleccione categoría" }, class: "form-select" %>
+  </div>
+<!--  <div class="mb-3">-->
+    <%#= f.label :amenities, "Servicios/Amenidades" %>
+    <%#= f.text_area :amenities, placeholder: "Ej: WiFi, Piscina, Parqueadero", rows: 3, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+<!--    <%#= f.label :amenities, "Comodidades" %><br>-->
+    <%# Amenity.all.each do |amenity| %>
+<!--      <div class="form-check form-check-inline">-->
+        <%#= check_box_tag "establishment[amenity_ids][]", amenity.id, @establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
+        <%#= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+<!--      </div>-->
+    <%# end %>
+<!--  </div>-->
+
+
+  <div class="mb-3">
+    <%= f.label :amenities, "Comodidades" %><br>
+    <% Amenity.all.each do |amenity| %>
+      <div class="form-check form-check-inline">
+        <%= check_box_tag "establishment[amenity_ids][]", amenity.id, @establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
+        <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :policies, "Políticas" %>
+    <%= f.text_area :policies, rows: 3, class: "form-control" %>
+  </div>
+
+  <%= f.submit "Siguiente", class: "btn btn-primary" %>
+<% end %>

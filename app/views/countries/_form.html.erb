@@ -1,0 +1,24 @@
+<%= form_with(model: country, local: true) do |f| %>
+  <% if country.errors.any? %>
+    <div class="alert alert-danger">
+      <h4>Errores:</h4>
+      <ul>
+        <% country.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, "Nombre" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :code, "Código ISO" %>
+    <%= f.text_field :code, class: "form-control" %>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+<% end %>

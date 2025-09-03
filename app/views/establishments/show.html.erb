@@ -1,112 +1,129 @@
-<p>
-  <strong>Afiliado:</strong>
-  <%= @establishment.user&.email || "No asignado" %>
-</p>
+<h2 class="mb-4">Resumen del Establecimiento - <%= @establishment.id %></h2>
 
-<p>
-  <strong>Nombre:</strong>
-  <%= @establishment.name %>
-</p>
+<!-- Sección 1: Datos legales -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">1. Datos legales y de contacto</div>
+  <div class="card-body">
+    <p><strong>Razón social:</strong> <%= @establishment.legal_info&.business_name %></p>
+    <p><strong>Representante legal:</strong> <%= @establishment.legal_info&.legal_representative %></p>
+    <p><strong>Documento:</strong> <%= @establishment.legal_info&.document_type %> - <%= @establishment.legal_info&.document_number %></p>
+    <p><strong>Email de contacto:</strong> <%= @establishment.legal_info&.contact_email %></p>
+    <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
+  </div>
+</div>
 
-<p>
-  <strong>Descripción:</strong>
-  <%= @establishment.description %>
-</p>
+<!-- Sección 2: Perfil -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">2. Perfil del establecimiento</div>
+  <div class="card-body">
+    <p><strong>Nombre público:</strong> <%= @establishment.name %></p>
+    <p><strong>Descripción corta:</strong> <%= @establishment.short_description %></p>
+    <p><strong>Descripción larga:</strong> <%= @establishment.long_description %></p>
+    <p><strong>Categoría:</strong> <%= @establishment.category %></p>
+    <p><strong>Amenities:</strong> (<%= @establishment.amenities.count %>)</p>
+    <ul>
+      <% @establishment.amenities.each do |amenity| %>
+        <li><%= amenity.name %></li>
+      <% end %>
+    </ul>
 
-<p>
-  <strong>Categoría:</strong>
-  <%= @establishment.category.titleize %>
-</p>
+    <p><strong>Políticas:</strong> <%= @establishment.policies %></p>
+  </div>
+</div>
 
-<p>
-  <strong>Dirección:</strong>
-  <%= @establishment.address %>
-</p>
+<!-- Sección 3: Ubicación -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">3. Ubicación</div>
+  <div class="card-body">
+    <p><strong>Dirección:</strong> <%= @establishment.address %></p>
+    <p><strong>País:</strong> <%= @establishment.province.country.name %></p>
+    <p><strong>Provincia:</strong> <%= @establishment.province.name %></p>
+    <p><strong>Ciudad:</strong> <%= @establishment.city.name %></p>
+    <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
+  </div>
+</div>
 
-<p>
-  <strong>Ciudad:</strong>
-  <%= @establishment.city %>
-</p>
-
-<p>
-  <strong>País:</strong>
-  <%= @establishment.country %>
-</p>
-
-<p>
-  <strong>Teléfono:</strong>
-  <%= @establishment.phone %>
-</p>
-
-<p>
-  <strong>Email:</strong>
-  <%= mail_to @establishment.email %>
-</p>
-
-<p>
-  <strong>Website:</strong>
-  <%= link_to @establishment.website, @establishment.website, target: "_blank", rel: "noopener" if @establishment.website.present? %>
-</p>
-
-<p>
-  <strong>Check-in:</strong>
-  <%= @establishment.check_in_time %>
-</p>
-
-<p>
-  <strong>Check-out:</strong>
-  <%= @establishment.check_out_time %>
-</p>
-
-<p>
-  <strong>Precio por noche:</strong>
-  $<%= number_with_precision(@establishment.price_per_night, precision: 2) %>
-</p>
-
-<p>
-  <strong>Total habitaciones:</strong>
-  <%= @establishment.total_rooms %>
-</p>
-
-<p>
-  <strong>Habitaciones disponibles:</strong>
-  <%= @establishment.available_rooms %>
-</p>
-
-<p>
-  <strong>Coordenadas:</strong>
-  Lat: <%= @establishment.latitude %>, Long: <%= @establishment.longitude %>
-</p>
-
-<p>
-  <strong>Calificación:</strong>
-  <%= @establishment.rating %> / 5
-</p>
-
-<p>
-  <strong>Políticas:</strong><br>
-  <%= simple_format(@establishment.policies) %>
-</p>
-
-<p>
-  <strong>Imágenes:</strong><br>
-  <% if @establishment.images.attached? %>
-    <% @establishment.images.each do |image| %>
-      <%= image_tag image.variant(resize_to_limit: [300, 200]), class: "img-thumbnail me-2 mb-2" %>
+<!-- Sección 4: Galería -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">4. Galería (<%= @establishment.galleries.count %>)</div>
+  <div class="card-body">
+    <% @establishment.galleries.each do |gallery| %>
+      <h6><%= gallery.name %> <%= gallery.gallery_images.count %></h6>
+      <div class="d-flex flex-wrap">
+        <% gallery.gallery_images.each do |gi| %>
+          <% if gi.file.attached? %>
+            <%= image_tag gi.file.variant(resize_to_limit: [150,150]), class: "img-thumbnail me-2 mb-2" %>
+          <% end %>
+        <% end %>
+      </div>
     <% end %>
-  <% else %>
-    No hay imágenes disponibles.
-  <% end %>
-</p>
+  </div>
+</div>
 
-<p>
-  <strong>Comodidades:</strong>
-<ul>
-  <% @establishment.amenities.each do |amenity| %>
-    <li><%= amenity.name %></li>
-  <% end %>
-</ul>
-</p>
+<!-- Sección 5: Unidades -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">5. Unidades / Habitaciones (<%= @establishment.units.count %>)</div>
+  <div class="card-body">
+    <table class="table table-sm table-bordered">
+      <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Capacidad</th>
+        <th>Camas</th>
+        <th>Precio base</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% @establishment.units.each do |unit| %>
+        <tr>
+          <td><%= unit.unit_type %></td>
+          <td><%= unit.capacity %></td>
+          <td><%= unit.beds %></td>
+          <td><%= number_to_currency(unit.base_price) %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-<%= link_to "Editar", edit_establishment_path(@establishment), class: "btn btn-warning" %>
-<%= link_to "Volver", establishments_path, class: "btn btn-secondary" %>
+<!-- Sección 6: Políticas de precios -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">6. Políticas de precios y beneficios</div>
+  <div class="card-body">
+    <p><strong>Moneda:</strong> <%= @establishment.pricing_policy&.currency %></p>
+    <p><strong>Comisión servicio:</strong> <%= @establishment.pricing_policy&.service_fee %></p>
+    <p><strong>Descuento máximo:</strong> <%= @establishment.pricing_policy&.max_discount %></p>
+    <p><strong>Políticas de reembolso:</strong> <%= @establishment.pricing_policy&.refund_policy %></p>
+  </div>
+</div>
+
+<!-- Sección 7: Métodos de pago -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">7. Métodos de pago (<%= @establishment.payment_methods.count %>)</div>
+  <div class="card-body">
+    <ul class="list-group">
+      <% @establishment.payment_methods.each do |pm| %>
+        <li class="list-group-item">
+          <strong><%= pm.method_type %></strong>
+          <% if pm.bank_name.present? %> - Banco: <%= pm.bank_name %> <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<!-- Sección 8: Verificación -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">8. Verificación</div>
+  <div class="card-body">
+    <% if @establishment.verification %>
+      <% v = @establishment.verification %>
+      <p><strong>Documento identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %></p>
+      <p><strong>Documento propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %></p>
+      <p><strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150,150]), class: "img-thumbnail" if v.selfie.attached? %></p>
+    <% else %>
+      <p class="text-muted">No se han subido documentos de verificación.</p>
+    <% end %>
+  </div>
+</div>

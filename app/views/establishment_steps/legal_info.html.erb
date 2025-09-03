@@ -1,0 +1,35 @@
+<h2>Paso 1 – Datos legales y de contacto</h2>
+
+<%= form_with model: @establishment.legal_info || @establishment.build_legal_info, url: wizard_path, method: :put, scope: :legal_info, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :business_name, "Razón social / Nombre comercial" %>
+    <%= f.text_field :business_name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :legal_representative, "Representante legal / Administrador" %>
+    <%= f.text_field :legal_representative, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :document_type, "Tipo de documento" %>
+    <%= f.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :document_number, "Número de documento" %>
+    <%= f.text_field :document_number, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :contact_email, "Correo electrónico" %>
+    <%= f.email_field :contact_email, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :contact_phone, "Teléfono" %>
+    <%= f.telephone_field :contact_phone, class: "form-control" %>
+  </div>
+
+  <%= f.submit "Siguiente", class: "btn btn-primary" %>
+<% end %>

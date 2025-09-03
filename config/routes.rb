@@ -1,12 +1,31 @@
 Rails.application.routes.draw do
+  # resources :countries do
+  #   resources :provinces do
+  #     resources :cities, only: [:index, :new, :create]
+  #   end
+  # end
+  # # resources :provinces
+  # resources :provinces do
+  #   resources :cities, only: [:index, :new, :create]
+  # end
+  # resources :cities do
+  #   get :autocomplete, on: :collection
+  # end
+  # CRUD de países y sus provincias
+  resources :countries do
+    resources :provinces, only: [:index, :new, :create]
+  end
 
-  # resources :provinces
+  # CRUD de provincias y sus ciudades
   resources :provinces do
     resources :cities, only: [:index, :new, :create]
   end
+
+  # Endpoint global de autocomplete para ciudades
   resources :cities do
     get :autocomplete, on: :collection
   end
+
 
   resources :plan_prices
   resources :subscriptions do
@@ -26,7 +45,9 @@ Rails.application.routes.draw do
   resources :amenities
   get "home/home"
 
-  resources :establishments
+  resources :establishments do
+    resources :establishment_steps
+  end
   namespace :turista do
     get "dashboard/index"
   end

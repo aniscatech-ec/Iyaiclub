@@ -1,10 +1,22 @@
 class ProvincesController < ApplicationController
   before_action :set_province, only: %i[show edit update destroy]
+  before_action :set_countries, only: %i[new edit create update]
   layout "dashboard"
 
   # GET /provinces
   def index
-    @provinces = Province.all
+    # @provinces = Province.all
+    if params[:country_id] # viene desde AJAX
+      country = Country.find(params[:country_id])
+      @provinces= country.provinces
+
+      respond_to do |format|
+        format.html # usará app/views/cities/index.html.erb si la necesitas
+        format.json { render json: @provinces.map { |c| { id: c.id, name: c.name } } }
+      end
+    else
+      @provinces = Province.includes(:country).all # tu index global
+    end
   end
 
   # GET /provinces/:id
@@ -51,7 +63,11 @@ class ProvincesController < ApplicationController
     @province = Province.find(params[:id])
   end
 
+  def set_countries
+    @countries = Country.all
+  end
+
   def province_params
-    params.require(:province).permit(:name) # asumiendo que la provincia tiene un atributo `name`
+    params.require(:province).permit(:name, :country_id) # asumiendo que la provincia tiene un atributo `name`
   end
 end

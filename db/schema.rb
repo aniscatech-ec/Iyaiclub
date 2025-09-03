@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -53,6 +53,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
     t.index ["province_id"], name: "index_cities_on_province_id"
   end
 
+  create_table "countries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "establishment_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.bigint "amenity_id", null: false
@@ -83,9 +90,62 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
     t.decimal "longitude", precision: 10, scale: 6
     t.decimal "rating", precision: 2, scale: 1
     t.text "policies"
-    t.bigint "city_id", null: false
+    t.bigint "city_id"
+    t.text "short_description"
+    t.text "long_description"
+    t.integer "service_fee"
+    t.integer "max_discount"
+    t.text "refund_policy"
+    t.integer "province_id"
+    t.integer "country_id"
+    t.text "arrival_instructions"
+    t.boolean "confirmed"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["user_id"], name: "index_establishments_on_user_id"
+  end
+
+  create_table "galleries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_galleries_on_establishment_id"
+  end
+
+  create_table "gallery_images", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.boolean "is_cover"
+    t.string "video_url"
+    t.bigint "gallery_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gallery_id"], name: "index_gallery_images_on_gallery_id"
+  end
+
+  create_table "legal_infos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "business_name"
+    t.string "legal_representative"
+    t.string "document_type"
+    t.string "document_number"
+    t.string "contact_email"
+    t.string "contact_phone"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_legal_infos_on_establishment_id"
+  end
+
+  create_table "payment_methods", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "method_type"
+    t.string "bank_name"
+    t.string "account_type"
+    t.string "account_number"
+    t.string "account_holder"
+    t.string "tax_id"
+    t.string "preferred_currency"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_payment_methods_on_establishment_id"
   end
 
   create_table "plan_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -98,10 +158,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
     t.integer "target_role"
   end
 
+  create_table "pricing_policies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.string "currency"
+    t.decimal "service_fee", precision: 5, scale: 2, default: "0.0"
+    t.integer "max_discount", default: 0
+    t.text "refund_policy"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_pricing_policies_on_establishment_id"
+  end
+
   create_table "provinces", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "country_id", null: false
+    t.index ["country_id"], name: "index_provinces_on_country_id"
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -116,6 +189,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
     t.string "subscribable_type", null: false
     t.bigint "subscribable_id", null: false
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
+  end
+
+  create_table "units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "unit_type"
+    t.integer "capacity"
+    t.integer "beds"
+    t.decimal "base_price", precision: 10
+    t.text "seasonal_prices"
+    t.boolean "available"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_units_on_establishment_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -133,6 +219,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "verifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_verifications_on_establishment_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cities", "provinces"
@@ -140,4 +233,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_215245) do
   add_foreign_key "establishment_amenities", "establishments"
   add_foreign_key "establishments", "cities"
   add_foreign_key "establishments", "users"
+  add_foreign_key "galleries", "establishments"
+  add_foreign_key "gallery_images", "galleries"
+  add_foreign_key "legal_infos", "establishments"
+  add_foreign_key "payment_methods", "establishments"
+  add_foreign_key "pricing_policies", "establishments"
+  add_foreign_key "provinces", "countries"
+  add_foreign_key "units", "establishments"
+  add_foreign_key "verifications", "establishments"
 end

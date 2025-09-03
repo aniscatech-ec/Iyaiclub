@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  identity_document: MyString
+  property_document: MyString
+  selfie: MyString
+  establishment: one
+
+two:
+  identity_document: MyString
+  property_document: MyString
+  selfie: MyString
+  establishment: two

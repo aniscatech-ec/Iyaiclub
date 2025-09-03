@@ -1,0 +1,9 @@
+<h1><%= @country.name %> (<%= @country.code %>)</h1>
+
+<p>
+  <strong>Nombre:</strong> <%= @country.name %><br>
+  <strong>Código ISO:</strong> <%= @country.code %>
+</p>
+
+<%= link_to "Editar País", edit_country_path(@country), class: "btn btn-warning" %>
+<%= link_to "Volver al listado", countries_path, class: "btn btn-secondary" %>

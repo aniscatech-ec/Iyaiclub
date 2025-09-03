@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  establishment: one
+  currency: MyString
+  service_fee: 9.99
+  max_discount: 1
+  refund_policy: MyText
+
+two:
+  establishment: two
+  currency: MyString
+  service_fee: 9.99
+  max_discount: 1
+  refund_policy: MyText

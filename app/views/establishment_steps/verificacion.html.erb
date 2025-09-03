@@ -1,0 +1,48 @@
+<h2>Paso 8 – Verificación de documentos</h2>
+<h3><%= @establishment.name %></h3>
+
+<%= form_with model: @verification,
+              url: wizard_path,
+              method: :put,
+              local: true,
+              multipart: true do |f| %>
+
+  <div class="mb-3">
+    <%= f.label :identity_document, "Documento de identidad", class: "form-label fw-semibold" %>
+    <%= f.file_field :identity_document, class: "form-control" %>
+    <% if @verification.identity_document.attached? %>
+      <p class="mt-2">
+        Ya subido: ✅
+        <%= link_to "Ver archivo", url_for(@verification.identity_document), target: "_blank" %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :property_document, "Documento de propiedad", class: "form-label fw-semibold" %>
+    <%= f.file_field :property_document, class: "form-control" %>
+    <% if @verification.property_document.attached? %>
+      <p class="mt-2">
+        Ya subido: ✅
+        <%= link_to "Ver archivo", url_for(@verification.property_document), target: "_blank" %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :selfie, "Selfie con documento", class: "form-label fw-semibold" %>
+    <%= f.file_field :selfie, class: "form-control" %>
+    <% if @verification.selfie.attached? %>
+      <p class="mt-2">
+        Ya subido: ✅
+        <%= image_tag @verification.selfie.variant(resize_to_limit: [150,150]) if @verification.selfie.variable? %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <%= link_to "Atrás", previous_wizard_path(establishment_id: @establishment.id), class: "btn btn-secondary" %>
+    <%= f.submit "Guardar y continuar", class: "btn btn-primary" %>
+  </div>
+
+<% end %>

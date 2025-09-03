@@ -1,0 +1,30 @@
+<h2>Paso 6 – Políticas de precios y beneficios</h2>
+
+<%= form_with model: [@establishment, (@establishment.pricing_policy || PricingPolicy.new)],
+              url: wizard_path, method: :put, local: true do |form| %>
+
+  <div class="mb-3">
+    <%= form.label :currency, "Moneda de operación", class: "form-label fw-semibold" %>
+    <%= form.text_field :currency, class: "form-control", placeholder: "Ej: USD, EUR, PEN" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :service_fee, "Comisión de servicio (%)", class: "form-label fw-semibold" %>
+    <%= form.number_field :service_fee, step: 0.01, min: 0, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :max_discount, "Descuento máximo para clientes (%)", class: "form-label fw-semibold" %>
+    <%= form.number_field :max_discount, step: 1, min: 0, max: 100, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :refund_policy, "Políticas de reembolso / cancelación", class: "form-label fw-semibold" %>
+    <%= form.text_area :refund_policy, rows: 4, class: "form-control", placeholder: "Describe tus políticas..." %>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <%= link_to "Atrás", previous_wizard_path(establishment_id: @establishment.id), class: "btn btn-secondary" %>
+    <%= form.submit "Guardar y continuar", class: "btn btn-primary" %>
+  </div>
+<% end %>

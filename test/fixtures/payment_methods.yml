@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  method_type: MyString
+  bank_name: MyString
+  account_type: MyString
+  account_number: MyString
+  account_holder: MyString
+  tax_id: MyString
+  preferred_currency: MyString
+  establishment: one
+
+two:
+  method_type: MyString
+  bank_name: MyString
+  account_type: MyString
+  account_number: MyString
+  account_holder: MyString
+  tax_id: MyString
+  preferred_currency: MyString
+  establishment: two

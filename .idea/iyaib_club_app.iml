@@ -162,6 +162,7 @@
     <orderEntry type="library" scope="PROVIDED" name="websocket (v1.2.11, rbenv: 3.4.5) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="websocket-driver (v0.8.0, rbenv: 3.4.5) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="websocket-extensions (v0.1.5, rbenv: 3.4.5) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="wicked (v2.0.0, rbenv: 3.4.5) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="xpath (v3.2.0, rbenv: 3.4.5) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="zeitwerk (v2.7.3, rbenv: 3.4.5) [gem]" level="application" />
   </component>

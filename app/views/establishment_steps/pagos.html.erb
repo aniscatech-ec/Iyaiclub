@@ -1,0 +1,81 @@
+<h2>Paso 7 – Métodos de pago</h2>
+
+<% if @establishment.payment_methods.any? %>
+  <div class="mb-4">
+    <h4>Métodos de pago registrados</h4>
+    <div class="row">
+      <% @establishment.payment_methods.each do |pm| %>
+        <div class="col-md-6">
+          <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><%= pm.method_type %></h5>
+              <p class="card-text mb-1"><strong>Banco:</strong> <%= pm.bank_name %></p>
+              <p class="card-text mb-1"><strong>Tipo de cuenta:</strong> <%= pm.account_type %></p>
+              <p class="card-text mb-1"><strong>Número:</strong> <%= pm.account_number %></p>
+              <p class="card-text mb-1"><strong>Titular:</strong> <%= pm.account_holder %></p>
+              <p class="card-text mb-1"><strong>RUC/ID:</strong> <%= pm.tax_id %></p>
+              <p class="card-text mb-1"><strong>Moneda preferida:</strong> <%= pm.preferred_currency %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h4 class="mb-3">Agregar nuevo método de pago</h4>
+
+    <%= form_with model: [@establishment, @establishment.payment_methods.build],
+                  url: wizard_path, method: :put, local: true do |form| %>
+
+      <!-- Campos del formulario (igual que antes) -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= form.label :method_type, "Método de pago", class: "form-label fw-semibold" %>
+          <%= form.select :method_type, ["Transferencia Bancaria", "PayPal", "Stripe", "Otro"], {}, class: "form-select" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= form.label :bank_name, "Banco", class: "form-label fw-semibold" %>
+          <%= form.text_field :bank_name, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= form.label :account_type, "Tipo de cuenta", class: "form-label fw-semibold" %>
+          <%= form.select :account_type, ["Ahorros", "Corriente"], {}, class: "form-select" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= form.label :account_number, "Número de cuenta", class: "form-label fw-semibold" %>
+          <%= form.text_field :account_number, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= form.label :account_holder, "Titular de la cuenta", class: "form-label fw-semibold" %>
+          <%= form.text_field :account_holder, class: "form-control" %>
+        </div>
+        <div class="col-md-6 mb-3">
+          <%= form.label :tax_id, "RUC / Identificación", class: "form-label fw-semibold" %>
+          <%= form.text_field :tax_id, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :preferred_currency, "Moneda preferida", class: "form-label fw-semibold" %>
+        <%= form.text_field :preferred_currency, class: "form-control", placeholder: "Ej: USD, EUR, PEN" %>
+      </div>
+
+      <div class="d-flex">
+        <%= link_to "Atrás", previous_wizard_path(establishment_id: @establishment.id), class: "btn btn-secondary mx-2" %>
+        <%= form.submit "Guardar método de pago", name: "stay_in_payment", class: "btn btn-warning mx-2" %>
+        <%#= form.submit "Guardar y continuar", class: "btn btn-primary" %>
+        <%= link_to "Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary mx-2" %>
+
+      </div>
+    <% end %>
+  </div>
+</div>

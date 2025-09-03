@@ -1,0 +1,30 @@
+<h2>Detalles de Hospedaje</h2>
+
+<%= form_for @establishment, url: wizard_path do |f| %>
+  <div>
+    <%= f.label :check_in_time, "Hora de Check-in" %>
+    <%= f.text_field :check_in_time %>
+  </div>
+
+  <div>
+    <%= f.label :check_out_time, "Hora de Check-out" %>
+    <%= f.text_field :check_out_time %>
+  </div>
+
+  <div>
+    <%= f.label :price_per_night, "Precio por noche" %>
+    <%= f.number_field :price_per_night, step: 0.01 %>
+  </div>
+
+  <div>
+    <%= f.label :total_rooms, "Número total de habitaciones" %>
+    <%= f.number_field :total_rooms %>
+  </div>
+
+  <div>
+    <%= f.label :available_rooms, "Habitaciones disponibles" %>
+    <%= f.number_field :available_rooms %>
+  </div>
+
+  <%= f.submit "Siguiente" %>
+<% end %>

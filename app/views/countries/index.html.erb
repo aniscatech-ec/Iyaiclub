@@ -1,0 +1,29 @@
+<h1>Países</h1>
+
+<%= link_to "Nuevo País", new_country_path, class: "btn btn-primary mb-3" %>
+
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>Nombre</th>
+    <th>Código ISO</th>
+    <th>Acciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @countries.each do |country| %>
+    <tr>
+      <td><%= country.name %></td>
+      <td><%= country.code %></td>
+      <td>
+        <%= link_to "Ver", country_path(country), class: "btn btn-sm btn-info" %>
+        <%= link_to "Editar", edit_country_path(country), class: "btn btn-sm btn-warning" %>
+        <%= link_to "Eliminar", country_path(country),
+                    method: :delete,
+                    data: { confirm: "¿Estás seguro?" },
+                    class: "btn btn-sm btn-danger" %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -1,2 +1,80 @@
-<h1>Nuevo establecimiento</h1>
-<%= render "form", establishment: @establishment %>
+<!--<h1>Nuevo establecimiento</h1>-->
+<%#= render "form", establishment: @establishment %>
+
+<!---------------------------------------------------------------------------->
+<!--<h2 class="mb-4">Nuevo Establecimiento</h2>-->
+<!--<h4 class="mb-3 text-secondary">Datos legales y de contacto</h4>-->
+
+<%#= form_with(model: @establishment, local: true) do |form| %>
+  <%# if @establishment.errors.any? %>
+<!--    <div class="alert alert-danger">-->
+<!--      <ul>-->
+        <%# @establishment.errors.full_messages.each do |message| %>
+<!--          <li><%#= message %></li>-->
+        <%# end %>
+<!--      </ul>-->
+<!--    </div>-->
+  <%# end %>
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Razón social o nombre comercial",class: "form-label fw-semibold" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Nombre del representante legal / administrador",class: "form-label fw-semibold" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Tipo de documento (RUC / DNI / Pasaporte / Cédula)",class: "form-label fw-semibold" %>
+    <%#= form.select :document_type, [["RUC", "ruc"], ["DNI", "dni"], ["Pasaporte", "pasaporte"], ["Cédula", "cedula"]], { prompt: "Seleccione un tipo" }, class: "form-select", required: true %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Número de documento",class: "form-label fw-semibold" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Correo electrónico de contacto",class: "form-label fw-semibold" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Teléfono de contacto", class: "form-label fw-semibold" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+<!--  ---------------------------------------------->
+<!--  <div class="mb-3">-->
+    <%#= form.label :name, "Nombre del establecimiento" %>
+    <%#= form.text_field :name, class: "form-control" %>
+<!--  </div>-->
+
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :description, "Descripción" %>
+    <%#= form.text_area :description, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :category, "Categoría", class: "form-label" %>
+    <%#= form.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] }, { prompt: "Seleccione categoría" }, class: "form-select" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= form.label :city_id, "Ciudad" %>
+    <%#= form.collection_select :city_id, City.all, :id, :name, { prompt: "Seleccione ciudad" }, class: "form-select" %>
+<!--  </div>-->
+
+
+<!--<br>-->
+  <%#= form.submit "Comenzar registro", class: "btn btn-primary"%>
+<%# end %>
+
+
+<h2>Crear nuevo establecimiento</h2>
+<%= form_with model: @establishment, url: establishments_path, method: :post do |f| %>
+  <%= f.submit "Comenzar registro", class: "btn btn-success btn-lg mb-3" %>
+<% end %>

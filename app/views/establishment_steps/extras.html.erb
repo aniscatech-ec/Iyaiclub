@@ -1,0 +1,25 @@
+<h2>Políticas y Extras</h2>
+
+<%= form_for @establishment, url: wizard_path do |f| %>
+  <div>
+    <%= f.label :policies, "Políticas" %>
+    <%= f.text_area :policies %>
+  </div>
+
+  <div>
+    <%= f.label :rating, "Rating" %>
+    <%= f.number_field :rating, step: 0.1 %>
+  </div>
+
+  <div>
+    <%= f.label :latitude, "Latitud" %>
+    <%= f.number_field :latitude, step: 0.000001 %>
+  </div>
+
+  <div>
+    <%= f.label :longitude, "Longitud" %>
+    <%= f.number_field :longitude, step: 0.000001 %>
+  </div>
+
+  <%= f.submit "Finalizar" %>
+<% end %>

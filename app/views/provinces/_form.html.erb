@@ -11,7 +11,12 @@
   <% end %>
 
   <div class="mb-3">
-    <%= form.label :name %>
+    <%= form.label :country_id, "País" %>
+    <%= form.collection_select :country_id, countries, :id, :name, { prompt: "Seleccionar país" }, { class: "form-select" } %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :name, "Nombre" %>
     <%= form.text_field :name, class: "form-control" %>
   </div>
 

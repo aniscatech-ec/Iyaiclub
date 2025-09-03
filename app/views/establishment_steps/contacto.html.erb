@@ -1,0 +1,23 @@
+<h2>Contacto y Ubicación</h2>
+
+<%= form_for @establishment, url: wizard_path do |f| %>
+  <%= f.label :address, "Dirección" %>
+  <%= f.text_field :address %>
+
+  <%= f.label :country, "País" %>
+  <%= f.text_field :country %>
+
+  <%= f.label :city_id, "Ciudad" %>
+  <%= f.number_field :city_id %>
+
+  <%= f.label :phone, "Teléfono" %>
+  <%= f.text_field :phone %>
+
+  <%= f.label :email, "Email" %>
+  <%= f.email_field :email %>
+
+  <%= f.label :website, "Sitio web" %>
+  <%= f.text_field :website %>
+
+  <%= f.submit "Siguiente" %>
+<% end %>

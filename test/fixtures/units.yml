@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  unit_type: MyString
+  capacity: 1
+  beds: 1
+  base_price: 9.99
+  seasonal_prices: MyText
+  available: false
+  establishment: one
+
+two:
+  unit_type: MyString
+  capacity: 1
+  beds: 1
+  base_price: 9.99
+  seasonal_prices: MyText
+  available: false
+  establishment: two

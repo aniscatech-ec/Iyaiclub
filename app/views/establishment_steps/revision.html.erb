@@ -1,0 +1,63 @@
+<h2>Paso 9 – Revisión y envío</h2>
+<!--<h3><%#= @establishment.name %></h3>-->
+
+<h4>1️⃣ Datos legales y de contacto</h4>
+<p><strong>Razón social:</strong> <%= @establishment.legal_info&.business_name %></p>
+<p><strong>Representante legal:</strong> <%= @establishment.legal_info&.legal_representative %></p>
+<p><strong>Correo:</strong> <%= @establishment.legal_info&.contact_email %></p>
+<p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
+
+<h4>2️⃣ Perfil del establecimiento</h4>
+<!--<p><strong>Nombre público:</strong> <%#= @establishment.public_name %></p>-->
+<p><strong>Descripción corta:</strong> <%= @establishment.short_description %></p>
+<p><strong>Descripción larga:</strong> <%= @establishment.long_description %></p>
+<p><strong>Categoría:</strong> <%= @establishment.category %></p>
+<p><strong>Amenities:</strong> <%= @establishment.amenities %></p>
+<p><strong>Políticas:</strong> <%= @establishment.policies %></p>
+
+<h4>3️⃣ Ubicación</h4>
+<p><strong>Dirección:</strong> <%= @establishment.address %></p>
+<!--<p><strong>Ciudad / Provincia / País:</strong> <%#= [@establishment.city, @establishment.province, @establishment.country].compact.join(" / ") %></p>-->
+<p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
+
+<h4>4️⃣ Galería</h4>
+<% @establishment.galleries.each do |gallery| %>
+  <p><strong>Galería:</strong> <%= gallery.name %></p>
+  <% gallery.gallery_images.each do |gi| %>
+    <% if gi.file.attached? %>
+      <%= image_tag gi.file.variant(resize_to_limit: [150,150]), class: "img-thumbnail me-2 mb-2" %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<h4>5️⃣ Unidades / Habitaciones</h4>
+<% @establishment.units.each do |unit| %>
+  <p><strong>Tipo:</strong> <%= unit.unit_type %> | <strong>Capacidad:</strong> <%= unit.capacity %> | <strong>Camas:</strong> <%= unit.beds %> | <strong>Precio base:</strong> <%= unit.base_price %></p>
+<% end %>
+
+<h4>6️⃣ Políticas de precios y beneficios</h4>
+<p><strong>Moneda:</strong> <%= @establishment.pricing_policy&.currency %></p>
+<p><strong>Comisión servicio:</strong> <%= @establishment.pricing_policy&.service_fee %></p>
+<p><strong>Descuento máximo:</strong> <%= @establishment.pricing_policy&.max_discount %></p>
+<p><strong>Políticas de reembolso:</strong> <%= @establishment.pricing_policy&.refund_policy %></p>
+
+<h4>7️⃣ Métodos de pago</h4>
+<% @establishment.payment_methods.each do |pm| %>
+  <p><strong>Método:</strong> <%= pm.method_type %> | <strong>Banco:</strong> <%= pm.bank_name %></p>
+<% end %>
+
+<h4>8️⃣ Verificación</h4>
+<% if @establishment.verification %>
+  <% v = @establishment.verification %>
+  <p><strong>Documento identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %></p>
+  <p><strong>Documento propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %></p>
+  <p><strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150,150]) if v.selfie.attached? %></p>
+<% end %>
+
+<%= form_with model: @establishment, url: wizard_path, method: :put, local: true do |f| %>
+  <div class="form-check mb-3">
+    <%= f.check_box :confirmation, { class: "form-check-input" }, "1", "0" %>
+    <%= f.label :confirmation, "Declaro que la información ingresada es verdadera", class: "form-check-label" %>
+  </div>
+  <%= f.submit "Confirmar y finalizar", class: "btn btn-success" %>
+<% end %>

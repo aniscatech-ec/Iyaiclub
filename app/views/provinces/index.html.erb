@@ -4,18 +4,20 @@
 <table class="table table-striped">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Actions</th>
+    <th>Nombre</th>
+    <th>País</th>
+    <th>Acciones</th>
   </tr>
   </thead>
   <tbody>
   <% @provinces.each do |province| %>
     <tr>
       <td><%= province.name %></td>
+      <td><%= province.country.name %></td>
       <td>
         <%= link_to "Show", province_path(province), class: "btn btn-info btn-sm" %>
         <%= link_to "Edit", edit_province_path(province), class: "btn btn-warning btn-sm" %>
-        <%= link_to "Delete", province_path(province), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger btn-sm" %>
+        <%= link_to "Delete", province_path(province), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar esta provincia?" }, class: "btn btn-danger btn-sm" %>
       </td>
     </tr>
   <% end %>
