@@ -1,44 +1,51 @@
 <h2>Paso 4 – Galería</h2>
-<!--<h1><%#= @establishment.name %></h1>-->
 
 <h2>Galerías</h2>
 <% @establishment.galleries.each do |gallery| %>
-  <p>
-    <strong>Galería:</strong>
-    <%= gallery.name %> - (<%= gallery.gallery_images.count %>)
-  </p>
+  <div class="mb-4 p-3 border rounded">
+    <p class="fw-bold">
+      <%= gallery.name %>
+      <span class="text-muted">(<%= gallery.gallery_images.count %> imágenes)</span>
+    </p>
 
-  <% if gallery.gallery_images.any? %>
-    <div class="d-flex flex-wrap gap-2">
-      <% gallery.gallery_images.each do |gi| %>
-        <% if gi.file.attached? %>
-          <%= image_tag gi.file.variant(resize_to_limit: [200, 200]), class: "img-thumbnail" %>
+    <% if gallery.gallery_images.any? %>
+      <div class="d-flex flex-wrap gap-3">
+        <% gallery.gallery_images.each do |gi| %>
+          <% if gi.file.attached? %>
+            <div class="position-relative">
+              <%= image_tag gi.file.variant(resize_to_limit: [200, 200]), class: "img-thumbnail #{'border border-3 border-success' if gi.is_cover?}" %>
+
+              <% if gi.is_cover? %>
+                <span class="badge bg-success position-absolute top-0 start-0 m-1">Portada</span>
+              <% else %>
+
+                <%= button_to "Marcar como portada",
+                              wizard_path(:galeria, gallery_image_id: gi.id, make_cover: true, establishment_id: @establishment.id),
+                              method: :put, class: "btn btn-sm btn-outline-success mt-1 w-100" %>
+
+
+            <% end %>
+            </div>
+          <% end %>
         <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <p class="text-muted">No hay imágenes aún en esta galería.</p>
-  <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted">No hay imágenes aún en esta galería.</p>
+    <% end %>
 
-
-  <h2>Agregar imágenes:</h2>
-
-  <%= form_with model: gallery.gallery_images.build,
-                url: wizard_path,
-                method: :put,
-                local: true do |form| %>
-    <%= form.hidden_field :gallery_id, value: gallery.id %>
-
-    <%= form.label :file, "Imágenes" %>
-    <%= form.file_field :file, multiple: true, direct_upload: true, class: "form-control" %>
-
-    <%= form.submit "Subir imágenes", name: "stay_in_gallery", class: "btn btn-primary btn-sm" %>
-  <% end %>
-
+    <h5 class="mt-3">Agregar imágenes:</h5>
+    <%= form_with model: gallery.gallery_images.build,
+                  url: wizard_path,
+                  method: :put,
+                  local: true do |form| %>
+      <%= form.hidden_field :gallery_id, value: gallery.id %>
+      <%= form.file_field :file, multiple: true, class: "form-control" %>
+      <%= form.submit "Subir imágenes", name: "stay_in_gallery", class: "btn btn-primary btn-sm mt-2" %>
+    <% end %>
+  </div>
 <% end %>
 
-
-<h2>Add Gallery:</h2>
+<h2>Agregar Galería:</h2>
 <%= form_with model: [@establishment, @establishment.galleries.build], url: wizard_path, method: :put, local: true do |form| %>
   <p>
     <%= form.label :name, "Nombre de la galería (ej: Fachada, Piscina)" %>
@@ -46,8 +53,6 @@
   </p>
   <p>
     <%= form.submit "Guardar galería", name: "stay_in_gallery", class: "btn btn-secondary" %>
-    <%#= form.submit "Guardar y continuar", class: "btn btn-primary" %>
     <%= link_to "Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary mx-2" %>
-
   </p>
 <% end %>

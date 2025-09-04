@@ -51,6 +51,7 @@
       <h6><%= gallery.name %> <%= gallery.gallery_images.count %></h6>
       <div class="d-flex flex-wrap">
         <% gallery.gallery_images.each do |gi| %>
+          <%= gi.video_url %>
           <% if gi.file.attached? %>
             <%= image_tag gi.file.variant(resize_to_limit: [150,150]), class: "img-thumbnail me-2 mb-2" %>
           <% end %>

@@ -42,18 +42,42 @@ class EstablishmentStepsController < ApplicationController
     when :galeria
       # Caso: agregar nueva galería
       if params[:gallery].present?
+        puts "PARAMETRO DE GALERIA PRESENTE"
         @gallery = @establishment.galleries.create(gallery_params)
       end
 
       # Caso: agregar imágenes a galería existente
       if params[:gallery_image].present?
         gallery = @establishment.galleries.find(params[:gallery_image][:gallery_id])
-        if params[:gallery_image][:file].present?
-          params[:gallery_image][:file].each do |img|
-            gallery.gallery_images.create(file: img)
-          end
+
+        puts "=== PARAMS RECEIVED ==="
+        p params[:gallery_image][:file]  # Para depuración
+        puts "======================="
+
+        # Filtramos vacíos y elementos sin nombre
+        files = Array(params[:gallery_image][:file]).reject do |f|
+          f.blank? || (f.respond_to?(:original_filename) && f.original_filename.blank?)
+        end
+
+        files.each_with_index do |img, index|
+          puts "Procesando archivo ##{index}: #{img.inspect}"
+          gallery.gallery_images.create(file: img)
         end
       end
+
+      # Caso: marcar una imagen como portada
+      if params[:make_cover].present? && params[:gallery_image_id].present?
+        gi = GalleryImage.find(params[:gallery_image_id])
+
+        # Desmarcar otras portadas de la misma galería
+        gi.gallery.gallery_images.update_all(is_cover: false)
+
+        # Marcar esta como portada
+        gi.update(is_cover: true)
+        redirect_to wizard_path(:galeria, establishment_id: @establishment.id), notice: "Portada actualizada" and return
+
+      end
+
 
       if params[:stay_in_gallery].present?
         redirect_to wizard_path(:galeria, establishment_id: @establishment.id) and return
