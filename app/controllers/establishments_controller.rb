@@ -19,6 +19,15 @@ class EstablishmentsController < ApplicationController
   end
 
   def show
+    # units_controller.rb
+    # @availability_events = @establishment.unit.unit_availabilities.map do |availability|
+    #   {
+    #     title: availability.available ? "✅ Disponible" : "❌ No disponible",
+    #     start: availability.date,
+    #     color: availability.available ? 'green' : 'red'
+    #   }
+    # end
+
   end
 
   def new

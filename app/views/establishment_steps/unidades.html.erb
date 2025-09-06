@@ -1,47 +1,176 @@
-<h2>Paso 5 – Unidades / Habitaciones</h2>
+<h2 class="mb-4">Paso 5 – Unidades / Habitaciones</h2>
 
-<%= form_with model: [@establishment, @establishment.units.build], url: wizard_path, method: :put, local: true do |f| %>
-  <div class="mb-3">
-    <%= f.label :unit_type, "Tipo de unidad" %>
-    <%= f.text_field :unit_type, class: "form-control", placeholder: "Ej: Simple, Doble, Suite" %>
+<%= form_with model: [@establishment, @unit], url: wizard_path, method: :put, local: true do |f| %>
+  <div class="card p-3 mb-4 shadow-sm">
+    <h4 class="mb-3">Información general</h4>
+
+    <div class="mb-3">
+      <%= f.label :unit_type, "Tipo de unidad" %>
+      <%= f.text_field :unit_type, class: "form-control", placeholder: "Ej: Simple, Doble, Suite, Casa entera" %>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <%= f.label :capacity, "Capacidad de personas" %>
+        <%= f.number_field :capacity, class: "form-control" %>
+      </div>
+
+      <div data-controller="bed">
+        <label class="form-label">Distribución de camas</label>
+
+        <div data-bed-target="container">
+          <% if @unit.bed_configuration.present? %>
+            <% @unit.bed_configuration.each do |key, value| %>
+              <div class="row mb-2 bed-row">
+                <div class="col-md-6">
+                  <%= text_field_tag "unit[bed_configuration_keys][]", key, class: "form-control", placeholder: "Tipo de cama (ej: Queen, Litera)" %>
+                </div>
+                <div class="col-md-4">
+                  <%= number_field_tag "unit[bed_configuration_values][]", value, min: 0, class: "form-control", placeholder: "Cantidad" %>
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                  <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- Template oculta para nuevas filas -->
+        <template data-bed-target="template">
+          <div class="row mb-2 bed-row">
+            <div class="col-md-6">
+              <input type="text" name="unit[bed_configuration_keys][]" class="form-control" placeholder="Tipo de cama (ej: Queen, Litera)">
+            </div>
+            <div class="col-md-4">
+              <input type="number" name="unit[bed_configuration_values][]" class="form-control" min="0" placeholder="Cantidad">
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+              <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>
+            </div>
+          </div>
+        </template>
+
+        <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="bed#addField">
+          + Agregar cama
+        </button>
+      </div>
+
+
+      <div class="col-md-4 mb-3">
+        <%= f.label :base_price, "Precio base por noche (USD)" %>
+        <%= f.number_field :base_price, step: 0.01, class: "form-control" %>
+      </div>
+    </div>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :capacity, "Capacidad de personas" %>
-    <%= f.number_field :capacity, class: "form-control" %>
+  <div class="card p-3 mb-4 shadow-sm">
+    <h4 class="mb-3">Tarifas por temporada</h4>
+    <table class="table table-bordered">
+      <thead class="table-light">
+      <tr>
+        <th>Temporada</th>
+        <th>Precio (USD)</th>
+      </tr>
+      </thead>
+      <tbody>
+      <%= f.fields_for :unit_prices do |price_form| %>
+        <tr>
+          <td>
+            <%= price_form.select :season,
+                                  [["Alta", "high"], ["Baja", "low"], ["Especial", "special"]],
+                                  {}, class: "form-control" %>
+          </td>
+          <td>
+            <%= price_form.number_field :price, step: 0.01, class: "form-control" %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :beds, "Número de camas" %>
-    <%= f.number_field :beds, class: "form-control" %>
+
+  <div class="card p-3 mb-4 shadow-sm"
+       data-controller="fullcalendarreg"
+       data-fullcalendarreg-events-value='<%= @unit.unit_availabilities.select(:date, :available).map { |u|
+         { id: u.date.to_s, title: u.available ? "Disponible" : "", start: u.date.to_s }
+       }.to_json %>'>
+    <h4 class="mb-3">Disponibilidad (FullCalendar)</h4>
+
+    <!-- target que usa el controlador -->
+    <div data-fullcalendarreg-target="calendar"></div>
+
+    <!-- campo oculto que envía el JSON -->
+    <%= hidden_field_tag 'unit[availabilities_json]', '', id: 'unit_availabilities_json' %>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :base_price, "Precio base por noche" %>
-    <%= f.number_field :base_price, step: 0.01, class: "form-control" %>
-  </div>
 
-  <div class="mb-3">
-    <%= f.label :seasonal_prices, "Precios por temporada (JSON: {high: 120, low: 80})" %>
-    <%= f.text_area :seasonal_prices, class: "form-control", placeholder: '{ "high": 120.0, "low": 80.0 }' %>
-  </div>
+<!--  <div class="card p-3 mb-4 shadow-sm"><h4 class="mb-3">Disponibilidad (próximos 7 días)</h4>-->
+<!--    <table class="table table-sm table-hover table-bordered text-center">-->
+<!--      <thead class="table-light">-->
+<!--      <tr>-->
+<!--        <th>Fecha</th>-->
+<!--        <th>Disponible</th>-->
+<!--      </tr>-->
+<!--      </thead>-->
+<!--      <tbody> <%#= f.fields_for :unit_availabilities do |avail_form| %>-->
+<!--        <tr>-->
+<!--          <td><%#= avail_form.date_field :date, class: "form-control" %></td>-->
+<!--          <td><%#= avail_form.check_box :available, class: "form-check-input" %></td>-->
+<!--        </tr>-->
+      <%# end %>
+<!--      </tbody>-->
+<!--    </table>-->
+<!--  </div>-->
 
-  <div class="mb-3 form-check">
-    <%= f.check_box :available, class: "form-check-input" %>
-    <%= f.label :available, "Disponible", class: "form-check-label" %>
-  </div>
-  <%= f.submit "Guardar y quedarse", name: "stay_in_unit", class: "btn btn-warning" %>
-  <%#= f.submit "Guardar unidad", class: "btn btn-primary" %>
-  <%= link_to "Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary" %>
 
+
+  <div class="d-flex justify-content-between mt-3">
+    <%#= f.submit "💾 Guardar", name: "stay_in_unit", class: "btn btn-warning" %>
+    <%#= f.submit "💾 Guardar", name: "stay_in_unit", class: "btn btn-warning", data: { action: "click->unit-availability#updateHiddenField" } %>
+
+    <!-- submit que invoca al método updateHiddenField del controlador antes de enviar -->
+    <%= f.submit "💾 Guardar",name: "stay_in_unit", class: "btn btn-warning", data: { action: "click->fullcalendarreg#updateHiddenField" } %>
+    <%= link_to "➡️ Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary" %>
+  </div>
 <% end %>
 
+<!--<hr>-->
+<!--<h3 class="mt-4">Unidades existentes (<%#= @establishment.units.count %>)</h3>-->
+<%# @establishment.units.where.not(id: nil).each do |unit| %>
+<!--  <p>-->
+<!--    – <strong><%#= unit.unit_type.presence || "Sin tipo" %></strong>-->
+<!--    – Capacidad: <%#= unit.capacity || "No especificada" %> personas-->
+<!--    – Camas: <%#= unit.bed_configuration.present? ? unit.bed_configuration.map { |k,v| "#{v} #{k}" }.join(", ") : "No especificado" %>-->
+<!--    – Precio base: $<%#= unit.base_price || "No definido" %>-->
+<!--    – Disponibilidad hoy: <%#= unit.unit_availabilities.find_by(date: Date.today)&.available ? "✅ Sí" : "❌ No definido" %>-->
+<!--  </p>-->
+<%# end %>
+
 <hr>
-<h3>Unidades existentes</h3>
-<% @establishment.units.each do |unit| %>
+<h3 class="mt-4">Unidades existentes (<%= @establishment.units.count %>)</h3>
+<% @establishment.units.where.not(id: nil).each do |unit| %>
+  <%= unit.unit_availabilities.count %>
   <p>
-    <strong><%= unit.unit_type %></strong> - Capacidad: <%= unit.capacity %> personas -
-    Camas: <%= unit.beds %> - Precio: $<%= unit.base_price %> -
-    Disponibilidad: <%= unit.available ? "Sí" : "No" %>
+    – <strong><%= unit.unit_type.presence || "Sin tipo" %></strong>
+    – Capacidad: <%= unit.capacity || "No especificada" %> personas
+    –
+    Camas: <%= unit.bed_configuration.present? ? unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") : "No especificado" %>
+    – Precio base: $<%= unit.base_price || "No definido" %>
   </p>
+
+  <% if unit.unit_availabilities.any? %>
+    <p>– Disponibilidad guardada:</p>
+    <ul>
+      <% unit.unit_availabilities.order(:date).each do |avail| %>
+        <li>
+          <%= avail.date.strftime("%d/%m/%Y") %> –
+          <%= avail.available ? "✅ Disponible" : "❌ No disponible" %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>– Disponibilidad: ❌ No definido</p>
+  <% end %>
 <% end %>

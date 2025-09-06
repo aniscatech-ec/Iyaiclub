@@ -2,6 +2,7 @@ class EstablishmentStepsController < ApplicationController
   include Wicked::Wizard
 
   steps :legal_info, :perfil, :ubicacion, :galeria, :unidades, :politicas, :pagos, :verificacion, :revision
+  before_action :merge_bed_configuration, only: [:update]
 
   # def show
   #   @establishment = current_user.establishment || Establishment.create(user: current_user)
@@ -17,6 +18,22 @@ class EstablishmentStepsController < ApplicationController
       # @gallery.gallery_images.build   # Permite que fields_for genere los campos de imagen
     when :verificacion
       @verification = @establishment.verification || @establishment.build_verification
+    when :unidades
+      @unit = @establishment.units.build
+
+      # Construir precios por temporada si no existen
+      if @unit.unit_prices.empty?
+        @unit.unit_prices.build(season: "high", price: 0.0) # Temporada alta
+        @unit.unit_prices.build(season: "low", price: 0.0) # Temporada baja
+      end
+
+      # Construir disponibilidad de los próximos 7 días
+      if @unit.unit_availabilities.empty?
+        (Date.today..Date.today + 6).each do |day|
+          @unit.unit_availabilities.build(date: day, available: true)
+        end
+      end
+
     end
 
     render_wizard
@@ -51,7 +68,7 @@ class EstablishmentStepsController < ApplicationController
         gallery = @establishment.galleries.find(params[:gallery_image][:gallery_id])
 
         puts "=== PARAMS RECEIVED ==="
-        p params[:gallery_image][:file]  # Para depuración
+        p params[:gallery_image][:file] # Para depuración
         puts "======================="
 
         # Filtramos vacíos y elementos sin nombre
@@ -78,17 +95,53 @@ class EstablishmentStepsController < ApplicationController
 
       end
 
-
       if params[:stay_in_gallery].present?
         redirect_to wizard_path(:galeria, establishment_id: @establishment.id) and return
       end
 
+      # when :unidades
+      #   @establishment.units.create(unit_params)
+      #   # Si se presionó "Guardar y quedarse", redirigimos al mismo paso
+      #   if params[:stay_in_unit].present?
+      #     redirect_to wizard_path(:unidades, establishment_id: @establishment.id) and return
+      #   end
+      # when :unidades
+      #   @unit = @establishment.units.create(unit_params)
+      #
+      #   if params[:stay_in_unit].present?
+      #     redirect_to wizard_path(:unidades, establishment_id: @establishment.id) and return
+      #   end
     when :unidades
-      @establishment.units.create(unit_params)
-      # Si se presionó "Guardar y quedarse", redirigimos al mismo paso
+      # Crear la unidad normalmente con unit_params
+      Rails.logger.debug "|-----------------------------------------------------|"
+      Rails.logger.debug "🔎 unit_params: #{unit_params.inspect}"
+      Rails.logger.debug "|-----------------------------------------------------|"
+      availabilities_json = unit_params[:availabilities_json]
+      # Tomamos los parámetros completos del formulario
+      unit_attrs = unit_params.except(:availabilities_json) # <-- esto quita availabilities_json
+
+      # Creamos la unidad con los campos válidos
+      @unit = @establishment.units.create(unit_attrs)
+      # @unit = @establishment.units.create(unit_params)
+
+      # Procesar disponibilidad enviada desde FullCalendar
+      # Ahora podemos usar availabilities_json para crear los registros de disponibilidad
+      puts "|---------------------------------------------------------------------------|"
+      #
+      if availabilities_json.present?
+        puts "***********CREEANDO UNIT AVAILA**************"
+        availabilities = JSON.parse(unit_params[:availabilities_json])
+        @unit.unit_availabilities.destroy_all
+        availabilities.each do |date_str|
+          @unit.unit_availabilities.create!(date: date_str, available: true)
+        end
+      end
+
       if params[:stay_in_unit].present?
         redirect_to wizard_path(:unidades, establishment_id: @establishment.id) and return
       end
+
+
     when :politicas
       if @establishment.pricing_policy.present?
         @establishment.pricing_policy.update(pricing_policy_params)
@@ -122,6 +175,21 @@ class EstablishmentStepsController < ApplicationController
 
   private
 
+  def merge_bed_configuration
+    return unless params[:unit]
+
+    keys = params[:unit].delete(:bed_configuration_keys) || []
+    values = params[:unit].delete(:bed_configuration_values) || []
+
+    bed_config = {}
+    keys.each_with_index do |k, i|
+      next if k.blank? || values[i].blank?
+      bed_config[k] = values[i].to_i
+    end
+
+    params[:unit][:bed_configuration] = bed_config
+  end
+
   def establishment_params
     params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :policies, :address, :city_id, :province_id, :country, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, amenity_ids: [])
   end
@@ -138,8 +206,20 @@ class EstablishmentStepsController < ApplicationController
     params.require(:gallery).permit(:name, gallery_images_attributes: [:file, :is_cover, :video_url])
   end
 
+  # def unit_params
+  #   params.require(:unit).permit(:unit_type, :capacity, :beds, :base_price, :seasonal_prices, :available)
+  # end
+
   def unit_params
-    params.require(:unit).permit(:unit_type, :capacity, :beds, :base_price, :seasonal_prices, :available)
+    params.require(:unit).permit(
+      :unit_type,
+      :capacity,
+      :base_price,
+      :availabilities_json, # <<--- agregar esto
+      bed_configuration: {},
+      unit_prices_attributes: [:id, :season, :price, :_destroy],
+      unit_availabilities_attributes: [:id, :date, :available, :_destroy]
+    )
   end
 
   def pricing_policy_params

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_05_153933) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -43,6 +43,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "bookings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.string "guest_name"
+    t.string "guest_email"
+    t.integer "guest_count"
+    t.date "start_date"
+    t.date "end_date"
+    t.decimal "total_price", precision: 10, scale: 2
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_bookings_on_unit_id"
   end
 
   create_table "cities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -191,16 +205,32 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
   end
 
+  create_table "unit_availabilities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.date "date"
+    t.boolean "available"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_unit_availabilities_on_unit_id"
+  end
+
+  create_table "unit_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.string "season"
+    t.decimal "price", precision: 10
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_unit_prices_on_unit_id"
+  end
+
   create_table "units", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "unit_type"
     t.integer "capacity"
-    t.integer "beds"
     t.decimal "base_price", precision: 10
-    t.text "seasonal_prices"
-    t.boolean "available"
     t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "bed_configuration"
     t.index ["establishment_id"], name: "index_units_on_establishment_id"
   end
 
@@ -228,6 +258,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bookings", "units"
   add_foreign_key "cities", "provinces"
   add_foreign_key "establishment_amenities", "amenities"
   add_foreign_key "establishment_amenities", "establishments"
@@ -239,6 +270,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_144901) do
   add_foreign_key "payment_methods", "establishments"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "unit_availabilities", "units"
+  add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "establishments"
   add_foreign_key "verifications", "establishments"
 end
