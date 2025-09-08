@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_05_153933) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_07_060352) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -245,6 +245,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_05_153933) do
     t.integer "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "country_id", null: false
+    t.bigint "city_id", null: false
+    t.date "birth_date"
+    t.boolean "terms_accepted"
+    t.boolean "marketing_consent"
+    t.index ["city_id"], name: "index_users_on_city_id"
+    t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -273,5 +280,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_05_153933) do
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "establishments"
+  add_foreign_key "users", "cities"
+  add_foreign_key "users", "countries"
   add_foreign_key "verifications", "establishments"
 end

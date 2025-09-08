@@ -1,3 +1,7 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales-all.global.min.js" defer></script>
+</head>
 <h2 class="mb-4">Paso 5 – Unidades / Habitaciones</h2>
 
 <%= form_with model: [@establishment, @unit], url: wizard_path, method: :put, local: true do |f| %>
@@ -93,15 +97,10 @@
 
   <div class="card p-3 mb-4 shadow-sm"
        data-controller="fullcalendarreg"
-       data-fullcalendarreg-events-value='<%= @unit.unit_availabilities.select(:date, :available).map { |u|
-         { id: u.date.to_s, title: u.available ? "Disponible" : "", start: u.date.to_s }
-       }.to_json %>'>
-    <h4 class="mb-3">Disponibilidad (FullCalendar)</h4>
+       data-unit-availability-events="<%= @unit.unit_availabilities.select(:date, :available).map { |u| { id: u.date.to_s, title: u.available ? 'Disponible' : 'No disponible', start: u.date.to_s, color: u.available ? 'green' : 'red' } }.to_json %>">
+<!--    <h4 class="mb-3">Disponibilidad (FullCalendar)</h4>-->
+    <div data-unit-availability-target="calendar"></div>
 
-    <!-- target que usa el controlador -->
-    <div data-fullcalendarreg-target="calendar"></div>
-
-    <!-- campo oculto que envía el JSON -->
     <%= hidden_field_tag 'unit[availabilities_json]', '', id: 'unit_availabilities_json' %>
   </div>
 
@@ -151,14 +150,33 @@
 <hr>
 <h3 class="mt-4">Unidades existentes (<%= @establishment.units.count %>)</h3>
 <% @establishment.units.where.not(id: nil).each do |unit| %>
-  <%= unit.unit_availabilities.count %>
+  <%#= unit.unit_availabilities.count %>
+
   <p>
     – <strong><%= unit.unit_type.presence || "Sin tipo" %></strong>
     – Capacidad: <%= unit.capacity || "No especificada" %> personas
     –
     Camas: <%= unit.bed_configuration.present? ? unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") : "No especificado" %>
     – Precio base: $<%= unit.base_price || "No definido" %>
+
   </p>
+
+  <p>
+    Temporadas
+  </p>
+  <ul>
+    <% unit.unit_prices.each do |unit_price| %>
+      <li>
+        <% if unit_price.season == "low"  %>
+          Baja -
+        <% end %>
+        <% if unit_price.season == "high"  %>
+          Alta -
+        <% end %>
+        <%= unit_price.price %>
+      </li>
+    <% end %>
+  </ul>
 
   <% if unit.unit_availabilities.any? %>
     <p>– Disponibilidad guardada:</p>

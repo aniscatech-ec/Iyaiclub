@@ -1,7 +1,7 @@
-import { Controller } from "@hotwired/stimulus"
+import {Controller} from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static values = { events: Array }
+    static values = {events: Array}
 
     connect() {
         console.log("✅ FullCalendar Stimulus conectado")
@@ -21,6 +21,7 @@ export default class extends Controller {
                 center: "title",
                 right: "dayGridMonth,dayGridWeek,dayGridDay"
             },
+            locale: "es",   // 👈 Traducción a español,
             events: this.eventsValue || []
         })
 

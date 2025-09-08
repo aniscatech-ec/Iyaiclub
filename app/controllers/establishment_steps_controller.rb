@@ -128,19 +128,25 @@ class EstablishmentStepsController < ApplicationController
       # Ahora podemos usar availabilities_json para crear los registros de disponibilidad
       puts "|---------------------------------------------------------------------------|"
       #
+      # if availabilities_json.present?
+      #   puts "***********CREEANDO UNIT AVAILA**************"
+      #   availabilities = JSON.parse(unit_params[:availabilities_json])
+      #   @unit.unit_availabilities.destroy_all
+      #   availabilities.each do |date_str|
+      #     @unit.unit_availabilities.create!(date: date_str, available: true)
+      #   end
+      # end
+
       if availabilities_json.present?
-        puts "***********CREEANDO UNIT AVAILA**************"
         availabilities = JSON.parse(unit_params[:availabilities_json])
-        @unit.unit_availabilities.destroy_all
-        availabilities.each do |date_str|
-          @unit.unit_availabilities.create!(date: date_str, available: true)
+        availabilities.each do |a|
+          @unit.unit_availabilities.find_or_initialize_by(date: a["date"]).update!(available: a["available"])
         end
       end
 
       if params[:stay_in_unit].present?
         redirect_to wizard_path(:unidades, establishment_id: @establishment.id) and return
       end
-
 
     when :politicas
       if @establishment.pricing_policy.present?
@@ -191,7 +197,7 @@ class EstablishmentStepsController < ApplicationController
   end
 
   def establishment_params
-    params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :policies, :address, :city_id, :province_id, :country, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, amenity_ids: [])
+    params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :policies, :address, :city_id, :province_id, :country, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, check_in_time, check_out_time, amenity_ids: [])
   end
 
   def legal_info_params

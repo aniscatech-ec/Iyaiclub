@@ -8,7 +8,11 @@
 
   <div class="mb-3">
     <%= f.label :legal_representative, "Representante legal / Administrador" %>
-    <%= f.text_field :legal_representative, class: "form-control" %>
+    <% if current_user.afiliado? %>
+      <%= f.text_field :legal_representative, value: current_user.name, class: "form-control" %>
+    <% else %>
+      <%= f.text_field :legal_representative, class: "form-control" %>
+    <% end %>
   </div>
 
   <div class="mb-3">
@@ -23,12 +27,20 @@
 
   <div class="mb-3">
     <%= f.label :contact_email, "Correo electrónico" %>
-    <%= f.email_field :contact_email, class: "form-control" %>
+    <% if current_user.afiliado? %>
+      <%= f.email_field :contact_email, value: current_user.email,class: "form-control" %>
+    <% else %>
+      <%= f.email_field :contact_email, class: "form-control" %>
+    <% end %>
   </div>
 
   <div class="mb-3">
     <%= f.label :contact_phone, "Teléfono" %>
-    <%= f.telephone_field :contact_phone, class: "form-control" %>
+    <% if current_user.afiliado? %>
+      <%= f.telephone_field :contact_phone, value: current_user.phone,class: "form-control" %>
+    <% else %>
+      <%= f.telephone_field :contact_phone, class: "form-control" %>
+    <% end %>
   </div>
 
   <%= f.submit "Siguiente", class: "btn btn-primary" %>

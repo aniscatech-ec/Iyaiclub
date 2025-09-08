@@ -61,13 +61,42 @@
               </div>
             </div>
 
+            <div data-controller="location-user">
+
+              <div class="mb-3">
+                <%= f.label :country_id, "País" %>
+                <%= f.collection_select :country_id, Country.all, :id, :name, { prompt: "Seleccionar país" },
+                                        { class: "form-select",
+                                          data: { action: "change->location-user#updateCities", location_user_target: "country" } } %>
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :city_id, "Ciudad" %>
+                <%= f.collection_select :city_id, [],
+                                        :id, :name,
+                                        { prompt: "Seleccionar ciudad" },
+                                        class: "form-select",
+                                        data: { location_user_target: "city" } %>
+              </div>
+            </div>
+
+
+            <!-- Fecha de nacimiento -->
+            <div class="mb-3">
+              <%= f.label :birth_date, "Fecha de nacimiento", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
+                <%= f.date_field :birth_date, class: "form-control" %>
+              </div>
+            </div>
+
             <div class="mb-3">
               <%= f.label :password, "Contraseña", class: "form-label" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                 <%= f.password_field :password, class: "form-control" %>
               </div>
-              <small class="form-text text-muted">Dejar vacío para no cambiar la contraseña.</small>
+<!--              <small class="form-text text-muted">Dejar vacío para no cambiar la contraseña.</small>-->
             </div>
 
             <div class="mb-3">
@@ -77,6 +106,19 @@
                 <%= f.password_field :password_confirmation, class: "form-control" %>
               </div>
             </div>
+
+            <!-- Aceptar términos -->
+            <div class="form-check mb-3">
+              <%= f.check_box :terms_accepted, class: "form-check-input" %>
+              <%= f.label :terms_accepted, "Aceptó Términos y Condiciones", class: "form-check-label" %>
+            </div>
+
+            <!-- Consentimiento marketing -->
+            <div class="form-check mb-3">
+              <%= f.check_box :marketing_consent, class: "form-check-input" %>
+              <%= f.label :marketing_consent, "Aceptó recibir promociones", class: "form-check-label" %>
+            </div>
+
 
             <div class="d-grid">
               <%= f.submit "Guardar cambios", class: "btn btn-success btn-lg" %>

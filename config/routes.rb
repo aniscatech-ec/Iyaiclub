@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   # CRUD de países y sus provincias
   resources :countries do
     resources :provinces, only: [:index, :new, :create]
+    resources :cities, only: :index
   end
 
   # CRUD de provincias y sus ciudades

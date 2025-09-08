@@ -7,7 +7,16 @@ class CitiesController < ApplicationController
   # def index
   # @cities = City.includes(:province).all
   def index
-    if params[:province_id] # viene desde AJAX
+
+    if params[:country_id]
+      country = Country.find(params[:country_id])
+      # @cities = country.cities
+      render json: country.cities.select(:id, :name)
+      # respond_to do |format|
+      #   format.html # usará app/views/cities/index.html.erb si la necesitas
+      #   format.json { render json: @cities.map { |c| { id: c.id, name: c.name } } }
+      # end
+    elsif params[:province_id] # viene desde AJAX
       province = Province.find(params[:province_id])
       @cities = province.cities
 
@@ -79,7 +88,8 @@ class CitiesController < ApplicationController
   def set_provinces
     @provinces = Province.all
   end
- def set_countries
+
+  def set_countries
     @countries = Country.all
   end
 

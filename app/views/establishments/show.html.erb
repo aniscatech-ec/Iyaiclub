@@ -22,7 +22,8 @@
   <div class="card-body">
     <p><strong>Razón social:</strong> <%= @establishment.legal_info&.business_name %></p>
     <p><strong>Representante legal:</strong> <%= @establishment.legal_info&.legal_representative %></p>
-    <p><strong>Documento:</strong> <%= @establishment.legal_info&.document_type %> - <%= @establishment.legal_info&.document_number %></p>
+    <p><strong>Documento:</strong> <%= @establishment.legal_info&.document_type %>
+      - <%= @establishment.legal_info&.document_number %></p>
     <p><strong>Email de contacto:</strong> <%= @establishment.legal_info&.contact_email %></p>
     <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
   </div>
@@ -52,9 +53,9 @@
   <div class="card-header fw-bold">3. Ubicación</div>
   <div class="card-body">
     <p><strong>Dirección:</strong> <%= @establishment.address %></p>
-<!--    <p><strong>País:</strong> <%#= @establishment.province.country.name %></p>-->
-<!--    <p><strong>Provincia:</strong> <%#= @establishment.province.name %></p>-->
-<!--    <p><strong>Ciudad:</strong> <%#= @establishment.city.name %></p>-->
+    <!--    <p><strong>País:</strong> <%#= @establishment.province.country.name %></p>-->
+    <!--    <p><strong>Provincia:</strong> <%#= @establishment.province.name %></p>-->
+    <!--    <p><strong>Ciudad:</strong> <%#= @establishment.city.name %></p>-->
     <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
   </div>
 </div>
@@ -69,7 +70,7 @@
         <% gallery.gallery_images.each do |gi| %>
           <%= gi.video_url %>
           <% if gi.file.attached? %>
-            <%= image_tag gi.file.variant(resize_to_limit: [150,150]), class: "img-thumbnail me-2 mb-2" %>
+            <%= image_tag gi.file.variant(resize_to_limit: [150, 150]), class: "img-thumbnail me-2 mb-2" %>
           <% end %>
         <% end %>
       </div>
@@ -95,7 +96,7 @@
         <tr>
           <td><%= unit.unit_type %></td>
           <td><%= unit.capacity %></td>
-<!--          <td><%#= unit.beds %></td>-->
+          <!--          <td><%#= unit.beds %></td>-->
           <td><%= number_to_currency(unit.base_price) %></td>
         </tr>
       <% end %>
@@ -120,7 +121,7 @@
         <p><strong>Capacidad:</strong> <%= unit.capacity || "No especificada" %> personas</p>
         <p><strong>Distribución de camas:</strong>
           <% if unit.bed_configuration.present? %>
-            <%= unit.bed_configuration.map { |k,v| "#{v} #{k}" }.join(", ") %>
+            <%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %>
           <% else %>
             No especificada
           <% end %>
@@ -146,56 +147,35 @@
       <% end %>
 
 
-      <h3>Disponibilidad (próximos 30 días)</h3>
+      <!--      <h3>Disponibilidad (próximos 30 días)</h3>-->
 
-      <table class="table table-bordered text-center">
-        <thead class="table-light">
-        <tr>
-          <th>Fecha</th>
-          <th>Estado</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% (Date.today..Date.today+30).each do |day| %>
-          <% availability = unit.unit_availabilities.find_by(date: day) %>
-          <tr>
-            <td><%= day.strftime("%d/%m/%Y") %></td>
-            <td>
-              <% if availability.present? %>
-                <%= availability.available ? "✅ Disponible" : "❌ No disponible" %>
-              <% else %>
-                <span class="text-muted">Sin registro</span>
-              <% end %>
-            </td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-
+      <!--      <table class="table table-bordered text-center">-->
+      <!--        <thead class="table-light">-->
+      <!--        <tr>-->
+      <!--          <th>Fecha</th>-->
+      <!--          <th>Estado</th>-->
+      <!--        </tr>-->
+      <!--        </thead>-->
+      <!--        <tbody>-->
+      <%# (Date.today..Date.today+30).each do |day| %>
+      <%# availability = unit.unit_availabilities.find_by(date: day) %>
+      <!--          <tr>-->
+      <!--            <td><%#= day.strftime("%d/%m/%Y") %></td>-->
+      <!--            <td>-->
+      <%# if availability.present? %>
+      <%#= availability.available ? "✅ Disponible" : "❌ No disponible" %>
+      <%# else %>
+      <!--                <span class="text-muted">Sin registro</span>-->
+      <%# end %>
+      <!--            </td>-->
+      <!--          </tr>-->
+      <%# end %>
+      <!--        </tbody>-->
+      <!--      </table>-->
 
 
       <!-- Disponibilidad -->
-      <% if unit.unit_availabilities.any? %>
-        <div class="card-body border-top">
-          <h6>Disponibilidad (próximos 7 días)</h6>
-          <table class="table table-sm table-bordered text-center">
-            <thead class="table-light">
-            <tr>
-              <th>Fecha</th>
-              <th>Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% unit.unit_availabilities.where(date: Date.today..Date.today+50).each do |availability| %>
-              <tr>
-                <td><%= availability.date.strftime("%d/%m/%Y") %></td>
-                <td><%= availability.available ? "✅ Disponible" : "❌ No disponible" %></td>
-              </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      <% end %>
+      <h3>Disponibilidad</h3>
 
       <div class="card-body border-top"
            data-controller="fullcalendar"
@@ -204,10 +184,7 @@
                start: a.date,
                color: a.available ? "green" : "red" }
            }.to_json %>'>
-        <h6>Disponibilidad (próximos 7 días)</h6>
       </div>
-
-
 
 
     </div>
@@ -235,7 +212,8 @@
       <% @establishment.payment_methods.each do |pm| %>
         <li class="list-group-item">
           <strong><%= pm.method_type %></strong>
-          <% if pm.bank_name.present? %> - Banco: <%= pm.bank_name %> <% end %>
+          <% if pm.bank_name.present? %> - Banco: <%= pm.bank_name %>
+          <% end %>
         </li>
       <% end %>
     </ul>
@@ -248,9 +226,15 @@
   <div class="card-body">
     <% if @establishment.verification %>
       <% v = @establishment.verification %>
-      <p><strong>Documento identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %></p>
-      <p><strong>Documento propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %></p>
-      <p><strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150,150]), class: "img-thumbnail" if v.selfie.attached? %></p>
+      <p><strong>Documento
+        identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %>
+      </p>
+      <p><strong>Documento
+        propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %>
+      </p>
+      <p>
+        <strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150, 150]), class: "img-thumbnail" if v.selfie.attached? %>
+      </p>
     <% else %>
       <p class="text-muted">No se han subido documentos de verificación.</p>
     <% end %>

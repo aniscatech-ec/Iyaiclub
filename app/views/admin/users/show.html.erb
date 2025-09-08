@@ -1,9 +1,61 @@
-<h1>Detalles de Usuario</h1>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow rounded-4">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+          <h4 class="mb-0">Detalles de Usuario</h4>
+        </div>
 
-<p><strong>Nombre:</strong> <%= @user.name %></p>
-<p><strong>Email:</strong> <%= @user.email %></p>
-<p><strong>Teléfono:</strong> <%= @user.phone %></p>
-<p><strong>Rol:</strong> <%= @user.role.titleize %></p>
+        <div class="card-body p-4">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Nombre:</strong>
+              <span><%= @user.name %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Email:</strong>
+              <span><%= @user.email %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Teléfono:</strong>
+              <span><%= @user.phone.presence || "No registrado" %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Rol:</strong>
+              <span class="badge bg-info text-dark"><%= @user.role.titleize %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>País:</strong>
+              <span><%= @user.country&.name || "No asignado" %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Ciudad:</strong>
+              <span><%= @user.city&.name || "No asignada" %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Fecha de nacimiento:</strong>
+              <span><%= @user.birth_date.present? ? l(@user.birth_date) : "No registrada" %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Aceptó Términos:</strong>
+              <span class="<%= @user.terms_accepted? ? 'text-success fw-bold' : 'text-danger fw-bold' %>">
+                <%= @user.terms_accepted? ? "Sí" : "No" %>
+              </span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Consentimiento Marketing:</strong>
+              <span class="<%= @user.marketing_consent? ? 'text-success fw-bold' : 'text-muted' %>">
+                <%= @user.marketing_consent? ? "Sí" : "No" %>
+              </span>
+            </li>
+          </ul>
+        </div>
 
-<%= link_to "Editar", edit_admin_user_path(@user), class: "btn btn-warning" %>
-<%= link_to "Volver", admin_users_path, class: "btn btn-secondary" %>
+        <div class="card-footer text-center d-flex justify-content-between">
+          <%= link_to "Editar", edit_admin_user_path(@user), class: "btn btn-warning" %>
+          <%= link_to "Volver", admin_users_path, class: "btn btn-secondary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

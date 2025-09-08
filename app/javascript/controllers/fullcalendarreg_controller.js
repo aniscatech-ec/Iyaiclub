@@ -1,12 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
-
 export default class extends Controller {
     static values = { events: Array }
-    static targets = ["calendar"]
 
     connect() {
         console.log("✅ FullCalendar Stimulus conectado")
-        console.log("🔎 eventsValue:", this.eventsValue)
+        var initialLocaleCode = 'es';
 
         if (!window.FullCalendar) {
             console.error("❌ FullCalendar no está disponible todavía")
@@ -15,8 +13,8 @@ export default class extends Controller {
 
         if (this.calendar) this.calendar.destroy()
 
-        this.calendar = new window.FullCalendar.Calendar(this.calendarTarget, {
-            initialView: "dayGridWeek",
+        this.calendar = new window.FullCalendar.Calendar(this.element, {
+            initialView: "dayGridMonth",
             initialDate: new Date().toISOString().split("T")[0],
             headerToolbar: {
                 left: "prev,next today",
@@ -25,47 +23,56 @@ export default class extends Controller {
             },
             selectable: true,
             editable: true,
+            locale: initialLocaleCode,
             events: this.eventsValue || [],
             dateClick: this.dateClick.bind(this)
         })
 
-        this.calendar.render()
 
-        // inicializa el hidden con lo que ya venga (por si hay eventos preexistentes)
-        this.updateHiddenField()
+        this.calendar.render()
     }
 
     dateClick(info) {
-        // alterna disponibilidad al hacer click
-        const event = this.calendar.getEventById(info.dateStr)
-        if (event) {
-            event.remove()
-        } else {
+        const existing = this.calendar.getEventById(info.dateStr)
+
+        if (!existing) {
+            // estado 1 → disponible
             this.calendar.addEvent({
                 id: info.dateStr,
                 title: "Disponible",
                 start: info.dateStr,
-                allDay: true
+                allDay: true,
+                color: "green"
             })
+        } else if (existing.title === "Disponible") {
+            // estado 2 → no disponible
+            existing.remove()
+            this.calendar.addEvent({
+                id: info.dateStr,
+                title: "No disponible",
+                start: info.dateStr,
+                allDay: true,
+                color: "red"
+            })
+        } else {
+            // estado 3 → eliminar evento (vacío)
+            existing.remove()
         }
 
-        // IMPORTANT: actualizar el campo oculto cada vez que cambia algo
         this.updateHiddenField()
-    }
-
-    getAvailableDates() {
-        return this.calendar.getEvents().map(e => e.startStr)
     }
 
     updateHiddenField() {
         const hiddenInput = document.getElementById("unit_availabilities_json")
-        if (!hiddenInput) {
-            console.warn("⚠️ hidden input #unit_availabilities_json no encontrado")
-            return
-        }
-        const json = JSON.stringify(this.getAvailableDates())
-        hiddenInput.value = json
-        console.log("📩 Fechas actualizadas (hidden):", json)
+        hiddenInput.value = JSON.stringify(this.getAvailableDates())
+        console.log("📩 Fechas actualizadas:", hiddenInput.value)
+    }
+
+    getAvailableDates() {
+        return this.calendar.getEvents().map(e => ({
+            date: e.startStr,
+            available: e.title === "Disponible"
+        }))
     }
 
     disconnect() {

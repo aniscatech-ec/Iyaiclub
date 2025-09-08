@@ -8,38 +8,66 @@
           <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "needs-validation", novalidate: true }) do |f| %>
             <%= render "devise/shared/error_messages", resource: resource %>
 
+            <!-- Nombre -->
             <div class="mb-3">
               <%= f.label :name, "Nombre", class: "form-label" %>
               <%= f.text_field :name, autofocus: true, autocomplete: "name", placeholder: "Nombre completo", class: "form-control", required: true %>
-              <div class="invalid-feedback">
-                Por favor ingresa tu nombre.
-              </div>
+              <div class="invalid-feedback">Por favor ingresa tu nombre.</div>
             </div>
 
+            <!-- Teléfono -->
             <div class="mb-3">
               <%= f.label :phone, "Teléfono", class: "form-label" %>
               <%= f.telephone_field :phone, placeholder: "0983799999", class: "form-control" %>
             </div>
 
+            <!-- Rol -->
             <div class="mb-3">
               <%= f.label :role, "Rol", class: "form-label" %>
               <%= f.select :role,
                            User.roles.except(:administrador).keys.map { |r| [r.titleize, r] },
                            { prompt: "Seleccionar rol", required: true },
                            class: "form-select" %>
-              <div class="invalid-feedback">
-                Por favor selecciona un rol.
-              </div>
+              <div class="invalid-feedback">Por favor selecciona un rol.</div>
             </div>
 
+            <!-- Correo -->
             <div class="mb-3">
               <%= f.label :email, "Correo electrónico", class: "form-label" %>
               <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "nombre@ejemplo.com", class: "form-control", required: true %>
-              <div class="invalid-feedback">
-                Por favor ingresa un correo válido.
+              <div class="invalid-feedback">Por favor ingresa un correo válido.</div>
+            </div>
+
+
+            <div data-controller="location-user">
+
+              <div class="mb-3">
+                <%= f.label :country_id, "País" %>
+                <%= f.collection_select :country_id, Country.all, :id, :name, { prompt: "Seleccionar país" },
+                                        { class: "form-select",
+                                          data: { action: "change->location-user#updateCities", location_user_target: "country" } } %>
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :city_id, "Ciudad" %>
+                <%= f.collection_select :city_id, [],
+                                        :id, :name,
+                                        { prompt: "Seleccionar ciudad" },
+                                        class: "form-select",
+                                        data: { location_user_target: "city" } %>
               </div>
             </div>
 
+
+
+
+            <!-- Fecha de nacimiento -->
+            <div class="mb-3">
+              <%= f.label :birth_date, "Fecha de nacimiento", class: "form-label" %>
+              <%= f.date_field :birth_date, class: "form-control", required: true %>
+            </div>
+
+            <!-- Contraseña -->
             <div class="mb-3">
               <%= f.label :password, "Contraseña", class: "form-label" %>
               <% if @minimum_password_length %>
@@ -51,15 +79,26 @@
               </div>
             </div>
 
+            <!-- Confirmar contraseña -->
             <div class="mb-3">
               <%= f.label :password_confirmation, "Confirmar contraseña", class: "form-label" %>
               <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control", required: true %>
-              <div class="invalid-feedback">
-                Por favor confirma tu contraseña.
-              </div>
+              <div class="invalid-feedback">Por favor confirma tu contraseña.</div>
             </div>
 
+            <!-- Aceptar Términos -->
+            <div class="form-check mb-3">
+              <%= f.check_box :terms_accepted, class: "form-check-input", required: true %>
+              <%= f.label :terms_accepted, "Acepto los Términos y Condiciones y la Política de Privacidad", class: "form-check-label" %>
+            </div>
 
+            <!-- Consentimiento Marketing -->
+            <div class="form-check mb-3">
+              <%= f.check_box :marketing_consent, class: "form-check-input" %>
+              <%= f.label :marketing_consent, "Deseo recibir novedades y promociones", class: "form-check-label" %>
+            </div>
+
+            <!-- Botón -->
             <div class="d-grid">
               <%= f.submit "Registrarme", class: "btn btn-primary btn-lg" %>
             </div>
@@ -75,12 +114,9 @@
 </div>
 
 <script>
-    // Script para activar la validación Bootstrap 5
     (() => {
         'use strict'
-
         const forms = document.querySelectorAll('.needs-validation')
-
         Array.from(forms).forEach(form => {
             form.addEventListener('submit', event => {
                 if (!form.checkValidity()) {
