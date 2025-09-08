@@ -6,6 +6,12 @@ export default class extends Controller {
 
     connect() {
         console.log("Location controller conectado ✅")
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                console.log("Lat:", pos.coords.latitude, "Lng:", pos.coords.longitude);
+            });
+        }
+
     }
 
     updateCities(event) {

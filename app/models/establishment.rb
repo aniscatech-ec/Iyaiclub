@@ -12,6 +12,7 @@ class Establishment < ApplicationRecord
   # validates :name, :description, :category, presence: true
   belongs_to :city, optional: true
   belongs_to :province, optional: true
+  belongs_to :country, optional: true
 
 
   has_one :legal_info, dependent: :destroy
@@ -28,4 +29,9 @@ class Establishment < ApplicationRecord
   accepts_nested_attributes_for :galleries
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
+
+  # Devuelve [] si policies es nil
+  def policies_array
+    policies || []
+  end
 end

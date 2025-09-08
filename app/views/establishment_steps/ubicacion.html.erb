@@ -1,3 +1,11 @@
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+</head>
 <h2>Paso 3 – Ubicación</h2>
 
 <%= form_with model: @establishment, url: wizard_path, method: :put do |f| %>
@@ -52,16 +60,26 @@
     <%#= f.label :country, "País" %>
     <%#= f.text_field :country, class: "form-control" %>
 <!--  </div>-->
-
+<div data-controller="map">
+  <!-- Mapa -->
   <div class="mb-3">
-    <%= f.label :latitude, "Latitud" %>
-    <%= f.text_field :latitude, class: "form-control" %>
+    <label>Selecciona la ubicación en el mapa:</label>
+    <div id="map" style="height:400px;"></div>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :longitude, "Longitud" %>
-    <%= f.text_field :longitude, class: "form-control" %>
-  </div>
+  <!-- Campos ocultos para guardar coordenadas -->
+  <%= f.hidden_field :latitude, id: "latitude" %>
+  <%= f.hidden_field :longitude, id: "longitude" %>
+</div>
+<!--  <div class="mb-3">-->
+    <%#= f.label :latitude, "Latitud" %>
+    <%#= f.text_field :latitude, class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :longitude, "Longitud" %>
+    <%#= f.text_field :longitude, class: "form-control" %>
+<!--  </div>-->
 
   <div class="mb-3">
     <%= f.label :arrival_instructions, "Instrucciones de llegada" %>

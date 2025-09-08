@@ -197,7 +197,7 @@ class EstablishmentStepsController < ApplicationController
   end
 
   def establishment_params
-    params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :policies, :address, :city_id, :province_id, :country, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, check_in_time, check_out_time, amenity_ids: [])
+    params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :address, :city_id, :province_id, :country_id, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, :check_in_time, :check_out_time, policies: [], amenity_ids: [])
   end
 
   def legal_info_params
@@ -229,7 +229,7 @@ class EstablishmentStepsController < ApplicationController
   end
 
   def pricing_policy_params
-    params.require(:pricing_policy).permit(:currency, :service_fee, :max_discount, :refund_policy)
+    params.require(:pricing_policy).permit(:currency, :service_fee, :max_discount, refund_policy: [])
   end
 
   def payment_params

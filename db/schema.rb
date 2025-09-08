@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_07_060352) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_144626) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -91,29 +91,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_07_060352) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "address"
-    t.string "country"
     t.string "phone"
     t.string "email"
     t.string "website"
-    t.string "check_in_time"
-    t.string "check_out_time"
+    t.time "check_in_time"
+    t.time "check_out_time"
     t.decimal "price_per_night", precision: 8, scale: 2
     t.integer "total_rooms"
     t.integer "available_rooms"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.decimal "rating", precision: 2, scale: 1
-    t.text "policies"
+    t.json "policies"
     t.bigint "city_id"
     t.text "short_description"
     t.text "long_description"
     t.integer "service_fee"
     t.integer "max_discount"
-    t.text "refund_policy"
     t.integer "province_id"
     t.integer "country_id"
     t.text "arrival_instructions"
     t.boolean "confirmed"
+    t.json "refund_policy"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["user_id"], name: "index_establishments_on_user_id"
   end
@@ -177,9 +176,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_07_060352) do
     t.string "currency"
     t.decimal "service_fee", precision: 5, scale: 2, default: "0.0"
     t.integer "max_discount", default: 0
-    t.text "refund_policy"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "refund_policy"
     t.index ["establishment_id"], name: "index_pricing_policies_on_establishment_id"
   end
 

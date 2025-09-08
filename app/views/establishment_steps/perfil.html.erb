@@ -65,15 +65,40 @@
     </div>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :policies, "Políticas adicionales (mascotas, niños, fumar, depósito, etc.)" %>
-    <%= f.text_area :policies, rows: 5, class: "form-control", placeholder: "Ejemplo:
-- Mascotas permitidas (máx. 10 kg, $15 extra por noche)
-- Niños menores de 6 años gratis
-- No fumar en habitaciones
-- Depósito reembolsable de $100" %>
+
+
+
+
+
+  <div data-controller="policy">
+    <label class="form-label">Políticas</label>
+
+    <div data-policy-target="list">
+      <% @establishment.policies_array.each_with_index do |policy, index| %>
+        <div class="input-group mb-2" data-policy-target="item">
+          <input type="text"
+                 name="establishment[policies][]"
+                 value="<%= policy %>"
+                 class="form-control"
+                 placeholder="Ej: No fumar en habitaciones" />
+          <button type="button"
+                  class="btn btn-outline-danger"
+                  data-action="click->policy#remove">
+            ✕
+          </button>
+        </div>
+      <% end %>
+    </div>
+
+    <button type="button"
+            class="btn btn-outline-primary mt-2"
+            data-action="click->policy#add">
+      + Agregar política
+    </button>
   </div>
-<!--  <div class="mb-3">-->
+
+
+  <!--  <div class="mb-3">-->
     <%#= f.label :policies, "Políticas" %>
     <%#= f.text_area :policies, rows: 3, class: "form-control" %>
 <!--  </div>-->

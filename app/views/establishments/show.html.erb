@@ -44,7 +44,18 @@
       <% end %>
     </ul>
 
-    <p><strong>Políticas:</strong> <%= @establishment.policies %></p>
+<!--    <p><strong>Políticas:</strong> <%#= @establishment.policies %></p>-->
+
+    <p><strong>Políticas:</strong></p>
+    <p><strong>Check-in:</strong> <%= @establishment.check_in_time.strftime("%I:%M %p") if @establishment.check_in_time %></p>
+    <p><strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %></p>
+
+    <ul>
+      <% @establishment.policies_array.each do |policy| %>
+        <li><%= policy %></li>
+      <% end %>
+    </ul>
+
   </div>
 </div>
 
@@ -53,10 +64,12 @@
   <div class="card-header fw-bold">3. Ubicación</div>
   <div class="card-body">
     <p><strong>Dirección:</strong> <%= @establishment.address %></p>
-    <!--    <p><strong>País:</strong> <%#= @establishment.province.country.name %></p>-->
-    <!--    <p><strong>Provincia:</strong> <%#= @establishment.province.name %></p>-->
-    <!--    <p><strong>Ciudad:</strong> <%#= @establishment.city.name %></p>-->
+        <p><strong>País:</strong> <%= @establishment.country.name if @establishment.country%></p>
+        <p><strong>Provincia:</strong> <%= @establishment.province.name if @establishment.province%></p>
+        <p><strong>Ciudad:</strong> <%= @establishment.city.name if @establishment.city%></p>
     <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
+    <p><strong>Instrucciones:</strong> <%= @establishment.latitude %></p>
+    <p><strong>Instrucciones:</strong> <%= @establishment.longitude %></p>
   </div>
 </div>
 
@@ -200,7 +213,15 @@
     <p><strong>Moneda:</strong> <%= @establishment.pricing_policy&.currency %></p>
     <p><strong>Comisión servicio:</strong> <%= @establishment.pricing_policy&.service_fee %></p>
     <p><strong>Descuento máximo:</strong> <%= @establishment.pricing_policy&.max_discount %></p>
-    <p><strong>Políticas de reembolso:</strong> <%= @establishment.pricing_policy&.refund_policy %></p>
+    <p><strong>Políticas de reembolso:</strong></p>
+
+    <ul>
+      <% Array(@establishment.pricing_policy.refund_policy).each do |policy| %>
+        <li><%= policy %></li>
+      <% end %>
+    </ul>
+
+
   </div>
 </div>
 
