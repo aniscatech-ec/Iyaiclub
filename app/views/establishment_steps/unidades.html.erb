@@ -131,7 +131,15 @@
 
     <!-- submit que invoca al método updateHiddenField del controlador antes de enviar -->
     <%= f.submit "💾 Guardar",name: "stay_in_unit", class: "btn btn-warning", data: { action: "click->fullcalendarreg#updateHiddenField" } %>
-    <%= link_to "➡️ Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary" %>
+
+    <%#= link_to "➡️ Continuar", next_wizard_path(establishment_id: @establishment.id), class: "btn btn-primary" %>
+
+    <%= hidden_field_tag :edit_mode, @edit_mode %>
+    <%= link_to @edit_mode ? "💾 Guardar cambios" : "➡️ Continuar",
+                next_wizard_path(establishment_id: @establishment.id),
+                class: "btn #{@edit_mode ? 'btn-warning' : 'btn-primary'}" %>
+
+
   </div>
 <% end %>
 

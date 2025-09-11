@@ -43,5 +43,10 @@
     <% end %>
   </div>
 
-  <%= f.submit "Siguiente", class: "btn btn-primary" %>
+  <%#= f.submit "Siguiente", class: "btn btn-primary" %>
+  <%= hidden_field_tag :edit_mode, @edit_mode %>
+  <%#= f.submit @edit_mode ? "Guardar cambios" : "Guardar y continuar", class: "btn btn-primary" %>
+  <%= f.submit @edit_mode ? "Guardar cambios" : "Guardar y continuar",
+               class: "btn #{@edit_mode ? 'btn-warning' : 'btn-primary'}" %>
+
 <% end %>

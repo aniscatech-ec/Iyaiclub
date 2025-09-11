@@ -1,0 +1,26 @@
+<div class="row">
+  <% establishments.each do |est| %>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= est.name %></h5>
+          <p class="card-text">
+            <strong>Categoría:</strong> <%= est.legal_info.id %><br>
+            <strong>Administrador:</strong> <%= est.legal_info.legal_representative %>
+          </p>
+          <div class="d-flex justify-content-between">
+            <%= link_to est, class: "btn btn-outline-info btn-sm" do %>
+              <i class="fa-solid fa-eye"></i>
+            <% end %>
+            <%= link_to edit_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
+              <i class="fa-solid fa-pen-to-square"></i>
+            <% end %>
+            <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Seguro de eliminar?" }, class: "btn btn-outline-danger btn-sm" do %>
+              <i class="fa-solid fa-trash-can"></i>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

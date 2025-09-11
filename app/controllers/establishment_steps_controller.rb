@@ -1,5 +1,6 @@
 class EstablishmentStepsController < ApplicationController
   include Wicked::Wizard
+  layout "dashboard"
 
   steps :legal_info, :perfil, :ubicacion, :galeria, :unidades, :politicas, :pagos, :verificacion, :revision
   before_action :merge_bed_configuration, only: [:update]
@@ -11,6 +12,7 @@ class EstablishmentStepsController < ApplicationController
 
   def show
     @establishment = Establishment.find(params[:establishment_id])
+    @edit_mode = params[:edit_mode] == "true" # detecta si estamos en modo edición
     case step
     when :galeria
       # Construimos la galería en memoria
@@ -41,7 +43,7 @@ class EstablishmentStepsController < ApplicationController
 
   def update
     @establishment = Establishment.find(params[:establishment_id])
-
+    edit_mode = params[:edit_mode] == "true" # <<<<< agregado
     case step
     when :legal_info
       @establishment.build_legal_info(legal_info_params).save
@@ -57,12 +59,29 @@ class EstablishmentStepsController < ApplicationController
       #     end
       #   end
     when :galeria
-      # Caso: agregar nueva galería
-      if params[:gallery].present?
-        puts "PARAMETRO DE GALERIA PRESENTE"
-        @gallery = @establishment.galleries.create(gallery_params)
+      # --- Eliminar video ---
+      if params[:remove_video].present?
+        @establishment.video.purge if @establishment.video.attached?
+        redirect_to wizard_path(:galeria, establishment_id: @establishment.id),
+                    notice: "Video eliminado correctamente" and return
       end
 
+      # --- Eliminar URL de video ---
+      if params[:remove_video_url].present?
+        @establishment.update(video_url: nil)
+        redirect_to wizard_path(:galeria, establishment_id: @establishment.id),
+                    notice: "Enlace de video eliminado correctamente" and return
+      end
+
+      # Caso: actualizar video/url
+      if params[:establishment].present?
+        @establishment.update(establishment_params)
+      end
+      # Caso: agregar nueva galería
+      if params[:gallery].present?
+        puts "---------------PARAMETRO DE GALERIA PRESENTE----------------"
+        @gallery = @establishment.galleries.create(gallery_params)
+      end
       # Caso: agregar imágenes a galería existente
       if params[:gallery_image].present?
         gallery = @establishment.galleries.find(params[:gallery_image][:gallery_id])
@@ -175,8 +194,12 @@ class EstablishmentStepsController < ApplicationController
         # render_wizard
       end
     end
-
-    render_wizard @establishment
+    if edit_mode
+      redirect_to dashboard_establishment_path(@establishment), notice: "Cambios guardados" and return
+    else
+      render_wizard @establishment
+    end
+    # render_wizard @establishment
   end
 
   private
@@ -197,7 +220,28 @@ class EstablishmentStepsController < ApplicationController
   end
 
   def establishment_params
-    params.require(:establishment).permit(:name, :short_description, :long_description, :category, :amenities, :address, :city_id, :province_id, :country_id, :latitude, :longitude, :arrival_instructions, :currency, :service_fee, :max_discount, :refund_policy, :check_in_time, :check_out_time, policies: [], amenity_ids: [])
+    params.require(:establishment).permit(:name,
+                                          :short_description,
+                                          :long_description,
+                                          :category,
+                                          :amenities,
+                                          :address,
+                                          :city_id,
+                                          :province_id,
+                                          :country_id,
+                                          :latitude,
+                                          :longitude,
+                                          :arrival_instructions,
+                                          :currency,
+                                          :service_fee,
+                                          :max_discount,
+                                          :refund_policy,
+                                          :check_in_time,
+                                          :check_out_time,
+                                          :video,
+                                          :video_url,
+                                          policies: [],
+                                          amenity_ids: [])
   end
 
   def legal_info_params

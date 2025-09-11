@@ -1,9 +1,9 @@
-<section class="search-hotels bg-white p-3 rounded-3 shadow-sm">
-  <form action="/search" method="get" class="row g-2 align-items-end">
+<section class="search-hotels bg-white p-3 rounded-3 shadow-sm" data-controller="modal">
+  <form action="/establishments" method="get" class="row g-2 align-items-end">
 
     <!-- Ciudad -->
     <div class="col-md-2" data-controller="autocomplete">
-      <label class="form-label fw-semibold">Ciudad</label>
+      <label class="form-label fw-semibold">¿A dónde quieres ir?</label>
       <input type="text"
              name="city"
              class="form-control"
@@ -41,7 +41,8 @@
         <i class="bi bi-star me-2"></i> Seleccionar
       </button>
     </div>
-
+    <!-- dentro del form -->
+    <div id="selectedAmenities" hidden></div>
     <!-- Botón Buscar -->
     <div class="col-md-2 d-grid">
       <button type="submit" class="btn btn-primary btn-lg">Buscar</button>
@@ -97,6 +98,7 @@
 </div>
 
 <!-- Modal Comodidades -->
+<!-- Modal Comodidades -->
 <div class="modal fade" id="amenitiesModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content rounded-4 shadow">
@@ -106,36 +108,14 @@
       </div>
       <div class="modal-body">
         <div class="row row-cols-2 row-cols-md-3 g-3">
-          <div class="col">
-            <div class="form-check">
-              <input class="form-check-input amenity" type="checkbox" value="WiFi" id="wifi">
-              <label class="form-check-label" for="wifi"><i class="bi bi-wifi me-1"></i> WiFi gratuito</label>
+          <% Amenity.all.each do |amenity| %>
+            <div class="col">
+              <div class="form-check">
+                <%= check_box_tag "amenities[]", amenity.name, false, class: "form-check-input amenity", id: "amenity_#{amenity.id}" %>
+                <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+              </div>
             </div>
-          </div>
-          <div class="col">
-            <div class="form-check">
-              <input class="form-check-input amenity" type="checkbox" value="Piscina" id="pool">
-              <label class="form-check-label" for="pool"><i class="bi bi-water me-1"></i> Piscina</label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-check">
-              <input class="form-check-input amenity" type="checkbox" value="Parqueadero" id="parking">
-              <label class="form-check-label" for="parking"><i class="bi bi-car-front me-1"></i> Parqueadero</label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-check">
-              <input class="form-check-input amenity" type="checkbox" value="Gimnasio" id="gym">
-              <label class="form-check-label" for="gym"><i class="bi bi-heart-pulse me-1"></i> Gimnasio</label>
-            </div>
-          </div>
-          <div class="col">
-            <div class="form-check">
-              <input class="form-check-input amenity" type="checkbox" value="Desayuno" id="breakfast">
-              <label class="form-check-label" for="breakfast"><i class="bi bi-cup-straw me-1"></i> Desayuno incluido</label>
-            </div>
-          </div>
+          <% end %>
         </div>
       </div>
       <div class="modal-footer">
@@ -147,6 +127,7 @@
 </div>
 
 <script>
+
     // Huéspedes
     function updateGuests(type, change) {
         const input = document.getElementById(type);
@@ -174,6 +155,20 @@
         const checkboxes = document.querySelectorAll('.amenity:checked');
         const selected = Array.from(checkboxes).map(cb => cb.value);
 
+        // Limpiar los hidden inputs anteriores
+        const container = document.getElementById("selectedAmenities");
+        container.innerHTML = "";
+
+        // Crear un hidden input por cada amenity seleccionado
+        selected.forEach(value => {
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "amenities[]";   // 👈 clave para que Rails lo reciba como array
+            hidden.value = value;
+            container.appendChild(hidden);
+        });
+
+        // Actualizar el botón resumen
         let summary = `<i class="bi bi-star me-2"></i> Seleccionar`;
         if (selected.length > 0) {
             if (selected.length <= 3) {
@@ -185,4 +180,5 @@
 
         document.getElementById("amenitiesSummaryBtn").innerHTML = summary;
     }
+
 </script>

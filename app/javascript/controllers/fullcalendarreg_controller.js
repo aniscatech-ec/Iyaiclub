@@ -1,16 +1,27 @@
 import { Controller } from "@hotwired/stimulus"
+
 export default class extends Controller {
     static values = { events: Array }
 
     connect() {
         console.log("✅ FullCalendar Stimulus conectado")
-        var initialLocaleCode = 'es';
+        this.initialLocaleCode = 'es'
 
-        if (!window.FullCalendar) {
-            console.error("❌ FullCalendar no está disponible todavía")
-            return
+        // Espera a que FullCalendar exista antes de inicializar
+        this.waitForFullCalendar(() => {
+            this.initializeCalendar()
+        })
+    }
+
+    waitForFullCalendar(callback) {
+        if (window.FullCalendar) {
+            callback()
+        } else {
+            setTimeout(() => this.waitForFullCalendar(callback), 50)
         }
+    }
 
+    initializeCalendar() {
         if (this.calendar) this.calendar.destroy()
 
         this.calendar = new window.FullCalendar.Calendar(this.element, {
@@ -23,11 +34,10 @@ export default class extends Controller {
             },
             selectable: true,
             editable: true,
-            locale: initialLocaleCode,
+            locale: this.initialLocaleCode,
             events: this.eventsValue || [],
             dateClick: this.dateClick.bind(this)
         })
-
 
         this.calendar.render()
     }
@@ -36,7 +46,6 @@ export default class extends Controller {
         const existing = this.calendar.getEventById(info.dateStr)
 
         if (!existing) {
-            // estado 1 → disponible
             this.calendar.addEvent({
                 id: info.dateStr,
                 title: "Disponible",
@@ -45,7 +54,6 @@ export default class extends Controller {
                 color: "green"
             })
         } else if (existing.title === "Disponible") {
-            // estado 2 → no disponible
             existing.remove()
             this.calendar.addEvent({
                 id: info.dateStr,
@@ -55,7 +63,6 @@ export default class extends Controller {
                 color: "red"
             })
         } else {
-            // estado 3 → eliminar evento (vacío)
             existing.remove()
         }
 

@@ -1,22 +1,98 @@
 class EstablishmentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_establishment, only: %i[show edit update destroy]
+  before_action :set_establishment, only: %i[show edit update destroy dashboard]
   before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
   layout "dashboard"
 
+  # def index
+  #   if params[:search]
+  #     query = params[:search]
+  #     puts "------------------------------------------------"
+  #     puts query
+  #     puts "------------------------------------------------"
+  #     @establishments = Establishment.where(name: query)
+  #   elsif params[:city].present?
+  #     # Busca la ciudad por nombre y filtra sus establishments
+  #     city = City.find_by(name: params[:city])
+  #     @establishments = Establishment.where(city_id: city.id) if city
+  #   elsif params[:country].present?
+  #     # Busca el país por nombre y filtra sus establishments
+  #     country = Country.find_by(name: params[:country])
+  #     @establishments = Establishment.where(country: country.id) if country
+  #   else
+  #     @establishments = Establishment.all
+  #   end
+  #   # if current_user.administrador?
+  #   #   # if params[:establishment].present? && Establishment.categories.key?(params[:establishment])
+  #   #   #   @establishments = Establishment.where(category: Establishment.categories[params[:establishment]])
+  #   #   # else
+  #   #     @establishments = Establishment.all
+  #   #   # end
+  #   # else
+  #   #   @establishments = current_user.establishments
+  #   # end
+  # end
+
+
   def index
+    puts "================= PARAMS ================="
+    puts params.inspect
+    puts "=========================================="
     @establishments = Establishment.all
-    
-    # if current_user.administrador?
-    #   # if params[:establishment].present? && Establishment.categories.key?(params[:establishment])
-    #   #   @establishments = Establishment.where(category: Establishment.categories[params[:establishment]])
-    #   # else
-    #     @establishments = Establishment.all
-    #   # end
-    # else
-    #   @establishments = current_user.establishments
-    # end
+
+    # ------------------------
+    # Búsqueda por nombre
+    # ------------------------
+    if params[:search].present?
+      query = params[:search].strip
+      @establishments = @establishments.where("name ILIKE ?", "%#{query}%")
+    end
+
+    # ------------------------
+    # Filtrar por ciudad
+    # ------------------------
+    if params[:city].present?
+      city = City.find_by(name: params[:city].strip)
+      puts "-----------------------------CITY----------------------------------"
+      @establishments = @establishments.where(city_id: city.id) if city
+    end
+
+    # ------------------------
+    # Filtrar por país
+    # ------------------------
+    if params[:country].present?
+      country = Country.find_by(name: params[:country].strip)
+      @establishments = @establishments.where(country_id: country.id) if country
+    end
+
+    # ------------------------
+    # Filtrar por comodidades
+    # ------------------------
+    if params[:amenities].present?
+      puts "-----------------------------AMENITIES----------------------------------"
+
+      amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+
+      @establishments = @establishments.joins(:amenities)
+                                       .where(amenities: { id: amenity_ids })
+                                       .distinct
+    end
+    # ------------------------
+    # Filtrar por fechas (opcional)
+    # ------------------------
+    if params[:checkin].present? && params[:checkout].present?
+      checkin = Date.parse(params[:checkin]) rescue nil
+      checkout = Date.parse(params[:checkout]) rescue nil
+
+      if checkin && checkout
+        # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
+        @establishments = @establishments.select do |est|
+          est.available_between?(checkin, checkout)
+        end
+      end
+    end
   end
+
 
   def show
     # units_controller.rb
@@ -93,12 +169,15 @@ class EstablishmentsController < ApplicationController
     @establishment.destroy
     redirect_to establishments_path, notice: 'Establecimiento eliminado con éxito.'
   end
+  def dashboard
 
+  end
   private
 
   def set_establishment
     @establishment = Establishment.find(params[:id])
   end
+
 
   def authorize_admin_or_owner!
     unless current_user.administrador? || @establishment.user == current_user
@@ -119,6 +198,29 @@ class EstablishmentsController < ApplicationController
 
     # params.require(:establishment).permit(*allowed)
     params.require(:establishment).permit(:name, :description, :category, :city_id)
+
+    params.require(:establishment).permit(:name,
+                                          :short_description,
+                                          :long_description,
+                                          :category,
+                                          :amenities,
+                                          :address,
+                                          :city_id,
+                                          :province_id,
+                                          :country_id,
+                                          :latitude,
+                                          :longitude,
+                                          :arrival_instructions,
+                                          :currency,
+                                          :service_fee,
+                                          :max_discount,
+                                          :refund_policy,
+                                          :check_in_time,
+                                          :check_out_time,
+                                          :video,
+                                          :video_url,
+                                          policies: [],
+                                          amenity_ids: [])
 
   end
 

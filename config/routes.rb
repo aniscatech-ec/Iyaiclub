@@ -48,6 +48,9 @@ Rails.application.routes.draw do
 
   resources :establishments do
     resources :establishment_steps
+    member do
+      get :dashboard  # /establishments/:id/dashboard
+    end
   end
   namespace :turista do
     get "dashboard/index"

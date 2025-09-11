@@ -30,8 +30,11 @@ class Establishment < ApplicationRecord
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
 
+  has_one_attached :video
   # Devuelve [] si policies es nil
   def policies_array
     policies || []
   end
+
+
 end

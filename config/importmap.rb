@@ -10,3 +10,18 @@ pin "bootstrap", to: "bootstrap.min.js", preload: true
 pin "@popperjs/core", to: "popper.js", preload: true
 pin "flatpickr" # @4.6.13
 
+# pin "leaflet", to: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js"
+
+
+# FullCalendar core y plugins
+# pin "@fullcalendar/core", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/index.js"
+# pin "@fullcalendar/daygrid", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.19/index.js"
+# pin "@fullcalendar/interaction", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.19/index.js"
+# pin "@fullcalendar/core/locales-all", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales-all.js"
+#
+# pin "preact", to: "https://cdn.jsdelivr.net/npm/preact@10.22.0/dist/preact.module.js"
+# pin "preact/hooks", to: "https://cdn.jsdelivr.net/npm/preact@10.22.0/hooks/dist/hooks.module.js"
+
+
+
+

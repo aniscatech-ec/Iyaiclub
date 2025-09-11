@@ -1,0 +1,37 @@
+<table class="table table-hover table-bordered align-middle shadow-sm">
+  <thead class="table-light">
+  <tr>
+    <th>Nombre</th>
+    <th>Categoría</th>
+    <th>Nombre comercial</th>
+    <th>Administrador</th>
+    <th class="text-center">Acciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% establishments.each do |est| %>
+    <tr>
+      <td><%= est.name %></td>
+<!--      <td><%#= est.legal_info.id %></td>-->
+<!--      <td><%#= est.legal_info.business_name %></td>-->
+<!--      <td><%#= est.legal_info.legal_representative %></td>-->
+      <td>
+        <div class="d-flex justify-content-center gap-2">
+          <%= link_to est, class: "btn btn-outline-info btn-sm" do %>
+            <i class="fa-solid fa-eye"></i>
+          <% end %>
+          <%= link_to edit_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
+            <i class="fa-solid fa-pen-to-square"></i>
+          <% end %>
+          <%= link_to dashboard_establishment_path(est), class: "btn btn-outline-secondary btn-sm" do %>
+            <i class="fa-solid fa-pen-to-square"></i>
+          <% end %>
+          <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este establecimiento?" }, class: "btn btn-outline-danger btn-sm" do %>
+            <i class="fa-solid fa-trash-can"></i>
+          <% end %>
+        </div>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

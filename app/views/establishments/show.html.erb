@@ -44,11 +44,15 @@
       <% end %>
     </ul>
 
-<!--    <p><strong>Políticas:</strong> <%#= @establishment.policies %></p>-->
+    <!--    <p><strong>Políticas:</strong> <%#= @establishment.policies %></p>-->
 
     <p><strong>Políticas:</strong></p>
-    <p><strong>Check-in:</strong> <%= @establishment.check_in_time.strftime("%I:%M %p") if @establishment.check_in_time %></p>
-    <p><strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %></p>
+    <p>
+      <strong>Check-in:</strong> <%= @establishment.check_in_time.strftime("%I:%M %p") if @establishment.check_in_time %>
+    </p>
+    <p>
+      <strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %>
+    </p>
 
     <ul>
       <% @establishment.policies_array.each do |policy| %>
@@ -64,12 +68,12 @@
   <div class="card-header fw-bold">3. Ubicación</div>
   <div class="card-body">
     <p><strong>Dirección:</strong> <%= @establishment.address %></p>
-        <p><strong>País:</strong> <%= @establishment.country.name if @establishment.country%></p>
-        <p><strong>Provincia:</strong> <%= @establishment.province.name if @establishment.province%></p>
-        <p><strong>Ciudad:</strong> <%= @establishment.city.name if @establishment.city%></p>
+    <p><strong>País:</strong> <%= @establishment.country.name if @establishment.country %></p>
+    <p><strong>Provincia:</strong> <%= @establishment.province.name if @establishment.province %></p>
+    <p><strong>Ciudad:</strong> <%= @establishment.city.name if @establishment.city %></p>
     <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
-    <p><strong>Instrucciones:</strong> <%= @establishment.latitude %></p>
-    <p><strong>Instrucciones:</strong> <%= @establishment.longitude %></p>
+    <p><strong>Latitud:</strong> <%= @establishment.latitude %></p>
+    <p><strong>Longitud:</strong> <%= @establishment.longitude %></p>
   </div>
 </div>
 
@@ -89,6 +93,17 @@
       </div>
     <% end %>
   </div>
+  <h2>Video del establecimiento</h2>
+  <% if @establishment.video.attached? %>
+    <%= video_tag url_for(@establishment.video),
+                  controls: true,
+                  preload: "metadata",
+                  class: "w-100 rounded shadow mb-3" %>
+  <% elsif @establishment.video_url.present? %>
+
+    <%= embed_video_tag_from_url(@establishment.video_url) %>
+
+  <% end %>
 </div>
 
 <!-- Sección 5: Unidades -->
@@ -259,5 +274,13 @@
     <% else %>
       <p class="text-muted">No se han subido documentos de verificación.</p>
     <% end %>
+  </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+  <div class="card-header fw-bold">9. Declaración de información</div>
+  <div class="card-body">
+    <%= check_box_tag "confirmed", "1", @establishment.confirmed, class: "form-check-input", disabled: true %>
+    <%= @establishment.confirmed ? "Sí" : "No" %>
   </div>
 </div>
