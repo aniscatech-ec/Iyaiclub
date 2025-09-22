@@ -172,6 +172,43 @@ class EstablishmentsController < ApplicationController
   def dashboard
 
   end
+
+  def choose_type
+    # Aquí solo renderizamos la vista con las tarjetas
+  end
+
+  def create_type
+    type = params[:type] # "hotel", "restaurante", etc.
+
+    # Creamos el registro según tipo
+    case type
+    when "hotel"
+      # hotel = Hotel.new(user: current_user)
+      # Crear un establishment vacío
+      est = Establishment.create(user: current_user, category: :hotel)
+
+      # Crear el hotel vinculado
+      hotel = Hotel.create(establishment: est)
+      hotel.save
+      puts "--------------------------------------"
+      puts hotel.id
+      puts current_user
+      puts "-------------------------------------"
+
+      redirect_to edit_hotel_path(hotel)
+
+    when "restaurante"
+      # est = Establishment.create(user: current_user, category: :restaurante)
+
+      # Crear el hotel vinculado
+      # restaurant = Restaurant.create(establishment: est)
+      # restaurant.save
+      # redirect_to edit_restaurant_path(restaurant) and return
+      redirect_to new_restaurant_path and return
+    else
+      redirect_to establishments_path, alert: "Tipo no válido"
+    end
+  end
   private
 
   def set_establishment

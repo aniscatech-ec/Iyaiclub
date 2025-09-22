@@ -230,11 +230,19 @@
     <p><strong>Descuento máximo:</strong> <%= @establishment.pricing_policy&.max_discount %></p>
     <p><strong>Políticas de reembolso:</strong></p>
 
-    <ul>
-      <% Array(@establishment.pricing_policy.refund_policy).each do |policy| %>
-        <li><%= policy %></li>
+      <% if @establishment.pricing_policy %>
+      <ul>
+
+        <% @establishment.pricing_policy.refund_policy_array.each do |policy| %>
+          <li><%= policy %></li>
+        <% end %>
+      </ul>
+
+      <% else %>
+        <div class="alert alert-info">No hay politicas de reembolso registradas para este establecimiento.</div>
+
       <% end %>
-    </ul>
+      <%# Array(@establishment.pricing_policy.refund_policy).each do |policy| %>
 
 
   </div>

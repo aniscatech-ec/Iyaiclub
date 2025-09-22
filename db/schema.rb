@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_222715) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_13_164921) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -135,6 +135,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_222715) do
     t.index ["gallery_id"], name: "index_gallery_images_on_gallery_id"
   end
 
+  create_table "hotels", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.integer "stars"
+    t.string "hotel_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_hotels_on_establishment_id"
+  end
+
   create_table "legal_infos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "business_name"
     t.string "legal_representative"
@@ -189,6 +198,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_222715) do
     t.datetime "updated_at", null: false
     t.bigint "country_id", null: false
     t.index ["country_id"], name: "index_provinces_on_country_id"
+  end
+
+  create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.string "cuisine_type"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_restaurants_on_establishment_id"
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -273,10 +291,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_222715) do
   add_foreign_key "establishments", "users"
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
+  add_foreign_key "hotels", "establishments"
   add_foreign_key "legal_infos", "establishments"
   add_foreign_key "payment_methods", "establishments"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "restaurants", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "establishments"

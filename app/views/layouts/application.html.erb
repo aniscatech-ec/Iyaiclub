@@ -151,9 +151,11 @@
     </div>
   </div>
 </nav>
-<%= render "shared/search_hotels" %>
+<%#= render "shared/search_hotels" %>
 
+<%= yield :search_bar %>
 <%= yield %>
+
 </body>
 
 

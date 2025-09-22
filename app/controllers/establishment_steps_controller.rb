@@ -114,6 +114,15 @@ class EstablishmentStepsController < ApplicationController
 
       end
 
+      # Caso: eliminar imagen de galería
+      if params[:remove_gallery_image_id].present?
+        gi = GalleryImage.find(params[:remove_gallery_image_id])
+        gi.file.purge if gi.file.attached?
+        gi.destroy
+        head :ok and return
+      end
+
+
       if params[:stay_in_gallery].present?
         redirect_to wizard_path(:galeria, establishment_id: @establishment.id) and return
       end

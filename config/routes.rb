@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :restaurants
   # resources :countries do
   #   resources :provinces do
   #     resources :cities, only: [:index, :new, :create]
@@ -12,6 +13,12 @@ Rails.application.routes.draw do
   #   get :autocomplete, on: :collection
   # end
   # CRUD de países y sus provincias
+  resources :hotels do
+    member do
+      delete :remove_image
+    end
+  end
+
   resources :countries do
     resources :provinces, only: [:index, :new, :create]
     resources :cities, only: :index
@@ -47,6 +54,10 @@ Rails.application.routes.draw do
   get "home/home"
 
   resources :establishments do
+    collection do
+      get :choose_type  # pantalla de tarjetas
+      post :create_type # crear el establecimiento según el tipo
+    end
     resources :establishment_steps
     member do
       get :dashboard  # /establishments/:id/dashboard

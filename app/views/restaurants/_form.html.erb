@@ -1,0 +1,78 @@
+<%= form_with(model: restaurant, local: true, data: { controller: "gallery", action: "submit->gallery#submitForm",
+                                                      model: "restaurant" }) do |f| %>
+  <%= f.fields_for :establishment do |e| %>
+    <div class="card mb-4">
+      <div class="card-header fw-bold">1. Datos legales y contacto</div>
+      <div class="card-body">
+        <%= e.fields_for :legal_info do |l| %>
+          <div class="mb-3">
+            <%= l.label :business_name, "Razón social / nombre comercial" %>
+            <%= l.text_field :business_name, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= l.label :document_number, "RUC / identificación fiscal" %>
+            <%= l.text_field :document_number, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
+            <%= l.text_field :legal_representative, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= l.label :contact_email, "Email de contacto" %>
+            <%= l.email_field :contact_email, class: "form-control" %>
+          </div>
+          <div class="mb-3">
+            <%= l.label :contact_phone, "Teléfono de contacto" %>
+            <%= l.telephone_field :contact_phone, class: "form-control" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card mb-4">
+    <div class="card-header fw-bold">2. Perfil del restaurante</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <%= f.fields_for :establishment do |e| %>
+          <%= e.label :name, "Nombre público del restaurante" %>
+          <%= e.text_field :name, class: "form-control" %>
+        <% end %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
+        <%= f.select :cuisine_type, options_for_select(
+          ["Ecuatoriana","Italiana","Fusión","Mexicana","Japonesa","Internacional"],
+          restaurant.cuisine_type
+        ),
+                     { include_blank: "Seleccione tipo de cocina" },
+                     class: "form-select" %>
+      </div>
+
+      <div class="mb-3">
+        <%= f.label :category, "Categoría del restaurante" %>
+        <%= f.select :category, options_for_select(
+          ["Familiar","Gourmet","Bar","Café","Comida rápida"],
+          restaurant.category
+        ),
+                     { include_blank: "Seleccione categoría" },
+                     class: "form-select" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aquí Stimulus inyectará las galerías -->
+  <div id="galleries-container" data-gallery-target="container"></div>
+
+  <div class="card mb-4">
+    <div class="card-header fw-bold">Agregar galería</div>
+    <div class="card-body">
+      <input type="text" data-gallery-target="name" class="form-control mb-2" placeholder="Nombre de la galería">
+      <input type="file" data-gallery-target="files" multiple class="form-control mb-2">
+      <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
+    </div>
+  </div>
+
+  <%= f.submit "Guardar", class: "btn btn-primary" %>
+<% end %>

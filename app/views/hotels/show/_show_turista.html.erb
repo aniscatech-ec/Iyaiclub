@@ -1,0 +1,98 @@
+<% @hotel=hotel%>
+<div class="container my-5">
+  <!-- Encabezado principal -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold"><%= @hotel.establishment.name %></h1>
+    <p class="text-muted mb-2">
+      <%= @hotel.hotel_type.present? ? @hotel.hotel_type.humanize : "Tipo no especificado" %>
+    </p>
+    <div class="text-warning fs-4">
+      <%= "⭐" * (@hotel.stars || 0) %>
+    </div>
+  </div>
+
+    <!-- Perfil y datos legales -->
+    <div class="col mt-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-bold">
+          <i class="bi bi-building"></i> Datos legales
+        </div>
+        <div class="card-body">
+          <% if @hotel.establishment.legal_info.present? %>
+            <p><strong>Razón social:</strong> <%= @hotel.establishment.legal_info.business_name %></p>
+            <p><strong>RUC / ID fiscal:</strong> <%= @hotel.establishment.legal_info.document_number %></p>
+            <p><strong>Responsable:</strong> <%= @hotel.establishment.legal_info.legal_representative %></p>
+            <p><strong>Email:</strong> <%= @hotel.establishment.legal_info.contact_email %></p>
+            <p><strong>Teléfono:</strong> <%= @hotel.establishment.legal_info.contact_phone %></p>
+          <% else %>
+            <p class="text-muted fst-italic">No hay datos legales registrados.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perfil del hotel -->
+    <div class="col mt-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-bold">
+          <i class="bi bi-info-circle"></i> Perfil del hotel
+        </div>
+        <div class="card-body">
+          <p><strong>Nombre público:</strong> <%= @hotel.establishment.name %></p>
+          <p><strong>Tipo:</strong> <%= @hotel.hotel_type %></p>
+          <p><strong>Categoría:</strong> <%= @hotel.stars %> estrellas</p>
+
+
+        </div>
+      </div>
+    </div>
+  <div class="col mt-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-primary text-white fw-bold">
+        <i class="bi bi-building"></i> Ubicación
+      </div>
+      <div class="card-body">
+          <p><strong>País:</strong> <%= @hotel.establishment.country.name if hotel.establishment.country %></p>
+          <p><strong>Provincia:</strong><%= @hotel.establishment.province.name if hotel.establishment.province %></p>
+          <p><strong>Ciudad:</strong> <%= @hotel.establishment.city.name if hotel.establishment.city %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Galerías -->
+  <div class="card shadow-sm border-0 mt-5">
+    <div class="card-header bg-primary text-white fw-bold">
+      <i class="bi bi-images"></i> Galerías del hotel
+    </div>
+    <div class="card-body">
+      <% if @hotel.establishment.galleries.any? %>
+        <div class="row g-3">
+          <% @hotel.establishment.galleries.each do |gallery| %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title fw-bold text-primary"><%= gallery.name %></h5>
+                  <div class="d-flex flex-wrap gap-2">
+                    <% gallery.gallery_images.each do |img| %>
+                      <% if img.file.attached? %>
+                        <%= image_tag img.file.variant(resize_to_limit: [250, 160]),
+                                      class: "img-fluid rounded border" %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">No hay galerías registradas.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="mt-4 text-center">
+    <%= link_to "Volver al listado", hotels_path, class: "btn btn-secondary" %>
+  </div>
+</div>

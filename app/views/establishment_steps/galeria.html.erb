@@ -12,25 +12,23 @@
       <div class="d-flex flex-wrap gap-3">
         <% gallery.gallery_images.each do |gi| %>
           <% if gi.file.attached? %>
-            <div class="position-relative">
+            <div class="position-relative" data-gallery-id="<%= gallery.id %>" data-image-id="<%= gi.id %>">
               <%= image_tag gi.file.variant(resize_to_limit: [200, 200]), class: "img-thumbnail #{'border border-3 border-success' if gi.is_cover?}" %>
 
               <% if gi.is_cover? %>
                 <span class="badge bg-success position-absolute top-0 start-0 m-1">Portada</span>
               <% else %>
-
                 <%= button_to "Marcar como portada",
                               wizard_path(:galeria, gallery_image_id: gi.id, make_cover: true, establishment_id: @establishment.id),
-                              method: :put, class: "btn btn-sm btn-outline-success mt-1 w-100" %>
+                              method: :put,
+                              class: "btn btn-sm btn-outline-success mt-1 w-100" %>
+              <% end %>
 
-
-            <% end %>
+              <button type="button" class="btn btn-sm btn-danger mt-1 w-100 remove-image">Eliminar</button>
             </div>
           <% end %>
         <% end %>
       </div>
-    <% else %>
-      <p class="text-muted">No hay imágenes aún en esta galería.</p>
     <% end %>
 
     <h5 class="mt-3">Agregar imágenes:</h5>
@@ -107,3 +105,39 @@
     <%= form.submit "Guardar video", name: "stay_in_gallery", class: "btn btn-success" %>
   </div>
 <% end %>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Capturar botones de eliminar imagen
+        document.querySelectorAll(".remove-image").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const parentDiv = e.target.closest("[data-image-id]");
+                const galleryId = parentDiv.dataset.galleryId;
+                const imageId = parentDiv.dataset.imageId;
+
+                if (confirm("¿Seguro que deseas eliminar esta imagen?")) {
+                    // Enviar request para eliminar la imagen
+                    fetch("<%= wizard_path(:galeria) %>", {
+                        method: "PUT",
+                        headers: {
+                            "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            remove_gallery_image_id: imageId,
+                            gallery_id: galleryId
+                        })
+                    }).then(resp => {
+                        if (resp.ok) {
+                            // Remover del DOM
+                            parentDiv.remove();
+                        } else {
+                            alert("Error al eliminar la imagen");
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>

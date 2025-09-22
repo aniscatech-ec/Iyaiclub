@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  establishment: one
+  stars: 1
+  hotel_type: MyString
+
+two:
+  establishment: two
+  stars: 1
+  hotel_type: MyString

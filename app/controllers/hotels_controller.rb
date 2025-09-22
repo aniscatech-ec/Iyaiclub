@@ -1,0 +1,151 @@
+class HotelsController < ApplicationController
+  before_action :set_hotel, only: [:show, :edit, :update, :destroy]
+  layout "dashboard"
+
+  def index
+    @hotels = Hotel.all
+  end
+
+  def show
+  end
+
+  def new
+    @hotel = Hotel.new
+    @hotel.build_establishment.build_legal_info
+    @hotel.establishment.galleries.build.gallery_images.build
+  end
+
+  def edit
+    @hotel.build_establishment unless @hotel.establishment
+    @hotel.establishment.build_legal_info unless @hotel.establishment.legal_info
+  end
+
+  def create
+    @hotel = Hotel.new(hotel_params)
+
+    if @hotel.establishment
+      # Solo añades valores faltantes
+      @hotel.establishment.user = current_user
+      @hotel.establishment.category = :hotel
+    else
+      # Si no vino establishment_attributes, lo construyes
+      @hotel.build_establishment(user: current_user, category: :hotel)
+    end
+
+    if @hotel.save
+      redirect_to @hotel, notice: "Hotel creado correctamente."
+    else
+      render :new
+    end
+  end
+
+  # def update
+  #   Rails.logger.debug "=== PARAMS RECIBIDOS ==="
+  #   Rails.logger.debug params.inspect
+  #   puts "=== PARAMS ==="
+  #   puts params[:hotel][:establishment_attributes][:galleries_attributes].inspect
+  #
+  #
+  #   # o si quieres algo más legible:
+  #   puts JSON.pretty_generate(params.to_unsafe_h)
+  #   if @hotel.update(hotel_params)
+  #     redirect_to @hotel, notice: "Hotel actualizado correctamente."
+  #   else
+  #     render :edit
+  #   end
+  # end
+
+  def update
+    if @hotel.update(hotel_params)
+      # Procesar uploads adicionales por galería (si el formulario envió archivos)
+      if params[:gallery_uploads].present?
+        params[:gallery_uploads].each do |gallery_id, files|
+          next if files.blank?
+
+          gallery = Gallery.find_by(id: gallery_id.to_i)
+          next unless gallery
+
+          files.each do |uploaded_file|
+            # crea un GalleryImage por cada archivo (ajusta según tu modelo)
+            gallery.gallery_images.create(file: uploaded_file)
+          end
+        end
+      end
+
+      redirect_to @hotel, notice: "Hotel actualizado correctamente."
+    else
+      render :edit
+    end
+  end
+
+
+  def remove_image
+    gi = GalleryImage.find(params[:remove_gallery_image_id])
+    gallery = gi.gallery
+
+    gi.file.purge if gi.file.attached?
+    gi.destroy
+
+    # Si la galería ya no tiene imágenes, la borramos
+    if gallery.gallery_images.empty?
+      gallery.destroy
+    end
+
+    head :ok
+  end
+
+  def destroy
+
+  end
+
+  private
+
+  def set_hotel
+    @hotel = Hotel.find(params[:id])
+  end
+
+  def hotel_params
+    params.require(:hotel).permit(
+      :stars,
+      :hotel_type,
+      establishment_attributes: [
+        :id, # <-- para que no te bote el warning
+        :name,
+        :short_description,
+        :long_description,
+        :address,
+        :city_id,
+        :province_id,
+        :country_id,
+        :latitude,
+        :longitude,
+        :arrival_instructions,
+        :currency,
+        :service_fee,
+        :max_discount,
+        :refund_policy,
+        :check_in_time,
+        :check_out_time,
+        :video,
+        :video_url,
+        policies: [],
+        amenity_ids: [],
+        legal_info_attributes: [
+          :id, # <-- también aquí
+          :business_name,
+          :document_number,
+          :legal_representative,
+          :contact_email,
+          :contact_phone
+        ],
+        galleries_attributes: [
+          :id, :name, :_destroy,
+          gallery_images_attributes: [:id, :file, :_destroy]
+        ]
+
+      ]
+    )
+  end
+
+
+end

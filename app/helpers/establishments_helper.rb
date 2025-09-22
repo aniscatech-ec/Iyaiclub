@@ -68,4 +68,11 @@ module EstablishmentsHelper
       nil
     end
   end
+
+  def establishment_type_label(type)
+    {
+      "hotel" => "Hotel",
+      "restaurante" => "Restaurante"
+    }[type] || type
+  end
 end

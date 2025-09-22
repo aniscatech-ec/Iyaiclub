@@ -26,7 +26,8 @@ class Establishment < ApplicationRecord
   accepts_nested_attributes_for :verification
   accepts_nested_attributes_for :units
   accepts_nested_attributes_for :payment_methods
-  accepts_nested_attributes_for :galleries
+  # accepts_nested_attributes_for :galleries
+  accepts_nested_attributes_for :galleries, allow_destroy: true
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
 
@@ -35,6 +36,8 @@ class Establishment < ApplicationRecord
   def policies_array
     policies || []
   end
+
+
 
 
 end

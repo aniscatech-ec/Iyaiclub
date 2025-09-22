@@ -1,78 +1,89 @@
-<div class="container my-4">
-  <h2 class="mb-4">Panel de Administración</h2>
+<div class="container my-5">
+  <h2 class="mb-5 text-center fw-bold">Panel de Administración</h2>
 
   <!-- Métricas principales -->
-  <div class="row g-4">
-    <div class="col-md-3">
-      <div class="card bg-primary text-white text-center">
-        <div class="card-body">
-          <h5 class="card-title">Usuarios</h5>
-          <p class="display-6"><%= User.count-1 %></p>
+  <div class="row g-4 mb-5">
+    <% metrics = [
+      {title: "Usuarios", count: User.count - 1, icon: "fa-users", color: "primary"},
+      {title: "Establecimientos", count: Establishment.count, icon: "fa-building", color: "success"},
+      {title: "Reservas", count: 210, icon: "fa-calendar-check", color: "warning"},
+      {title: "Membresías", count: 32, icon: "fa-credit-card", color: "danger"}
+    ] %>
+
+    <% metrics.each do |m| %>
+      <div class="col-md-3">
+        <div class="card shadow-sm h-100 text-center p-3 border-0">
+          <div class="card-body">
+            <i class="fa-solid <%= m[:icon] %> fa-3x text-<%= m[:color] %> mb-3"></i>
+            <h6 class="card-title fw-bold"><%= m[:title] %></h6>
+            <p class="display-6"><%= m[:count] %></p>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card bg-success text-white text-center">
-        <div class="card-body">
-          <h5 class="card-title">Establecimientos</h5>
-          <p class="display-6"><%= Establishment.count %></p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card bg-warning text-white text-center">
-        <div class="card-body">
-          <h5 class="card-title">Reservas</h5>
-          <p class="display-6">210</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card bg-danger text-white text-center">
-        <div class="card-body">
-          <h5 class="card-title">Membresías</h5>
-          <p class="display-6">32</p>
-        </div>
-      </div>
-    </div>
+    <% end %>
   </div>
 
-  <!-- Gestión -->
-  <div class="mt-5">
-    <div class="row g-4">
+  <!-- Sección Usuarios -->
+  <h4 class="mb-3 fw-bold">Usuarios</h4>
+  <div class="row g-4 mb-5">
+    <% users_links = [
+      {title: "Todos", path: admin_users_path, icon: "fa-user", color: "primary"},
+      {title: "Afiliados", path: admin_users_path(role: "afiliado"), icon: "fa-user-tie", color: "info"},
+      {title: "Turistas", path: admin_users_path(role: "turista"), icon: "fa-user-check", color: "secondary"}
+    ] %>
+
+    <% users_links.each do |u| %>
       <div class="col-md-4">
-        <div class="list-group">
-<!--          <a href="/admin/users" class="list-group-item list-group-item-action active">Usuarios</a>-->
-<!--          <a href="#" class="list-group-item list-group-item-action">Afiliados</a>-->
-<!--          <a href="#" class="list-group-item list-group-item-action">Turistas</a>-->
-
-          <%= link_to "Usuarios", admin_users_path, class: "list-group-item list-group-item-action active" %>
-          <%= link_to "Afiliados", admin_users_path(role: "afiliado"), class: "list-group-item list-group-item-action" %>
-          <%= link_to "Turistas", admin_users_path(role: "turista"), class: "list-group-item list-group-item-action" %>
-
-        </div>
+        <%= link_to u[:path], class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+          <div class="card-body">
+            <i class="fa-solid <%= u[:icon] %> fa-3x text-<%= u[:color] %> mb-3"></i>
+            <h6 class="card-title fw-bold"><%= u[:title] %></h6>
+          </div>
+        <% end %>
       </div>
+    <% end %>
+  </div>
+
+  <!-- Sección Establecimientos -->
+  <h4 class="mb-3 fw-bold">Establecimientos</h4>
+  <div class="row g-4 mb-5">
+    <% est_links = [
+      {title: "Todos", path: establishments_path, icon: "fa-building", color: "success"},
+      {title: "Hoteles", path: hotels_path, icon: "fa-hotel", color: "info"},
+      {title: "Restaurantes", path: restaurants_path, icon: "fa-utensils", color: "warning"},
+      {title: "Comodidades", path: amenities_path, icon: "fa-star", color: "secondary"}
+    ] %>
+
+    <% est_links.each do |e| %>
+      <div class="col-md-3">
+        <%= link_to e[:path], class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+          <div class="card-body">
+            <i class="fa-solid <%= e[:icon] %> fa-3x text-<%= e[:color] %> mb-3"></i>
+            <h6 class="card-title fw-bold"><%= e[:title] %></h6>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Sección Membresías -->
+  <h4 class="mb-3 fw-bold">Membresías</h4>
+  <div class="row g-4 mb-5">
+    <% memb_links = [
+      {title: "Todas", path: "#", icon: "fa-list", color: "danger"},
+      {title: "Activas", path: "#", icon: "fa-circle-check", color: "success"},
+      {title: "Vencidas", path: "#", icon: "fa-circle-xmark", color: "secondary"}
+    ] %>
+
+    <% memb_links.each do |m| %>
       <div class="col-md-4">
-        <div class="list-group">
-<!--          <a href="/establishments" class="list-group-item list-group-item-action active">Establecimientos</a>-->
-<!--          <a href="#" class="list-group-item list-group-item-action">Hoteles</a>-->
-<!--          <a href="#" class="list-group-item list-group-item-action">Restaurantes</a>-->
-          <%= link_to "Establecimientos", establishments_path, class: "list-group-item list-group-item-action active" %>
-          <%= link_to "Hoteles", establishments_path(establishment: "hotel"), class: "list-group-item list-group-item-action" %>
-          <%= link_to "Restaurantes", establishments_path(establishment: "restaurante"), class: "list-group-item list-group-item-action" %>
-
-
-<!--          <a href="#" class="list-group-item list-group-item-action">Agencias de viaje</a>-->
-          <a href="/amenities" class="list-group-item list-group-item-action">Comodidades</a>
-        </div>
+        <%= link_to m[:path], class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+          <div class="card-body">
+            <i class="fa-solid <%= m[:icon] %> fa-3x text-<%= m[:color] %> mb-3"></i>
+            <h6 class="card-title fw-bold"><%= m[:title] %></h6>
+          </div>
+        <% end %>
       </div>
-      <div class="col-md-4">
-        <div class="list-group">
-          <a href="#" class="list-group-item list-group-item-action active">Membresías</a>
-          <a href="#" class="list-group-item list-group-item-action">Activas</a>
-          <a href="#" class="list-group-item list-group-item-action">Vencidas</a>
-        </div>
-      </div>
-    </div>
+    <% end %>
   </div>
 </div>

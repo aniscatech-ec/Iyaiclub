@@ -1,0 +1,71 @@
+<h2 class="text-center mb-5 fw-bold">Selecciona el tipo de establecimiento</h2>
+
+<div class="row justify-content-center text-center">
+  <div class="col-md-4 mb-4 d-flex justify-content-center">
+    <%= link_to new_hotel_path, method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light text-primary mb-3 mx-auto">
+          <span class="fs-1">🏨</span>
+        </div>
+        <h5 class="fw-bold text-primary">Hotel</h5>
+        <p class="text-muted">Hospedaje cómodo y seguro</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-md-4 mb-4 d-flex justify-content-center">
+    <%= link_to new_restaurant_path, method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light text-success mb-3 mx-auto">
+          <span class="fs-1">🍽️</span>
+        </div>
+        <h5 class="fw-bold text-success">Restaurante</h5>
+        <p class="text-muted">Deliciosa comida y bebidas</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-md-4 mb-4 d-flex justify-content-center">
+    <%= button_to create_type_establishments_path(type: "agency"), method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light text-warning mb-3 mx-auto">
+          <span class="fs-1">✈️</span>
+        </div>
+        <h5 class="fw-bold text-warning">Agencia de viajes</h5>
+        <p class="text-muted">Organiza tus aventuras</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+    .option-card {
+        border: none;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .option-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    /* Hace que el form (button_to) se comporte como tarjeta */
+    form.button_to {
+        width: 100%;
+        height: 100%;
+    }
+</style>

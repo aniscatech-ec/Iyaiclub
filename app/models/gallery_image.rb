@@ -6,6 +6,7 @@ class GalleryImage < ApplicationRecord
 
   def display_image
     # Resize y crop para 400x225 (16:9)
-    file.variant(resize_to_fill: [400, 225, gravity: "Center"]).processed
+    file.variant(resize_to_limit: [400, 225])
+
   end
 end

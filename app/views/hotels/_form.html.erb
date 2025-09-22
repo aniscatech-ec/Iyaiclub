@@ -1,0 +1,241 @@
+<%= form_with(model: hotel, local: true, html: { multipart: true }) do |f| %>
+  <% if hotel.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(hotel.errors.count, "error") %> encontrados:</h4>
+      <ul>
+        <% hotel.errors.full_messages.each { |m| concat(content_tag(:li, m)) } %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Datos del hotel -->
+  <div class="mb-3">
+    <%= f.label :stars %>
+    <%= f.number_field :stars, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :hotel_type, "Tipo de hotel" %>
+    <%= f.text_field :hotel_type, class: "form-control" %>
+  </div>
+
+  <%= f.fields_for :establishment do |e| %>
+    <div class="mb-3">
+      <%= e.label :name, "Nombre" %>
+      <%= e.text_field :name, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= e.label :short_description, "Descripción corta" %>
+      <%= e.text_area :short_description, rows: 2, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= e.label :long_description, "Descripción larga" %>
+      <%= e.text_area :long_description, rows: 4, class: "form-control" %>
+    </div>
+
+    <!-- Info legal -->
+    <%= e.fields_for :legal_info do |l| %>
+      <div class="card mb-3">
+        <div class="card-header fw-bold">Información Legal</div>
+        <div class="card-body">
+          <%= l.label :business_name, "Razón social" %>
+          <%= l.text_field :business_name, class: "form-control" %>
+
+          <%= l.label :document_number, "RUC / Documento" %>
+          <%= l.text_field :document_number, class: "form-control" %>
+
+          <%= l.label :legal_representative, "Representante Legal" %>
+          <%= l.text_field :legal_representative, class: "form-control" %>
+
+          <%= l.label :contact_email, "Correo de contacto" %>
+          <%= l.email_field :contact_email, class: "form-control" %>
+
+          <%= l.label :contact_phone, "Teléfono de contacto" %>
+          <%= l.telephone_field :contact_phone, class: "form-control" %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- ---------- GALERÍAS ---------- -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Galerías</span>
+        <a href="#" id="add-gallery" class="btn btn-sm btn-primary">Agregar galería</a>
+      </div>
+      <div class="card-body">
+        <div id="galleries">
+          <% e.object.galleries.each do |gallery| %>
+            <%= e.fields_for :galleries, gallery do |g| %>
+              <div class="gallery-fields border rounded p-3 mb-3">
+                <%= g.hidden_field :id %>
+                <%= g.hidden_field :_destroy, value: false, class: "gallery-mark-destroy" %>
+
+                <div class="d-flex justify-content-between">
+                  <div class="flex-grow-1 me-2">
+                    <%= g.label :name, "Nombre galería" %>
+                    <%= g.text_field :name, class: "form-control" %>
+                  </div>
+                  <div class="align-self-end">
+                    <a href="#" class="remove-gallery btn btn-sm btn-outline-danger">Eliminar galería</a>
+                  </div>
+                </div>
+
+                <hr>
+
+                <div class="gallery-images-list">
+                  <%= g.fields_for :gallery_images do |gi| %>
+                    <div class="gallery-image mb-2 d-flex align-items-center">
+                      <%= gi.hidden_field :id %>
+                      <%= gi.hidden_field :_destroy, value: false, class: "gallery-image-mark-destroy" %>
+
+                      <div class="me-2">
+                        <% if gi.object.file.attached? %>
+                          <%= image_tag gi.object.display_image, style: "max-width:120px; max-height:80px;", class: "img-thumbnail" %>
+                        <% end %>
+                      </div>
+
+                      <div class="flex-grow-1">
+                        <%= gi.file_field :file, direct_upload: true, class: "form-control" %>
+                        <div class="form-check form-check-inline">
+                          <%= gi.check_box :_destroy, {}, "1", "0" %>
+                          <%= gi.label :_destroy, "Eliminar imagen", class: "form-check-label ms-1" %>
+                        </div>
+                      </div>
+
+                      <div class="ms-2">
+                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger">Quitar</a>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="mt-2">
+                  <a href="#" class="add-gallery-image btn btn-sm btn-secondary">Agregar imagen</a>
+                </div>
+
+                <%# plantilla para nueva imagen %>
+                <% image_template = capture do %>
+                  <%= g.fields_for :gallery_images, GalleryImage.new, child_index: 'NEW_IMAGE' do |gi_t| %>
+                    <div class="gallery-image mb-2 d-flex align-items-center">
+                      <%= gi_t.hidden_field :id %>
+                      <%= gi_t.hidden_field :_destroy, value: false, class: "gallery-image-mark-destroy" %>
+                      <div class="flex-grow-1">
+                        <%= gi_t.file_field :file, direct_upload: true, class: "form-control" %>
+                      </div>
+                      <div class="ms-2">
+                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger">Quitar</a>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+                <div class="new-gallery-image-template" style="display:none;"><%= j image_template %></div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <%# plantilla para nueva galería %>
+        <% gallery_template = capture do %>
+          <%= e.fields_for :galleries, Gallery.new, child_index: 'NEW_GALLERY' do |g_template| %>
+            <div class="gallery-fields border rounded p-3 mb-3">
+              <%= g_template.hidden_field :id %>
+              <%= g_template.hidden_field :_destroy, value: false, class: "gallery-mark-destroy" %>
+              <div class="d-flex justify-content-between">
+                <div class="flex-grow-1 me-2">
+                  <%= g_template.label :name, "Nombre galería" %>
+                  <%= g_template.text_field :name, class: "form-control" %>
+                </div>
+                <div class="align-self-end">
+                  <a href="#" class="remove-gallery btn btn-sm btn-outline-danger">Eliminar galería</a>
+                </div>
+              </div>
+              <hr>
+              <div class="gallery-images-list"></div>
+              <div class="mt-2">
+                <a href="#" class="add-gallery-image btn btn-sm btn-secondary">Agregar imagen</a>
+              </div>
+              <div class="new-gallery-image-template" style="display:none;">
+                <%= j capture {
+                  g_template.fields_for :gallery_images, GalleryImage.new, child_index: 'NEW_IMAGE' do |gi_t|
+                    concat(content_tag(:div, class: "gallery-image mb-2 d-flex align-items-center") do
+                      gi_t.hidden_field(:id) +
+                        gi_t.hidden_field(:_destroy, value: false, class: "gallery-image-mark-destroy") +
+                        content_tag(:div, gi_t.file_field(:file, direct_upload: true, class: "form-control"), class: "flex-grow-1") +
+                        content_tag(:div, link_to("Quitar", "#", class: "remove-gallery-image btn btn-sm btn-outline-danger"), class: "ms-2")
+                    end)
+                  end
+                } %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+        <div id="new-gallery-template" style="display:none;"><%= j gallery_template %></div>
+      </div>
+    </div>
+    <!-- ---------- FIN GALERÍAS ---------- -->
+  <% end %>
+
+  <div class="mt-3">
+    <%= f.submit class: "btn btn-success" %>
+    <%= link_to "Cancelar", hotels_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
+
+<!-- JS para manejar agregar/eliminar -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // agregar galería
+        document.addEventListener('click', function (ev) {
+            if (ev.target.matches('#add-gallery')) {
+                ev.preventDefault();
+                const container = document.getElementById('galleries');
+                const template = document.getElementById('new-gallery-template').innerHTML;
+                const newId = new Date().getTime();
+                container.insertAdjacentHTML('beforeend', template.replace(/NEW_GALLERY/g, newId));
+            }
+        });
+
+        // agregar imagen
+        document.addEventListener('click', function (ev) {
+            if (ev.target.matches('.add-gallery-image')) {
+                ev.preventDefault();
+                const gallery = ev.target.closest('.gallery-fields');
+                const tpl = gallery.querySelector('.new-gallery-image-template').innerHTML;
+                const newId = new Date().getTime();
+                gallery.querySelector('.gallery-images-list').insertAdjacentHTML('beforeend', tpl.replace(/NEW_IMAGE/g, newId));
+            }
+        });
+
+        // eliminar galería
+        document.addEventListener('click', function (ev) {
+            if (ev.target.matches('.remove-gallery')) {
+                ev.preventDefault();
+                const gallery = ev.target.closest('.gallery-fields');
+                const destroyInput = gallery.querySelector('.gallery-mark-destroy');
+                if (destroyInput) {
+                    destroyInput.value = '1';
+                    gallery.style.display = 'none';
+                } else {
+                    gallery.remove();
+                }
+            }
+        });
+
+        // eliminar imagen
+        document.addEventListener('click', function (ev) {
+            if (ev.target.matches('.remove-gallery-image')) {
+                ev.preventDefault();
+                const gi = ev.target.closest('.gallery-image');
+                const destroyInput = gi.querySelector('.gallery-image-mark-destroy');
+                if (destroyInput) {
+                    destroyInput.value = '1';
+                    gi.style.display = 'none';
+                } else {
+                    gi.remove();
+                }
+            }
+        });
+    });
+</script>

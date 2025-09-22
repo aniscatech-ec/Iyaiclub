@@ -1,0 +1,24 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">Hoteles</h1>
+  <% if current_user.administrador? || current_user.afiliado? %>
+    <%= link_to new_hotel_path, class: "btn btn-primary btn-lg" do %>
+      <%#= link_to new_establishment_path, class: "btn btn-success" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
+  <% end %>
+
+
+</div>
+
+<% if current_user.administrador? %>
+  <%= render "table_view", hotels: @hotels %>
+<% elsif current_user.afiliado? %>
+  <%= render "card_view", hotels: @hotels %>
+<% elsif current_user.turista? %>
+  <%= render "catalog_view", hotels: @hotels %>
+<% end %>
+
+
+
+
+
