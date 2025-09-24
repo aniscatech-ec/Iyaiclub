@@ -33,7 +33,6 @@ class EstablishmentsController < ApplicationController
   #   # end
   # end
 
-
   def index
     puts "================= PARAMS ================="
     puts params.inspect
@@ -91,8 +90,11 @@ class EstablishmentsController < ApplicationController
         end
       end
     end
-  end
 
+    if current_user.afiliado?
+      @establishments = current_user.establishments
+    end
+  end
 
   def show
     # units_controller.rb
@@ -169,12 +171,14 @@ class EstablishmentsController < ApplicationController
     @establishment.destroy
     redirect_to establishments_path, notice: 'Establecimiento eliminado con éxito.'
   end
+
   def dashboard
 
   end
 
   def choose_type
     # Aquí solo renderizamos la vista con las tarjetas
+    @user_id = params[:user_id]
   end
 
   def create_type
@@ -209,12 +213,12 @@ class EstablishmentsController < ApplicationController
       redirect_to establishments_path, alert: "Tipo no válido"
     end
   end
+
   private
 
   def set_establishment
     @establishment = Establishment.find(params[:id])
   end
-
 
   def authorize_admin_or_owner!
     unless current_user.administrador? || @establishment.user == current_user

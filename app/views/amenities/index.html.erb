@@ -8,13 +8,22 @@
   <thead>
   <tr>
     <th>Nombre</th>
+    <th>Icon</th>
     <th>Acciones</th>
   </tr>
   </thead>
   <tbody>
   <% @amenities.each do |amenity| %>
     <tr>
-      <td><%= render amenity %></td>
+      <!--      <td><%#= render amenity %></td>-->
+      <td><%= amenity.name %></td>
+      <td>
+        <% if amenity.custom_icon.attached? %>
+          <%= image_tag amenity.custom_icon, size: "24x24", class: "me-2" %>
+        <% else %>
+          -
+        <% end %>
+      </td>
       <td>
         <%= link_to amenity_path(amenity), class: "btn btn-info btn-sm" do %>
           <i class="fa-solid fa-eye"></i>

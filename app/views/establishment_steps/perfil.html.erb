@@ -40,15 +40,88 @@
 <!--  </div>-->
 
 
-  <div class="mb-3">
-    <%= f.label :amenities, "Comodidades" %><br>
-    <% Amenity.all.each do |amenity| %>
-      <div class="form-check form-check-inline">
-        <%= check_box_tag "establishment[amenity_ids][]", amenity.id, @establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
-        <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
-      </div>
-    <% end %>
+<!--  <div class="mb-3">-->
+<!--    <%#= f.label :amenities, "Comodidades" %><br>-->
+    <%# Amenity.all.each do |amenity| %>
+<!--      <div class="form-check form-check-inline">-->
+        <%#= check_box_tag "establishment[amenity_ids][]", amenity.id, @establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
+        <%#= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+<!--      </div>-->
+    <%# end %>
+<!--  </div>-->
+
+
+  <div class="mb-3" data-controller="amenity-selector">
+    <%= f.label :amenities, "Comodidades", class: "form-label fw-bold" %>
+
+    <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
+      <% Amenity.all.each do |amenity| %>
+        <div class="col">
+          <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
+                    <%= "selected" if @establishment.amenity_ids.include?(amenity.id) %>"
+               data-action="click->amenity-selector#toggle">
+
+            <!-- Checkbox oculto -->
+            <%= check_box_tag "establishment[amenity_ids][]",
+                              amenity.id,
+                              @establishment.amenity_ids.include?(amenity.id),
+                              id: "amenity_#{amenity.id}",
+                              class: "d-none",
+                              data: { amenity_selector_target: "checkbox" } %>
+
+            <% if amenity.custom_icon.attached? %>
+              <% if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
+                <%= image_tag url_for(amenity.custom_icon),
+                              alt: amenity.name,
+                              style: "width:32px; height:32px; object-fit:contain;" %>
+              <% else %>
+                <%= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]),
+                              alt: amenity.name %>
+              <% end %>
+            <% end %>
+
+            <!-- Texto del amenity -->
+            <span class="mt-1 text-center"><%= amenity.name %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
+
+  <style>
+      /* Ocultar checkbox */
+      .d-none {
+          display: none !important;
+      }
+
+      /* Estilo de tarjeta seleccionada */
+      .form-check.selected {
+          background-color: rgba(13,110,253,0.15);
+          border-color: #0d6efd;
+      }
+
+      /* Ícono de la tarjeta seleccionada */
+      .form-check.selected img {
+          transform: scale(1.1);
+          filter: brightness(1.2);
+          transition: transform 0.2s, filter 0.2s;
+      }
+
+      /* Hover sobre la tarjeta */
+      .form-check:hover {
+          border-color: #0d6efd;
+          background-color: rgba(13,110,253,0.05);
+          cursor: pointer;
+      }
+  </style>
+
+
+
+
+
+
+
+
 
   <h3>Politicas</h3>
 

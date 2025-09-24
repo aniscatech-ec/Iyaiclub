@@ -1,9 +1,30 @@
-<%= form_with(model: amenity) do |form| %>
-  <% if amenity.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(amenity.errors.count, "error") %> prohibited this amenity from being saved:</h2>
+<style>
+    .icon-preview {
+        display: inline-block;
+        border: 2px solid transparent;
+        padding: 4px;
+        border-radius: 4px;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+    }
 
-      <ul>
+    .icon-preview.selected {
+        border-color: #0d6efd;
+        transform: scale(1.05);
+    }
+
+    .icon-preview img {
+        display: block;
+        margin: 0 auto;
+        max-width: 32px;
+        max-height: 32px;
+    }
+</style>
+
+<%= form_with(model: amenity, local: true, class: "card p-4 shadow-sm", data: { controller: "icon-selector" }) do |form| %>
+  <% if amenity.errors.any? %>
+    <div class="alert alert-danger">
+      <h5><%= pluralize(amenity.errors.count, "error") %> no permitió guardar la amenidad:</h5>
+      <ul class="mb-0">
         <% amenity.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -11,12 +32,35 @@
     </div>
   <% end %>
 
-  <div>
-    <%= form.label "Nombre", style: "display: block" %>
-    <%= form.text_field :name %>
+  <!-- Nombre -->
+  <div class="mb-3">
+    <%= form.label :name, "Nombre de la amenidad", class: "form-label fw-bold" %>
+    <%= form.text_field :name, class: "form-control", placeholder: "Ej: WiFi, Piscina, Estacionamiento" %>
   </div>
 
-  <div>
-    <%= form.submit "Guardar" %>
+  <!-- Subida de ícono -->
+  <div class="mb-3">
+    <%= form.label :custom_icon, "Sube un ícono personalizado (SVG, PNG, JPG)", class: "form-label fw-bold" %>
+
+    <%= form.file_field :custom_icon,
+                        accept: ".svg,.png,.jpg,.jpeg",
+                        class: "form-control",
+                        data: { action: "change->icon-selector#preview", "icon-selector-target" => "input" } %>
+
+    <!-- Ícono actual guardado (si existe) -->
+    <% if amenity.custom_icon.attached? %>
+      <div class="mt-2">
+        <strong>Ícono actual:</strong><br>
+        <%= image_tag amenity.custom_icon.variant(resize_to_limit: [32, 32]) if amenity.custom_icon.variable? %>
+      </div>
+    <% end %>
+
+    <!-- Preview del nuevo ícono (solo frontend) -->
+    <div class="mt-2 icon-preview" data-icon-selector-target="previewContainer"></div>
+  </div>
+
+  <!-- Botón -->
+  <div class="mt-3">
+    <%= form.submit "Guardar", class: "btn btn-primary w-100" %>
   </div>
 <% end %>

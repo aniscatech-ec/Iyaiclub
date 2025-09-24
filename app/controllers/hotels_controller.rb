@@ -9,10 +9,31 @@ class HotelsController < ApplicationController
   def show
   end
 
+  # def new
+  #   @hotel = Hotel.new
+  #   @hotel.build_establishment.build_legal_info
+  #   @hotel.establishment.galleries.build.gallery_images.build
+  #   if params[:user_id].present?
+  #     @affiliate = User.find(params[:user_id])
+  #     @hotel.establishment.user = @affiliate
+  #     @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
+  #   end
+  # end
+
   def new
     @hotel = Hotel.new
     @hotel.build_establishment.build_legal_info
     @hotel.establishment.galleries.build.gallery_images.build
+
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @hotel.establishment.user = @affiliate
+      @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
+    elsif current_user&.afiliado?
+      # si es un afiliado que crea su propio hotel
+      @hotel.establishment.user = current_user
+      @hotel.establishment.legal_info.legal_representative ||= current_user.name
+    end
   end
 
   def edit
@@ -20,16 +41,40 @@ class HotelsController < ApplicationController
     @hotel.establishment.build_legal_info unless @hotel.establishment.legal_info
   end
 
+  # def create
+  #   @hotel = Hotel.new(hotel_params)
+  #
+  #   if @hotel.establishment
+  #     # Solo añades valores faltantes
+  #     # @hotel.establishment.user = current_user
+  #     @hotel.establishment.category = :hotel
+  #   else
+  #     # Si no vino establishment_attributes, lo construyes
+  #     # @hotel.build_establishment(user: current_user, category: :hotel)
+  #     @hotel.build_establishment(category: :hotel)
+  #   end
+  #
+  #   if @hotel.save
+  #     redirect_to @hotel, notice: "Hotel creado correctamente."
+  #   else
+  #     render :new
+  #   end
+  # end
   def create
     @hotel = Hotel.new(hotel_params)
 
     if @hotel.establishment
-      # Solo añades valores faltantes
-      @hotel.establishment.user = current_user
       @hotel.establishment.category = :hotel
     else
-      # Si no vino establishment_attributes, lo construyes
-      @hotel.build_establishment(user: current_user, category: :hotel)
+      @hotel.build_establishment(category: :hotel)
+    end
+
+    # 👇 Aquí seteamos el user siempre en el servidor
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @hotel.establishment.user = @affiliate
+    elsif current_user&.afiliado?
+      @hotel.establishment.user = current_user
     end
 
     if @hotel.save
@@ -78,7 +123,6 @@ class HotelsController < ApplicationController
     end
   end
 
-
   def remove_image
     gi = GalleryImage.find(params[:remove_gallery_image_id])
     gallery = gi.gallery
@@ -109,10 +153,12 @@ class HotelsController < ApplicationController
       :stars,
       :hotel_type,
       establishment_attributes: [
+        :user_id,
         :id, # <-- para que no te bote el warning
         :name,
         :short_description,
         :long_description,
+        :amenities,
         :address,
         :city_id,
         :province_id,
@@ -146,6 +192,5 @@ class HotelsController < ApplicationController
       ]
     )
   end
-
 
 end
