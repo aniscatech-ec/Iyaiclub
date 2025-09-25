@@ -1,10 +1,9 @@
-
-<%= link_to new_admin_user_path, class: "btn btn-primary btn-lg" do %>
+<%= link_to new_admin_user_path, class: "btn btn-primary btn-lg mb-3" do %>
   <i class="fa-solid fa-plus"></i> Nuevo usuario
 <% end %>
 
-<table class="table">
-  <thead>
+<table class="table table-hover align-middle shadow-sm">
+  <thead class="table-dark">
   <tr>
     <th>Nombre</th>
     <th>Email</th>
@@ -18,21 +17,41 @@
     <tr>
       <td><%= user.name %></td>
       <td><%= user.email %></td>
-      <td><%= user.phone %></td>
-      <td><%= user.role.titleize %></td>
+      <td><%= user.phone.presence || "-" %></td>
       <td>
+        <% badge_class = case user.role
+                         when "admin" then "bg-danger"
+                         when "afiliado" then "bg-success"
+                         else "bg-secondary"
+                         end %>
+        <span class="badge <%= badge_class %>">
+          <%= user.role.titleize %>
+        </span>
+      </td>
+      <td class="d-flex flex-wrap gap-2">
         <%= link_to admin_user_path(user), class: "btn btn-info btn-sm" do %>
           <i class="fa-solid fa-eye"></i>
         <% end %>
+
         <%= link_to edit_admin_user_path(user), class: "btn btn-warning btn-sm" do %>
           <i class="fa-solid fa-pen-to-square"></i>
         <% end %>
-        <%= link_to admin_user_path(user), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este usuario?" }, class: "btn btn-danger btn-sm" do %>
+
+        <%= link_to admin_user_path(user),
+                    data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este usuario?" },
+                    class: "btn btn-danger btn-sm" do %>
           <i class="fa-solid fa-trash-can"></i>
         <% end %>
 
-        <%= link_to "Nueva Suscripción", new_admin_user_subscription_path(user), class: "btn btn-sm btn-success" %>
+        <%= link_to "Nueva Suscripción", new_admin_user_subscription_path(user),
+                    class: "btn btn-success btn-sm" %>
 
+        <% if user.afiliado? %>
+          <%= link_to choose_type_establishments_path(user_id: user.id),
+                      class: "btn btn-outline-primary btn-sm" do %>
+            <i class="fa-solid fa-store"></i> Nuevo Establecimiento
+          <% end %>
+        <% end %>
       </td>
     </tr>
   <% end %>

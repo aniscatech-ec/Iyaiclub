@@ -1,0 +1,68 @@
+<div class="container py-4">
+  <h2 class="h4 mb-3">Selecciona un Afiliado</h2>
+
+  <!-- Barra de búsqueda -->
+  <div class="mb-3">
+    <input type="text" id="affiliate-search" class="form-control" placeholder="Buscar por nombre, email o teléfono...">
+  </div>
+
+  <!-- Lista de afiliados como cards -->
+  <div class="row g-3" id="affiliate-list">
+    <% @affiliates.each do |affiliate| %>
+      <div class="col-md-4 affiliate-card" data-name="<%= affiliate.name.downcase %>" data-email="<%= affiliate.email.downcase %>" data-phone="<%= affiliate.phone.to_s.downcase %>">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title"><%= affiliate.name %></h5>
+            <p class="card-text mb-1"><strong>Email:</strong> <%= affiliate.email %></p>
+            <p class="card-text mb-1"><strong>Teléfono:</strong> <%= affiliate.phone %></p>
+            <p class="card-text mb-3">
+              <strong>Ciudad:</strong> <%= affiliate.city&.name %>,
+              <strong>País:</strong> <%= affiliate.country&.name %>
+            </p>
+            <%= link_to "Seleccionar",
+                        choose_type_establishments_path(user_id: affiliate.id),
+                        class: "btn btn-primary mt-auto" %>
+            <%#= button_to "Seleccionar", "#", class: "btn btn-primary mt-auto select-affiliate-btn", data: { affiliate_id: affiliate.id, affiliate_name: affiliate.name } %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Script de búsqueda y selección -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById("affiliate-search");
+        const affiliateCards = document.querySelectorAll(".affiliate-card");
+
+        // Filtrar tarjetas en tiempo real
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.toLowerCase();
+            affiliateCards.forEach(card => {
+                const name = card.dataset.name;
+                const email = card.dataset.email;
+                const phone = card.dataset.phone;
+                card.style.display = (name.includes(query) || email.includes(query) || phone.includes(query)) ? "block" : "none";
+            });
+        });
+
+        // Manejar selección
+        document.querySelectorAll(".select-affiliate-btn").forEach(button => {
+            button.addEventListener("click", (e) => {
+                e.preventDefault();
+                const affiliateId = button.dataset.affiliate_id;
+                const affiliateName = button.dataset.affiliate_name;
+
+                // Ejemplo de integración: actualizar input oculto en tu formulario choose_type
+                const hiddenInput = document.getElementById("selected_affiliate_id");
+                if(hiddenInput){
+                    hiddenInput.value = affiliateId;
+                }
+
+                alert(`Afiliado seleccionado: ${affiliateName}`);
+                // Aquí puedes cerrar el modal o continuar el flujo
+            });
+        });
+    });
+</script>

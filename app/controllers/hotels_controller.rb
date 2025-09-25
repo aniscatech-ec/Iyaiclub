@@ -28,11 +28,11 @@ class HotelsController < ApplicationController
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @hotel.establishment.user = @affiliate
-      @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
+      # @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
     elsif current_user&.afiliado?
       # si es un afiliado que crea su propio hotel
       @hotel.establishment.user = current_user
-      @hotel.establishment.legal_info.legal_representative ||= current_user.name
+      # @hotel.establishment.legal_info.legal_representative ||= current_user.name
     end
   end
 

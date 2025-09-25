@@ -56,6 +56,7 @@ Rails.application.routes.draw do
   resources :establishments do
     collection do
       get :choose_type  # pantalla de tarjetas
+      get :select_affiliate
       post :create_type # crear el establecimiento según el tipo
     end
     resources :establishment_steps

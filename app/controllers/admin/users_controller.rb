@@ -6,11 +6,31 @@ class Admin::UsersController < ApplicationController
   # def index
   #   @users = User.all
   # end
+  # def index
+  #   if params[:role].present? && User.roles.key?(params[:role])
+  #     @users = User.where(role: User.roles[params[:role]])
+  #   else
+  #     @users = User.all
+  #   end
+  # end
+
   def index
+    @users = User.all
+
+    # Filtrar por rol si se recibe
     if params[:role].present? && User.roles.key?(params[:role])
-      @users = User.where(role: User.roles[params[:role]])
-    else
-      @users = User.all
+      @users = @users.where(role: User.roles[params[:role]])
+    end
+
+    # Filtrar por query para búsqueda (autocomplete)
+    if params[:q].present?
+      query = "%#{params[:q].downcase}%"
+      @users = @users.where("LOWER(name) LIKE ? OR LOWER(email) LIKE ?", query, query)
+    end
+
+    respond_to do |format|
+      format.html # para tu vista normal
+      format.json { render json: @users.limit(20).select(:id, :name, :email) } # para el autocomplete
     end
   end
 

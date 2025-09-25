@@ -176,6 +176,16 @@ class EstablishmentsController < ApplicationController
 
   end
 
+  def select_affiliate
+    # Traemos solo los usuarios que son afiliados
+    @affiliates = User.where(role: :afiliado).order(:name)
+
+    respond_to do |format|
+      format.html # render select_affiliate.html.erb
+      format.json { render json: @affiliates }
+    end
+  end
+
   def choose_type
     # Aquí solo renderizamos la vista con las tarjetas
     @user_id = params[:user_id]

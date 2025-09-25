@@ -1,3 +1,9 @@
+<style>
+    [data-user-search-target="results"]:empty {
+        display: none;
+    }
+
+</style>
 <h1>Editar hotel</h1>
 
 <%= form_with(model: @hotel,
@@ -23,20 +29,41 @@
             <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
             <%= l.text_field :legal_representative, class: "form-control" %>
           </div>
+          <div class="mb-3">
 
           <%= f.fields_for :establishment do |e| %>
             <% if current_user.administrador? %>
-              <div class="mb-3">
-                <%= e.label :user_id, "Usuario propietario", class: "form-label" %>
-                <%= e.collection_select :user_id,
-                                        User.all, :id, :name,
-                                        { prompt: "Selecciona un usuario" },
-                                        class: "form-select" %>
+
+              <div data-controller="user-search" class="position-relative"
+                   data-user-search-default-name="<%= @hotel.establishment.user&.name %>"
+                   data-user-search-default-id="<%= @hotel.establishment.user_id %>">
+                <label for="user_search_input">Seleccionar usuario (administrador)</label>
+                <input type="text" id="user_search_input"
+                       data-user-search-target="input"
+                       data-action="input->user-search#search"
+                       class="form-control"
+                       placeholder="Escribe nombre o email...">
+
+                <!-- Hidden field para enviar el user_id al guardar -->
+                <%= f.fields_for :establishment do |e| %>
+                  <%= e.hidden_field :user_id, data: { user_search_target: "hidden" } %>
+                <% end %>
+
+                <!-- Dropdown de resultados -->
+                <div data-user-search-target="results"
+                     class="border position-absolute bg-white w-100"
+                     style="z-index: 1000; max-height: 200px; overflow-y: auto;"></div>
               </div>
-            <% else %>
+
+
+
+
+
+      <% else %>
               <%= e.hidden_field :user_id, value: current_user.id %>
             <% end %>
           <% end %>
+          </div>
 
 
           <div class="mb-3">
