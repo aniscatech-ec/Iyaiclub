@@ -66,6 +66,6 @@ class AmenitiesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def amenity_params
-      params.expect(amenity: [ :name, :icon, :custom_icon ])
+      params.expect(amenity: [ :name, :icon, :custom_icon, :establishment_type ])
     end
 end

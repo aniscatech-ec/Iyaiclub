@@ -7,7 +7,8 @@ class Establishment < ApplicationRecord
   has_many :amenities, through: :establishment_amenities
   # has_many :subscriptions, as: :suscribable, dependent: :destroy
 
-  enum :category, hotel: 0, restaurante: 1
+  # enum :category, hotel: 0, restaurante: 1
+  enum :category, EstablishmentTypes::TYPES
 
   # validates :name, :description, :category, presence: true
   belongs_to :city, optional: true

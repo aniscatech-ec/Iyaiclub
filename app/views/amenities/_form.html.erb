@@ -38,6 +38,14 @@
     <%= form.text_field :name, class: "form-control", placeholder: "Ej: WiFi, Piscina, Estacionamiento" %>
   </div>
 
+  <div class="mb-3">
+    <%= form.label :establishment_type, "Disponible en", class: "form-label fw-bold" %>
+    <%= form.select :establishment_type,
+                    Amenity.establishment_types.keys.map { |k| [k.humanize, k] },
+                    {},
+                    class: "form-select" %>
+  </div>
+
   <!-- Subida de ícono -->
   <div class="mb-3">
     <%= form.label :custom_icon, "Sube un ícono personalizado (SVG, PNG, JPG)", class: "form-label fw-bold" %>

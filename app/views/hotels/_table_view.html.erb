@@ -7,6 +7,7 @@
     <th class="text-center">Nombre</th>
     <th class="text-center">Razón social</th>
     <th class="text-center">Representante</th>
+    <th class="text-center">Afiliado</th>
     <th class="text-center">Categoría</th>
     <th class="text-center">Acciones</th>
   </tr>
@@ -19,6 +20,7 @@
       <td class="text-center"><%= hotel.establishment.name %></td>
       <td class="text-center"><%= hotel.establishment.legal_info&.business_name || "-" %></td>
       <td class="text-center"><%= hotel.establishment.legal_info&.legal_representative || "-" %></td>
+      <td class="text-center"><%= hotel.establishment.user.name %></td>
       <td class="text-center"><%= hotel_type_label(hotel.hotel_type.presence) || "-" %></td>
       <td>
 

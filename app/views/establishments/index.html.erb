@@ -34,12 +34,24 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="mb-0">Establecimientos</h1>
-  <% if current_user.administrador? || current_user.afiliado? %>
+  <% if current_user.administrador? %>
     <%#= link_to new_establishment_path, class: "btn btn-success" do %>
 <!--      <i class="fa-solid fa-plus"></i> Nuevo-->
     <%# end %>
-    <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+    <%#= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
     <%#= link_to new_establishment_path, class: "btn btn-success" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
+  <% end %>
+
+  <% if current_user.afiliado? %>
+    <%#= link_to new_establishment_path, class: "btn btn-success" do %>
+    <!--      <i class="fa-solid fa-plus"></i> Nuevo-->
+    <%# end %>
+    <%#= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+    <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+      <%#= link_to new_establishment_path, class: "btn btn-success" do %>
       <i class="fa-solid fa-plus"></i> Nuevo
     <% end %>
   <% end %>

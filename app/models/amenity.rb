@@ -2,4 +2,6 @@ class Amenity < ApplicationRecord
   has_many :establishment_amenities
   has_many :establishments, through: :establishment_amenities
   has_one_attached :custom_icon
+  # enum :establishment_type, hotel: 0, restaurante: 1, todos: 6
+  enum :establishment_type, EstablishmentTypes::TYPES.merge(todos: 2)
 end

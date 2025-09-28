@@ -9,6 +9,7 @@
   <tr>
     <th>Nombre</th>
     <th>Icon</th>
+    <th>Establecimiento</th>
     <th>Acciones</th>
   </tr>
   </thead>
@@ -18,11 +19,26 @@
       <!--      <td><%#= render amenity %></td>-->
       <td><%= amenity.name %></td>
       <td>
-        <% if amenity.custom_icon.attached? %>
-          <%= image_tag amenity.custom_icon, size: "24x24", class: "me-2" %>
-        <% else %>
-          -
+
+        <%# if amenity.custom_icon.attached? %>
+          <%#= image_tag amenity.custom_icon, size: "24x24", class: "me-2" %>
+        <%# else %>
+<!--          --->
+        <%# end %>
+        <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
+          <% svg_content = amenity.custom_icon.download %>
+          <%= raw svg_content.gsub('<svg', '<svg width="32" height="32"') %>
         <% end %>
+        <%# if amenity.custom_icon.attached? %>
+          <%# if amenity.custom_icon.content_type == 'image/svg+xml' %>
+            <%#= raw amenity.custom_icon.download %>
+          <%# else %>
+            <%#= image_tag amenity.custom_icon, size: "24x24", class: "svg-icon" %>
+          <%# end %>
+        <%# end %>
+      </td>
+      <td>
+        <%= amenity.establishment_type.humanize %>
       </td>
       <td>
         <%= link_to amenity_path(amenity), class: "btn btn-info btn-sm" do %>
