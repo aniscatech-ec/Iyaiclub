@@ -19,6 +19,8 @@
             <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
             <%= l.text_field :legal_representative, class: "form-control" %>
           </div>
+          <%= e.hidden_field :user_id, value: @affiliate&.id || current_user.id %>
+
           <div class="mb-3">
             <%= l.label :contact_email, "Email de contacto" %>
             <%= l.email_field :contact_email, class: "form-control" %>
@@ -101,6 +103,78 @@
 
     </div>
   </div>
+
+  <div class="card mb-4">
+    <div class="card-header fw-bold">4. Comodidades</div>
+    <div class="card-body">
+
+      <%= f.fields_for :establishment do |e| %>
+        <div class="mb-3" data-controller="amenity-selector">
+
+          <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
+            <% Amenity.all.each do |amenity| %>
+              <div class="col">
+                <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
+              <%= "selected" if @restaurant.establishment&.amenity_ids&.include?(amenity.id) %>"
+                     data-action="click->amenity-selector#toggle">
+
+                  <%= e.check_box :amenity_ids,
+                                  { multiple: true,
+                                    checked: @restaurant.establishment&.amenity_ids&.include?(amenity.id),
+                                    id: "amenity_#{amenity.id}",
+                                    class: "d-none",
+                                    data: { amenity_selector_target: "checkbox" } },
+                                  amenity.id, nil %>
+
+                  <%# if amenity.custom_icon.attached? %>
+                  <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
+                  <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
+                  <%# else %>
+                  <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
+                  <%# end %>
+                  <%# end %>
+
+                  <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
+                    <% svg_content = amenity.custom_icon.download %>
+                    <%= raw svg_content.gsub('<svg', '<svg width="32" height="32"') %>
+                  <% else %>
+                    <i class="fa fa-circle-question fa-2x text-muted"></i>
+                  <% end %>
+
+
+                  <span class="mt-1 text-center"><%= amenity.name %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <style>
+          /* Estilo de tarjeta seleccionada */
+          .form-check.selected {
+              background-color: rgba(13, 110, 253, 0.15);
+              border-color: #0d6efd;
+          }
+
+          /* Ícono de la tarjeta seleccionada */
+          .form-check.selected img {
+              transform: scale(1.1);
+              filter: brightness(1.2);
+              transition: transform 0.2s, filter 0.2s;
+          }
+
+          /* Hover sobre la tarjeta */
+          .form-check:hover {
+              border-color: #0d6efd;
+              background-color: rgba(13, 110, 253, 0.05);
+              cursor: pointer;
+          }
+      </style>
+
+    </div>
+  </div>
+
 
   <!-- Aquí Stimulus inyectará las galerías -->
   <div id="galleries-container" data-gallery-target="container"></div>

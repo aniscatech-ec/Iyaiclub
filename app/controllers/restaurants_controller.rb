@@ -10,24 +10,62 @@ class RestaurantsController < ApplicationController
   def show
   end
 
+  # def new
+  #   @restaurant = Restaurant.new
+  #   @restaurant.build_establishment.build_legal_info
+  #   @restaurant.establishment.galleries.build.gallery_images.build
+  # end
+
   def new
     @restaurant = Restaurant.new
     @restaurant.build_establishment.build_legal_info
     @restaurant.establishment.galleries.build.gallery_images.build
+
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @restaurant.establishment.user = @affiliate
+    elsif current_user&.afiliado?
+      # si es un afiliado que crea su propio hotel
+      @restaurant.establishment.user = current_user
+    end
   end
+
+  # def create
+  #   @restaurant = Restaurant.new(restaurant_params)
+  #
+  #   if @restaurant.establishment
+  #     # Solo añades valores faltantes
+  #     @restaurant.establishment.user = current_user
+  #     @restaurant.establishment.category = :restaurante
+  #   else
+  #     # Si no vino establishment_attributes, lo construyes
+  #     @restaurant.build_establishment(user: current_user, category: :restaurante)
+  #   end
+  #
+  #
+  #   if @restaurant.save
+  #     redirect_to @restaurant, notice: "Restaurante creado correctamente."
+  #   else
+  #     render :new
+  #   end
+  # end
 
   def create
     @restaurant = Restaurant.new(restaurant_params)
 
     if @restaurant.establishment
-      # Solo añades valores faltantes
-      @restaurant.establishment.user = current_user
       @restaurant.establishment.category = :restaurante
     else
-      # Si no vino establishment_attributes, lo construyes
-      @restaurant.build_establishment(user: current_user, category: :restaurante)
+      @restaurant.build_establishment(category: :restaurante)
     end
 
+    # 👇 Aquí seteamos el user siempre en el servidor
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @restaurant.establishment.user = @affiliate
+    elsif current_user&.afiliado?
+      @restaurant.establishment.user = current_user
+    end
 
     if @restaurant.save
       redirect_to @restaurant, notice: "Restaurante creado correctamente."
@@ -91,8 +129,9 @@ class RestaurantsController < ApplicationController
     params.require(:restaurant).permit(
       :cuisine_type, :category,
       establishment_attributes: [
+        :user_id,
         :id,
-        :name,  # Nombre público
+        :name, # Nombre público
         :address,
         :city_id,
         :province_id,
@@ -112,11 +151,11 @@ class RestaurantsController < ApplicationController
         amenity_ids: [],
         legal_info_attributes: [
           :id,
-          :business_name,        # Razón social
-          :document_number,      # RUC
+          :business_name, # Razón social
+          :document_number, # RUC
           :legal_representative, # Responsable / gerente
-          :contact_email,        # Email
-          :contact_phone         # Teléfono
+          :contact_email, # Email
+          :contact_phone # Teléfono
         ],
         galleries_attributes: [
           :id, :name, :_destroy,

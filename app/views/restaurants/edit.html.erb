@@ -1,7 +1,13 @@
+<style>
+    [data-user-search-target="results"]:empty {
+        display: none;
+    }
+
+</style>
 <h2>Editar Restaurante</h2>
 <%#= render "form",  restaurant: @restaurant%>
 <%= form_with(model: @restaurant, local: true, data: { controller: "gallery", action: "submit->gallery#submitForm",
-                                                      model: "restaurant" }) do |f| %>
+                                                       model: "restaurant" }) do |f| %>
   <%= f.fields_for :establishment do |e| %>
     <div class="card mb-4">
       <div class="card-header fw-bold">1. Datos legales y contacto</div>
@@ -19,6 +25,41 @@
             <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
             <%= l.text_field :legal_representative, class: "form-control" %>
           </div>
+
+          <div class="mb-3">
+
+            <%= f.fields_for :establishment do |e| %>
+              <% if current_user.administrador? %>
+
+                <div data-controller="user-search" class="position-relative"
+                     data-user-search-default-name="<%= @restaurant.establishment.user&.name %>"
+                     data-user-search-default-id="<%= @restaurant.establishment.user_id %>">
+                  <label for="user_search_input">Seleccionar usuario (administrador)</label>
+                  <input type="text" id="user_search_input"
+                         data-user-search-target="input"
+                         data-action="input->user-search#search"
+                         class="form-control"
+                         placeholder="Escribe nombre o email...">
+
+                  <!-- Hidden field para enviar el user_id al guardar -->
+                  <%= f.fields_for :establishment do |e| %>
+                    <%= e.hidden_field :user_id, data: { user_search_target: "hidden" } %>
+                  <% end %>
+
+                  <!-- Dropdown de resultados -->
+                  <div data-user-search-target="results"
+                       class="border position-absolute bg-white w-100"
+                       style="z-index: 1000; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+
+
+              <% else %>
+                <%= e.hidden_field :user_id, value: current_user.id %>
+              <% end %>
+            <% end %>
+
+          </div>
+
           <div class="mb-3">
             <%= l.label :contact_email, "Email de contacto" %>
             <%= l.email_field :contact_email, class: "form-control" %>
@@ -45,7 +86,7 @@
       <div class="mb-3">
         <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
         <%= f.select :cuisine_type, options_for_select(
-          ["Ecuatoriana","Italiana","Fusión","Mexicana","Japonesa","Internacional"],
+          ["Ecuatoriana", "Italiana", "Fusión", "Mexicana", "Japonesa", "Internacional"],
           @restaurant.cuisine_type
         ),
                      { include_blank: "Seleccione tipo de cocina" },
@@ -55,7 +96,7 @@
       <div class="mb-3">
         <%= f.label :category, "Categoría del restaurante" %>
         <%= f.select :category, options_for_select(
-          ["Familiar","Gourmet","Bar","Café","Comida rápida"],
+          ["Familiar", "Gourmet", "Bar", "Café", "Comida rápida"],
           @restaurant.category
         ),
                      { include_blank: "Seleccione categoría" },
@@ -104,6 +145,75 @@
     </div>
   </div>
 
+  <div class="card mb-4">
+    <div class="card-header fw-bold">4. Comodidades</div>
+    <div class="card-body">
+
+      <%= f.fields_for :establishment do |e| %>
+        <div class="mb-3" data-controller="amenity-selector">
+
+          <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
+            <% Amenity.all.each do |amenity| %>
+              <div class="col">
+                <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
+              <%= "selected" if @restaurant.establishment&.amenity_ids&.include?(amenity.id) %>"
+                     data-action="click->amenity-selector#toggle">
+
+                  <%= e.check_box :amenity_ids,
+                                  { multiple: true,
+                                    checked: @restaurant.establishment&.amenity_ids&.include?(amenity.id),
+                                    id: "amenity_#{amenity.id}",
+                                    class: "d-none",
+                                    data: { amenity_selector_target: "checkbox" } },
+                                  amenity.id, nil %>
+
+                  <%# if amenity.custom_icon.attached? %>
+                  <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
+                  <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
+                  <%# else %>
+                  <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
+                  <%# end %>
+                  <%# end %>
+
+                  <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
+                    <% svg_content = amenity.custom_icon.download %>
+                    <%= raw svg_content.gsub('<svg', '<svg width="32" height="32"') %>
+                  <% else %>
+                    <i class="fa fa-circle-question fa-2x text-muted"></i>
+                  <% end %>
+
+
+                  <span class="mt-1 text-center"><%= amenity.name %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <style>
+          /* Estilo de tarjeta seleccionada */
+          .form-check.selected {
+              background-color: rgba(13, 110, 253, 0.15);
+              border-color: #0d6efd;
+          }
+
+          /* Ícono de la tarjeta seleccionada */
+          .form-check.selected img {
+              transform: scale(1.1);
+              filter: brightness(1.2);
+              transition: transform 0.2s, filter 0.2s;
+          }
+
+          /* Hover sobre la tarjeta */
+          .form-check:hover {
+              border-color: #0d6efd;
+              background-color: rgba(13, 110, 253, 0.05);
+              cursor: pointer;
+          }
+      </style>
+
+    </div>
+  </div>
 
 
   <%= f.fields_for :establishment do |e| %>
@@ -135,8 +245,6 @@
               </div>
             <% end %>
           </div>
-
-
 
 
           <!-- NUEVO: input para agregar más imágenes a esta galería -->
