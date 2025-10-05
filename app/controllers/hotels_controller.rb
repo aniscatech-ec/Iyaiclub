@@ -2,9 +2,128 @@ class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
 
+  # def index
+  #   @hotels = Hotel.all
+  # end
+
+
   def index
-    @hotels = Hotel.all
+    # @hotels = Hotel.all
+    @hotels = Hotel.includes(establishment: [:amenities, :city, :country])
+
+    # ------------------------
+    # Búsqueda por nombre
+    # ------------------------
+    if params[:search].present?
+      query = params[:search].strip
+      @hotels = @hotels.where("name ILIKE ?", "%#{query}%")
+    end
+
+    # ------------------------
+    # Filtrar por ciudad
+    # ------------------------
+    if params[:city].present?
+      city = City.find_by(name: params[:city].strip)
+      if city
+        @hotels = @hotels.joins(:establishment).where(establishments: { city_id: city.id })
+      end
+    end
+
+
+    # ------------------------
+    # Filtrar por país
+    # ------------------------
+    if params[:country].present?
+      country = Country.find_by(name: params[:country].strip)
+      @hotels = @hotels.where(country_id: country.id) if country
+    end
+
+    # ------------------------
+    # Filtrar por comodidades
+    # ------------------------
+    # if params[:amenities].present?
+    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+    #   @hotels = @hotels.joins(:amenities)
+    #                    .where(amenities: { id: amenity_ids })
+    #                    .distinct
+    # end
+
+    # if params[:amenities].present?
+    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+    #
+    #   # Accedemos a amenities a través de establishment
+    #   @hotels = @hotels.joins(establishment: :amenities)
+    #                    .where(amenities: { id: amenity_ids })
+    #                    .distinct
+    # end
+    # if params[:amenities].present?
+    #   puts "=================== PARAMS DE AMENITIES ==================="
+    #   puts params[:amenities].inspect
+    #   puts "============================================================"
+    #
+    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+    #
+    #   puts "=================== AMENITY IDS ==================="
+    #   puts amenity_ids.inspect
+    #   puts "==================================================="
+    #
+    #   # Accedemos a amenities a través de establishment
+    #   @hotels = @hotels.joins(establishment: :amenities)
+    #                    .where(amenities: { id: amenity_ids })
+    #                    .distinct
+    # end
+
+
+    if params[:min_price].present? && params[:max_price].present?
+      min = params[:min_price].to_i
+      max = params[:max_price].to_i
+
+      @hotels = @hotels.joins(:establishment)
+                       .where(establishments: { price_per_night: min..max })
+    end
+
+
+    if params[:amenities].present?
+      amenity_ids = Array(params[:amenities]).map(&:to_i)
+
+      if amenity_ids.any?
+        establishment_ids = Establishment.joins(:amenities)
+                                         .where(amenities: { id: amenity_ids })
+                                         .group(:id)
+                                         .having("COUNT(DISTINCT amenities.id) = ?", amenity_ids.size)
+                                         .pluck(:id)
+        @hotels = @hotels.joins(:establishment).where(establishments: { id: establishment_ids })
+      else
+        @hotels = @hotels.none
+      end
+    end
+
+    if request.xhr?
+      render partial: "hotels/hotels_list", locals: { hotels: @hotels }
+    else
+      render :index
+    end
+
+
+    # ------------------------
+    # Filtrar por fechas (opcional)
+    # ------------------------
+    if params[:checkin].present? && params[:checkout].present?
+      checkin = Date.parse(params[:checkin]) rescue nil
+      checkout = Date.parse(params[:checkout]) rescue nil
+      if checkin && checkout
+        @hotels = @hotels.select { |hotel| hotel.available_between?(checkin, checkout) }
+      end
+    end
+
+    # ------------------------
+    # Filtrar por usuario afiliado (opcional)
+    # ------------------------
+    if current_user.afiliado?
+      @hotels = current_user.establishments.where(category: "hotel")
+    end
   end
+
 
   def show
   end

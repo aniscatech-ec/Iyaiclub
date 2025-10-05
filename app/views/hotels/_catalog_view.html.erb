@@ -1,28 +1,133 @@
-<div class="row">
-  <% hotels.each do |hotel| %>
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm border-0">
-        <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
-          <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
-          <%= image_tag first_image.variant(resize_to_limit: [400, 250]), class: "card-img-top" if first_image.attached? %>
-        <% else %>
-          <%= image_tag "logo-ant.jpg", class: "card-img-top" %>
-        <% end %>
+<style>
+    .range-wrapper {
+        position: relative;
+        height: 4px;
+        background: #ddd;
+        margin: 20px 0;
+    }
 
-        <div class="card-body">
-          <h5 class="card-title"><%= hotel.establishment.id %></h5>
-          <% if hotel.establishment.galleries.any? %>
+    .range-wrapper input[type=range] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        pointer-events: none;
+        -webkit-appearance: none;
+        background: transparent;
+    }
 
-            <p><strong>Gallerìas:</strong> <%= hotel.establishment.galleries.count %> </p>
-          <% end %>
-          <h5 class="card-title"><%= hotel.establishment.name %></h5>
-          <p class="card-text">
-            <span><%= "⭐" * hotel.stars.to_i %></span><br>
-            <small class="text-muted"><%= hotel.hotel_type.present? ? hotel.hotel_type.humanize : "Sin categoría" %></small>
-          </p>
-          <%= link_to "Ver detalles", hotel_path(hotel), class: "btn btn-primary w-100" %>
+    .range-wrapper input[type=range]::-webkit-slider-thumb {
+        pointer-events: auto;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #007bff;
+        cursor: pointer;
+        -webkit-appearance: none;
+    }
+
+    .slider-range {
+        position: absolute;
+        height: 100%;
+        background: #007bff;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+
+</style>
+<div class="row mb-4" data-controller="filter-hotel">
+  <!-- Filtros laterales -->
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm mb-4">
+      <h5 class="mb-3">Filtrar por comodidades</h5>
+      <% selected_amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id) if params[:amenities].present? %>
+      <% Amenity.all.each do |amenity| %>
+        <div class="form-check">
+          <%= check_box_tag "amenities[]", amenity.id,
+                            selected_amenity_ids&.include?(amenity.id),
+                            class: "form-check-input",
+                            id: "amenity_#{amenity.id}",
+                            data: { filter_hotel_target: "checkbox" } %>
+          <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
         </div>
-      </div>
+      <% end %>
     </div>
-  <% end %>
+
+    <div class="price-filter">
+      <div class="range-wrapper">
+        <input type="range" class="range-min" min="0" max="1000" step="10" value="0" data-filter-hotel-target="minPrice">
+        <input type="range" class="range-max" min="0" max="1000" step="10" value="1000" data-filter-hotel-target="maxPrice">
+        <div class="slider-track"></div>
+        <div class="slider-range"></div>
+      </div>
+      <div class="labels">
+        <span id="labelMin" data-filter-hotel-target="minPriceValue">0</span>
+        —
+        <span id="labelMax" data-filter-hotel-target="maxPriceValue">1000</span>
+      </div>
+      <button type="button" data-action="filter-hotel#filterByPrice">Filtrar precio</button>
+    </div>
+
+  </div>
+
+
+
+  <!-- Contenedor de hoteles -->
+  <div class="col-md-9">
+    <div id="resultsCount" data-filter-hotel-target="resultsCount" class="mb-3 fw-bold text-success">
+      <%= @hotels.count %> hoteles encontrados
+    </div>
+
+    <div id="hotelsContainer" data-filter-hotel-target="hotelsContainer">
+      <%= render partial: "hotels/hotels_list", locals: { hotels: @hotels } %>
+    </div>
+  </div>
 </div>
+
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", () => {-->
+<!--        const checkboxes = document.querySelectorAll(".filter-checkbox")-->
+<!--        const hotelsContainer = document.getElementById("hotelsContainer")-->
+<!--        const hotelsCounter = document.getElementById("hotelsCounter")-->
+
+<!--        function buildParams() {-->
+<!--            const params = new URLSearchParams()-->
+<!--            const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value)-->
+<!--            selected.forEach(id => params.append("amenities[]", id))-->
+<!--            return params.toString()-->
+<!--        }-->
+
+<!--        async function applyFilters() {-->
+<!--            const qs = buildParams()-->
+<!--            const url = `/hotels?${qs}`-->
+
+<!--            // hotelsContainer.innerHTML = "<p class='text-center p-3'>Cargando...</p>"-->
+<!--            document.getElementById("resultsCount").textContent = "Cargando..."-->
+
+
+<!--            const res = await fetch(url, {-->
+<!--                headers: { "X-Requested-With": "XMLHttpRequest" }-->
+<!--            })-->
+<!--            if (res.ok) {-->
+<!--                hotelsContainer.innerHTML = await res.text()-->
+
+<!--                // Actualizar el contador de resultados-->
+<!--                // Actualizar el contador de resultados-->
+<!--                const count = hotelsContainer.querySelectorAll(".hotel-card").length-->
+<!--                document.getElementById("resultsCount").textContent = `${count} resultados`-->
+
+<!--                history.pushState(null, "", url)-->
+<!--            } else {-->
+<!--                hotelsContainer.innerHTML = "<p class='text-danger'>Error cargando hoteles</p>"-->
+<!--            }-->
+<!--        }-->
+
+<!--        checkboxes.forEach(cb => cb.addEventListener("change", applyFilters))-->
+
+<!--        window.addEventListener("popstate", () => {-->
+<!--            applyFilters()-->
+<!--        })-->
+<!--    })-->
+<!--</script>-->

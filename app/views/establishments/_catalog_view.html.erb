@@ -13,7 +13,7 @@
                   <div class="carousel-item <%= 'active' if index == 0 %>">
 
                     <div class="d-flex justify-content-center">
-                      <%= image_tag gi.file, height: 200,alt: est.name, class: "d-block w-100" %>
+                      <%= image_tag gi.file, height: 200, alt: est.name, class: "d-block w-100" %>
                     </div>
                   </div>
                 <% end %>
@@ -32,6 +32,7 @@
             <% end %>
           </div>
         <% else %>
+          <%#= image_tag "logo.jpeg", height: 200, alt: est.name, class: "d-block w-100"  %>
         <% end %>
 
         <div class="card-body d-flex flex-column">
@@ -40,7 +41,8 @@
           <h5 class="card-title"><%= est.id %></h5>
 
           <!-- Ciudad / País -->
-          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city.name.presence || "-" %>, <%= est.country.name.presence || "-" %></p>
+          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city.name.presence || "-" %>
+            , <%= est.country.name.presence || "-" %></p>
 
           <!-- Comodidades -->
           <p class="mb-2">

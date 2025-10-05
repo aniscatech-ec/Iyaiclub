@@ -33,10 +33,93 @@ class EstablishmentsController < ApplicationController
   #   # end
   # end
 
+  # def index
+  #   puts "================= PARAMS ================="
+  #   puts params.inspect
+  #   puts "=========================================="
+  #   @establishments = Establishment.all
+  #
+  #   # ------------------------
+  #   # Búsqueda por nombre
+  #   # ------------------------
+  #   if params[:search].present?
+  #     query = params[:search].strip
+  #     @establishments = @establishments.where("name ILIKE ?", "%#{query}%")
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por ciudad
+  #   # ------------------------
+  #   if params[:city].present?
+  #     city = City.find_by(name: params[:city].strip)
+  #     puts "-----------------------------CITY----------------------------------"
+  #     @establishments = @establishments.where(city_id: city.id) if city
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por país
+  #   # ------------------------
+  #   if params[:country].present?
+  #     country = Country.find_by(name: params[:country].strip)
+  #     @establishments = @establishments.where(country_id: country.id) if country
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por comodidades
+  #   # ------------------------
+  #   if params[:amenities].present?
+  #     puts "-----------------------------AMENITIES----------------------------------"
+  #
+  #     amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+  #
+  #     @establishments = @establishments.joins(:amenities)
+  #                                      .where(amenities: { id: amenity_ids })
+  #                                      .distinct
+  #   end
+  #   # ------------------------
+  #   # Filtrar por fechas (opcional)
+  #   # ------------------------
+  #   if params[:checkin].present? && params[:checkout].present?
+  #     checkin = Date.parse(params[:checkin]) rescue nil
+  #     checkout = Date.parse(params[:checkout]) rescue nil
+  #
+  #     if checkin && checkout
+  #       # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
+  #       @establishments = @establishments.select do |est|
+  #         est.available_between?(checkin, checkout)
+  #       end
+  #     end
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por tipo de establecimiento
+  #   # ------------------------
+  #   if params[:establishment_type].present? && params[:establishment_type] != "todos"
+  #     @establishments = @establishments.where(category: params[:establishment_type])
+  #   end
+  #
+  #
+  #   if current_user.afiliado?
+  #     @establishments = current_user.establishments
+  #   end
+  # end
+
   def index
     puts "================= PARAMS ================="
     puts params.inspect
     puts "=========================================="
+
+    # ------------------------
+    # Redirigir según tipo de establecimiento
+    # ------------------------
+    case params[:establishment_type]
+    when "hotel"
+      redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
+    when "restaurante"
+      redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+    end
+
+    # Si es "todos" o no se envió, seguimos con establishments
     @establishments = Establishment.all
 
     # ------------------------
@@ -52,7 +135,6 @@ class EstablishmentsController < ApplicationController
     # ------------------------
     if params[:city].present?
       city = City.find_by(name: params[:city].strip)
-      puts "-----------------------------CITY----------------------------------"
       @establishments = @establishments.where(city_id: city.id) if city
     end
 
@@ -68,23 +150,19 @@ class EstablishmentsController < ApplicationController
     # Filtrar por comodidades
     # ------------------------
     if params[:amenities].present?
-      puts "-----------------------------AMENITIES----------------------------------"
-
       amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-
       @establishments = @establishments.joins(:amenities)
                                        .where(amenities: { id: amenity_ids })
                                        .distinct
     end
+
     # ------------------------
     # Filtrar por fechas (opcional)
     # ------------------------
     if params[:checkin].present? && params[:checkout].present?
       checkin = Date.parse(params[:checkin]) rescue nil
       checkout = Date.parse(params[:checkout]) rescue nil
-
       if checkin && checkout
-        # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
         @establishments = @establishments.select do |est|
           est.available_between?(checkin, checkout)
         end

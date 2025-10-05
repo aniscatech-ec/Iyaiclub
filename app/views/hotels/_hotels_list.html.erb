@@ -1,0 +1,34 @@
+<div class="row g-4">
+  <% hotels.each do |hotel| %>
+    <div class="col-md-2"
+         data-amenities="<%= hotel.establishment.amenities.pluck(:id).join(',') %>">
+      <%= link_to hotel_path(hotel), class: "card h-100 shadow-sm border-0 hotel-card text-decoration-none text-dark d-block" do %>
+        <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
+          <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
+          <%= image_tag first_image, height: 200, class: "card-img-top" if first_image.attached? %>
+        <% else %>
+          <%= image_tag "logo-ant.jpg", height: 200, class: "card-img-top" %>
+        <% end %>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title"><%= hotel.establishment.name %></h5>
+          <p class="text-muted mb-2">
+            <i class="bi bi-geo-alt"></i>
+            <%= hotel.establishment&.city&.name.presence || "-" %>,
+            <%= hotel.establishment&.country&.name.presence || "-" %>
+          </p>
+
+          <p>
+            <span><%= "⭐" * hotel.stars.to_i %></span><br>
+            <small class="text-muted"><%= hotel.hotel_type.present? ? hotel.hotel_type.humanize : "Sin categoría" %></small>
+          </p>
+          <p class="mb-2">
+            <% hotel.establishment.amenities.limit(3).each do |amenity| %>
+              <span class="badge bg-secondary"><%= amenity.name %></span>
+            <% end %>
+          </p>
+          <p class="fw-bold text-success">$<%= hotel.establishment.price_per_night %> / noche</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
