@@ -1,133 +1,104 @@
-<style>
-    .range-wrapper {
-        position: relative;
-        height: 4px;
-        background: #ddd;
-        margin: 20px 0;
-    }
-
-    .range-wrapper input[type=range] {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        pointer-events: none;
-        -webkit-appearance: none;
-        background: transparent;
-    }
-
-    .range-wrapper input[type=range]::-webkit-slider-thumb {
-        pointer-events: auto;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #fff;
-        border: 2px solid #007bff;
-        cursor: pointer;
-        -webkit-appearance: none;
-    }
-
-    .slider-range {
-        position: absolute;
-        height: 100%;
-        background: #007bff;
-        top: 0;
-        left: 0;
-        right: 0;
-    }
-
-</style>
-<div class="row mb-4" data-controller="filter-hotel">
-  <!-- Filtros laterales -->
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm mb-4">
-      <h5 class="mb-3">Filtrar por comodidades</h5>
-      <% selected_amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id) if params[:amenities].present? %>
-      <% Amenity.all.each do |amenity| %>
-        <div class="form-check">
-          <%= check_box_tag "amenities[]", amenity.id,
-                            selected_amenity_ids&.include?(amenity.id),
-                            class: "form-check-input",
-                            id: "amenity_#{amenity.id}",
-                            data: { filter_hotel_target: "checkbox" } %>
-          <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
-        </div>
-      <% end %>
-    </div>
-
-    <div class="price-filter">
-      <div class="range-wrapper">
-        <input type="range" class="range-min" min="0" max="1000" step="10" value="0" data-filter-hotel-target="minPrice">
-        <input type="range" class="range-max" min="0" max="1000" step="10" value="1000" data-filter-hotel-target="maxPrice">
-        <div class="slider-track"></div>
-        <div class="slider-range"></div>
+<!-- app/views/hotels/index.html.erb -->
+<section class="search-bar bg-light py-4 shadow-sm">
+  <div class="container">
+    <form action="/hotels" method="get" class="row gx-2 gy-2 align-items-end">
+      <div class="col-md-4 col-12">
+        <label class="form-label mb-0">Destino</label>
+        <input type="text" name="city" class="form-control form-control-lg" placeholder="Ciudad, región, hotel..." value="<%= params[:city] %>">
       </div>
-      <div class="labels">
-        <span id="labelMin" data-filter-hotel-target="minPriceValue">0</span>
-        —
-        <span id="labelMax" data-filter-hotel-target="maxPriceValue">1000</span>
+      <div class="col-md-3 col-6">
+        <label class="form-label mb-0">Check-in</label>
+        <input type="date" name="checkin" class="form-control form-control-lg" value="<%= params[:checkin] %>">
       </div>
-      <button type="button" data-action="filter-hotel#filterByPrice">Filtrar precio</button>
-    </div>
-
+      <div class="col-md-3 col-6">
+        <label class="form-label mb-0">Check-out</label>
+        <input type="date" name="checkout" class="form-control form-control-lg" value="<%= params[:checkout] %>">
+      </div>
+      <div class="col-md-2 col-12">
+        <button type="submit" class="btn btn-primary btn-lg w-100">Buscar</button>
+      </div>
+    </form>
   </div>
+</section>
 
-
-
-  <!-- Contenedor de hoteles -->
-  <div class="col-md-9">
-    <div id="resultsCount" data-filter-hotel-target="resultsCount" class="mb-3 fw-bold text-success">
-      <%= @hotels.count %> hoteles encontrados
+<div class="container-fluid mt-4" data-controller="filter-hotel">
+  <div class="row">
+    <!-- Filtros superiores tipo pestañas rápidas -->
+    <div class="col-12 mb-3">
+      <ul class="nav nav-pills justify-content-center">
+        <li class="nav-item"><a class="nav-link active" data-filter-category="popular" href="#">Populares</a></li>
+        <li class="nav-item"><a class="nav-link" data-filter-category="price" href="#">Precio</a></li>
+        <li class="nav-item"><a class="nav-link" data-filter-category="stars" href="#">Estrellas</a></li>
+        <li class="nav-item"><a class="nav-link" data-filter-category="more" href="#">Más filtros</a></li>
+      </ul>
     </div>
 
-    <div id="hotelsContainer" data-filter-hotel-target="hotelsContainer">
-      <%= render partial: "hotels/hotels_list", locals: { hotels: @hotels } %>
+    <!-- Zona de filtros colapsables (sidebar o en acordeón en móvil) -->
+    <aside class="col-lg-3 col-md-4 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6 class="fw-semibold">Filtros</h6>
+          <hr>
+          <!-- Comodidades -->
+          <div class="mb-4">
+            <h6 class="small fw-semibold">Comodidades</h6>
+            <% selected_amenity_ids = Array(params[:amenities]).map(&:to_i) if params[:amenities].present? %>
+            <% Amenity.all.each do |amenity| %>
+              <div class="form-check">
+                <%= check_box_tag "amenities[]", amenity.id,
+                                  selected_amenity_ids&.include?(amenity.id),
+                                  class: "form-check-input",
+                                  id: "amenity_#{amenity.id}",
+                                  data: { filter_hotel_target: "checkbox" } %>
+                <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label small" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Rango de precios -->
+          <div class="mb-4">
+            <h6 class="small fw-semibold">Precio (USD)</h6>
+            <div class="range-wrapper">
+              <input type="range" class="range-min" min="0" max="2000" step="10" value="<%= params[:min_price] || 0 %>" data-filter-hotel-target="minPrice">
+              <input type="range" class="range-max" min="0" max="2000" step="10" value="<%= params[:max_price] || 2000 %>" data-filter-hotel-target="maxPrice">
+              <div class="slider-range"></div>
+            </div>
+            <div class="d-flex justify-content-between small text-muted">
+              <span data-filter-hotel-target="minPriceValue"><%= params[:min_price] || 0 %></span>
+              <span data-filter-hotel-target="maxPriceValue"><%= params[:max_price] || 2000 %></span>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2 w-100" data-action="filter-hotel#filterByPrice">Aplicar</button>
+          </div>
+
+          <!-- Estrellas filtro (ejemplo) -->
+          <div class="mb-4">
+            <h6 class="small fw-semibold">Estrellas</h6>
+            <% (1..5).reverse_each do |s| %>
+              <div class="form-check">
+                <%= check_box_tag "stars[]", s, params[:stars]&.include?(s.to_s),
+                                  class: "form-check-input", id: "star_#{s}", data: { action: "change->filter-hotel#applyFilters" } %>
+                <%= label_tag "star_#{s}", ("★" * s), class: "form-check-label small" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Resultados + opcional mapa -->
+    <div class="col-lg-9 col-md-8">
+      <div id="resultsCount" data-filter-hotel-target="resultsCount" class="mb-3 fw-bold text-primary">
+        <%= @hotels.count %> hoteles encontrados
+      </div>
+
+      <div class="row g-4" id="hotelsContainer" data-filter-hotel-target="hotelsContainer">
+        <%= render partial: "hotels/hotels_list", locals: { hotels: @hotels } %>
+      </div>
+
+      <!-- Paginación al estilo Rails -->
+      <div class="mt-4">
+        <%= paginate @hotels, theme: "bootstrap-5" %>
+      </div>
     </div>
   </div>
 </div>
-
-<!--<script>-->
-<!--    document.addEventListener("DOMContentLoaded", () => {-->
-<!--        const checkboxes = document.querySelectorAll(".filter-checkbox")-->
-<!--        const hotelsContainer = document.getElementById("hotelsContainer")-->
-<!--        const hotelsCounter = document.getElementById("hotelsCounter")-->
-
-<!--        function buildParams() {-->
-<!--            const params = new URLSearchParams()-->
-<!--            const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value)-->
-<!--            selected.forEach(id => params.append("amenities[]", id))-->
-<!--            return params.toString()-->
-<!--        }-->
-
-<!--        async function applyFilters() {-->
-<!--            const qs = buildParams()-->
-<!--            const url = `/hotels?${qs}`-->
-
-<!--            // hotelsContainer.innerHTML = "<p class='text-center p-3'>Cargando...</p>"-->
-<!--            document.getElementById("resultsCount").textContent = "Cargando..."-->
-
-
-<!--            const res = await fetch(url, {-->
-<!--                headers: { "X-Requested-With": "XMLHttpRequest" }-->
-<!--            })-->
-<!--            if (res.ok) {-->
-<!--                hotelsContainer.innerHTML = await res.text()-->
-
-<!--                // Actualizar el contador de resultados-->
-<!--                // Actualizar el contador de resultados-->
-<!--                const count = hotelsContainer.querySelectorAll(".hotel-card").length-->
-<!--                document.getElementById("resultsCount").textContent = `${count} resultados`-->
-
-<!--                history.pushState(null, "", url)-->
-<!--            } else {-->
-<!--                hotelsContainer.innerHTML = "<p class='text-danger'>Error cargando hoteles</p>"-->
-<!--            }-->
-<!--        }-->
-
-<!--        checkboxes.forEach(cb => cb.addEventListener("change", applyFilters))-->
-
-<!--        window.addEventListener("popstate", () => {-->
-<!--            applyFilters()-->
-<!--        })-->
-<!--    })-->
-<!--</script>-->

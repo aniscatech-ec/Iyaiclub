@@ -35,87 +35,10 @@
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
   <style>
-      /*.gradient-text {*/
-      /*    font-size: 1.5rem;*/
-      /*    font-weight: bold;*/
-      /*    background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);*/
-      /*    -webkit-background-clip: text;*/
-      /*    background-clip: text;*/
-      /*    color: transparent;*/
-      /*}*/
-
-      /*.icon-bg {*/
-      /*    width: 40px;*/
-      /*    height: 40px;*/
-      /*    border-radius: 50%;*/
-      /*    background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);*/
-      /*    display: flex;*/
-      /*    align-items: center;*/
-      /*    justify-content: center;*/
-      /*}*/
-
-      /*.gradient-btn {*/
-      /*    background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);*/
-      /*    border: none;*/
-      /*    color: white;*/
-      /*    font-weight: bold;*/
-      /*    padding: 0.5rem 1rem;*/
-      /*    border-radius: 8px;*/
-      /*    transition: 0.3s ease;*/
-      /*}*/
-
-      /*.gradient-btn:hover {*/
-      /*    filter: brightness(1.1);*/
-      /*    transform: scale(1.05);*/
-      /*}*/
-
-      /*.gradient-outline-btn {*/
-      /*    background: transparent;*/
-      /*    color: #34c759; !* Color inicial del texto *!*/
-      /*    font-weight: bold;*/
-      /*    padding: 0.5rem 1rem;*/
-      /*    border: 2px solid transparent;*/
-      /*    border-image: linear-gradient(to right, #34c759, #c0aa40, #ff9500) 1;*/
-      /*    border-radius: 8px;*/
-      /*    transition: 0.3s ease;*/
-      /*}*/
-
-      /*.gradient-outline-btn:hover {*/
-      /*    background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);*/
-      /*    color: white;*/
-      /*}*/
-
-
-      /*.navbar {*/
-      /*    background: var(--black-900);*/
-      /*}*/
 
 
 
-      .navbar .nav-link {
-          color: var(--black-900);
-          font-weight: bold;
-          transition: color 0.3s;
-      }
-      .navbar .nav-link:hover {
-          color: var(--green-500);
-      }
-      .navbar .btn-primary {
-          background-color: var(--green-500);
-          border: none;
-          color: var(--white);
-      }
-      .navbar .btn-primary:hover {
-          background-color: var(--green-700);
-      }
-      .navbar .btn-danger {
-          background-color: var(--red-500);
-          border: none;
-          color: var(--white);
-      }
-      .navbar .btn-danger:hover {
-          background-color: #b32b2b;
-      }
+
 
 
   </style>
@@ -124,66 +47,8 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <%= image_tag("logo.jpeg", size: "187x77") %></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav mb-2 mb-lg-0">
-        <li class="nav-item mx-2">
-          <%= link_to "Inicio", root_path, class: "nav-link fw-bold", "aria-current": "page" %>
-          <%#= link_to "Inicio", root_path, class: "nav-link"%>
 
-        </li>
-        <li class="nav-item mx-2">
-          <%= link_to "Club Iyai", "#", class: "nav-link fw-bold" %>
-
-        </li>
-
-        <% if user_signed_in? %>
-        <%else %>
-          <li class="nav-item mx-2">
-            <%= link_to "Suscribirse", new_user_registration_path, class: "nav-link fw-bold" %>
-          </li>
-        <% end %>
-
-        <% if user_signed_in? %>
-          <% if current_user.administrador? %>
-            <li class="nav-item mx-2">
-              <%= link_to current_user.name, admin_dashboard_index_path, class: "nav-link fw-bold"  %>
-
-            </li>
-          <% elsif current_user.afiliado?%>
-            <li class="nav-item mx-2">
-              <%= link_to current_user.name, afiliado_dashboard_index_path, class: "nav-link fw-bold"  %>
-
-            </li>
-          <% elsif current_user.turista?%>
-            <li class="nav-item mx-2">
-              <%= link_to current_user.name, turista_dashboard_index_path, class: "nav-link fw-bold"  %>
-
-            </li>
-          <% end %>
-
-          <li class="nav-item mx-2">
-            <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-danger" do %>
-              <i class="bi bi-box-arrow-right"></i>
-            <% end %>
-          </li>
-        <% else %>
-          <li class="nav-item mx-2">
-            <%= link_to "Iniciar sesion", new_user_session_path, class: "btn btn-primary" %>
-          </li>
-        <% end %>
-
-
-      </ul>
-    </div>
-  </div>
-</nav>
+<%= render "shared/navbar" %>
 <%#= render "shared/search_hotels" %>
 
 <%= yield :search_bar %>

@@ -172,6 +172,16 @@ class EstablishmentsController < ApplicationController
     if current_user.afiliado?
       @establishments = current_user.establishments
     end
+    # ------------------------
+    # Paginación con Kaminari
+    # ------------------------
+    if current_user.afiliado?
+      @establishments = current_user.establishments
+      @establishments = @establishments.page(params[:page]).per(12)
+    end
+    if current_user.turista?
+      @establishments = @establishments.page(params[:page]).per(12)
+    end
   end
 
   def show

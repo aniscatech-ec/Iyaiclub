@@ -47,8 +47,10 @@
   transition: color 0.3s ease;
 }
 
+
+
 .navbar .nav-link:hover {
-  color:  var(--brand-orange); /* naranja */
+  color: var(--green-500);
 }
 
 /*Sobreescribe los colores del botón primario*/
@@ -133,11 +135,43 @@
 /* Hover dinámico con tu paleta */
 .category-card:hover {
   transform: translateY(-5px);
-  border-color: var(--brand-orange);
+  border-color: var(--black-900);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-.category-card:hover .icon {
-  color: var(--brand-orange);
-}
 
+
+/* CATEGORY CARDS */
+.category-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
+  cursor: pointer;
+
+}
+.category-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+.category-card .icon {
+  background: linear-gradient(135deg, var(--green-500), var(--green-700));
+  color: var(--white);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 28px;
+}
+.category-card h5 a {
+  color: var(--black-900);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.category-card h5 a:hover {
+  color: var(--red-500);
+}

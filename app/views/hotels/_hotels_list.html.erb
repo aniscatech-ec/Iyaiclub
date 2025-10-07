@@ -1,13 +1,13 @@
 <div class="row g-4">
   <% hotels.each do |hotel| %>
-    <div class="col-md-2"
+    <div class="col-md-3"
          data-amenities="<%= hotel.establishment.amenities.pluck(:id).join(',') %>">
       <%= link_to hotel_path(hotel), class: "card h-100 shadow-sm border-0 hotel-card text-decoration-none text-dark d-block" do %>
         <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
           <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
-          <%= image_tag first_image, height: 200, class: "card-img-top" if first_image.attached? %>
+          <%= image_tag first_image, height: 300, class: "card-img-top" if first_image.attached? %>
         <% else %>
-          <%= image_tag "logo-ant.jpg", height: 200, class: "card-img-top" %>
+          <%= image_tag "logo-ant.jpg", height: 300, class: "card-img-top" %>
         <% end %>
         <div class="card-body d-flex flex-column">
           <h5 class="card-title"><%= hotel.establishment.name %></h5>

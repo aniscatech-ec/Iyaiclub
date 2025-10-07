@@ -1,76 +1,41 @@
-<% if flash[:error] %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <%= flash[:error] %>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  <% if flash[:error] %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= flash[:error] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+  <% end %>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+<!--    <h1 class="mb-0">Establecimientos</h1>-->
+    <% if current_user.administrador? %>
+
+      <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
+        <i class="fa-solid fa-plus"></i> Nuevo
+      <% end %>
+    <% end %>
+
+    <% if current_user.afiliado? %>
+
+      <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+        <i class="fa-solid fa-plus"></i> Nuevo
+      <% end %>
+    <% end %>
   </div>
-<% end %>
 
-<%#= form_with url: establishments_path, method: :get, local: true, class: "row g-2 align-items-end mb-4" do %>
-<!--  <div class="col-md-3">-->
-    <%#= text_field_tag :q, params[:q], class: "form-control", placeholder: "¿Dónde vas?" %>
-<!--  </div>-->
+  <%#= form_tag establishments_path, method: :get, class: "mb-4" do %>
+<!--    <div class="input-group">-->
+      <%#= text_field_tag :search, params[:search], class: "form-control", placeholder: "Buscar establecimiento..." %>
+<!--      <button class="btn btn-outline-primary" type="submit">-->
+<!--        <i class="fa-solid fa-magnifying-glass"></i>-->
+<!--      </button>-->
+<!--    </div>-->
+  <%# end %>
 
-<!--  <div class="col-md-2">-->
-    <%#= date_field_tag :check_in, params[:check_in], class: "form-control", placeholder: "Check-in" %>
-<!--  </div>-->
-
-<!--  <div class="col-md-2">-->
-    <%#= date_field_tag :check_out, params[:check_out], class: "form-control", placeholder: "Check-out" %>
-<!--  </div>-->
-
-<!--  <div class="col-md-2">-->
-    <%#= number_field_tag :guests, params[:guests], class: "form-control", placeholder: "Huéspedes", min: 1 %>
-<!--  </div>-->
-
-<!--  <div class="col-md-2">-->
-    <%#= select_tag :category, options_for_select([["Todas", ""], ["⭐", 1], ["⭐⭐", 2], ["⭐⭐⭐", 3], ["⭐⭐⭐⭐", 4], ["⭐⭐⭐⭐⭐", 5]], params[:category]), class: "form-select" %>
-<!--  </div>-->
-
-<!--  <div class="col-md-1 d-grid">-->
-    <%#= submit_tag "Buscar", class: "btn btn-primary" %>
-<!--  </div>-->
-<%# end %>
-
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0">Establecimientos</h1>
+  <%# Vista según el rol del usuario %>
   <% if current_user.administrador? %>
-    <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-<!--      <i class="fa-solid fa-plus"></i> Nuevo-->
-    <%# end %>
-    <%#= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
-    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
-    <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
+    <%= render "table_view", establishments: @establishments %>
+  <% elsif current_user.afiliado? %>
+    <%= render "card_view", establishments: @establishments %>
+  <% elsif current_user.turista? %>
+    <%= render "catalog_view", establishments: @establishments %>
   <% end %>
-
-  <% if current_user.afiliado? %>
-    <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-    <!--      <i class="fa-solid fa-plus"></i> Nuevo-->
-    <%# end %>
-    <%#= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
-    <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
-      <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
-  <% end %>
-</div>
-
-<%= form_tag establishments_path, method: :get, class: "mb-4" do %>
-  <div class="input-group">
-    <%= text_field_tag :search, params[:search], class: "form-control", placeholder: "Buscar establecimiento..." %>
-    <button class="btn btn-outline-primary" type="submit">
-      <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-  </div>
-<% end %>
-
-<%# Vista según el rol del usuario %>
-<% if current_user.administrador? %>
-  <%= render "table_view", establishments: @establishments %>
-<% elsif current_user.afiliado? %>
-  <%= render "card_view", establishments: @establishments %>
-<% elsif current_user.turista? %>
-  <%= render "catalog_view", establishments: @establishments %>
-<% end %>

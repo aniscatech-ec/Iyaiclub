@@ -184,3 +184,85 @@ if quito
 else
   puts "No se encontró la ciudad Quito"
 end
+
+# db/seeds.rb
+
+# db/seeds.rb
+# **********************************************************************************************************
+# ****************************PROVINCIAS Y CIUDADES*********************************************************
+# **********************************************************************************************************
+# puts "Creando País, Provincias y Ciudades para Ecuador..."
+#
+# ecuador = Country.find_or_create_by!(name: "Ecuador")
+#
+# provincias = {
+#   "Azuay"       => ["Cuenca", "Gualaceo", "Paute"],
+#   "Bolívar"     => ["Guaranda", "San Miguel", "Chillanes"],
+#   "Cañar"       => ["Azogues", "La Troncal", "Biblián"],
+#   "Carchi"      => ["Tulcán", "San Gabriel", "Mira"],
+#   "Chimborazo"  => ["Riobamba", "Guano", "Alausí"],
+#   "Cotopaxi"    => ["Latacunga", "La Maná", "Pujilí"],
+#   "El Oro"      => ["Machala", "Santa Rosa", "Pasaje"],
+#   "Esmeraldas"  => ["Esmeraldas", "Atacames", "Quinindé"],
+#   "Galápagos"   => ["Puerto Ayora", "Puerto Baquerizo Moreno", "Puerto Villamil"],
+#   "Guayas"      => ["Guayaquil", "Daule", "Durán", "Samborondón", "Milagro"],
+#   "Imbabura"    => ["Ibarra", "Otavalo", "Cotacachi"],
+#   "Loja"        => ["Loja", "Catamayo", "Macará"],
+#   "Los Ríos"    => ["Babahoyo", "Quevedo", "Vinces"],
+#   "Manabí"      => ["Portoviejo", "Manta", "Chone", "Jipijapa"],
+#   "Morona Santiago" => ["Macas", "Sucúa", "Gualaquiza"],
+#   "Napo"        => ["Tena", "Archidona", "El Chaco"],
+#   "Orellana"    => ["Francisco de Orellana (Coca)", "La Joya de los Sachas"],
+#   "Pastaza"     => ["Puyo", "Mera", "Santa Clara"],
+#   "Pichincha"   => ["Quito", "Pedro Carbo", "Cayambe", "Machachi", "Sangolquí"],
+#   "Santa Elena" => ["La Libertad", "Santa Elena", "Salinas"],
+#   "Santo Domingo de los Tsáchilas" => ["Santo Domingo"],
+#   "Sucumbíos"   => ["Nueva Loja (Lago Agrio)", "Shushufindi", "Cascales"],
+#   "Tungurahua"  => ["Ambato", "Baños de Agua Santa", "Pelileo"],
+#   "Zamora Chinchipe" => ["Zamora", "Yantzaza", "El Pangui"]
+# }
+#
+# provincias.each do |prov_name, cities|
+#   province = ecuador.provinces.find_or_create_by!(name: prov_name)
+#
+#   cities.each do |city_name|
+#     province.cities.find_or_create_by!(name: city_name)
+#   end
+# end
+#
+# puts "✅ Provincias y ciudades de Ecuador creadas/actualizadas correctamente."
+
+# -------------------------------------------------------------------
+# Asignar ubicaciones aleatorias a los establishments
+# -------------------------------------------------------------------
+# ecuador = Country.find_or_create_by!(name: "Ecuador")
+#
+# puts "Asignando ubicaciones aleatorias a los establishments..."
+#
+# Establishment.find_each do |est|
+#   province = ecuador.provinces.sample
+#   next unless province
+#
+#   city = province.cities.sample
+#   next unless city
+#
+#   est.update!(
+#     country_id: ecuador.id,
+#     province_id: province.id,
+#     city_id: city.id
+#   )
+# end
+#
+# puts "✅ Establecimientos actualizados con ubicaciones aleatorias."
+
+# Buscar la ciudad Quito
+quito = City.find_by(name: "Quito")
+
+# Traer todos los establishments que estén en Quito
+establishments_in_quito = Establishment.where(city: quito)
+
+# Mostrar resultados
+puts "Establishments en Quito:"
+establishments_in_quito.each do |est|
+  puts "#{est.id} - #{est.name}"
+end
