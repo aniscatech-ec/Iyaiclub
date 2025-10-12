@@ -55,10 +55,10 @@
       </div>
 
       <div class="mb-3">
-        <%= f.label :category, "Categoría del restaurante" %>
-        <%= f.select :category, options_for_select(
+        <%= f.label :restaurant_type, "Categoría del restaurante" %>
+        <%= f.select :restaurant_type, options_for_select(
           ["Familiar","Gourmet","Bar","Café","Comida rápida"],
-          @restaurant.category
+          @restaurant.restaurant_type
         ),
                      { include_blank: "Seleccione categoría" },
                      class: "form-select" %>

@@ -134,18 +134,18 @@
 # end
 # puts "Total de hoteles con precio <= 120: #{cheap_hotels.count}"
 
-puts ">>> Todos los hoteles:"
-Hotel.includes(establishment: [:amenities, :city]).each do |hotel|
-  est = hotel.establishment
-  amenities = est.amenities.pluck(:name).join(", ")
-  city_name = est.city&.name || "-"
-  puts "#{est.name} - #{city_name} - $#{est.price_per_night} | Amenities: #{amenities}"
-end
+# puts ">>> Todos los hoteles:"
+# Hotel.includes(establishment: [:amenities, :city]).each do |hotel|
+#   est = hotel.establishment
+#   amenities = est.amenities.pluck(:name).join(", ")
+#   city_name = est.city&.name || "-"
+#   puts "#{est.name} - #{city_name} - $#{est.price_per_night} | Amenities: #{amenities}"
+# end
+#
+# puts "----------------------------------------------------------"
 
-puts "----------------------------------------------------------"
-
-# amenity_names = ["Wi-Fi gratis", "Cocina"]
-amenity_names = ["TV por cable"]
+amenity_names = ["Wi-Fi gratis", "Cocina"]
+# amenity_names = ["TV por cable"]
 amenity_ids = Amenity.where(name: amenity_names).pluck(:id)
 
 establishment_ids = Establishment.joins(:amenities)
@@ -162,28 +162,28 @@ hotels.each do |hotel|
   amenities = hotel.establishment.amenities.pluck(:name).join(", ")
   puts "#{hotel.establishment.name} - #{hotel.establishment.city.name} - $#{hotel.establishment.price_per_night} | Amenities: #{amenities}"
 end
-
-puts "--------------------------------------------------------"
-puts ">>> Hoteles en Quito:"
-# Encontramos la ciudad Quito
-quito = City.find_by(name: "Quito")
-
-if quito
-  x = 0
-  Hotel.joins(:establishment)
-       .where(establishments: { city_id: quito.id })
-       .includes(establishment: [:amenities, :city])
-       .each do |hotel|
-    est = hotel.establishment
-    amenities = est.amenities.pluck(:name).join(", ")
-    city_name = est.city&.name || "-"
-    puts "#{est.name} - #{city_name} - $#{est.price_per_night} | Amenities: #{amenities}"
-    x=x+1
-  end
-  puts x
-else
-  puts "No se encontró la ciudad Quito"
-end
+#
+# puts "--------------------------------------------------------"
+# puts ">>> Hoteles en Quito:"
+# # Encontramos la ciudad Quito
+# quito = City.find_by(name: "Quito")
+#
+# if quito
+#   x = 0
+#   Hotel.joins(:establishment)
+#        .where(establishments: { city_id: quito.id })
+#        .includes(establishment: [:amenities, :city])
+#        .each do |hotel|
+#     est = hotel.establishment
+#     amenities = est.amenities.pluck(:name).join(", ")
+#     city_name = est.city&.name || "-"
+#     puts "#{est.name} - #{city_name} - $#{est.price_per_night} | Amenities: #{amenities}"
+#     x=x+1
+#   end
+#   puts x
+# else
+#   puts "No se encontró la ciudad Quito"
+# end
 
 # db/seeds.rb
 
@@ -265,4 +265,17 @@ establishments_in_quito = Establishment.where(city: quito)
 puts "Establishments en Quito:"
 establishments_in_quito.each do |est|
   puts "#{est.id} - #{est.name}"
+end
+
+restaurants = Establishment.where(category: "hotel")
+
+if restaurants.any?
+  restaurants.each do |restaurant|
+    new_price = rand(10.0..300.0).round(2)
+    restaurant.update(price_per_night: new_price)
+    puts "- #{restaurant.name}: nuevo precio $#{new_price}"
+  end
+  puts "Se actualizaron #{restaurants.count} restaurantes."
+else
+  puts "No se encontraron restaurantes."
 end

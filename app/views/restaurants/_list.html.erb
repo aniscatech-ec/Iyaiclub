@@ -1,0 +1,54 @@
+<!--app/views/restaurants/_list.html.erb-->
+<!-- app/views/restaurants/_list.html.erb -->
+<div id="restaurants-list">
+  <div class="row">
+    <% if restaurants.any? %>
+      <% restaurants.each do |restaurant| %>
+        <% est = restaurant.establishment %>
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
+          <%= link_to restaurant, class: "text-decoration-none text-dark" do %>
+            <div class="card shadow-sm border-0 h-100 rounded-3 overflow-hidden establishment-card">
+              <% if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                <% first_image = est.galleries.first.gallery_images.first.file %>
+                <%= image_tag first_image, height: 250, class: "card-img-top" if first_image.attached? %>
+              <% else %>
+                <%= image_tag "logo-ant.jpg", height: 250, class: "card-img-top" %>
+              <% end %>
+
+              <div class="card-body">
+                <h6 class="fw-semibold mb-1"><%= est.name %></h6>
+                <p class="small text-muted mb-1">
+                  <i class="bi bi-geo-alt"></i> <%= est.city&.name %>, <i><%= est.city.province&.name %></i>
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-primary">$<%= est.price_per_night %>/noche</span>
+                  <span class="badge bg-success"><%= est.category %></span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold text-warning"><%= restaurant.restaurant_type %></span>
+                  <span class="badge bg-warning"><%= restaurant.cuisine_type  %></span>
+                </div>
+                <p class="mb-2">
+                  <% est.amenities.limit(3).each do |amenity| %>
+                    <span class="badge bg-secondary"><%= amenity.name %></span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="mt-3">
+        <%= paginate restaurants %>
+      </div>
+    <% else %>
+      <div class="col-12 text-center my-5">
+        <h6 class="text-muted">
+          <i class="bi bi-info-circle me-2"></i>
+          No se encontraron restaurantes que coincidan con los filtros.
+        </h6>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -51,6 +51,60 @@
 <%= render "shared/navbar" %>
 <%#= render "shared/search_hotels" %>
 
+<!-- Barra tipo Booking -->
+<nav class="booking-nav bg-white shadow-sm border-bottom py-2">
+  <div class="container d-flex justify-content-center align-items-center gap-4 flex-wrap">
+
+    <!-- Establecimientos -->
+    <%= link_to establishments_path, class: "nav-item d-flex align-items-center text-decoration-none text-secondary px-3 py-2 rounded-3 hover-bg" do %>
+      <i class="bi bi-building me-2 fs-5"></i>
+      <span>Establecimientos</span>
+    <% end %>
+
+    <!-- Hoteles -->
+    <%= link_to hotels_path, class: "nav-item d-flex align-items-center text-decoration-none text-secondary px-3 py-2 rounded-3 hover-bg" do %>
+      <i class="bi bi-house-door me-2 fs-5"></i>
+      <span>Hoteles</span>
+    <% end %>
+
+    <!-- Restaurantes -->
+    <%= link_to restaurants_path, class: "nav-item d-flex align-items-center text-decoration-none text-secondary px-3 py-2 rounded-3 hover-bg" do %>
+      <i class="bi bi-cup-straw me-2 fs-5"></i>
+      <span>Restaurantes</span>
+    <% end %>
+
+    <!-- Transporte -->
+    <a href="#" class="nav-item d-flex align-items-center text-decoration-none text-secondary px-3 py-2 rounded-3 hover-bg">
+      <i class="bi bi-car-front me-2 fs-5"></i>
+      <span>Transporte</span>
+    </a>
+
+    <!-- Agencias de viaje -->
+    <a href="#" class="nav-item d-flex align-items-center text-decoration-none text-secondary px-3 py-2 rounded-3 hover-bg">
+      <i class="bi bi-globe-americas me-2 fs-5"></i>
+      <span>Agencias de viaje</span>
+    </a>
+
+  </div>
+</nav>
+
+<style>
+    .booking-nav .nav-item {
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .booking-nav .nav-item:hover,
+    .booking-nav .nav-item.active {
+        background-color: #e7f2ff;
+        color: #0d6efd;
+    }
+
+    .booking-nav .hover-bg:hover i {
+        color: #0d6efd;
+    }
+</style>
+
+
 <%= yield :search_bar %>
 <%= yield %>
 

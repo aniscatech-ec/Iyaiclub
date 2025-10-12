@@ -1,34 +1,239 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0">Hoteles</h1>
-  <% if current_user.administrador? %>
-    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
-      <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
+<div class="container-fluid mt-4">
+  <div class="row">
 
-  <% end %>
+    <!-- Panel de filtros -->
+    <div class="col-lg-3 col-md-4 mb-4">
+      <section class="search-hotels bg-white p-4 rounded-4 shadow-sm">
+        <h5 class="fw-bold mb-3" style="color: var(--green-500)">
+          <i class="bi bi-funnel-fill me-1"></i> Filtros
+        </h5>
 
-  <% if current_user.afiliado? %>
-    <%= link_to new_hotel_path, class: "btn btn-primary btn-lg" do %>
-      <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
+        <form id="filter-form" class="row g-3">
+          <!-- Ciudad -->
+          <div class="col-12">
+            <label for="city" class="form-label fw-semibold text-secondary">Ciudad</label>
+            <select name="city" id="city" class="form-select shadow-sm border-success-subtle">
+              <option value="">Todas las ciudades</option>
+              <% @cities.each do |city| %>
+                <option value="<%= city.id %>"><%= city.name %></option>
+              <% end %>
+            </select>
+          </div>
 
-  <% end %>
+          <!-- Rango de precios -->
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Rango de precios ($)</label>
+            <div class="d-flex align-items-center mb-2">
+              <span class="text-muted me-2 small">Min: <span id="min-price-label">0</span></span>
+              <input type="range" class="form-range" id="min-price" name="min_price" min="0" max="1000" value="0">
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="text-muted me-2 small">Max: <span id="max-price-label">1000</span></span>
+              <input type="range" class="form-range" id="max-price" name="max_price" min="0" max="1000" value="1000">
+            </div>
+          </div>
+          <!-- Filtro de Estrellas -->
+          <div class="col-12">
+            <label for="stars" class="form-label fw-semibold text-secondary">Estrellas</label>
+            <select name="stars" id="stars" class="form-select shadow-sm border-success-subtle">
+              <option value="">Todas las estrellas</option>
+              <% (1..5).each do |s| %>
+                <option value="<%= s %>"><%= "⭐" * s %></option>
+              <% end %>
+            </select>
+          </div>
+
+          <!-- Filtro de Tipo de hotel -->
+          <div class="col-12">
+            <label for="hotel_type" class="form-label fw-semibold text-secondary">Tipo de hotel</label>
+            <select name="hotel_type" id="hotel_type" class="form-select shadow-sm border-success-subtle">
+              <option value="">Todos los tipos</option>
+              <option value="conventional">Hotel convencional</option>
+              <option value="boutique">Hotel boutique</option>
+              <option value="chain">Hotel de cadena</option>
+              <option value="resort">Resort</option>
+              <option value="ecohotel">Ecohotel / Ecolodge</option>
+            </select>
+          </div>
 
 
 
+          <!-- Comodidades -->
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Comodidades</label>
+            <div class="scrollable-amenities border rounded p-2">
+              <% @amenities.each do |amenity| %>
+                <div class="form-check mb-2">
+                  <input type="checkbox" name="amenities[]" value="<%= amenity.id %>"
+                         id="amenity_<%= amenity.id %>" class="form-check-input border-success">
+                  <label for="amenity_<%= amenity.id %>" class="form-check-label small"><%= amenity.name %></label>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Resultados -->
+    <div class="col-lg-9 col-md-8">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0" style="color: var(--green-500)">
+          <i class="bi bi-building-check me-1"></i> Hoteles
+        </h5>
+        <span class="text-muted small">
+          <span id="results-count"><%= @hotels.total_count %></span> hoteles encontrados
+        </span>
+      </div>
+
+      <!-- Spinner -->
+      <div id="loading-spinner" class="text-center my-5 d-none">
+        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: var(--green-500)">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Lista de hoteles -->
+      <div id="hotels-list" class="row g-4 fade-transition">
+        <%= render partial: "hotels/list", locals: { hotels: @hotels } %>
+      </div>
+    </div>
+  </div>
 </div>
 
-<% if current_user.administrador? %>
-  <%= render "table_view", hotels: @hotels %>
-<% elsif current_user.afiliado? %>
-  <%= render "card_view", hotels: @hotels %>
-<% elsif current_user.turista? %>
-  <%= render "catalog_view", hotels: @hotels %>
-<% end %>
+<style>
+    :root {
+        --green-500: #34C759;
+        --green-700: #0F6B3A;
+        --brown-700: #4B2E1F;
+        --red-500: #E53935;
+        --white: #FFFFFF;
+        --offwhite: #FBFBFB;
+    }
 
+    /* Filtros */
+    .search-hotels {
+        border-left: 4px solid var(--green-500);
+        background-color: var(--offwhite);
+        transition: all 0.3s ease;
+    }
+    .search-hotels:hover { box-shadow: 0 6px 20px rgba(0,128,0,0.08); }
 
+    /* Scroll amenities */
+    .scrollable-amenities { max-height: 220px; overflow-y: auto; }
+    .scrollable-amenities::-webkit-scrollbar { width: 6px; }
+    .scrollable-amenities::-webkit-scrollbar-thumb { background-color: var(--green-500); border-radius: 4px; }
 
+    /* Tarjetas hoteles */
+    .establishment-card {
+        transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
+        border: 1px solid #eaeaea;
+        opacity: 0;
+        transform: translateY(25px);
+        overflow: hidden;
+        border-radius: 12px;
+    }
+    .establishment-card.visible { opacity: 1; transform: translateY(0); }
+    .establishment-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .establishment-card img { transition: transform 0.3s ease; }
+    .establishment-card:hover img { transform: scale(1.05); }
 
+    /* Badges */
+    .badge-success-subtle { background-color: rgba(52,199,89,0.15); color: var(--green-500); }
 
+    /* Fade animación */
+    .fade-transition { opacity: 1; transition: opacity 0.3s ease; }
+    .fade-transition.fade-out { opacity: 0.3; }
+
+    /* Slider styling */
+    .form-range:focus { outline: none; box-shadow: 0 0 0 0.2rem rgba(52,199,89,0.25); }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .search-hotels { border-left: none; border-top: 4px solid var(--green-500); }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("filter-form");
+        const resultsContainer = document.getElementById("hotels-list");
+        const spinner = document.getElementById("loading-spinner");
+        const resultsCount = document.getElementById("results-count");
+
+        const minInput = document.getElementById("min-price");
+        const maxInput = document.getElementById("max-price");
+        const minLabel = document.getElementById("min-price-label");
+        const maxLabel = document.getElementById("max-price-label");
+
+        if (minInput && minLabel) minInput.addEventListener("input", () => minLabel.textContent = minInput.value);
+        if (maxInput && maxLabel) maxInput.addEventListener("input", () => maxLabel.textContent = maxInput.value);
+
+        const debounce = (fn, delay = 300) => {
+            let timeout;
+            return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn.apply(this, args), delay); };
+        };
+
+        const toggleLoading = show => {
+            if(show) { spinner.classList.remove("d-none"); resultsContainer.classList.add("fade-out"); }
+            else { spinner.classList.add("d-none"); resultsContainer.classList.remove("fade-out"); }
+        };
+
+        const animateCards = () => {
+            resultsContainer.querySelectorAll(".establishment-card").forEach((card, idx) => {
+                setTimeout(() => card.classList.add("visible"), idx * 100);
+            });
+        };
+
+        const applyFilters = () => {
+            if (!form) return;
+            const formData = new FormData(form);
+            formData.set("min_price", minInput.value);
+            formData.set("max_price", maxInput.value);
+            const queryString = new URLSearchParams(formData).toString();
+
+            toggleLoading(true);
+
+            fetch(`/hotels?${queryString}`, { headers: { "Accept": "text/html" } })
+                .then(res => res.text())
+                .then(html => {
+                    const doc = new DOMParser().parseFromString(html, "text/html");
+                    const newList = doc.getElementById("hotels-list");
+                    const newCount = doc.getElementById("results-count");
+                    if(newList){ resultsContainer.innerHTML = newList.innerHTML; animateCards(); setupPaginationLinks(); }
+                    if(newCount) resultsCount.textContent = newCount.textContent;
+                })
+                .catch(err => console.error("Error al cargar filtros:", err))
+                .finally(() => toggleLoading(false));
+        };
+
+        const debouncedApplyFilters = debounce(applyFilters, 300);
+
+        if (form) {
+            form.querySelectorAll("input, select").forEach(input => {
+                input.addEventListener("input", debouncedApplyFilters);
+                input.addEventListener("change", debouncedApplyFilters);
+            });
+        }
+
+        const setupPaginationLinks = () => {
+            resultsContainer.querySelectorAll(".pagination a").forEach(link => {
+                link.addEventListener("click", e => {
+                    e.preventDefault();
+                    toggleLoading(true);
+                    fetch(link.href, { headers: { "Accept": "text/html" } })
+                        .then(res => res.text())
+                        .then(html => {
+                            const doc = new DOMParser().parseFromString(html, "text/html");
+                            const newList = doc.getElementById("hotels-list");
+                            if(newList){ resultsContainer.innerHTML = newList.innerHTML; animateCards(); setupPaginationLinks(); }
+                        })
+                        .finally(()=>toggleLoading(false));
+                });
+            });
+        };
+
+        setupPaginationLinks();
+        animateCards();
+    });
+</script>

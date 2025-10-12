@@ -7,123 +7,178 @@ class HotelsController < ApplicationController
   # end
 
 
+  # def index
+  #   # @hotels = Hotel.all
+  #   @hotels = Hotel.includes(establishment: [:amenities, :city, :country])
+  #
+  #   # ------------------------
+  #   # Búsqueda por nombre
+  #   # ------------------------
+  #   if params[:search].present?
+  #     query = params[:search].strip
+  #     @hotels = @hotels.where("name ILIKE ?", "%#{query}%")
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por ciudad
+  #   # ------------------------
+  #   if params[:city].present?
+  #     city = City.find_by(name: params[:city].strip)
+  #     if city
+  #       @hotels = @hotels.joins(:establishment).where(establishments: { city_id: city.id })
+  #     end
+  #   end
+  #
+  #
+  #   # ------------------------
+  #   # Filtrar por país
+  #   # ------------------------
+  #   if params[:country].present?
+  #     country = Country.find_by(name: params[:country].strip)
+  #     @hotels = @hotels.where(country_id: country.id) if country
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por comodidades
+  #   # ------------------------
+  #   # if params[:amenities].present?
+  #   #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+  #   #   @hotels = @hotels.joins(:amenities)
+  #   #                    .where(amenities: { id: amenity_ids })
+  #   #                    .distinct
+  #   # end
+  #
+  #   # if params[:amenities].present?
+  #   #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+  #   #
+  #   #   # Accedemos a amenities a través de establishment
+  #   #   @hotels = @hotels.joins(establishment: :amenities)
+  #   #                    .where(amenities: { id: amenity_ids })
+  #   #                    .distinct
+  #   # end
+  #   # if params[:amenities].present?
+  #   #   puts "=================== PARAMS DE AMENITIES ==================="
+  #   #   puts params[:amenities].inspect
+  #   #   puts "============================================================"
+  #   #
+  #   #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+  #   #
+  #   #   puts "=================== AMENITY IDS ==================="
+  #   #   puts amenity_ids.inspect
+  #   #   puts "==================================================="
+  #   #
+  #   #   # Accedemos a amenities a través de establishment
+  #   #   @hotels = @hotels.joins(establishment: :amenities)
+  #   #                    .where(amenities: { id: amenity_ids })
+  #   #                    .distinct
+  #   # end
+  #
+  #
+  #   if params[:min_price].present? && params[:max_price].present?
+  #     min = params[:min_price].to_i
+  #     max = params[:max_price].to_i
+  #
+  #     @hotels = @hotels.joins(:establishment)
+  #                      .where(establishments: { price_per_night: min..max })
+  #   end
+  #
+  #
+  #   if params[:amenities].present?
+  #     amenity_ids = Array(params[:amenities]).map(&:to_i)
+  #
+  #     if amenity_ids.any?
+  #       establishment_ids = Establishment.joins(:amenities)
+  #                                        .where(amenities: { id: amenity_ids })
+  #                                        .group(:id)
+  #                                        .having("COUNT(DISTINCT amenities.id) = ?", amenity_ids.size)
+  #                                        .pluck(:id)
+  #       @hotels = @hotels.joins(:establishment).where(establishments: { id: establishment_ids })
+  #     else
+  #       @hotels = @hotels.none
+  #     end
+  #   end
+  #
+  #   if request.xhr?
+  #     render partial: "hotels/hotels_list", locals: { hotels: @hotels }
+  #   else
+  #     render :index
+  #   end
+  #
+  #
+  #   # ------------------------
+  #   # Filtrar por fechas (opcional)
+  #   # ------------------------
+  #   if params[:checkin].present? && params[:checkout].present?
+  #     checkin = Date.parse(params[:checkin]) rescue nil
+  #     checkout = Date.parse(params[:checkout]) rescue nil
+  #     if checkin && checkout
+  #       @hotels = @hotels.select { |hotel| hotel.available_between?(checkin, checkout) }
+  #     end
+  #   end
+  #
+  #   # ------------------------
+  #   # Filtrar por usuario afiliado (opcional)
+  #   # ------------------------
+  #   if current_user.afiliado?
+  #     @hotels = current_user.establishments.where(category: "hotel")
+  #   end
+  #
+  #
+  # end
+
   def index
-    # @hotels = Hotel.all
-    @hotels = Hotel.includes(establishment: [:amenities, :city, :country])
+    puts "-------------------------------------------------------------"
+    puts "-------------------------REALIZANDO PETICION GET----------------------------"
+    puts params.inspect
+    puts "-------------------------------------------------------------"
+    @cities = City.all
+    @amenities = Amenity.all
 
-    # ------------------------
-    # Búsqueda por nombre
-    # ------------------------
-    if params[:search].present?
-      query = params[:search].strip
-      @hotels = @hotels.where("name ILIKE ?", "%#{query}%")
-    end
+    # Incluimos establishment para acceder a sus atributos
+    @hotels = Hotel.includes(establishment: [:city, :amenities])
 
-    # ------------------------
-    # Filtrar por ciudad
-    # ------------------------
+    # 🔹 Filtros dinámicos
     if params[:city].present?
-      city = City.find_by(name: params[:city].strip)
-      if city
-        @hotels = @hotels.joins(:establishment).where(establishments: { city_id: city.id })
-      end
+      @hotels = @hotels.joins(:establishment).where(establishments: { city_id: params[:city] })
     end
 
-
-    # ------------------------
-    # Filtrar por país
-    # ------------------------
-    if params[:country].present?
-      country = Country.find_by(name: params[:country].strip)
-      @hotels = @hotels.where(country_id: country.id) if country
+    # Filtro por estrellas
+    if params[:stars].present?
+      @hotels = @hotels.where(stars: params[:stars].to_i)
     end
 
-    # ------------------------
-    # Filtrar por comodidades
-    # ------------------------
-    # if params[:amenities].present?
-    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-    #   @hotels = @hotels.joins(:amenities)
-    #                    .where(amenities: { id: amenity_ids })
-    #                    .distinct
-    # end
-
-    # if params[:amenities].present?
-    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-    #
-    #   # Accedemos a amenities a través de establishment
-    #   @hotels = @hotels.joins(establishment: :amenities)
-    #                    .where(amenities: { id: amenity_ids })
-    #                    .distinct
-    # end
-    # if params[:amenities].present?
-    #   puts "=================== PARAMS DE AMENITIES ==================="
-    #   puts params[:amenities].inspect
-    #   puts "============================================================"
-    #
-    #   amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-    #
-    #   puts "=================== AMENITY IDS ==================="
-    #   puts amenity_ids.inspect
-    #   puts "==================================================="
-    #
-    #   # Accedemos a amenities a través de establishment
-    #   @hotels = @hotels.joins(establishment: :amenities)
-    #                    .where(amenities: { id: amenity_ids })
-    #                    .distinct
-    # end
+    if params[:hotel_type].present?
+      @hotels = @hotels.where(hotel_type: params[:hotel_type])
+    end
 
 
     if params[:min_price].present? && params[:max_price].present?
-      min = params[:min_price].to_i
-      max = params[:max_price].to_i
-
       @hotels = @hotels.joins(:establishment)
-                       .where(establishments: { price_per_night: min..max })
+                       .where(establishments: { price_per_night: params[:min_price]..params[:max_price] })
+    elsif params[:min_price].present?
+      @hotels = @hotels.joins(:establishment)
+                       .where("establishments.price_per_night >= ?", params[:min_price])
+    elsif params[:max_price].present?
+      @hotels = @hotels.joins(:establishment)
+                       .where("establishments.price_per_night <= ?", params[:max_price])
     end
-
 
     if params[:amenities].present?
-      amenity_ids = Array(params[:amenities]).map(&:to_i)
-
-      if amenity_ids.any?
-        establishment_ids = Establishment.joins(:amenities)
-                                         .where(amenities: { id: amenity_ids })
-                                         .group(:id)
-                                         .having("COUNT(DISTINCT amenities.id) = ?", amenity_ids.size)
-                                         .pluck(:id)
-        @hotels = @hotels.joins(:establishment).where(establishments: { id: establishment_ids })
-      else
-        @hotels = @hotels.none
-      end
+      hotel_ids = @hotels.joins(establishment: :amenities)
+                         .where(amenities: { id: params[:amenities] })
+                         .group("hotels.id")
+                         .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
+                         .pluck(:id)
+      @hotels = @hotels.where(id: hotel_ids)
     end
 
-    if request.xhr?
-      render partial: "hotels/hotels_list", locals: { hotels: @hotels }
-    else
-      render :index
-    end
+    @hotels = @hotels.page(params[:page]).per(9)
 
-
-    # ------------------------
-    # Filtrar por fechas (opcional)
-    # ------------------------
-    if params[:checkin].present? && params[:checkout].present?
-      checkin = Date.parse(params[:checkin]) rescue nil
-      checkout = Date.parse(params[:checkout]) rescue nil
-      if checkin && checkout
-        @hotels = @hotels.select { |hotel| hotel.available_between?(checkin, checkout) }
-      end
-    end
-
-    # ------------------------
-    # Filtrar por usuario afiliado (opcional)
-    # ------------------------
-    if current_user.afiliado?
-      @hotels = current_user.establishments.where(category: "hotel")
+    respond_to do |format|
+      format.html
+      format.js
     end
   end
-
 
   def show
   end
