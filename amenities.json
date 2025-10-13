@@ -1,0 +1,177 @@
+[
+  {
+    "id": 1,
+    "name": "Wi-Fi gratis",
+    "created_at": "2025-08-11T16:03:19.659Z",
+    "updated_at": "2025-09-28T01:12:19.938Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 2,
+    "name": "Cocina",
+    "created_at": "2025-08-11T16:03:38.060Z",
+    "updated_at": "2025-09-28T01:12:32.960Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 3,
+    "name": "Aire acondicionado",
+    "created_at": "2025-08-11T17:13:58.560Z",
+    "updated_at": "2025-09-26T21:43:37.152Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 4,
+    "name": "Gimnasio",
+    "created_at": "2025-08-12T18:21:26.523Z",
+    "updated_at": "2025-09-26T21:24:59.952Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 5,
+    "name": "Estacionamiento",
+    "created_at": "2025-08-12T18:22:03.531Z",
+    "updated_at": "2025-09-26T21:24:17.672Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 6,
+    "name": "TV por cable",
+    "created_at": "2025-08-12T18:22:10.224Z",
+    "updated_at": "2025-09-26T22:27:50.251Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 7,
+    "name": "Piscina",
+    "created_at": "2025-08-12T18:22:26.488Z",
+    "updated_at": "2025-09-26T22:27:35.061Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 8,
+    "name": "Servicio a la habitación",
+    "created_at": "2025-08-12T18:22:50.252Z",
+    "updated_at": "2025-09-26T21:57:33.869Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 9,
+    "name": "Minibar",
+    "created_at": "2025-08-12T18:23:29.732Z",
+    "updated_at": "2025-09-26T22:25:30.607Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 10,
+    "name": "Spa / sauna",
+    "created_at": "2025-08-12T18:24:34.669Z",
+    "updated_at": "2025-09-26T22:28:51.612Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 11,
+    "name": "Servicio de lavandería",
+    "created_at": "2025-08-12T18:25:02.232Z",
+    "updated_at": "2025-09-27T21:42:53.548Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 12,
+    "name": "Bar",
+    "created_at": "2025-08-12T18:25:24.806Z",
+    "updated_at": "2025-09-27T21:43:41.722Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 13,
+    "name": "Caja fuerte",
+    "created_at": "2025-09-22T15:22:08.657Z",
+    "updated_at": "2025-09-26T22:27:11.102Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 14,
+    "name": "Restaurante",
+    "created_at": "2025-09-22T15:29:33.443Z",
+    "updated_at": "2025-09-27T21:44:51.007Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 15,
+    "name": "Sala de conferencias",
+    "created_at": "2025-09-22T16:13:55.085Z",
+    "updated_at": "2025-09-28T01:39:59.505Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 16,
+    "name": "Ascensor",
+    "created_at": "2025-09-22T16:14:42.941Z",
+    "updated_at": "2025-09-28T01:43:26.546Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 17,
+    "name": "Recepción 24 horas",
+    "created_at": "2025-09-22T16:20:22.741Z",
+    "updated_at": "2025-09-28T01:44:59.452Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 18,
+    "name": "Admite mascotas",
+    "created_at": "2025-09-22T16:22:16.696Z",
+    "updated_at": "2025-09-28T02:05:55.388Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 19,
+    "name": "Traslado al aeropuerto",
+    "created_at": "2025-09-22T16:23:32.487Z",
+    "updated_at": "2025-09-28T02:08:28.568Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 20,
+    "name": "Desayuno incluído",
+    "created_at": "2025-09-22T16:44:52.352Z",
+    "updated_at": "2025-09-28T03:55:14.099Z",
+    "establishment_type": "hotel"
+  },
+  {
+    "id": 21,
+    "name": "Zona para fumadores",
+    "created_at": "2025-09-22T17:00:04.861Z",
+    "updated_at": "2025-09-28T04:01:06.619Z",
+    "establishment_type": "restaurante"
+  },
+  {
+    "id": 22,
+    "name": "Menú vegetariano",
+    "created_at": "2025-09-22T17:58:25.900Z",
+    "updated_at": "2025-09-28T04:02:32.945Z",
+    "establishment_type": "restaurante"
+  },
+  {
+    "id": 23,
+    "name": "Música en vivo",
+    "created_at": "2025-09-26T17:30:43.216Z",
+    "updated_at": "2025-09-28T04:04:50.252Z",
+    "establishment_type": "restaurante"
+  },
+  {
+    "id": 24,
+    "name": "Servicio a domicilio",
+    "created_at": "2025-09-26T17:30:48.490Z",
+    "updated_at": "2025-09-28T04:07:04.809Z",
+    "establishment_type": "restaurante"
+  },
+  {
+    "id": 25,
+    "name": "Servicio de catering",
+    "created_at": "2025-09-26T17:31:02.496Z",
+    "updated_at": "2025-09-28T04:14:31.550Z",
+    "establishment_type": "restaurante"
+  }
+]
