@@ -1,4 +1,4 @@
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4" data-controller="hotels">
   <div class="row">
 
     <!-- Panel de filtros -->
@@ -8,7 +8,7 @@
           <i class="bi bi-funnel-fill me-1"></i> Filtros
         </h5>
 
-        <form id="filter-form" class="row g-3">
+        <form data-hotels-target="form" class="row g-3">
           <!-- Ciudad -->
           <div class="col-12">
             <label for="city" class="form-label fw-semibold text-secondary">Ciudad</label>
@@ -24,15 +24,16 @@
           <div class="col-12">
             <label class="form-label fw-semibold text-secondary">Rango de precios ($)</label>
             <div class="d-flex align-items-center mb-2">
-              <span class="text-muted me-2 small">Min: <span id="min-price-label">0</span></span>
-              <input type="range" class="form-range" id="min-price" name="min_price" min="0" max="1000" value="0">
+              <span class="text-muted me-2 small">Min: <span data-hotels-target="minLabel">0</span></span>
+              <input type="range" class="form-range" data-hotels-target="minInput" name="min_price" min="0" max="1000" value="0">
             </div>
             <div class="d-flex align-items-center">
-              <span class="text-muted me-2 small">Max: <span id="max-price-label">1000</span></span>
-              <input type="range" class="form-range" id="max-price" name="max_price" min="0" max="1000" value="1000">
+              <span class="text-muted me-2 small">Max: <span data-hotels-target="maxLabel">1000</span></span>
+              <input type="range" class="form-range" data-hotels-target="maxInput" name="max_price" min="0" max="1000" value="1000">
             </div>
           </div>
-          <!-- Filtro de Estrellas -->
+
+          <!-- Estrellas -->
           <div class="col-12">
             <label for="stars" class="form-label fw-semibold text-secondary">Estrellas</label>
             <select name="stars" id="stars" class="form-select shadow-sm border-success-subtle">
@@ -43,7 +44,7 @@
             </select>
           </div>
 
-          <!-- Filtro de Tipo de hotel -->
+          <!-- Tipo -->
           <div class="col-12">
             <label for="hotel_type" class="form-label fw-semibold text-secondary">Tipo de hotel</label>
             <select name="hotel_type" id="hotel_type" class="form-select shadow-sm border-success-subtle">
@@ -55,8 +56,6 @@
               <option value="ecohotel">Ecohotel / Ecolodge</option>
             </select>
           </div>
-
-
 
           <!-- Comodidades -->
           <div class="col-12">
@@ -82,19 +81,19 @@
           <i class="bi bi-building-check me-1"></i> Hoteles
         </h5>
         <span class="text-muted small">
-          <span id="results-count"><%= @hotels.total_count %></span> hoteles encontrados
+          <span data-hotels-target="resultsCount"><%= @hotels.total_count %></span> hoteles encontrados
         </span>
       </div>
 
       <!-- Spinner -->
-      <div id="loading-spinner" class="text-center my-5 d-none">
+      <div data-hotels-target="spinner" class="text-center my-5 d-none">
         <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: var(--green-500)">
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
 
       <!-- Lista de hoteles -->
-      <div id="hotels-list" class="row g-4 fade-transition">
+      <div data-hotels-target="resultsContainer" id="hotels-list" class="row g-4 fade-transition">
         <%= render partial: "hotels/list", locals: { hotels: @hotels } %>
       </div>
     </div>
@@ -154,86 +153,4 @@
     }
 </style>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("filter-form");
-        const resultsContainer = document.getElementById("hotels-list");
-        const spinner = document.getElementById("loading-spinner");
-        const resultsCount = document.getElementById("results-count");
 
-        const minInput = document.getElementById("min-price");
-        const maxInput = document.getElementById("max-price");
-        const minLabel = document.getElementById("min-price-label");
-        const maxLabel = document.getElementById("max-price-label");
-
-        if (minInput && minLabel) minInput.addEventListener("input", () => minLabel.textContent = minInput.value);
-        if (maxInput && maxLabel) maxInput.addEventListener("input", () => maxLabel.textContent = maxInput.value);
-
-        const debounce = (fn, delay = 300) => {
-            let timeout;
-            return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn.apply(this, args), delay); };
-        };
-
-        const toggleLoading = show => {
-            if(show) { spinner.classList.remove("d-none"); resultsContainer.classList.add("fade-out"); }
-            else { spinner.classList.add("d-none"); resultsContainer.classList.remove("fade-out"); }
-        };
-
-        const animateCards = () => {
-            resultsContainer.querySelectorAll(".establishment-card").forEach((card, idx) => {
-                setTimeout(() => card.classList.add("visible"), idx * 100);
-            });
-        };
-
-        const applyFilters = () => {
-            if (!form) return;
-            const formData = new FormData(form);
-            formData.set("min_price", minInput.value);
-            formData.set("max_price", maxInput.value);
-            const queryString = new URLSearchParams(formData).toString();
-
-            toggleLoading(true);
-
-            fetch(`/hotels?${queryString}`, { headers: { "Accept": "text/html" } })
-                .then(res => res.text())
-                .then(html => {
-                    const doc = new DOMParser().parseFromString(html, "text/html");
-                    const newList = doc.getElementById("hotels-list");
-                    const newCount = doc.getElementById("results-count");
-                    if(newList){ resultsContainer.innerHTML = newList.innerHTML; animateCards(); setupPaginationLinks(); }
-                    if(newCount) resultsCount.textContent = newCount.textContent;
-                })
-                .catch(err => console.error("Error al cargar filtros:", err))
-                .finally(() => toggleLoading(false));
-        };
-
-        const debouncedApplyFilters = debounce(applyFilters, 300);
-
-        if (form) {
-            form.querySelectorAll("input, select").forEach(input => {
-                input.addEventListener("input", debouncedApplyFilters);
-                input.addEventListener("change", debouncedApplyFilters);
-            });
-        }
-
-        const setupPaginationLinks = () => {
-            resultsContainer.querySelectorAll(".pagination a").forEach(link => {
-                link.addEventListener("click", e => {
-                    e.preventDefault();
-                    toggleLoading(true);
-                    fetch(link.href, { headers: { "Accept": "text/html" } })
-                        .then(res => res.text())
-                        .then(html => {
-                            const doc = new DOMParser().parseFromString(html, "text/html");
-                            const newList = doc.getElementById("hotels-list");
-                            if(newList){ resultsContainer.innerHTML = newList.innerHTML; animateCards(); setupPaginationLinks(); }
-                        })
-                        .finally(()=>toggleLoading(false));
-                });
-            });
-        };
-
-        setupPaginationLinks();
-        animateCards();
-    });
-</script>

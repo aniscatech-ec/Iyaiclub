@@ -1,3 +1,19 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <!--    <h1 class="mb-0">Establecimientos</h1>-->
+  <% if current_user.administrador? %>
+
+    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
+  <% end %>
+
+  <% if current_user.afiliado? %>
+
+    <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
+  <% end %>
+</div>
 <div class="container-fluid mt-4" data-controller="establishments">
   <div class="row">
 
