@@ -41,12 +41,18 @@
   <div class="card mb-4">
     <div class="card-header fw-bold">2. Perfil del hotel</div>
     <div class="card-body">
-      <div class="mb-3">
-        <%= f.fields_for :establishment do |e| %>
+      <%= f.fields_for :establishment do |e| %>
+
+        <div class="mb-3">
           <%= e.label :name, "Nombre público del hotel" %>
           <%= e.text_field :name, class: "form-control" %>
-        <% end %>
-      </div>
+        </div>
+
+        <div class="mb-3">
+          <%= e.label :address, "Dirección completa" %>
+          <%= e.text_field :address, class: "form-control" %>
+        </div>
+      <% end %>
 
       <div class="mb-3">
         <%= f.label :hotel_type, "Tipo de hotel", class: "form-label" %>
@@ -129,11 +135,11 @@
                                   amenity.id, nil %>
 
                   <%# if amenity.custom_icon.attached? %>
-                    <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
-                      <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
-                    <%# else %>
-                      <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
-                    <%# end %>
+                  <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
+                  <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
+                  <%# else %>
+                  <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
+                  <%# end %>
                   <%# end %>
 
                   <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>

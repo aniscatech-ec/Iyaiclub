@@ -13,9 +13,15 @@
               <% end %>
 
               <div class="card-body">
+                <h6 class="fw-semibold mb-1"><%= est.id %></h6>
+
                 <h6 class="fw-semibold mb-1"><%= est.name %></h6>
                 <p class="small text-muted mb-1">
-                  <i class="bi bi-geo-alt"></i> <%= est.city&.name %>, <i><%= est.city.province&.name %></i>
+<!--                  <i class="bi bi-geo-alt"></i> <%#= est.city&.name %>, <i><%#= est.city.province&.name %></i>-->
+                  <i class="bi bi-geo-alt"></i>
+                  <%= est.city&.name || "Ciudad no definida" %>,
+                  <i><%= est.city&.province&.name || "Provincia no definida" %></i>
+
                 </p>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="fw-bold text-primary">$<%= est.price_per_night %>/noche</span>

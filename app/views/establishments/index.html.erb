@@ -23,17 +23,45 @@
         <h5 class="fw-bold mb-3" style="color: var(--green-500)">
           <i class="bi bi-funnel-fill me-1"></i> Filtros
         </h5>
+        <div id="city-alert" data-establishments-target="cityAlert">
+          <% if @city_name.present? %>
+            <div class="alert alert-success py-2 small mb-3">
+              <i class="bi bi-geo-alt"></i>
+              Mostrando resultados para <strong><%= @city_name %></strong>
+            </div>
+          <% end %>
+
+        </div>
+
 
         <form id="filter-form" class="row g-3" data-establishments-target="form" data-establishments-target="input">
           <!-- Ciudad -->
           <div class="col-12">
             <label for="city" class="form-label fw-semibold text-secondary">Ciudad</label>
+<!--            <select name="city" id="city" class="form-select shadow-sm border-success-subtle" data-establishments-target="input">-->
+<!--              <option value="">Todas las ciudades</option>-->
+              <%# @cities.each do |city| %>
+<!--                <option value="<%#= city.id %>"><%#= city.name %></option>-->
+              <%# end %>
+<!--            </select>-->
+
             <select name="city" id="city" class="form-select shadow-sm border-success-subtle" data-establishments-target="input">
               <option value="">Todas las ciudades</option>
               <% @cities.each do |city| %>
-                <option value="<%= city.id %>"><%= city.name %></option>
+                <% selected = false %>
+
+                <% if params[:city].present? %>
+                  <% if params[:city].to_s == city.id.to_s %>
+                    <% selected = true %>
+                  <% elsif params[:city].downcase == city.name.downcase %>
+                    <% selected = true %>
+                  <% end %>
+                <% end %>
+
+                <option value="<%= city.id %>" <%= "selected" if selected %>><%= city.name %></option>
               <% end %>
             </select>
+
           </div>
 
           <!-- Rango de precios -->
@@ -50,18 +78,40 @@
           </div>
 
           <!-- Comodidades -->
+<!--          <div class="col-12">-->
+<!--            <label class="form-label fw-semibold text-secondary">Comodidades</label>-->
+<!--            <div class="scrollable-amenities border rounded p-2">-->
+              <%# @amenities.each do |amenity| %>
+<!--                <div class="form-check mb-2">-->
+<!--                  <input type="checkbox" name="amenities[]" value="<%#= amenity.id %>"-->
+<!--                         id="amenity_<%#= amenity.id %>" class="form-check-input border-success" data-establishments-target="input">-->
+<!--                  <label for="amenity_<%#= amenity.id %>" class="form-check-label small"><%#= amenity.name %></label>-->
+<!--                </div>-->
+              <%# end %>
+<!--            </div>-->
+<!--          </div>-->
+
           <div class="col-12">
             <label class="form-label fw-semibold text-secondary">Comodidades</label>
             <div class="scrollable-amenities border rounded p-2">
               <% @amenities.each do |amenity| %>
+                <% checked = params[:amenities]&.include?(amenity.id.to_s) %>
                 <div class="form-check mb-2">
-                  <input type="checkbox" name="amenities[]" value="<%= amenity.id %>"
-                         id="amenity_<%= amenity.id %>" class="form-check-input border-success" data-establishments-target="input">
-                  <label for="amenity_<%= amenity.id %>" class="form-check-label small"><%= amenity.name %></label>
+                  <input type="checkbox"
+                         name="amenities[]"
+                         value="<%= amenity.id %>"
+                         id="amenity_<%= amenity.id %>"
+                         class="form-check-input border-success"
+                         data-establishments-target="input"
+                         <%= "checked" if checked %>>
+                  <label for="amenity_<%= amenity.id %>" class="form-check-label small">
+                    <%= amenity.name %>
+                  </label>
                 </div>
               <% end %>
             </div>
           </div>
+
         </form>
       </section>
     </div>

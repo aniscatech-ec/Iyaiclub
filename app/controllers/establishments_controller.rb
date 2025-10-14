@@ -197,10 +197,26 @@ class EstablishmentsController < ApplicationController
     puts "-------------------------REALIZANDO PETICION GET----------------------------"
     puts params.inspect
     puts "-------------------------------------------------------------"
-    # 🔹 Filtros dinámicos
+
+
     if params[:city].present?
-      @establishments = @establishments.where(city_id: params[:city])
+      if params[:city].to_s.match?(/^\d+$/)
+        # Si es un número → úsalo como ID
+        @establishments = @establishments.where(city_id: params[:city].to_i)
+        @city_name = City.find_by(id: params[:city])&.name
+      else
+        # Si es texto → buscar por nombre
+        # Si es un texto => usar
+        @city_name = params[:city]
+        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
+        if city
+          @establishments = @establishments.where(city_id: city.id)
+        else
+          @establishments = @establishments.none
+        end
+      end
     end
+
 
     if params[:min_price].present? && params[:max_price].present?
       @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])

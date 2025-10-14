@@ -1,10 +1,10 @@
-import { Controller } from "@hotwired/stimulus"
+import {Controller} from "@hotwired/stimulus"
 
 export default class extends Controller {
     static targets = [
         "form", "list", "spinner", "count",
         "minInput", "maxInput", "minLabel", "maxLabel",
-        "input"
+        "input", "cityAlert"
     ]
 
     connect() {
@@ -29,7 +29,7 @@ export default class extends Controller {
     }
 
     toggleLoading(show) {
-        if(show) {
+        if (show) {
             this.spinnerTarget.classList.remove("d-none")
             this.listTarget.classList.add("fade-out")
         } else {
@@ -53,18 +53,23 @@ export default class extends Controller {
 
         this.toggleLoading(true)
 
-        fetch(url, { headers: { "Accept": "text/html" } })
+        fetch(url, {headers: {"Accept": "text/html"}})
             .then(res => res.text())
             .then(html => {
                 const doc = new DOMParser().parseFromString(html, "text/html")
                 const newList = doc.getElementById("establishments-list")
                 const newCount = doc.getElementById("results-count")
-                if(newList) {
+                if (newList) {
                     this.listTarget.innerHTML = newList.innerHTML
                     this.animateCards()
                     this.setupPaginationLinks()
+                    const newAlert = doc.getElementById("city-alert")
+                    if (newAlert && this.hasCityAlertTarget) {
+                        this.cityAlertTarget.innerHTML = newAlert.innerHTML
+                    }
+
                 }
-                if(newCount) this.countTarget.textContent = newCount.textContent
+                if (newCount) this.countTarget.textContent = newCount.textContent
             })
             .catch(err => console.error("Error al cargar filtros:", err))
             .finally(() => this.toggleLoading(false))
@@ -75,18 +80,18 @@ export default class extends Controller {
             link.addEventListener("click", e => {
                 e.preventDefault()
                 this.toggleLoading(true)
-                fetch(link.href, { headers: { "Accept": "text/html" } })
+                fetch(link.href, {headers: {"Accept": "text/html"}})
                     .then(res => res.text())
                     .then(html => {
                         const doc = new DOMParser().parseFromString(html, "text/html")
                         const newList = doc.getElementById("establishments-list")
-                        if(newList){
+                        if (newList) {
                             this.listTarget.innerHTML = newList.innerHTML
                             this.animateCards()
                             this.setupPaginationLinks()
                         }
                     })
-                    .finally(()=>this.toggleLoading(false))
+                    .finally(() => this.toggleLoading(false))
             })
         })
     }
