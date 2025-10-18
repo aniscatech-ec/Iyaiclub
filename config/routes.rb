@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  # get "policy_and_privacy/index"
+  # get "terms_and_conditions/index"
+  get "/terms_and_conditions", to: "terms_and_conditions#index"
+  get "/policy_and_privacy", to: "policy_and_privacy#index"
+
   resources :restaurants
   # resources :countries do
   #   resources :provinces do
@@ -58,6 +63,7 @@ Rails.application.routes.draw do
       get :choose_type  # pantalla de tarjetas
       get :select_affiliate
       post :create_type # crear el establecimiento según el tipo
+      get :search_results
     end
     resources :establishment_steps
     member do

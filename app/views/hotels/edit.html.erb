@@ -82,16 +82,16 @@
     <div class="card-body">
       <%= f.fields_for :establishment do |e| %>
 
-      <div class="mb-3">
+        <div class="mb-3">
           <%= e.label :name, "Nombre público del hotel" %>
           <%= e.text_field :name, class: "form-control" %>
-      </div>
+        </div>
 
-      <div class="mb-3">
-        <%= e.label :address, "Dirección completa" %>
-        <%= e.text_field :address, class: "form-control" %>
-      </div>
-        <% end %>
+        <div class="mb-3">
+          <%= e.label :address, "Dirección completa" %>
+          <%= e.text_field :address, class: "form-control" %>
+        </div>
+      <% end %>
 
       <div class="mb-3">
         <%= f.label :hotel_type, "Tipo de hotel", class: "form-label" %>

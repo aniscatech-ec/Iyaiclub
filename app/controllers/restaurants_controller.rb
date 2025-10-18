@@ -2,6 +2,7 @@
 class RestaurantsController < ApplicationController
   before_action :set_restaurant, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
+  before_action :authenticate_user!, except: [:index, :show]
 
   def index
     @cities = City.all

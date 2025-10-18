@@ -49,7 +49,7 @@ export default class extends Controller {
         if (this.hasMinInputTarget) formData.set("min_price", this.minInputTarget.value)
         if (this.hasMaxInputTarget) formData.set("max_price", this.maxInputTarget.value)
         const queryString = new URLSearchParams(formData).toString()
-        const url = `/establishments?${queryString}`
+        const url = `/establishments/search_results?${queryString}`
 
         this.toggleLoading(true)
 

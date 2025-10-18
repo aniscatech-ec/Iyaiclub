@@ -1,6 +1,7 @@
 class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
+  before_action :authenticate_user!, except: [:index, :show]
 
   # def index
   #   @hotels = Hotel.all

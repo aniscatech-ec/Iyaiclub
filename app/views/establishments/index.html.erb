@@ -1,187 +1,119 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <!--    <h1 class="mb-0">Establecimientos</h1>-->
-  <% if current_user.administrador? %>
-
-    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
-  <% end %>
-
-  <% if current_user.afiliado? %>
-
-    <%= link_to choose_type_establishments_path, class: "btn btn-primary btn-lg" do %>
-      <i class="fa-solid fa-plus"></i> Nuevo
-    <% end %>
-  <% end %>
-</div>
-<div class="container-fluid mt-4" data-controller="establishments">
-  <div class="row">
-
-    <!-- Panel de filtros -->
-    <div class="col-lg-3 col-md-4 mb-4">
-      <section class="search-hotels bg-white p-4 rounded-4 shadow-sm">
-        <h5 class="fw-bold mb-3" style="color: var(--green-500)">
-          <i class="bi bi-funnel-fill me-1"></i> Filtros
-        </h5>
-        <div id="city-alert" data-establishments-target="cityAlert">
-          <% if @city_name.present? %>
-            <div class="alert alert-success py-2 small mb-3">
-              <i class="bi bi-geo-alt"></i>
-              Mostrando resultados para <strong><%= @city_name %></strong>
-            </div>
-          <% end %>
-
-        </div>
-
-
-        <form id="filter-form" class="row g-3" data-establishments-target="form" data-establishments-target="input">
-          <!-- Ciudad -->
-          <div class="col-12">
-            <label for="city" class="form-label fw-semibold text-secondary">Ciudad</label>
-<!--            <select name="city" id="city" class="form-select shadow-sm border-success-subtle" data-establishments-target="input">-->
-<!--              <option value="">Todas las ciudades</option>-->
-              <%# @cities.each do |city| %>
-<!--                <option value="<%#= city.id %>"><%#= city.name %></option>-->
-              <%# end %>
-<!--            </select>-->
-
-            <select name="city" id="city" class="form-select shadow-sm border-success-subtle" data-establishments-target="input">
-              <option value="">Todas las ciudades</option>
-              <% @cities.each do |city| %>
-                <% selected = false %>
-
-                <% if params[:city].present? %>
-                  <% if params[:city].to_s == city.id.to_s %>
-                    <% selected = true %>
-                  <% elsif params[:city].downcase == city.name.downcase %>
-                    <% selected = true %>
-                  <% end %>
-                <% end %>
-
-                <option value="<%= city.id %>" <%= "selected" if selected %>><%= city.name %></option>
-              <% end %>
-            </select>
-
-          </div>
-
-          <!-- Rango de precios -->
-          <div class="col-12">
-            <label class="form-label fw-semibold text-secondary">Rango de precios ($)</label>
-            <div class="d-flex align-items-center mb-2">
-              <span class="text-muted me-2 small">Min: <span id="min-price-label" data-establishments-target="minLabel">0</span></span>
-              <input type="range" class="form-range" id="min-price" name="min_price" min="0" max="1000" value="0" data-establishments-target="minInput input">
-            </div>
-            <div class="d-flex align-items-center">
-              <span class="text-muted me-2 small">Max: <span id="max-price-label" data-establishments-target="maxLabel">1000</span></span>
-              <input type="range" class="form-range" id="max-price" name="max_price" min="0" max="1000" value="1000" data-establishments-target="maxInput input">
-            </div>
-          </div>
-
-          <!-- Comodidades -->
-<!--          <div class="col-12">-->
-<!--            <label class="form-label fw-semibold text-secondary">Comodidades</label>-->
-<!--            <div class="scrollable-amenities border rounded p-2">-->
-              <%# @amenities.each do |amenity| %>
-<!--                <div class="form-check mb-2">-->
-<!--                  <input type="checkbox" name="amenities[]" value="<%#= amenity.id %>"-->
-<!--                         id="amenity_<%#= amenity.id %>" class="form-check-input border-success" data-establishments-target="input">-->
-<!--                  <label for="amenity_<%#= amenity.id %>" class="form-check-label small"><%#= amenity.name %></label>-->
-<!--                </div>-->
-              <%# end %>
-<!--            </div>-->
-<!--          </div>-->
-
-          <div class="col-12">
-            <label class="form-label fw-semibold text-secondary">Comodidades</label>
-            <div class="scrollable-amenities border rounded p-2">
-              <% @amenities.each do |amenity| %>
-                <% checked = params[:amenities]&.include?(amenity.id.to_s) %>
-                <div class="form-check mb-2">
-                  <input type="checkbox"
-                         name="amenities[]"
-                         value="<%= amenity.id %>"
-                         id="amenity_<%= amenity.id %>"
-                         class="form-check-input border-success"
-                         data-establishments-target="input"
-                         <%= "checked" if checked %>>
-                  <label for="amenity_<%= amenity.id %>" class="form-check-label small">
-                    <%= amenity.name %>
-                  </label>
-                </div>
-              <% end %>
-            </div>
-          </div>
-
-        </form>
-      </section>
+<%# ---------------- Hero Section ---------------- %>
+<section class="hero text-center d-flex align-items-center" style="background: url('<%= asset_path('hotel-image.jpg') %>') center/cover no-repeat; height: 500px;">
+  <div class="container">
+    <h1 class="display-4 fw-bold text-white">Encuentra tu lugar ideal para hospedarte</h1>
+    <p class="lead mb-4 text-white">Busca hoteles, hostales y apartamentos en todo el país</p>
+    <div class="search-bar-wrapper bg-white p-4 rounded-4 shadow-lg">
+      <%= render "shared/search_hotels" %>
     </div>
 
-    <!-- Resultados -->
-    <div class="col-lg-9 col-md-8">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0" style="color: var(--green-500)">
-          <i class="bi bi-building-check me-1"></i> Resultados
-        </h5>
-        <span class="text-muted small">
-          <span id="results-count" data-establishments-target="count"><%= @establishments.total_count %></span> establecimientos encontrados
-        </span>
-      </div>
-
-      <!-- Spinner -->
-      <div id="loading-spinner" class="text-center my-5 d-none" data-establishments-target="spinner">
-        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: var(--green-500)">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
-      </div>
-
-      <!-- Lista de establecimientos -->
-      <div id="establishments-list" class="row g-4 fade-transition" data-establishments-target="list">
-        <%= render partial: "establishments/list", locals: { establishments: @establishments } %>
-      </div>
-    </div>
   </div>
-</div>
+</section>
+<%= render "shared/amenities_modal" %>
 
+<%# ---------------- Destinos Populares ---------------- %>
+<section class="container my-5">
+  <h2 class="mb-4">Destinos Populares</h2>
+  <div class="row g-4">
+    <% @destinations.each do |dest| %>
+      <div class="col-md-3">
+        <div class="card text-white destination-card">
+          <%= image_tag dest[:image], class: "card-img", alt: dest[:name], height: 250 %>
+          <div class="card-img-overlay d-flex flex-column justify-content-end p-2 overlay-dark">
+            <h5 class="card-title"><%= dest[:name] %></h5>
+            <p class="card-text"><%= dest[:hotels_count] %> hoteles</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%# ---------------- Hoteles Destacados ---------------- %>
+<section class="container my-5">
+  <h2 class="mb-4">Hoteles Destacados</h2>
+  <div class="row g-4">
+    <% @hotels.each do |hotel| %>
+      <div class="col-md-4">
+        <div class="card hotel-card shadow-sm h-100">
+          <%= image_tag hotel[:image], class: "card-img-top", alt: hotel[:name] %>
+          <div class="card-body">
+            <h5 class="card-title"><%= hotel[:name] %></h5>
+            <p class="card-text text-muted"><%= hotel[:city] %>, <%= hotel[:country] %></p>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-primary">$<%= hotel[:price] %> / noche</span>
+              <span class="badge bg-success">⭐ <%= hotel[:rating] %></span>
+            </div>
+            <div class="mb-2 amenities">
+              <% hotel[:amenities].each do |amenity| %>
+                <span class="badge bg-secondary" data-bs-toggle="tooltip" title="<%= amenity %>"><%= amenity[0] %></span>
+              <% end %>
+            </div>
+            <a href="#" class="btn btn-outline-primary w-100">Ver detalles</a>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%# ---------------- Opiniones de Huéspedes ---------------- %>
+<section class="bg-light py-5 text-center">
+  <h2>Opiniones de nuestros huéspedes</h2>
+  <div class="row g-4 mt-3 justify-content-center">
+    <% @reviews.each do |review| %>
+      <div class="col-md-4">
+        <div class="card p-3 h-100 review-card shadow-sm">
+          <p class="fst-italic">"<%= review[:comment] %>"</p>
+          <small class="text-muted">– <%= review[:name] %></small>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%# ---------------- Ventajas ---------------- %>
+<section class="container my-5 text-center">
+  <h2>¿Por qué reservar con nosotros?</h2>
+  <div class="row g-4 mt-3">
+    <div class="col-md-3"><i class="bi bi-x-circle fs-1 text-primary"></i><p>Cancelación gratuita</p></div>
+    <div class="col-md-3"><i class="bi bi-cash-stack fs-1 text-primary"></i><p>Mejor precio garantizado</p></div>
+    <div class="col-md-3"><i class="bi bi-door-open fs-1 text-primary"></i><p>Check-in fácil</p></div>
+    <div class="col-md-3"><i class="bi bi-headset fs-1 text-primary"></i><p>Soporte 24/7</p></div>
+  </div>
+</section>
+
+<%# ---------------- CSS Custom ---------------- %>
 <style>
-    /* Misma paleta y estilos que antes */
-    :root {
-        --green-500: #34C759;
-        --green-700: #0F6B3A;
-        --brown-700: #4B2E1F;
-        --red-500: #E53935;
-        --white: #FFFFFF;
-        --offwhite: #FBFBFB;
-    }
+    .hero { position: relative; }
+    .hero::after { content: ""; position: absolute; inset:0; background: rgba(0,0,0,0.4); }
+    .hero .container { position: relative; z-index: 2; }
 
-    .search-hotels {
-        border-left: 4px solid var(--green-500);
-        background-color: var(--offwhite);
-        transition: all 0.3s ease;
-    }
-    .search-hotels:hover { box-shadow: 0 6px 20px rgba(0,128,0,0.08); }
+    .destination-card { position: relative; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .destination-card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .overlay-dark { background: rgba(0,0,0,0.4); }
 
-    .scrollable-amenities { max-height: 220px; overflow-y: auto; }
-    .scrollable-amenities::-webkit-scrollbar { width: 6px; }
-    .scrollable-amenities::-webkit-scrollbar-thumb { background-color: var(--green-500); border-radius: 4px; }
+    .hotel-card { transition: transform 0.35s ease, box-shadow 0.35s ease; border-radius: 12px; overflow: hidden; }
+    .hotel-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(0,0,0,0.2); }
+    .hotel-card img { transition: transform 0.3s ease; }
+    .hotel-card:hover img { transform: scale(1.05); }
 
-    .establishment-card {
-        transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease;
-        border-radius: 12px; border: 1px solid #eaeaea; opacity: 0; transform: translateY(25px); overflow: hidden;
-    }
-    .establishment-card.visible { opacity: 1; transform: translateY(0); }
-    .establishment-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .establishment-card img { transition: transform 0.3s ease; }
-    .establishment-card:hover img { transform: scale(1.05); }
+    .amenities span { margin-right: 5px; cursor: pointer; }
 
-    .badge-success-subtle { background-color: rgba(52,199,89,0.15); color: var(--green-500); }
-
-    .fade-transition { opacity: 1; transition: opacity 0.3s ease; }
-    .fade-transition.fade-out { opacity: 0.3; }
-
-    .form-range:focus { outline: none; box-shadow: 0 0 0 0.2rem rgba(52,199,89,0.25); }
+    .review-card { transition: transform 0.35s ease, box-shadow 0.35s ease; border-radius: 10px; }
+    .review-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
 
     @media (max-width: 767px) {
-        .search-hotels { border-left: none; border-top: 4px solid var(--green-500); }
+        .hero { height: 400px; }
     }
 </style>
 
+<%# ---------------- JS Tooltips ---------------- %>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (el) {
+            return new bootstrap.Tooltip(el)
+        })
+    });
+</script>

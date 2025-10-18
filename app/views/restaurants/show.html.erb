@@ -14,11 +14,20 @@
       <i class="fas fa-file-contract me-2"></i> Datos legales
     </div>
     <div class="card-body">
-      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón social:</strong> <%= @restaurant.establishment.legal_info&.business_name || "No especificado" %></p>
-      <p><i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC:</strong> <%= @restaurant.establishment.legal_info&.document_number || "No especificado" %></p>
-      <p><i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= @restaurant.establishment.legal_info&.legal_representative || "No especificado" %></p>
-      <p><i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= @restaurant.establishment.legal_info&.contact_email || "No especificado" %></p>
-      <p><i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= @restaurant.establishment.legal_info&.contact_phone || "No especificado" %></p>
+      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón
+        social:</strong> <%= @restaurant.establishment.legal_info&.business_name || "No especificado" %></p>
+      <p>
+        <i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC:</strong> <%= @restaurant.establishment.legal_info&.document_number || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= @restaurant.establishment.legal_info&.legal_representative || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= @restaurant.establishment.legal_info&.contact_email || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= @restaurant.establishment.legal_info&.contact_phone || "No especificado" %>
+      </p>
     </div>
   </div>
 
@@ -39,9 +48,18 @@
       <i class="fas fa-info-circle me-2"></i> Ubicación
     </div>
     <div class="card-body">
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= @restaurant.establishment.country.name if @restaurant.establishment.country %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= @restaurant.establishment.province.name if @restaurant.establishment.province %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= @restaurant.establishment.city.name if @restaurant.establishment.city %></p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= @restaurant.establishment.country.name if @restaurant.establishment.country %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= @restaurant.establishment.province.name if @restaurant.establishment.province %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= @restaurant.establishment.city.name if @restaurant.establishment.city %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ubicación:</strong> <%= @restaurant.establishment.address if @restaurant.establishment.address %>
+      </p>
 
     </div>
   </div>

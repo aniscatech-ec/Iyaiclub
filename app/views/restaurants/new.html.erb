@@ -1,7 +1,7 @@
 <h2>Nuevo Restaurante</h2>
 <%#= render "form",  restaurant: @restaurant%>
 <%= form_with(model: @restaurant, local: true, data: { controller: "gallery", action: "submit->gallery#submitForm",
-                                                      model: "restaurant" }) do |f| %>
+                                                       model: "restaurant" }) do |f| %>
   <%= f.fields_for :establishment do |e| %>
     <div class="card mb-4">
       <div class="card-header fw-bold">1. Datos legales y contacto</div>
@@ -37,17 +37,21 @@
   <div class="card mb-4">
     <div class="card-header fw-bold">2. Perfil del restaurante</div>
     <div class="card-body">
-      <div class="mb-3">
-        <%= f.fields_for :establishment do |e| %>
+      <%= f.fields_for :establishment do |e| %>
+        <div class="mb-3">
           <%= e.label :name, "Nombre público del restaurante" %>
           <%= e.text_field :name, class: "form-control" %>
-        <% end %>
-      </div>
+        </div>
+        <div class="mb-3">
+          <%= e.label :address, "Dirección completa" %>
+          <%= e.text_field :address, class: "form-control" %>
+        </div>
+      <% end %>
 
       <div class="mb-3">
         <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
         <%= f.select :cuisine_type, options_for_select(
-          ["Ecuatoriana","Italiana","Fusión","Mexicana","Japonesa","Internacional"],
+          ["Ecuatoriana", "Italiana", "Fusión", "Mexicana", "Japonesa", "Internacional"],
           @restaurant.cuisine_type
         ),
                      { include_blank: "Seleccione tipo de cocina" },
@@ -57,7 +61,7 @@
       <div class="mb-3">
         <%= f.label :restaurant_type, "Categoría del restaurante" %>
         <%= f.select :restaurant_type, options_for_select(
-          ["Familiar","Gourmet","Bar","Café","Comida rápida"],
+          ["Familiar", "Gourmet", "Bar", "Café", "Comida rápida"],
           @restaurant.restaurant_type
         ),
                      { include_blank: "Seleccione categoría" },

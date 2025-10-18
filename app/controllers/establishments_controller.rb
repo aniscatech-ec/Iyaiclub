@@ -1,5 +1,8 @@
 class EstablishmentsController < ApplicationController
-  before_action :authenticate_user!
+  # before_action :authenticate_user!, only: %i[create edit update destroy]
+  # solo permite visualizar index sin autenticacion
+  before_action :authenticate_user!, except: [:index, :show, :search_results]
+
   before_action :set_establishment, only: %i[show edit update destroy dashboard]
   before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
   layout "dashboard"
@@ -189,6 +192,24 @@ class EstablishmentsController < ApplicationController
   # app/controllers/establishments_controller.rb
 
   def index
+    @destinations = [
+      { name: "Quito", image: view_context.asset_path("quito.jpg"), hotels_count: 12 },
+      { name: "Guayaquil", image: view_context.asset_path("guayaquil.jpg"), hotels_count: 8 },
+      { name: "Cuenca", image: view_context.asset_path("cuenca.jpg"), hotels_count: 5 },
+      { name: "Galápagos", image: view_context.asset_path("galapagos.jpg"), hotels_count: 7 }
+    ]
+
+    @hotels = [
+      { name: "Hotel Central Quito", city: "Quito", country: "Ecuador", price: 120, rating: 4.5, amenities: ["Wi-Fi","Piscina","Gym"], image: view_context.asset_path("hotel1.jpg") },
+      { name: "Ocean View Hotel", city: "Galápagos", country: "Ecuador", price: 200, rating: 4.8, amenities: ["Desayuno","Wi-Fi","Piscina"], image: view_context.asset_path("hotel2.jpg") },
+      { name: "Boutique Cuenca", city: "Cuenca", country: "Ecuador", price: 90, rating: 4.2, amenities: ["Wi-Fi","Parking"], image: view_context.asset_path("hotel3.jpg")}
+    ]
+
+    @reviews = [
+      { name: "Juan P.", comment: "Excelente ubicación y servicio." },
+      { name: "María L.", comment: "Habitaciones cómodas y limpias." },
+      { name: "Carlos M.", comment: "Recomiendo 100% para familias." }
+    ]
     @cities = City.all
     @amenities = Amenity.all
     @establishments = Establishment.includes(:city, :amenities)
@@ -248,6 +269,65 @@ class EstablishmentsController < ApplicationController
     end
   end
 
+  def search_results
+    @cities = City.all
+    @amenities = Amenity.all
+    @establishments = Establishment.includes(:city, :amenities)
+
+    puts "-------------------------------------------------------------"
+    puts "-------------------------REALIZANDO PETICION GET----------------------------"
+    puts params.inspect
+    puts "-------------------------------------------------------------"
+
+
+    if params[:city].present?
+      if params[:city].to_s.match?(/^\d+$/)
+        # Si es un número → úsalo como ID
+        @establishments = @establishments.where(city_id: params[:city].to_i)
+        @city_name = City.find_by(id: params[:city])&.name
+      else
+        # Si es texto → buscar por nombre
+        # Si es un texto => usar
+        @city_name = params[:city]
+        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
+        if city
+          @establishments = @establishments.where(city_id: city.id)
+        else
+          @establishments = @establishments.none
+        end
+      end
+    end
+
+
+    if params[:min_price].present? && params[:max_price].present?
+      @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])
+    elsif params[:min_price].present?
+      @establishments = @establishments.where("price_per_night >= ?", params[:min_price])
+    elsif params[:max_price].present?
+      @establishments = @establishments.where("price_per_night <= ?", params[:max_price])
+    end
+
+    if params[:amenities].present?
+
+      @establishment_ids= @establishments.joins(:amenities)
+                                         .where(amenities: { id: params[:amenities]  })
+                                         .group("establishments.id")
+                                         .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities] .size)
+                                         .pluck(:id)
+
+      @establishments = @establishments.where(establishments: { id: @establishment_ids })
+    end
+    puts "-------------------------------------------------------------"
+    puts @establishments.count
+    puts "-------------------------------------------------------------"
+    # Paginación
+    @establishments = @establishments.page(params[:page]).per(9)
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
   def show
     # units_controller.rb
     # @availability_events = @establishment.unit.unit_availabilities.map do |availability|
