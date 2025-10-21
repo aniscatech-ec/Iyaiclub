@@ -1,6 +1,6 @@
 class Admin::DashboardController < ApplicationController
   before_action :authenticate_admin!
-  layout "dashboard"
+  # layout "dashboard"
 
   def index
   end

@@ -1,6 +1,6 @@
 class Turista::DashboardController < ApplicationController
   before_action :authenticate_turista!
-  layout "dashboard"
+  # layout "dashboard"
 
   def index
   end

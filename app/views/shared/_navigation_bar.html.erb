@@ -1,89 +1,46 @@
 <!-- Barra tipo Booking -->
-
 <header class="navigation-header">
-  <!-- Barra superior oscura -->
-  <div class="border-bottom">
-      <div class="d-flex justify-content-start">
+  <div class="container">
+    <div class="d-flex justify-content-start">
+      <ul class="nav col-12 col-lg-auto justify-content-start my-md-0 text-small">
+        <li>
+          <%= link_to establishments_path,
+                      class: "nav-link #{'active text-primary fw-bold' if current_page?(establishments_path)}" do %>
+            <i class="bi bi-building me-2"></i>
+            Establecimientos
+          <% end %>
+        </li>
 
+        <li>
+          <%= link_to hotels_path,
+                      class: "nav-link #{'active text-primary fw-bold' if current_page?(hotels_path)}" do %>
+            <i class="bi bi-house-door me-2"></i>
+            Hoteles
+          <% end %>
+        </li>
 
-        <!-- Menú principal -->
-        <ul class="nav col-12 col-lg-auto justify-content-start my-md-0 text-small">
-          <li>
-            <%= link_to establishments_path, class: "nav-link" do %>
-              <i class="bi bi-building me-2"></i>
-              Establecimientos
-            <% end %>
-          </li>
-          <li>
-            <%= link_to hotels_path, class: "nav-link" do %>
-              <i class="bi bi-house-door me-2"></i>
-              Hoteles
-            <% end %>
-          </li>
-          <li>
-            <%= link_to restaurants_path, class: "nav-link" do %>
-              <i class="bi bi-cup-straw me-2"></i>
-              Restaurantes
-            <% end %>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
-              <i class="bi bi-car-front me-2"></i>
-              Transporte
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link">
-              <i class="bi bi-globe-americas me-2"></i>
-              Agencias
-            </a>
-          </li>
-        </ul>
-      </div>
+        <li>
+          <%= link_to restaurants_path,
+                      class: "nav-link #{'active text-primary fw-bold' if current_page?(restaurants_path)}" do %>
+            <i class="bi bi-cup-straw me-2"></i>
+            Restaurantes
+          <% end %>
+        </li>
+
+        <li>
+          <a href="#" class="nav-link">
+            <i class="bi bi-car-front me-2"></i>
+            Transporte
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="nav-link">
+            <i class="bi bi-globe-americas me-2"></i>
+            Agencias
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
-
 </header>
-
-<!--<div class="d-flex py-2">-->
-
-  <%#= link_to establishments_path, class: "booking-link" do %>
-<!--    <i class="bi bi-building me-2"></i> Establecimientos-->
-  <%# end %>
-
-  <%#= link_to hotels_path, class: "booking-link" do %>
-<!--    <i class="bi bi-house-door me-2"></i> Hoteles-->
-  <%# end %>
-
-  <%#= link_to restaurants_path, class: "booking-link" do %>
-<!--    <i class="bi bi-cup-straw me-2"></i> Restaurantes-->
-  <%# end %>
-
-<!--  <a href="#" class="booking-link">-->
-<!--    <i class="bi bi-car-front me-2"></i> Transporte-->
-<!--  </a>-->
-
-<!--  <a href="#" class="booking-link">-->
-<!--    <i class="bi bi-globe-americas me-2"></i> Agencias de viaje-->
-<!--  </a>-->
-
-<!--</div>-->
-
-
-<style>
-    .booking-link {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #555;
-        padding: 6px 12px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        font-weight: 500;
-    }
-
-    .booking-link:hover {
-        background-color: rgba(0, 123, 255, 0.1);
-        color: #0d6efd;
-    }
-
-</style>

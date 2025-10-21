@@ -69,6 +69,8 @@ export default class extends Controller {
                     }
 
                 }
+                console.log("Actualizando vista estabishments")
+                console.log(newCount.textContent)
                 if (newCount) this.countTarget.textContent = newCount.textContent
             })
             .catch(err => console.error("Error al cargar filtros:", err))

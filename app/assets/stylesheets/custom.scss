@@ -118,7 +118,6 @@
 
 /*Categories*/
 .category-card {
-  background: #fff;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   cursor: pointer;
@@ -126,11 +125,7 @@
   border: 2px solid transparent;
 }
 
-/* Íconos grandes con tu verde */
-.category-card .icon {
-  font-size: 2.5rem;
-  color: var(--brand-green);
-}
+
 
 /* Hover dinámico con tu paleta */
 .category-card:hover {
@@ -142,19 +137,19 @@
 
 
 /* CATEGORY CARDS */
-.category-card {
-  background: var(--white);
-  border-radius: 15px;
-  padding: 20px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  text-align: center;
-  cursor: pointer;
-
-}
-.category-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-}
+//.category-card {
+//  background: var(--white);
+//  border-radius: 15px;
+//  padding: 20px;
+//  transition: transform 0.3s, box-shadow 0.3s;
+//  text-align: center;
+//  cursor: pointer;
+//
+//}
+//.category-card:hover {
+//  transform: translateY(-8px);
+//  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+//}
 .category-card .icon {
   background: linear-gradient(135deg, var(--green-500), var(--green-700));
   color: var(--white);
@@ -167,11 +162,11 @@
   margin: 0 auto 10px;
   font-size: 28px;
 }
-.category-card h5 a {
-  color: var(--black-900);
-  text-decoration: none;
-  transition: color 0.3s;
-}
-.category-card h5 a:hover {
-  color: var(--red-500);
-}
+//.category-card h5 a {
+//  color: var(--black-900);
+//  text-decoration: none;
+//  transition: color 0.3s;
+//}
+//.category-card h5 a:hover {
+//  color: var(--red-500);
+//}

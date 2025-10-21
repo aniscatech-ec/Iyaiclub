@@ -13,7 +13,10 @@
           <div class="card-body">
             <h6 class="fw-semibold mb-1"><%= est.name %></h6>
             <p class="small text-muted mb-1">
-              <i class="bi bi-geo-alt"></i> <%= est.city&.name %>, <i><%= est.city.province&.name %></i>
+              <i class="bi bi-geo-alt"></i>
+              <%= est.city&.name || "Ciudad no definida" %>,
+              <i><%= est.city&.province&.name || "Provincia no definida" %></i>
+
             </p>
             <div class="text-warning fs-4">
               <%= "⭐" * (hotel.stars || 0) %>

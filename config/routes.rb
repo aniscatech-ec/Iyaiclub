@@ -22,6 +22,9 @@ Rails.application.routes.draw do
     member do
       delete :remove_image
     end
+    collection do
+      get :search_results
+    end
   end
 
   resources :countries do

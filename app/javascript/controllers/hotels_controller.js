@@ -2,8 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
     static targets = [
-        "form", "resultsContainer", "spinner", "resultsCount",
-        "minInput", "maxInput", "minLabel", "maxLabel"
+        "form", "resultsContainer", "spinner", "count",
+        "minInput", "maxInput", "minLabel", "maxLabel", "cityAlert"
     ]
 
     connect() {
@@ -64,7 +64,7 @@ export default class extends Controller {
         const queryString = new URLSearchParams(formData).toString()
         this.toggleLoading(true)
 
-        fetch(`/hotels?${queryString}`, { headers: { "Accept": "text/html" } })
+        fetch(`/hotels/search_results?${queryString}`, { headers: { "Accept": "text/html" } })
             .then(res => res.text())
             .then(html => {
                 const doc = new DOMParser().parseFromString(html, "text/html")
@@ -74,10 +74,16 @@ export default class extends Controller {
                     this.resultsContainerTarget.innerHTML = newList.innerHTML
                     this.animateCards()
                     this.setupPaginationLinks()
+                    const newAlert = doc.getElementById("city-alert")
+                    if (newAlert && this.hasCityAlertTarget) {
+                        this.cityAlertTarget.innerHTML = newAlert.innerHTML
+                    }
                 }
-                if (newCount && this.hasResultsCountTarget) {
-                    this.resultsCountTarget.textContent = newCount.textContent
-                }
+                console.log("Recibiendo datos restaurantes...")
+                console.log(newCount.textContent)
+
+                if (newCount) this.countTarget.textContent = newCount.textContent
+
             })
             .catch(err => console.error("Error al cargar filtros:", err))
             .finally(() => this.toggleLoading(false))

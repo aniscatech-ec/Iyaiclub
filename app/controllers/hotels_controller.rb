@@ -1,12 +1,11 @@
 class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
-  layout "dashboard"
-  before_action :authenticate_user!, except: [:index, :show]
+  # layout "dashboard"
+  before_action :authenticate_user!, except: [:index, :show, :search_results]
 
   # def index
   #   @hotels = Hotel.all
   # end
-
 
   # def index
   #   # @hotels = Hotel.all
@@ -152,6 +151,84 @@ class HotelsController < ApplicationController
       @hotels = @hotels.where(hotel_type: params[:hotel_type])
     end
 
+    if params[:min_price].present? && params[:max_price].present?
+      @hotels = @hotels.joins(:establishment)
+                       .where(establishments: { price_per_night: params[:min_price]..params[:max_price] })
+    elsif params[:min_price].present?
+      @hotels = @hotels.joins(:establishment)
+                       .where("establishments.price_per_night >= ?", params[:min_price])
+    elsif params[:max_price].present?
+      @hotels = @hotels.joins(:establishment)
+                       .where("establishments.price_per_night <= ?", params[:max_price])
+    end
+
+    if params[:amenities].present?
+      hotel_ids = @hotels.joins(establishment: :amenities)
+                         .where(amenities: { id: params[:amenities] })
+                         .group("hotels.id")
+                         .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
+                         .pluck(:id)
+      @hotels = @hotels.where(id: hotel_ids)
+    end
+
+    if user_signed_in? && current_user.administrador?
+
+    else
+      @hotels = @hotels.page(params[:page]).per(9)
+
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+
+  def search_results
+    puts "-------------------------------------------------------------"
+    puts "-------------------------REALIZANDO PETICION GET----------------------------"
+    puts params.inspect
+    puts "-------------------------------------------------------------"
+    @cities = City.all
+    @amenities = Amenity.all
+
+    # Incluimos establishment para acceder a sus atributos
+    @hotels = Hotel.includes(establishment: [:city, :amenities])
+
+    # 🔹 Filtros dinámicos
+    # if params[:city].present?
+    #   @hotels = @hotels.joins(:establishment).where(establishments: { city_id: params[:city] })
+    # end
+
+    if params[:city].present?
+      if params[:city].to_s.match?(/^\d+$/)
+        # Si es un número → úsalo como ID
+        puts "ID*******************************"
+        @hotels = @hotels.joins(:establishment).where(establishments: { city_id: params[:city] })
+        @city_name = City.find_by(id: params[:city])&.name
+      else
+        # Si es texto → buscar por nombre
+        # Si es un texto => usar
+        puts "TEXTO *******************************"
+
+        @city_name = params[:city]
+        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
+        if city
+          @hotels = @hotels.joins(:establishment).where(establishments: { city_id: city.id })
+        else
+          @hotels = @hotels.none
+        end
+      end
+    end
+
+    # Filtro por estrellas
+    if params[:stars].present?
+      @hotels = @hotels.where(stars: params[:stars].to_i)
+    end
+
+    if params[:hotel_type].present?
+      @hotels = @hotels.where(hotel_type: params[:hotel_type])
+    end
 
     if params[:min_price].present? && params[:max_price].present?
       @hotels = @hotels.joins(:establishment)

@@ -1,320 +1,428 @@
 <style>
+    /* ESTILOS CON TU PALETA DE COLORES */
+    .landing-iyai {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        background: #FBFBFB;
+    }
 
+    /* VARIABLES CON TU PALETA */
+    :root {
+        --green-500: #34C759;
+        --green-700: #0F6B3A;
+        --brown-700: #4B2E1F;
+        --red-500: #E53935;
+        --white: #FFFFFF;
+        --offwhite: #FBFBFB;
+    }
 
-    .search-box input {
+    /* HERO SECTION */
+    .hero-iyai {
+        background: linear-gradient(135deg, var(--green-700) 0%, var(--green-500) 100%);
+        color: var(--white);
+        padding: 100px 0;
+        text-align: center;
+    }
+
+    .hero-iyai h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-iyai p {
+        font-size: 1.3rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.9;
+    }
+
+    .btn-iyai {
+        display: inline-block;
+        padding: 15px 35px;
+        background: var(--brown-700);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
         border: none;
-        outline: none;
     }
 
-    .stats h4 {
-        font-weight: bold;
+    .btn-iyai:hover {
+        background: var(--green-500);
+        transform: translateY(-2px);
+        color: var(--white);
+        text-decoration: none;
     }
 
+    .btn-outline-iyai {
+        display: inline-block;
+        padding: 15px 35px;
+        background: transparent;
+        border: 2px solid var(--white);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
 
-    /* DESTINOS POPULARES */
-    .destinos .card {
+    .btn-outline-iyai:hover {
+        background: var(--white);
+        color: var(--green-700);
+        text-decoration: none;
+    }
+
+    /* ESTADÍSTICAS */
+    .estadisticas-iyai {
+        padding: 60px 0;
+        background: var(--green-500);
+        color: var(--white);
+        text-align: center;
+    }
+
+    .estadistica-item {
+        padding: 1rem;
+    }
+
+    .estadistica-numero {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .estadistica-texto {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* CATEGORÍAS */
+    .categorias-iyai {
+        padding: 80px 0;
+        background: var(--offwhite);
+    }
+
+    .categoria-card-iyai {
+        background: var(--white);
+        padding: 3rem 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+        height: 100%;
+        text-decoration: none;
+        color: var(--brown-700);
+        display: block;
+        border-left: 4px solid var(--green-500);
+    }
+
+    .categoria-card-iyai:hover {
+        transform: translateY(-5px);
+        text-decoration: none;
+        color: var(--brown-700);
+        border-left-color: var(--red-500);
+    }
+
+    .categoria-card-iyai h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .categoria-card-iyai p {
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
+
+    .categoria-link {
+        color: var(--green-700);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .categoria-card-iyai:hover .categoria-link {
+        color: var(--red-500);
+    }
+
+    /* DESTINOS DESTACADOS */
+    .destinos-iyai {
+        padding: 80px 0;
+        background: var(--white);
+    }
+
+    .destino-card-iyai {
+        border-radius: 12px;
         overflow: hidden;
-        border-radius: 15px;
-        cursor: pointer;
-        transition: transform 0.3s;
+        position: relative;
+        height: 300px;
+        text-decoration: none;
+        color: var(--white);
+        display: block;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    .destinos .card:hover {
+    .destino-card-iyai img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .destino-card-iyai:hover img {
         transform: scale(1.05);
     }
 
-    .destinos .card-img-overlay {
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    .destino-overlay-iyai {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(15, 107, 58, 0.9));
+        padding: 2rem;
     }
 
-
-    /* RECOMENDADOS */
-
-
-    /* BENEFICIOS */
-    .beneficios i {
-        font-size: 48px;
-        color: var(--green-500);
-        transition: transform 0.3s, color 0.3s;
+    .destino-nombre {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
 
-    .beneficios i:hover {
-        transform: scale(1.2);
+    .destino-desc {
+        opacity: 0.9;
+    }
+
+    /* TESTIMONIOS */
+    .testimonios-iyai {
+        padding: 80px 0;
+        background: var(--offwhite);
+    }
+
+    .testimonio-card-iyai {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin: 1rem;
+        border-top: 4px solid var(--green-500);
+    }
+
+    .testimonio-texto {
+        font-style: italic;
+        color: var(--brown-700);
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .testimonio-autor {
+        font-weight: 600;
         color: var(--green-700);
     }
 
-    /* DESTINOS POPULARES */
-    .sabores .card {
-        overflow: hidden;
-        border-radius: 15px;
-        cursor: pointer;
-        transition: transform 0.3s;
+    /* CTA FINAL */
+    .cta-iyai {
+        background: var(--brown-700);
+        color: var(--white);
+        padding: 80px 0;
+        text-align: center;
     }
 
-    .sabores .card:hover {
-        transform: scale(1.05);
+    .cta-iyai h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
     }
 
-    .sabores .card-img-overlay {
-        /*background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));*/
+    .cta-iyai p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
     }
 
-    /*CARROUSEL*/
-    .carousel-item {
-        transition: transform 0.8s ease, opacity 0.8s ease;
-    }
-
-    .card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    }
-
+    /* RESPONSIVE */
     @media (max-width: 768px) {
-        .col-md-4 {
-            flex: 0 0 80%;
-            max-width: 80%;
+        .hero-iyai h1 {
+            font-size: 2.2rem;
+        }
+
+        .hero-iyai p {
+            font-size: 1.1rem;
+        }
+
+        .btn-iyai, .btn-outline-iyai {
+            display: block;
+            margin: 10px auto;
+            max-width: 300px;
         }
     }
-
-
 </style>
-<%# content_for :search_bar do %>
-<%#= render "shared/search_hotels" %>
-<%# end %>
 
-<!-- Fragmento dentro del body -->
-<section class="hero position-relative">
-  <!-- Carrusel -->
-  <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <%= image_tag "quito.jpg", class: "d-block w-100", style: "height: 70vh; object-fit: cover;" %>
-        <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.55);"></div>
+<!-- HERO SECTION CORREGIDO -->
+<section class="hero-iyai">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h1>Descubre los Tesoros de Ecuador</h1>
+        <p>Explora nuestra selección de establecimientos, hoteles y restaurantes. Encuentra experiencias auténticas en cada rincón del país.</p>
+
       </div>
-
-      <div class="carousel-item">
-        <%= image_tag "cuenca.jpg", class: "d-block w-100", style: "height: 70vh; object-fit: cover;" %>
-        <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.55);"></div>
-      </div>
-
-      <div class="carousel-item">
-        <%= image_tag "guayaquil.webp", class: "d-block w-100", style: "height: 70vh; object-fit: cover;" %>
-        <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.55);"></div>
-      </div>
-    </div>
-
-    <!-- Controles -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
-  </div>
-
-  <!-- Contenido fijo sobre el carrusel -->
-  <div class="hero-content position-absolute top-50 start-50 translate-middle text-center w-100 px-3" style="max-width: 900px; z-index: 10;">
-    <h1 class="fw-bold display-5 mb-3 text-white text-shadow">Bienvenido a IyaiClub 🇪🇨</h1>
-    <!--    <h2 class="text-white mb-4 fw-normal fs-5">Descubre hoteles y restaurantes en todo Ecuador 🇪🇨</h2>-->
-
-    <div class="search-bar-wrapper bg-white p-4 rounded-4 shadow-lg">
-      <%= render "shared/search_hotels" %>
     </div>
   </div>
 </section>
 
-<!-- Modal Comodidades -->
-<!-- Aquí termina tu hero, así que ahora colocamos el modal -->
-<%= render "shared/amenities_modal" %>
-<div class="container-fluid py-5" style="background-color: #f2f7f8;">
-  <div class="container-fluid text-center">
-
-    <!-- Título -->
-    <h2 class="text-center fw-bold mb-4">Encuentra exactamente lo que buscas para tu próxima aventura</h2>
-
-    <!-- Grid de categorías -->
-    <section class="categories py-5">
-      <div class="container-fluid ms-2 me-2">
-        <div class="row row-cols-1 row-cols-md-6 g-4">
-
-          <div class="col-6 col-md-2">
-            <%= link_to establishments_path, class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-building icon"></i>
-              <h5 class="mt-3">Establecimientos</h5>
-            <% end %>
-          </div>
-
-          <div class="col-6 col-md-2">
-            <%= link_to hotels_path, class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-building icon"></i>
-              <h5 class="mt-3">Hoteles</h5>
-            <% end %>
-          </div>
-
-          <div class="col-6 col-md-2">
-            <%= link_to restaurants_path, class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-building icon"></i>
-              <h5 class="mt-3">Restaurantes</h5>
-            <% end %>
-          </div>
-
-          <div class="col-6 col-md-2">
-            <%= link_to "#", class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-bus-front icon"></i>
-              <h5 class="mt-3">Transporte</h5>
-            <% end %>
-          </div>
-
-
-
-          <div class="col-6 col-md-2">
-            <%= link_to "#", class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-geo-alt icon"></i>
-              <h5 class="mt-3">Agencias de Viaje</h5>
-            <% end %>
-          </div>
-
-
-
-          <div class="col-6 col-md-2">
-            <%= link_to "#", class: "category-card text-center p-4 h-100 d-block text-decoration-none text-dark" do %>
-              <i class="bi bi-balloon-heart icon"></i>
-              <h5 class="mt-3">Escapadas de Momento</h5>
-            <% end %>
-          </div>
+<!-- ESTADÍSTICAS -->
+<section class="estadisticas-iyai">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="estadistica-item">
+          <div class="estadistica-numero">500+</div>
+          <div class="estadistica-texto">Establecimientos Registrados</div>
         </div>
       </div>
-    </section>
-
+      <div class="col-md-4">
+        <div class="estadistica-item">
+          <div class="estadistica-numero">24</div>
+          <div class="estadistica-texto">Provincias Cubiertas</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="estadistica-item">
+          <div class="estadistica-numero">15k+</div>
+          <div class="estadistica-texto">Exploradores Mensuales</div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-
-<!-- DESTINOS POPULARES -->
-<section class="destinos py-5">
+<!-- CATEGORÍAS CORREGIDAS -->
+<section class="categorias-iyai" id="categorias">
   <div class="container">
-    <h2 class="text-center fw-bold mb-4">Destinos Populares</h2>
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Explora Nuestras Categorías</h2>
+
     <div class="row g-4">
-      <% ["Quito", "Cuenca", "Guayaquil", "Galapagos"].each do |city| %>
-        <div class="col-md-3">
-          <div class="card text-white overflow-hidden shadow-sm">
-            <%= image_tag "#{city.downcase}.jpg", class: "card-img", style: "height:200px; object-fit:cover;" %>
-            <div class="card-img-overlay d-flex flex-column justify-content-end p-3">
-              <h5 class="card-title fw-bold"><%= city %></h5>
-              <p class="card-text">+<%= Establishment.where(city: City.find_by(name: city)).count %> lugares</p>
+      <div class="col-md-4">
+        <%= link_to establishments_path, class: "categoria-card-iyai" do %>
+          <h3>Todos los Establecimientos</h3>
+          <p>Ve la colección completa: hoteles y restaurantes para descubrir variedad en todo Ecuador.</p>
+          <div class="categoria-link">Ver todo →</div>
+        <% end %>
+      </div>
+
+      <div class="col-md-4">
+        <%= link_to hotels_path, class: "categoria-card-iyai" do %>
+          <h3>Hoteles y Alojamientos</h3>
+          <p>Enfócate solo en opciones de hospedaje. Perfecto para planificar tu estadía en cualquier destino.</p>
+          <div class="categoria-link">Ver solo hoteles →</div>
+        <% end %>
+      </div>
+
+      <div class="col-md-4">
+        <%= link_to restaurants_path, class: "categoria-card-iyai" do %>
+          <h3>Restaurantes y Gastronomía</h3>
+          <p>Explora exclusivamente opciones gastronómicas. Ideal para descubrir sabores locales auténticos.</p>
+          <div class="categoria-link">Ver solo restaurantes →</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DESTINOS DESTACADOS -->
+<section class="destinos-iyai">
+  <div class="container">
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Destinos Destacados</h2>
+
+    <div class="row g-4">
+      <% [
+           { nombre: "Quito", imagen: "quito.jpg", descripcion: "Capital cultural en los Andes", enlace: establishments_path(city: "Quito") },
+           { nombre: "Cuenca", imagen: "cuenca.jpg", descripcion: "Patrimonio arquitectónico", enlace: establishments_path(city: "Cuenca") },
+           { nombre: "Guayaquil", imagen: "guayaquil.webp", descripcion: "Vibrante puerto principal", enlace: establishments_path(city: "Guayaquil") },
+           { nombre: "Galápagos", imagen: "galapagos.jpg", descripcion: "Aventura natural única", enlace: establishments_path(city: "Galapagos") }
+         ].each do |destino| %>
+        <div class="col-md-6 col-lg-3">
+          <%= link_to destino[:enlace], class: "destino-card-iyai" do %>
+            <%= image_tag destino[:imagen], alt: destino[:nombre] %>
+            <div class="destino-overlay-iyai">
+              <div class="destino-nombre"><%= destino[:nombre] %></div>
+              <div class="destino-desc"><%= destino[:descripcion] %></div>
             </div>
-          </div>
+          <% end %>
         </div>
       <% end %>
     </div>
   </div>
 </section>
 
-<!-- RECOMENDADOS -->
-<section class="recomendados py-5 bg-light">
+<!-- TESTIMONIOS -->
+<section class="testimonios-iyai">
   <div class="container">
-    <h2 class="fw-bold text-center mb-4">Recomendados para ti</h2>
+    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Lo que dicen nuestros exploradores</h2>
 
-    <div id="recommendedCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-      <div class="carousel-inner">
-
-        <% establishments = Establishment.order("RAND()").limit(12).to_a %>
-        <% establishments.each_slice(3).with_index do |group, index| %>
-          <div class="carousel-item <%= 'active' if index.zero? %>">
-            <div class="row justify-content-center g-4">
-              <% group.each do |est| %>
-                <div class="col-md-4">
-                  <%= link_to establishment_path(est), class: "text-decoration-none text-dark" do %>
-                    <div class="card shadow-sm rounded-4 overflow-hidden h-100" style="transition: transform 0.2s, box-shadow 0.2s;">
-                      <% image_src = if est.galleries.any? && est.galleries.first.gallery_images.any? && est.galleries.first.gallery_images.first.file.attached?
-                                       est.galleries.first.gallery_images.first.file
-                                     else
-                                       "logo.jpeg"
-                                     end %>
-                      <%= image_tag image_src, class: "card-img-top", height: 200, alt: est.name %>
-                      <div class="card-body">
-                        <h5 class="card-title fw-bold mb-1"><%= est.name %></h5>
-                        <p class="text-muted mb-1"><%= est.category.humanize %></p>
-                        <p class="text-muted mb-2">
-                          <i class="bi bi-geo-alt"></i> <%= est.city&.name || "Ubicación desconocida" %></p>
-                        <p class="mb-0 text-warning">⭐⭐⭐⭐☆</p>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="testimonio-card-iyai">
+          <div class="testimonio-texto">
+            "Gracias a IyaiClub descubrí restaurantes familiares que nunca hubiera encontrado por mi cuenta. La autenticidad de los lugares es increíble."
           </div>
-        <% end %>
-
-      </div>
-
-      <!-- Controles -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#recommendedCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#recommendedCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon bg-dark rounded-circle p-3" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
-      </button>
-    </div>
-  </div>
-</section>
-
-<style>
-
-</style>
-
-
-<!-- SABORES Y EXPERIENCIAS -->
-<section class="sabores py-5">
-  <div class="container text-center">
-    <h2 class="fw-bold mb-4">Sabores y Experiencias</h2>
-    <p class="text-muted mb-5">Descubre los mejores restaurantes y actividades locales</p>
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="card shadow-sm border-0 h-100 mx-2">
-          <%= image_tag "restaurante.jpg", class: "card-img-top", style: "height:200px; object-fit:cover;" %>
-          <div class="card-body">
-            <h5 class="fw-bold">Gastronomía ecuatoriana</h5>
-            <p>Los mejores sabores en cada rincón del país</p>
-          </div>
+          <div class="testimonio-autor">María González, Viajera frecuente</div>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="card shadow-sm border-0 h-100 mx-2">
-          <%= image_tag "aventura.jpg", class: "card-img-top", style: "height:200px; object-fit:cover;" %>
-          <div class="card-body">
-            <h5 class="fw-bold">Experiencias únicas</h5>
-            <p>Vive momentos inolvidables en la naturaleza y la ciudad</p>
+
+      <div class="col-md-4">
+        <div class="testimonio-card-iyai">
+          <div class="testimonio-texto">
+            "Como amante de la naturaleza, encontré eco-lodges perfectos a través de la plataforma. La variedad de opciones sostenibles es impresionante."
           </div>
+          <div class="testimonio-autor">Carlos Rodríguez, Aventurero</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="testimonio-card-iyai">
+          <div class="testimonio-texto">
+            "La facilidad para explorar diferentes categorías me permite planificar viajes completos desde un solo lugar. Muy intuitivo y completo."
+          </div>
+          <div class="testimonio-autor">Ana López, Planificadora de viajes</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- BENEFICIOS -->
-<section class="beneficios py-5">
+<!-- CTA FINAL CORREGIDO -->
+<section class="cta-iyai">
   <div class="container">
-    <h2 class="fw-bold text-center mb-5">Por qué elegirnos</h2>
-    <div class="row text-center g-4">
-      <div class="col-md-4">
-        <i class="bi bi-lock-fill mb-3"></i>
-        <h5 class="fw-bold">Reservas seguras</h5>
-        <p class="text-muted">Tu información y pagos siempre protegidos.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-clock-fill mb-3"></i>
-        <h5 class="fw-bold">Disponibilidad en tiempo real</h5>
-        <p class="text-muted">Consulta y reserva al instante sin complicaciones.</p>
-      </div>
-      <div class="col-md-4">
-        <i class="bi bi-chat-dots-fill mb-3"></i>
-        <h5 class="fw-bold">Opiniones verificadas</h5>
-        <p class="text-muted">Reseñas reales de clientes como tú.</p>
-      </div>
+    <h2>Comienza tu Viaje de Descubrimiento</h2>
+    <p>Explora la diversidad de establecimientos que Ecuador tiene para ofrecerte.</p>
+
+    <div class="mt-4">
+      <%= link_to 'Explorar Todo', establishments_path, class: 'btn-iyai me-3' %>
+      <%= link_to 'Solo Hoteles', hotels_path, class: 'btn-outline-iyai me-3' %>
+      <%= link_to 'Solo Restaurantes', restaurants_path, class: 'btn-outline-iyai' %>
     </div>
   </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const animatedElements = document.querySelectorAll('.categoria-card-iyai, .destino-card-iyai, .testimonio-card-iyai');
+        animatedElements.forEach(el => {
+            el.style.opacity = 0;
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    });
+</script>

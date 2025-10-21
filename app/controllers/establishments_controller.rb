@@ -5,7 +5,7 @@ class EstablishmentsController < ApplicationController
 
   before_action :set_establishment, only: %i[show edit update destroy dashboard]
   before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
-  layout "dashboard"
+  # layout "dashboard"
 
   # def index
   #   if params[:search]
@@ -205,11 +205,22 @@ class EstablishmentsController < ApplicationController
       { name: "Boutique Cuenca", city: "Cuenca", country: "Ecuador", price: 90, rating: 4.2, amenities: ["Wi-Fi","Parking"], image: view_context.asset_path("hotel3.jpg")}
     ]
 
-    @reviews = [
-      { name: "Juan P.", comment: "Excelente ubicación y servicio." },
-      { name: "María L.", comment: "Habitaciones cómodas y limpias." },
-      { name: "Carlos M.", comment: "Recomiendo 100% para familias." }
+    @places = [
+      { name: "Hotel Andino", city: "Quito", country: "Ecuador", image: "hotel1.jpg", type: "hotel", rating: 4.6 },
+      { name: "La Parrilla del Sol", city: "Guayaquil", country: "Ecuador", image: "restaurant1.jpg", type: "restaurant", rating: 4.8 },
+      { name: "Hotel del Lago", city: "Cuenca", country: "Ecuador", image: "hotel2.jpg", type: "hotel", rating: 4.5 }
     ]
+    @reviews = [
+      { name: "Carlos M.", comment: "Excelente atención y comida deliciosa." },
+      { name: "Andrea G.", comment: "El hotel tenía una vista increíble." },
+      { name: "Luis P.", comment: "Muy fácil hacer mi reserva en minutos." }
+    ]
+
+    # @reviews = [
+    #   { name: "Juan P.", comment: "Excelente ubicación y servicio." },
+    #   { name: "María L.", comment: "Habitaciones cómodas y limpias." },
+    #   { name: "Carlos M.", comment: "Recomiendo 100% para familias." }
+    # ]
     @cities = City.all
     @amenities = Amenity.all
     @establishments = Establishment.includes(:city, :amenities)
@@ -261,8 +272,12 @@ class EstablishmentsController < ApplicationController
     puts @establishments.count
     puts "-------------------------------------------------------------"
     # Paginación
-    @establishments = @establishments.page(params[:page]).per(9)
+    if user_signed_in? && current_user.administrador?
 
+    else
+      @establishments = @establishments.page(params[:page]).per(9)
+
+    end
     respond_to do |format|
       format.html
       format.js
@@ -279,6 +294,13 @@ class EstablishmentsController < ApplicationController
     puts params.inspect
     puts "-------------------------------------------------------------"
 
+      case params[:establishment_type]
+      when "hotel"
+        # redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
+        redirect_to search_results_hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
+      when "restaurante"
+        redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+      end
 
     if params[:city].present?
       if params[:city].to_s.match?(/^\d+$/)

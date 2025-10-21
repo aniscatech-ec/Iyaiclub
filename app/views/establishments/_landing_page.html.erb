@@ -1,0 +1,131 @@
+<%# ---------------- Hero Section ---------------- %>
+<section class="hero text-center d-flex align-items-center justify-content-center"
+         style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('<%= asset_path('portada.jpg') %>') center/cover no-repeat; height: 600px;">
+  <div class="container">
+    <h1 class="display-4 fw-bold text-white">Descubre y reserva experiencias únicas</h1>
+    <p class="lead text-white mb-4">Encuentra hoteles y restaurantes en todo el país</p>
+    <div class="search-bar-wrapper bg-white p-4 rounded-4 shadow-lg mx-auto" style="max-width: 800px;">
+      <%= form_with url: search_results_establishments_path, method: :get, local: true, class: "row g-2 align-items-center" do %>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">¿A dónde quieres ir?</label>
+
+          <%= text_field_tag :city, nil, placeholder: "Ciudad o nombre...", class: "form-control" %>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Establecimientos</label>
+
+          <%= select_tag :establishment_type, options_for_select([['Todos', 'todos'], ['Hoteles', 'hotel'], ['Restaurantes', 'restaurante']]), class: "form-select" %>
+        </div>
+        <div class="col-md-3 d-grid mt-4">
+          <%= submit_tag "Buscar", class: "btn btn-primary btn-lg" %>
+        </div>
+        <!-- Botón Buscar -->
+        <!--        <div class="col-md-2 d-grid">-->
+        <!--          <button type="submit" class="btn btn-primary btn-lg">Buscar</button>-->
+        <!--        </div>-->
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<%# ---------------- Categorías ---------------- %>
+<section class="container my-5 text-center">
+  <h2 class="mb-4">Explora por categoría</h2>
+  <div class="row g-4 justify-content-center">
+    <div class="col-md-3">
+      <div class="category-card p-4 rounded-4 shadow-sm h-100">
+        <i class="bi bi-house-door fs-1 text-primary mb-2"></i>
+        <h5>Hoteles</h5>
+        <p class="text-muted">Encuentra hospedajes ideales para tus vacaciones.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="category-card p-4 rounded-4 shadow-sm h-100">
+        <i class="bi bi-egg-fried fs-1 text-danger mb-2"></i>
+        <h5>Restaurantes</h5>
+        <p class="text-muted">Descubre los mejores lugares para disfrutar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ---------------- Lugares Destacados ---------------- %>
+<section class="container my-5">
+  <h2 class="mb-4">Lugares destacados</h2>
+  <div class="row g-4">
+    <% @places.each do |place| %>
+      <div class="col-md-4">
+        <div class="card place-card shadow-sm h-100 border-0 overflow-hidden">
+          <%= image_tag place[:image], class: "card-img-top", alt: place[:name] %>
+          <div class="card-body">
+            <h5 class="card-title"><%= place[:name] %></h5>
+            <p class="card-text text-muted mb-2"><%= place[:city] %>, <%= place[:country] %></p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-primary"><%= place[:type].capitalize %></span>
+              <span class="badge bg-success">⭐ <%= place[:rating] %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%# ---------------- Opiniones ---------------- %>
+<section class="bg-light py-5 text-center">
+  <h2>Lo que opinan nuestros clientes</h2>
+  <div class="row g-4 mt-3 justify-content-center">
+    <% @reviews.each do |review| %>
+      <div class="col-md-4">
+        <div class="card p-4 h-100 shadow-sm rounded-4 border-0">
+          <p class="fst-italic text-secondary mb-3">"<%= review[:comment] %>"</p>
+          <div class="d-flex justify-content-center align-items-center gap-2">
+            <i class="bi bi-person-circle text-primary fs-4"></i>
+            <strong><%= review[:name] %></strong>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%# ---------------- Ventajas ---------------- %>
+<section class="container my-5 text-center">
+  <h2>¿Por qué elegirnos?</h2>
+  <div class="row g-4 mt-3">
+    <div class="col-md-3"><i class="bi bi-x-circle fs-1 text-primary"></i>
+      <p>Cancelación gratuita</p></div>
+    <div class="col-md-3"><i class="bi bi-cash-coin fs-1 text-primary"></i>
+      <p>Precios transparentes</p></div>
+    <div class="col-md-3"><i class="bi bi-calendar-check fs-1 text-primary"></i>
+      <p>Reservas instantáneas</p></div>
+    <div class="col-md-3"><i class="bi bi-headset fs-1 text-primary"></i>
+      <p>Soporte personalizado</p></div>
+  </div>
+</section>
+
+<%# ---------------- Estilos ---------------- %>
+<style>
+    .hero h1, .hero p {
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .category-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .place-card img {
+        transition: transform 0.4s ease;
+    }
+
+    .place-card:hover img {
+        transform: scale(1.05);
+    }
+</style>
+<%# Vista según el rol del usuario %>

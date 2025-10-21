@@ -1,119 +1,14 @@
-<%# ---------------- Hero Section ---------------- %>
-<section class="hero text-center d-flex align-items-center" style="background: url('<%= asset_path('hotel-image.jpg') %>') center/cover no-repeat; height: 500px;">
-  <div class="container">
-    <h1 class="display-4 fw-bold text-white">Encuentra tu lugar ideal para hospedarte</h1>
-    <p class="lead mb-4 text-white">Busca hoteles, hostales y apartamentos en todo el país</p>
-    <div class="search-bar-wrapper bg-white p-4 rounded-4 shadow-lg">
-      <%= render "shared/search_hotels" %>
-    </div>
 
-  </div>
-</section>
-<%= render "shared/amenities_modal" %>
+<% if user_signed_in? %>
+  <% if current_user.administrador? %>
+    <%= render "table_view", establishments: @establishments %>
+  <% elsif current_user.afiliado? %>
+    <%= render "card_view", establishments: @establishments %>
+  <% elsif current_user.turista? %>
+    <%#= render "catalog_view", establishments: @establishments %>
+    <%= render "landing_page", establishments: @establishments %>
+  <% end %>
+<% else %>
+  <%= render "landing_page", establishments: @establishments %>
 
-<%# ---------------- Destinos Populares ---------------- %>
-<section class="container my-5">
-  <h2 class="mb-4">Destinos Populares</h2>
-  <div class="row g-4">
-    <% @destinations.each do |dest| %>
-      <div class="col-md-3">
-        <div class="card text-white destination-card">
-          <%= image_tag dest[:image], class: "card-img", alt: dest[:name], height: 250 %>
-          <div class="card-img-overlay d-flex flex-column justify-content-end p-2 overlay-dark">
-            <h5 class="card-title"><%= dest[:name] %></h5>
-            <p class="card-text"><%= dest[:hotels_count] %> hoteles</p>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</section>
-
-<%# ---------------- Hoteles Destacados ---------------- %>
-<section class="container my-5">
-  <h2 class="mb-4">Hoteles Destacados</h2>
-  <div class="row g-4">
-    <% @hotels.each do |hotel| %>
-      <div class="col-md-4">
-        <div class="card hotel-card shadow-sm h-100">
-          <%= image_tag hotel[:image], class: "card-img-top", alt: hotel[:name] %>
-          <div class="card-body">
-            <h5 class="card-title"><%= hotel[:name] %></h5>
-            <p class="card-text text-muted"><%= hotel[:city] %>, <%= hotel[:country] %></p>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold text-primary">$<%= hotel[:price] %> / noche</span>
-              <span class="badge bg-success">⭐ <%= hotel[:rating] %></span>
-            </div>
-            <div class="mb-2 amenities">
-              <% hotel[:amenities].each do |amenity| %>
-                <span class="badge bg-secondary" data-bs-toggle="tooltip" title="<%= amenity %>"><%= amenity[0] %></span>
-              <% end %>
-            </div>
-            <a href="#" class="btn btn-outline-primary w-100">Ver detalles</a>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</section>
-
-<%# ---------------- Opiniones de Huéspedes ---------------- %>
-<section class="bg-light py-5 text-center">
-  <h2>Opiniones de nuestros huéspedes</h2>
-  <div class="row g-4 mt-3 justify-content-center">
-    <% @reviews.each do |review| %>
-      <div class="col-md-4">
-        <div class="card p-3 h-100 review-card shadow-sm">
-          <p class="fst-italic">"<%= review[:comment] %>"</p>
-          <small class="text-muted">– <%= review[:name] %></small>
-        </div>
-      </div>
-    <% end %>
-  </div>
-</section>
-
-<%# ---------------- Ventajas ---------------- %>
-<section class="container my-5 text-center">
-  <h2>¿Por qué reservar con nosotros?</h2>
-  <div class="row g-4 mt-3">
-    <div class="col-md-3"><i class="bi bi-x-circle fs-1 text-primary"></i><p>Cancelación gratuita</p></div>
-    <div class="col-md-3"><i class="bi bi-cash-stack fs-1 text-primary"></i><p>Mejor precio garantizado</p></div>
-    <div class="col-md-3"><i class="bi bi-door-open fs-1 text-primary"></i><p>Check-in fácil</p></div>
-    <div class="col-md-3"><i class="bi bi-headset fs-1 text-primary"></i><p>Soporte 24/7</p></div>
-  </div>
-</section>
-
-<%# ---------------- CSS Custom ---------------- %>
-<style>
-    .hero { position: relative; }
-    .hero::after { content: ""; position: absolute; inset:0; background: rgba(0,0,0,0.4); }
-    .hero .container { position: relative; z-index: 2; }
-
-    .destination-card { position: relative; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .destination-card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-    .overlay-dark { background: rgba(0,0,0,0.4); }
-
-    .hotel-card { transition: transform 0.35s ease, box-shadow 0.35s ease; border-radius: 12px; overflow: hidden; }
-    .hotel-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 25px rgba(0,0,0,0.2); }
-    .hotel-card img { transition: transform 0.3s ease; }
-    .hotel-card:hover img { transform: scale(1.05); }
-
-    .amenities span { margin-right: 5px; cursor: pointer; }
-
-    .review-card { transition: transform 0.35s ease, box-shadow 0.35s ease; border-radius: 10px; }
-    .review-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-
-    @media (max-width: 767px) {
-        .hero { height: 400px; }
-    }
-</style>
-
-<%# ---------------- JS Tooltips ---------------- %>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function (el) {
-            return new bootstrap.Tooltip(el)
-        })
-    });
-</script>
+<% end %>
