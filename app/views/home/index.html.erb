@@ -16,29 +16,55 @@
         --offwhite: #FBFBFB;
     }
 
-    /* HERO SECTION */
+    /* HERO SECTION CON FOTO DE FONDO Y OVERLAY GRIS */
     .hero-iyai {
-        background: linear-gradient(135deg, var(--green-700) 0%, var(--green-500) 100%);
+        background:
+                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)),
+                url('<%= image_path("quito.jpg") %>');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         color: var(--white);
-        padding: 100px 0;
+        padding: 140px 0 100px;
         text-align: center;
+        position: relative;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
     }
 
     .hero-iyai h1 {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 700;
         margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
     }
 
     .hero-iyai p {
-        font-size: 1.3rem;
-        margin-bottom: 2.5rem;
-        opacity: 0.9;
+        font-size: 1.4rem;
+        margin-bottom: 3rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .btn-iyai {
         display: inline-block;
-        padding: 15px 35px;
+        padding: 16px 36px;
         background: var(--brown-700);
         color: var(--white);
         text-decoration: none;
@@ -46,19 +72,21 @@
         font-weight: 600;
         font-size: 1.1rem;
         transition: all 0.3s ease;
-        border: none;
+        border: 2px solid var(--brown-700);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
     .btn-iyai:hover {
-        background: var(--green-500);
+        background: transparent;
+        color: var(--brown-700);
         transform: translateY(-2px);
-        color: var(--white);
         text-decoration: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
 
     .btn-outline-iyai {
         display: inline-block;
-        padding: 15px 35px;
+        padding: 16px 36px;
         background: transparent;
         border: 2px solid var(--white);
         color: var(--white);
@@ -67,17 +95,20 @@
         font-weight: 600;
         font-size: 1.1rem;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
     .btn-outline-iyai:hover {
         background: var(--white);
         color: var(--green-700);
+        transform: translateY(-2px);
         text-decoration: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
 
     /* ESTADÍSTICAS */
     .estadisticas-iyai {
-        padding: 60px 0;
+        padding: 70px 0;
         background: var(--green-500);
         color: var(--white);
         text-align: center;
@@ -88,20 +119,40 @@
     }
 
     .estadistica-numero {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
     }
 
     .estadistica-texto {
         font-size: 1.1rem;
-        opacity: 0.9;
+        opacity: 0.95;
+        font-weight: 500;
     }
 
     /* CATEGORÍAS */
     .categorias-iyai {
-        padding: 80px 0;
+        padding: 90px 0;
         background: var(--offwhite);
+    }
+
+    .section-title {
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: var(--brown-700);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .section-subtitle {
+        font-size: 1.2rem;
+        color: var(--brown-700);
+        opacity: 0.8;
+        text-align: center;
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .categoria-card-iyai {
@@ -109,8 +160,8 @@
         padding: 3rem 2rem;
         border-radius: 12px;
         text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
         height: 100%;
         text-decoration: none;
         color: var(--brown-700);
@@ -119,7 +170,8 @@
     }
 
     .categoria-card-iyai:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         text-decoration: none;
         color: var(--brown-700);
         border-left-color: var(--red-500);
@@ -129,17 +181,20 @@
         font-size: 1.5rem;
         font-weight: 600;
         margin-bottom: 1rem;
+        color: var(--green-700);
     }
 
     .categoria-card-iyai p {
         color: #64748b;
         margin-bottom: 1.5rem;
+        line-height: 1.6;
     }
 
     .categoria-link {
         color: var(--green-700);
         font-weight: 600;
         text-decoration: none;
+        transition: color 0.3s ease;
     }
 
     .categoria-card-iyai:hover .categoria-link {
@@ -148,7 +203,7 @@
 
     /* DESTINOS DESTACADOS */
     .destinos-iyai {
-        padding: 80px 0;
+        padding: 90px 0;
         background: var(--white);
     }
 
@@ -160,18 +215,26 @@
         text-decoration: none;
         color: var(--white);
         display: block;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        transition: all 0.3s ease;
+    }
+
+    .destino-card-iyai:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        text-decoration: none;
+        color: var(--white);
     }
 
     .destino-card-iyai img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        transition: transform 0.6s ease;
     }
 
     .destino-card-iyai:hover img {
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 
     .destino-overlay-iyai {
@@ -179,23 +242,30 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(transparent, rgba(15, 107, 58, 0.9));
+        background: linear-gradient(transparent, rgba(15, 107, 58, 0.95));
         padding: 2rem;
+        transform: translateY(5px);
+        transition: transform 0.3s ease;
+    }
+
+    .destino-card-iyai:hover .destino-overlay-iyai {
+        transform: translateY(0);
     }
 
     .destino-nombre {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
     }
 
     .destino-desc {
         opacity: 0.9;
+        font-size: 0.95rem;
     }
 
     /* TESTIMONIOS */
     .testimonios-iyai {
-        padding: 80px 0;
+        padding: 90px 0;
         background: var(--offwhite);
     }
 
@@ -203,9 +273,17 @@
         background: var(--white);
         padding: 2.5rem;
         border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
         margin: 1rem;
-        border-top: 4px solid var(--green-500);
+        border-left: 4px solid var(--green-500);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .testimonio-card-iyai:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-left-color: var(--red-500);
     }
 
     .testimonio-texto {
@@ -219,53 +297,116 @@
     .testimonio-autor {
         font-weight: 600;
         color: var(--green-700);
+        font-size: 0.95rem;
     }
 
     /* CTA FINAL */
     .cta-iyai {
-        background: var(--brown-700);
+        background: linear-gradient(135deg, var(--brown-700) 0%, #3a2418 100%);
         color: var(--white);
-        padding: 80px 0;
+        padding: 90px 0;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
     }
 
     .cta-iyai h2 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
     }
 
     .cta-iyai p {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-        opacity: 0.9;
+        font-size: 1.3rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
+        .hero-iyai {
+            padding: 100px 0 60px;
+            min-height: 60vh;
+            background-attachment: scroll;
+        }
+
         .hero-iyai h1 {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
         }
 
         .hero-iyai p {
             font-size: 1.1rem;
         }
 
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
         .btn-iyai, .btn-outline-iyai {
-            display: block;
-            margin: 10px auto;
-            max-width: 300px;
+            width: 100%;
+            max-width: 280px;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+        }
+
+        .cta-iyai h2 {
+            font-size: 2.2rem;
+        }
+
+        .cta-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .hero-iyai {
+            padding: 80px 0 50px;
+        }
+
+        .hero-iyai h1 {
+            font-size: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
         }
     }
 </style>
 
-<!-- HERO SECTION CORREGIDO -->
+<!-- HERO SECTION CON FOTO Y OVERLAY GRIS -->
 <section class="hero-iyai">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <h1>Descubre los Tesoros de Ecuador</h1>
-        <p>Explora nuestra selección de establecimientos, hoteles y restaurantes. Encuentra experiencias auténticas en cada rincón del país.</p>
-
+    <div class="hero-content">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h1>Descubre los Tesoros de Ecuador</h1>
+          <p>Explora nuestra selección de establecimientos, hoteles y restaurantes. Encuentra experiencias auténticas en cada rincón del país.</p>
+          <div class="hero-actions">
+            <%= link_to 'Explorar Todo', establishments_path, class: 'btn-iyai' %>
+            <%= link_to 'Hoteles', hotels_path, class: 'btn-outline-iyai' %>
+            <%= link_to 'Restaurantes', restaurants_path, class: 'btn-outline-iyai' %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -297,10 +438,11 @@
   </div>
 </section>
 
-<!-- CATEGORÍAS CORREGIDAS -->
-<section class="categorias-iyai" id="categorias">
+<!-- CATEGORÍAS -->
+<section class="categorias-iyai">
   <div class="container">
-    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Explora Nuestras Categorías</h2>
+    <h2 class="section-title">Explora Nuestras Categorías</h2>
+    <p class="section-subtitle">Descubre la diversidad de opciones que tenemos para ofrecerte</p>
 
     <div class="row g-4">
       <div class="col-md-4">
@@ -315,7 +457,7 @@
         <%= link_to hotels_path, class: "categoria-card-iyai" do %>
           <h3>Hoteles y Alojamientos</h3>
           <p>Enfócate solo en opciones de hospedaje. Perfecto para planificar tu estadía en cualquier destino.</p>
-          <div class="categoria-link">Ver solo hoteles →</div>
+          <div class="categoria-link">Ver hoteles →</div>
         <% end %>
       </div>
 
@@ -323,7 +465,7 @@
         <%= link_to restaurants_path, class: "categoria-card-iyai" do %>
           <h3>Restaurantes y Gastronomía</h3>
           <p>Explora exclusivamente opciones gastronómicas. Ideal para descubrir sabores locales auténticos.</p>
-          <div class="categoria-link">Ver solo restaurantes →</div>
+          <div class="categoria-link">Ver restaurantes →</div>
         <% end %>
       </div>
     </div>
@@ -333,7 +475,8 @@
 <!-- DESTINOS DESTACADOS -->
 <section class="destinos-iyai">
   <div class="container">
-    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Destinos Destacados</h2>
+    <h2 class="section-title">Destinos Destacados</h2>
+    <p class="section-subtitle">Descubre las joyas más fascinantes de Ecuador</p>
 
     <div class="row g-4">
       <% [
@@ -359,7 +502,8 @@
 <!-- TESTIMONIOS -->
 <section class="testimonios-iyai">
   <div class="container">
-    <h2 class="text-center mb-5" style="font-size: 2.5rem; font-weight: 700; color: var(--brown-700);">Lo que dicen nuestros exploradores</h2>
+    <h2 class="section-title">Lo que dicen nuestros exploradores</h2>
+    <p class="section-subtitle">Experiencias reales de viajeros como tú</p>
 
     <div class="row">
       <div class="col-md-4">
@@ -392,16 +536,17 @@
   </div>
 </section>
 
-<!-- CTA FINAL CORREGIDO -->
+<!-- CTA FINAL -->
 <section class="cta-iyai">
   <div class="container">
-    <h2>Comienza tu Viaje de Descubrimiento</h2>
-    <p>Explora la diversidad de establecimientos que Ecuador tiene para ofrecerte.</p>
-
-    <div class="mt-4">
-      <%= link_to 'Explorar Todo', establishments_path, class: 'btn-iyai me-3' %>
-      <%= link_to 'Solo Hoteles', hotels_path, class: 'btn-outline-iyai me-3' %>
-      <%= link_to 'Solo Restaurantes', restaurants_path, class: 'btn-outline-iyai' %>
+    <div class="cta-content">
+      <h2>Comienza tu Viaje de Descubrimiento</h2>
+      <p>Explora la diversidad de establecimientos que Ecuador tiene para ofrecerte.</p>
+      <div class="cta-actions">
+        <%= link_to 'Explorar Todo', establishments_path, class: 'btn-outline-iyai' %>
+        <%= link_to 'Hoteles', hotels_path, class: 'btn-iyai' %>
+        <%= link_to 'Restaurantes', restaurants_path, class: 'btn-outline-iyai' %>
+      </div>
     </div>
   </div>
 </section>
@@ -411,7 +556,7 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
+                    entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
                 }
             });
@@ -419,7 +564,7 @@
 
         const animatedElements = document.querySelectorAll('.categoria-card-iyai, .destino-card-iyai, .testimonio-card-iyai');
         animatedElements.forEach(el => {
-            el.style.opacity = 0;
+            el.style.opacity = '0';
             el.style.transform = 'translateY(20px)';
             el.style.transition = 'all 0.6s ease';
             observer.observe(el);

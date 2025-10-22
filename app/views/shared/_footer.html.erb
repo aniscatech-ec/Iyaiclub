@@ -1,11 +1,11 @@
-<footer class="pt-5 pb-4 mt-5 border-top">
-  <div class="container text-md-left">
-    <div class="row text-md-left">
+<footer class="footer-iyai">
+  <div class="container">
+    <div class="row">
 
       <!-- Logo y descripción -->
       <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-        <h5 class="mb-4 fw-bold text-primary">IyaiClub</h5>
-        <p>
+        <h5 class="mb-4 fw-bold" style="color: var(--green-700);">IyaiClub</h5>
+        <p style="color: var(--brown-700);">
           Plataforma de reservas para hoteles, restaurantes y alquiler de vehículos.
           Encuentra la mejor opción en un solo lugar.
         </p>
@@ -13,39 +13,39 @@
 
       <!-- Enlaces rápidos -->
       <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 fw-bold text-primary">Servicios</h5>
-        <p><a href="#" class="text-dark text-decoration-none">Hoteles</a></p>
-        <p><a href="#" class="text-dark text-decoration-none">Restaurantes</a></p>
-        <p><a href="#" class="text-dark text-decoration-none">Vehículos</a></p>
-        <p><a href="#" class="text-dark text-decoration-none">Promociones</a></p>
+        <h5 class="mb-4 fw-bold" style="color: var(--green-700);">Servicios</h5>
+        <p><a href="<%= establishments_path %>" class="footer-link">Establecimientos</a></p>
+        <p><a href="<%= hotels_path %>" class="footer-link">Hoteles</a></p>
+        <p><a href="<%= restaurants_path %>" class="footer-link">Restaurantes</a></p>
+        <p><a href="#" class="footer-link">Promociones</a></p>
       </div>
 
       <!-- Recursos -->
       <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 fw-bold text-primary">Enlaces útiles</h5>
-        <p><a href="#" class="text-dark text-decoration-none">Tu cuenta</a></p>
-        <p><a href="#" class="text-dark text-decoration-none">Preguntas frecuentes</a></p>
-        <p><a href="/terms_and_conditions" class="text-dark text-decoration-none">Términos y condiciones</a></p>
-        <p><a href="/policy_and_privacy" class="text-dark text-decoration-none">Política de privacidad</a></p>
+        <h5 class="mb-4 fw-bold" style="color: var(--green-700);">Enlaces útiles</h5>
+        <p><a href="#" class="footer-link">Tu cuenta</a></p>
+        <p><a href="#" class="footer-link">Preguntas frecuentes</a></p>
+        <p><a href="/terms_and_conditions" class="footer-link">Términos y condiciones</a></p>
+        <p><a href="/policy_and_privacy" class="footer-link">Política de privacidad</a></p>
       </div>
 
       <!-- Contacto -->
       <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
-        <h5 class="text-uppercase mb-4 fw-bold text-primary">Contacto</h5>
-        <p><i class="bi bi-geo-alt-fill me-2 text-primary"></i> Quito, Ecuador</p>
-        <p><i class="bi bi-envelope-fill me-2 text-primary"></i> info@iyaiclub.com</p>
-        <p><i class="bi bi-telephone-fill me-2 text-primary"></i> +593 99 123 4567</p>
+        <h5 class="mb-4 fw-bold" style="color: var(--green-700);">Contacto</h5>
+        <p class="footer-contact"><i class="bi bi-geo-alt-fill me-2"></i> Quito, Ecuador</p>
+        <p class="footer-contact"><i class="bi bi-envelope-fill me-2"></i> info@iyaiclub.com</p>
+        <p class="footer-contact"><i class="bi bi-telephone-fill me-2"></i> +593 99 123 4567</p>
       </div>
     </div>
 
-    <hr class="mb-4">
+    <hr class="mb-4" style="border-color: var(--green-500); opacity: 0.3;">
 
     <!-- Redes sociales -->
     <div class="row align-items-center">
       <div class="col-md-7 col-lg-8">
-        <p class="mb-0">
+        <p class="mb-0" style="color: var(--brown-700);">
           © 2025 Derechos reservados:
-          <a href="#" class="text-primary fw-bold text-decoration-none">IyaiClub.com</a>
+          <a href="#" class="footer-link fw-bold">IyaiClub.com</a>
         </p>
       </div>
 
@@ -53,16 +53,16 @@
         <div class="text-center text-md-end">
           <ul class="list-unstyled list-inline mb-0">
             <li class="list-inline-item">
-              <a href="#"><i class="bi bi-facebook fs-5 text-primary"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-facebook fs-5"></i></a>
             </li>
             <li class="list-inline-item">
-              <a href="#"><i class="bi bi-twitter-x fs-5 text-primary"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-twitter-x fs-5"></i></a>
             </li>
             <li class="list-inline-item">
-              <a href="#"><i class="bi bi-instagram fs-5 text-primary"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-instagram fs-5"></i></a>
             </li>
             <li class="list-inline-item">
-              <a href="#"><i class="bi bi-linkedin fs-5 text-primary"></i></a>
+              <a href="#" class="social-link"><i class="bi bi-linkedin fs-5"></i></a>
             </li>
           </ul>
         </div>
@@ -71,3 +71,42 @@
 
   </div>
 </footer>
+
+<style>
+    .footer-iyai {
+        background: var(--offwhite);
+        padding: 3rem 0 1.5rem;
+        border-top: 3px solid var(--green-500);
+    }
+
+    .footer-link {
+        color: var(--brown-700);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: var(--green-700);
+        text-decoration: none;
+    }
+
+    .footer-contact {
+        color: var(--brown-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-contact i {
+        color: var(--green-700);
+    }
+
+    .social-link {
+        color: var(--green-700);
+        transition: all 0.3s ease;
+        padding: 0.5rem;
+    }
+
+    .social-link:hover {
+        color: var(--green-500);
+        transform: translateY(-2px);
+    }
+</style>

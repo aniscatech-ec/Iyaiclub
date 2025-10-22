@@ -1,42 +1,37 @@
-<!-- Barra tipo Booking -->
-<header class="navigation-header">
+<!-- Barra de Navegación Iyai -->
+<header class="navigation-header-iyai">
   <div class="container">
     <div class="d-flex justify-content-start">
-      <ul class="nav col-12 col-lg-auto justify-content-start my-md-0 text-small">
+      <ul class="nav col-12 col-lg-auto justify-content-start my-md-0">
         <li>
           <%= link_to establishments_path,
-                      class: "nav-link #{'active text-primary fw-bold' if current_page?(establishments_path)}" do %>
-            <i class="bi bi-building me-2"></i>
+                      class: "nav-link nav-link-secondary #{'active fw-bold' if current_page?(establishments_path)}" do %>
             Establecimientos
           <% end %>
         </li>
 
         <li>
           <%= link_to hotels_path,
-                      class: "nav-link #{'active text-primary fw-bold' if current_page?(hotels_path)}" do %>
-            <i class="bi bi-house-door me-2"></i>
+                      class: "nav-link nav-link-secondary #{'active fw-bold' if current_page?(hotels_path)}" do %>
             Hoteles
           <% end %>
         </li>
 
         <li>
           <%= link_to restaurants_path,
-                      class: "nav-link #{'active text-primary fw-bold' if current_page?(restaurants_path)}" do %>
-            <i class="bi bi-cup-straw me-2"></i>
+                      class: "nav-link nav-link-secondary #{'active fw-bold' if current_page?(restaurants_path)}" do %>
             Restaurantes
           <% end %>
         </li>
 
         <li>
-          <a href="#" class="nav-link">
-            <i class="bi bi-car-front me-2"></i>
+          <a href="#" class="nav-link nav-link-secondary">
             Transporte
           </a>
         </li>
 
         <li>
-          <a href="#" class="nav-link">
-            <i class="bi bi-globe-americas me-2"></i>
+          <a href="#" class="nav-link nav-link-secondary">
             Agencias
           </a>
         </li>
@@ -44,3 +39,26 @@
     </div>
   </div>
 </header>
+
+<style>
+    .navigation-header-iyai {
+        background: var(--green-700);
+        padding: 1rem 0;
+        border-bottom: 3px solid var(--green-500);
+    }
+
+    .nav-link-secondary {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+        border-radius: 4px;
+        margin: 0 0.25rem;
+    }
+
+    .nav-link-secondary:hover,
+    .nav-link-secondary.active {
+        color: var(--white) !important;
+        background: rgba(255, 255, 255, 0.1);
+    }
+</style>

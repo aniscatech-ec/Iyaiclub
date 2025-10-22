@@ -1,142 +1,87 @@
-<!-- ==================== Estilos locales ==================== -->
-<style> /* Hero section */
-.hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url(<%= asset_path 'portada.jpg' %>) center/cover no-repeat;
-    min-height: 420px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-}
-
-.search-card {
-    margin-top: -60px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
-    border-radius: 1rem;
-}
-
-.offer-card {
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-    border: none;
-    border-radius: 1rem;
-    overflow: hidden;
-}
-
-.offer-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.offer-card img {
-    height: 180px;
-    object-fit: cover;
-}
-
-.feature-grid .card {
-    border: 0;
-    border-radius: 1rem;
-    transition: background 0.2s ease, transform 0.2s ease;
-    text-align: center;
-}
-
-.feature-grid .card:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-4px);
-}
-
-/* Why choose us */
-.why-us {
-    background: #f7f8fa;
-    padding: 60px 0;
-}
-
-.why-us .icon-circle {
-    width: 70px;
-    height: 70px;
-    background: #007bff1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    margin: 0 auto 15px;
-}
-
-/* Destinations */
-.destination-card img {
-    height: 160px;
-    object-fit: cover;
-    border-radius: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.destination-card:hover img {
-    transform: scale(1.05);
-}
-
-/* Testimonials */
-.testimonial-card {
-    border: none;
-    border-radius: 1rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
-}
-
-/* CTA */
-.cta {
-    background: linear-gradient(135deg, #007bff, #0069d9);
-    color: #fff;
-    padding: 70px 0;
-    text-align: center;
-    border-radius: 1rem;
-}
-
-@media (max-width: 575px) {
-    .hero {
-        min-height: 320px;
-    }
-
-    .search-card {
-        margin: 0 12px;
-    }
-} </style> <!-- ==================== Contenido principal ==================== -->
 <style>
-    /* ==================== Hero Section ==================== */
-    .hero {
-        background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-        url('https://images.unsplash.com/photo-1501117716987-c8e86f0f7b1b?auto=format&fit=crop&w=1800&q=60') center/cover no-repeat;
-        min-height: 420px;
-        color: #fff;
+    /* Variables CSS para hoteles */
+    :root {
+        --primary-color: #2d5016;
+        --secondary-color: #4a7c3a;
+        --accent-color: #8db596;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+        --gradient-primary: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
+        --gradient-hero: linear-gradient(135deg, rgba(45, 80, 22, 0.85) 0%, rgba(0, 0, 0, 0.7) 100%);
+    }
+
+    /* ==================== Hero Section Hoteles ==================== */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        background: var(--gradient-hero), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+        min-height: 500px;
         display: flex;
         align-items: center;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        color: #fff;
     }
 
-    /* ==================== Search Card ==================== */
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        line-height: 1.1;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: 2.5rem;
+        opacity: 0.95;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        font-weight: 400;
+    }
+
+    /* ==================== Search Card Hoteles ==================== */
+    .search-section {
+        margin-top: -80px;
+        position: relative;
+        z-index: 10;
+    }
+
     .search-card {
-        margin-top: -60px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
-        border-radius: 1rem;
+        background: rgba(255,255,255,0.98);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.3);
     }
 
-    /* ==================== Campos generales ==================== */
-    .form-label {
+    .search-form .form-label {
         font-weight: 600;
-        color: #333;
+        color: var(--dark-text);
         font-size: 0.9rem;
+        margin-bottom: 0.5rem;
     }
 
-    .form-control, .btn {
-        border-radius: 0.7rem;
-        transition: all 0.2s ease;
+    .search-form .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
         font-size: 0.95rem;
+        transition: all 0.3s ease;
     }
 
-    .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2);
+    .search-form .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.15);
     }
 
-    /* ==================== Input con ícono ==================== */
+    /* Input con ícono */
     .input-icon {
         position: relative;
     }
@@ -144,159 +89,943 @@
     .input-icon i {
         position: absolute;
         top: 50%;
-        left: 12px;
+        left: 15px;
         transform: translateY(-50%);
-        color: #0d6efd;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+
+    .input-icon .form-control {
+        padding-left: 45px;
+    }
+
+    /* Selectores de filtro */
+    .filter-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        background: white;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .filter-select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    /* Botón de huéspedes */
+    .guests-btn {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        background: white;
+        transition: all 0.3s ease;
+        text-align: left;
+        width: 100%;
+    }
+
+    .guests-btn:hover {
+        border-color: var(--primary-color);
+        background: #f8f9fa;
+    }
+
+    /* Botón buscar */
+    .search-btn {
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        color: white;
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(45, 80, 22, 0.3);
+    }
+
+    /* ==================== Sección Hoteles Destacados ==================== */
+    .featured-section {
+        padding: 4rem 0;
+        background: var(--light-bg);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .section-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Tarjetas de hoteles */
+    .hotel-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.4s ease;
+        height: 100%;
+        border: none;
+        position: relative;
+    }
+
+    .hotel-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .hotel-card-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .hotel-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .hotel-card-body {
+        padding: 1.5rem;
+    }
+
+    .hotel-card-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        color: var(--dark-text);
+    }
+
+    .hotel-card-type {
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .hotel-card-location {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .hotel-rating {
+        color: #ffc107;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .hotel-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .hotel-price-note {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    .hotel-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-tag {
+        background: #f8f9fa;
+        color: #6c757d;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .hotel-btn {
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .hotel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+    }
+
+    /* ==================== Categorías de Hoteles ==================== */
+    .categories-section {
+        padding: 4rem 0;
+        background: white;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem 1rem;
+        text-align: center;
+        transition: all 0.4s ease;
+        border: 2px solid transparent;
+        box-shadow: var(--shadow);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+        border-color: var(--accent-color);
+    }
+
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover .category-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .category-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark-text);
+    }
+
+    .category-count {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* ==================== Beneficios ==================== */
+    .benefits-section {
+        padding: 4rem 0;
+        background: var(--gradient-primary);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .benefits-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    .benefit-item {
+        text-align: center;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .benefit-item:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateY(-5px);
+    }
+
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--accent-color);
+        transition: all 0.3s ease;
+    }
+
+    .benefit-item:hover .benefit-icon {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.1);
+    }
+
+    .benefit-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
         font-size: 1.1rem;
     }
 
-    .date-input {
-        padding-left: 38px;
-        cursor: pointer;
-        background-color: #fff;
+    .benefit-text {
+        opacity: 0.9;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
 
-    .date-input:hover {
-        background-color: #f8f9fa;
+    /* ==================== Destinos Populares ==================== */
+    .destinations-section {
+        padding: 4rem 0;
+        background: var(--light-bg);
     }
 
-    /* ==================== Flatpickr personalizado ==================== */
-    .flatpickr-calendar {
-        border-radius: 0.75rem !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-        font-family: inherit !important;
+    .destination-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.4s ease;
+        position: relative;
+        height: 200px;
     }
 
-    .flatpickr-day.selected {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
+    .destination-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
     }
 
-    .flatpickr-day.startRange, .flatpickr-day.endRange {
-        background: #0d6efd !important;
-        color: #fff !important;
+    .destination-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .destination-card:hover .destination-img {
+        transform: scale(1.1);
+    }
+
+    .destination-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 1.5rem;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        color: white;
+    }
+
+    .destination-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+
+    .destination-count {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* ==================== Testimonios ==================== */
+    .testimonials-section {
+        padding: 4rem 0;
+        background: white;
+    }
+
+    .testimonial-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 1px solid #f1f3f4;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .testimonial-card::before {
+        content: '"';
+        font-size: 4rem;
+        color: var(--accent-color);
+        position: absolute;
+        top: -0.5rem;
+        left: 1rem;
+        opacity: 0.3;
+        font-family: Georgia, serif;
+        line-height: 1;
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+
+    .testimonial-author {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .testimonial-hotel {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* ==================== CTA Final ==================== */
+    .cta-section {
+        padding: 4rem 0;
+        background: var(--gradient-primary);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .cta-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-btn {
+        background: white;
+        color: var(--primary-color);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    /* ==================== Modal Huéspedes ==================== */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 700;
+        color: var(--dark-text);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .guest-control {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .guest-label {
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    .guest-counter {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .counter-btn {
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--primary-color);
+        background: white;
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .counter-btn:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .counter-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        min-width: 30px;
+        text-align: center;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 1.5rem;
     }
 
     /* ==================== Responsive ==================== */
-    @media (max-width: 575px) {
-        .hero {
-            min-height: 320px;
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
         }
 
         .search-card {
-            margin: 0 12px;
+            margin: 0 15px;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+
+        .cta-subtitle {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-section {
+            min-height: 400px;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .search-section {
+            margin-top: -60px;
         }
     }
 </style>
 
-<!-- ==================== Contenido principal ==================== -->
-<header class="hero text-center" style="background: url('<%= asset_path('portada.jpg') %>') center/cover no-repeat">
+<!-- ==================== Hero Section ==================== -->
+<section class="hero-section">
   <div class="container">
-    <h1 class="display-5 fw-bold">Encuentra tu hospedaje ideal</h1>
-    <p class="lead mb-4">Busca hoteles, hostales, departamentos y más — compara precios y ofertas.</p>
+    <div class="hero-content">
+      <h1 class="hero-title">Encuentra tu hospedaje ideal</h1>
+      <p class="hero-subtitle">Descubre hoteles, resorts y alojamientos únicos — compara precios y encuentra las mejores ofertas</p>
+    </div>
   </div>
-</header>
+</section>
 
-<!-- Floating search card -->
-<section class="container">
-  <div class="card search-card mx-auto p-3 position-relative">
-    <section class="search-hotels bg-white p-3">
-      <form action="/hotels/search_results" method="get" class="row g-3 align-items-end justify-content-center">
-
-        <!-- Ciudad -->
+<!-- ==================== Search Section ==================== -->
+<section class="search-section">
+  <div class="container">
+    <div class="search-card">
+      <form action="/hotels/search_results" method="get" class="search-form row g-3 align-items-end">
+        <!-- Destino -->
         <div class="col-md-3">
-          <label class="form-label fw-semibold">Ciudad</label>
-          <input type="text" name="city" class="form-control" placeholder="Ej: Quito, Cuenca...">
+          <label class="form-label">Destino</label>
+          <div class="input-icon">
+            <i class="bi bi-geo-alt"></i>
+            <input type="text" name="city" class="form-control" placeholder="Ej: Quito, Cuenca...">
+          </div>
         </div>
 
         <!-- Fechas -->
-        <div class="col-md-4">
-          <label class="form-label fw-semibold">Fechas</label>
+        <div class="col-md-3">
+          <label class="form-label">Fechas de estadía</label>
           <div class="input-icon">
             <i class="bi bi-calendar-range"></i>
-            <input type="text" id="dateRange" name="date_range" class="form-control date-input" placeholder="Seleccionar fechas">
+            <input type="text" id="dateRange" name="date_range" class="form-control" placeholder="Seleccionar fechas">
           </div>
         </div>
 
         <!-- Huéspedes -->
         <div class="col-md-3">
-          <label class="form-label fw-semibold d-block">Huéspedes</label>
-          <button id="guestsSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
-            <i class="bi bi-people me-2"></i> Seleccionar
+          <label class="form-label">Huéspedes y habitaciones</label>
+          <button id="guestsSummaryBtn" type="button" class="guests-btn" data-bs-toggle="modal" data-bs-target="#guestsModal">
+            <i class="bi bi-people me-2"></i> <span id="guestsText">2 adultos · 0 niños · 1 habitación</span>
           </button>
         </div>
 
         <!-- Botón Buscar -->
-        <div class="col-md-2 d-grid">
-          <button type="submit" class="btn btn-primary btn-lg">Buscar</button>
+        <div class="col-md-3 d-grid">
+          <button type="submit" class="search-btn">
+            <i class="bi bi-search me-2"></i> Buscar
+          </button>
         </div>
-
       </form>
-    </section>
+    </div>
   </div>
 </section>
 
 <!-- ==================== Modal Huéspedes ==================== -->
 <div class="modal fade" id="guestsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 shadow">
+    <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-bold">Selecciona los huéspedes</h5>
+        <h5 class="modal-title">Selecciona los huéspedes</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span>Adultos</span>
-          <div class="input-group" style="width: 140px;">
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', -1)">-</button>
-            <input type="text" id="adults" name="adults" class="form-control text-center" value="2" readonly>
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', 1)">+</button>
+        <div class="guest-control">
+          <div class="guest-label">Adultos</div>
+          <div class="guest-counter">
+            <button type="button" class="counter-btn" onclick="updateGuests('adults', -1)">-</button>
+            <span id="adults" class="counter-value">2</span>
+            <button type="button" class="counter-btn" onclick="updateGuests('adults', 1)">+</button>
           </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span>Niños</span>
-          <div class="input-group" style="width: 140px;">
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', -1)">-</button>
-            <input type="text" id="children" name="children" class="form-control text-center" value="0" readonly>
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', 1)">+</button>
+        <div class="guest-control">
+          <div class="guest-label">Niños</div>
+          <div class="guest-counter">
+            <button type="button" class="counter-btn" onclick="updateGuests('children', -1)">-</button>
+            <span id="children" class="counter-value">0</span>
+            <button type="button" class="counter-btn" onclick="updateGuests('children', 1)">+</button>
           </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-          <span>Habitaciones</span>
-          <div class="input-group" style="width: 140px;">
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', -1)">-</button>
-            <input type="text" id="rooms" name="rooms" class="form-control text-center" value="1" readonly>
-            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', 1)">+</button>
+        <div class="guest-control">
+          <div class="guest-label">Habitaciones</div>
+          <div class="guest-counter">
+            <button type="button" class="counter-btn" onclick="updateGuests('rooms', -1)">-</button>
+            <span id="rooms" class="counter-value">1</span>
+            <button type="button" class="counter-btn" onclick="updateGuests('rooms', 1)">+</button>
           </div>
         </div>
-
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal" onclick="applyGuests()">Aplicar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="applyGuests()">Aplicar</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ==================== Hoteles Destacados ==================== -->
+<section class="featured-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Hoteles Destacados</h2>
+      <p class="section-subtitle">Los alojamientos mejor calificados por nuestros huéspedes</p>
+    </div>
+    <div class="row g-4">
+      <% @hotels.each do |hotel| %>
+        <div class="col-md-4">
+          <div class="hotel-card">
+            <div class="position-relative">
+              <% if hotel.images.attached? %>
+                <%= image_tag hotel.images.first, class: "hotel-card-img", alt: hotel.establishment.name %>
+              <% else %>
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" class="hotel-card-img" alt="<%= hotel.establishment.name %>">
+              <% end %>
+              <span class="hotel-badge">Destacado</span>
+            </div>
+            <div class="hotel-card-body">
+              <h5 class="hotel-card-title"><%= hotel.establishment.name %></h5>
+              <div class="hotel-card-type"><%= hotel.hotel_type&.humanize || "Hotel" %></div>
+              <div class="hotel-card-location">
+                <i class="bi bi-geo-alt"></i>
+                <%= hotel.establishment.city&.name || "Ubicación no especificada" %>
+              </div>
+              <div class="hotel-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+                <span>4.5</span>
+              </div>
+              <div class="hotel-price">$120</div>
+              <div class="hotel-price-note">por noche • impuestos incluidos</div>
+              <div class="hotel-features">
+                <span class="feature-tag">WiFi</span>
+                <span class="feature-tag">Piscina</span>
+                <span class="feature-tag">Spa</span>
+              </div>
+              <%= link_to "Ver Detalles", hotel_path(hotel), class: "hotel-btn" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Categorías de Hoteles ==================== -->
+<section class="categories-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Tipos de Alojamiento</h2>
+      <p class="section-subtitle">Encuentra el estilo perfecto para tu viaje</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-6 col-md-3">
+        <div class="category-card">
+          <div class="category-icon">
+            <i class="bi bi-building"></i>
+          </div>
+          <div class="category-title">Hoteles</div>
+          <div class="category-count"><%= Hotel.where(hotel_type: 'conventional').count %> opciones</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="category-card">
+          <div class="category-icon">
+            <i class="bi bi-house-door"></i>
+          </div>
+          <div class="category-title">Resorts</div>
+          <div class="category-count"><%= Hotel.count %> resorts</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="category-card">
+          <div class="category-icon">
+            <i class="bi bi-tree"></i>
+          </div>
+          <div class="category-title">Ecolodges</div>
+          <div class="category-count"><%= Hotel.count %> opciones</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="category-card">
+          <div class="category-icon">
+            <i class="bi bi-water"></i>
+          </div>
+          <div class="category-title">Playas</div>
+          <div class="category-count"><%= Hotel.count %> alojamientos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Beneficios ==================== -->
+<section class="benefits-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="text-white">¿Por qué reservar con nosotros?</h2>
+      <p class="text-white-50">La mejor experiencia para encontrar tu alojamiento perfecto</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="bi bi-currency-dollar"></i>
+          </div>
+          <h5 class="benefit-title">Mejores Precios</h5>
+          <p class="benefit-text">Garantía del mejor precio comparando entre cientos de opciones</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h5 class="benefit-title">Reservas Seguras</h5>
+          <p class="benefit-text">Tu información protegida con encriptación de última generación</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h5 class="benefit-title">Cancelación Flexible</h5>
+          <p class="benefit-text">Políticas flexibles de cancelación sin costos adicionales</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            <i class="bi bi-star"></i>
+          </div>
+          <h5 class="benefit-title">Reseñas Verificadas</h5>
+          <p class="benefit-text">Opiniones reales de huéspedes que han visitado los hoteles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Destinos Populares ==================== -->
+<section class="destinations-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Destinos Populares</h2>
+      <p class="section-subtitle">Descubre hoteles en las ubicaciones más buscadas</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-6 col-md-3">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=600&q=80" class="destination-img" alt="Quito">
+          <div class="destination-overlay">
+            <h5 class="destination-name">Quito</h5>
+            <div class="destination-count"><%= Hotel.count %> hoteles</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=600&q=80" class="destination-img" alt="Cuenca">
+          <div class="destination-overlay">
+            <h5 class="destination-name">Cuenca</h5>
+            <div class="destination-count"><%= Hotel.count %> hoteles</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1565763815647-59db7d57f9e7?auto=format&fit=crop&w=600&q=80" class="destination-img" alt="Guayaquil">
+          <div class="destination-overlay">
+            <h5 class="destination-name">Guayaquil</h5>
+            <div class="destination-count"><%= Hotel.count %> hoteles</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80" class="destination-img" alt="Galápagos">
+          <div class="destination-overlay">
+            <h5 class="destination-name">Galápagos</h5>
+            <div class="destination-count"><%= Hotel.count %> hoteles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Testimonios ==================== -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Lo que dicen nuestros huéspedes</h2>
+      <p class="section-subtitle">Experiencias reales de viajeros que han confiado en nosotros</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <p class="testimonial-text">"Excelente experiencia, reservé en minutos y el hotel superó mis expectativas. La atención fue increíble y las instalaciones impecables."</p>
+          <div class="testimonial-author">María González</div>
+          <div class="testimonial-hotel">Se hospedó en Quito Royal</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <p class="testimonial-text">"Muy fácil de usar y las fotos de los hoteles son fieles a la realidad. Definitivamente volveré a usar la plataforma para mis próximos viajes."</p>
+          <div class="testimonial-author">Carlos Rodríguez</div>
+          <div class="testimonial-hotel">Se hospedó en Cuenca Paradise</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <p class="testimonial-text">"Pude cancelar sin costo y reservar otro hotel en segundos. La flexibilidad que ofrecen es invaluable para viajeros frecuentes."</p>
+          <div class="testimonial-author">Sofía López</div>
+          <div class="testimonial-hotel">Se hospedó en Galápagos Resort</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CTA Final ==================== -->
+<section class="cta-section">
+  <div class="container">
+    <h2 class="cta-title">¿Listo para tu próxima estadía?</h2>
+    <p class="cta-subtitle">Encuentra alojamientos increíbles al mejor precio en los destinos más espectaculares</p>
+    <%= link_to "Explorar Hoteles", hotels_path, class: "cta-btn" %>
+  </div>
+</section>
+
 <!-- ==================== Scripts ==================== -->
-<!-- Librerías necesarias -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // ==================== Flatpickr modo rango en español ====================
+        // Flatpickr para selección de fechas
         flatpickr("#dateRange", {
             mode: "range",
-            dateFormat: "d-m-Y", // formato más común en español
+            dateFormat: "d-m-Y",
             minDate: "today",
-            locale: "es", // activa idioma español
-            rangeSeparator: " a ", // reemplaza 'to' por 'a'
+            locale: "es",
+            rangeSeparator: " a ",
             onClose: function (selectedDates) {
                 if (selectedDates.length === 2 && selectedDates[1] < selectedDates[0]) {
                     alert("La fecha de salida no puede ser menor que la de entrada.");
@@ -305,208 +1034,35 @@
             }
         });
 
-        // ==================== Huéspedes ====================
-        window.updateGuests = function (type, change) {
-            const input = document.getElementById(type);
-            let value = parseInt(input.value) + change;
-            if (type === 'adults' || type === 'rooms') {
-                if (value < 1) value = 1;
-            } else if (value < 0) value = 0;
-            input.value = value;
-        }
-
-        window.applyGuests = function () {
-            const adults = document.getElementById("adults").value;
-            const children = document.getElementById("children").value;
-            const rooms = document.getElementById("rooms").value;
-
-            let summary = `${adults} adulto${adults != 1 ? "s" : ""}`;
-            if (children > 0) summary += ` · ${children} niño${children != 1 ? "s" : ""}`;
-            summary += ` · ${rooms} habitación${rooms != 1 ? "es" : ""}`;
-
-            document.getElementById("guestsSummaryBtn").innerHTML = `<i class="bi bi-people me-2"></i> ${summary}`;
-        }
+        // Inicializar texto de huéspedes
+        updateGuestsText();
     });
+
+    // Funciones para manejo de huéspedes
+    window.updateGuests = function (type, change) {
+        const element = document.getElementById(type);
+        let value = parseInt(element.textContent) + change;
+
+        if (type === 'adults' || type === 'rooms') {
+            if (value < 1) value = 1;
+        } else if (value < 0) value = 0;
+
+        element.textContent = value;
+    }
+
+    window.applyGuests = function () {
+        updateGuestsText();
+    }
+
+    function updateGuestsText() {
+        const adults = document.getElementById("adults").textContent;
+        const children = document.getElementById("children").textContent;
+        const rooms = document.getElementById("rooms").textContent;
+
+        let text = `${adults} adulto${adults != 1 ? "s" : ""}`;
+        if (children > 0) text += ` · ${children} niño${children != 1 ? "s" : ""}`;
+        text += ` · ${rooms} habitación${rooms != 1 ? "es" : ""}`;
+
+        document.getElementById("guestsText").textContent = text;
+    }
 </script>
-
-
-<!-- Ofertas destacadas -->
-<section class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0">Ofertas destacadas</h2>
-    <a href="#" class="small">Ver todas</a>
-  </div>
-  <div class="row gx-3 gy-4">
-    <div class="col-sm-6 col-md-4">
-      <div class="card offer-card h-100">
-        <img src="https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=1200&q=60" class="card-img-top" alt="">
-        <div class="card-body">
-          <h5 class="card-title mb-1">Hotel Ejemplo 1</h5>
-          <p class="small text-muted mb-2">Ciudad — Excelente · 4.5</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="fw-bold">AR$ 12.345</div>
-              <small class="text-muted">impuestos incluidos</small>
-            </div>
-            <a class="btn btn-outline-primary btn-sm" href="#">Reservar</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-6 col-md-4">
-      <div class="card offer-card h-100">
-        <img src="https://images.unsplash.com/photo-1542317854-3f2be6f7e7b4?auto=format&fit=crop&w=1200&q=60" class="card-img-top" alt="">
-        <div class="card-body">
-          <h5 class="card-title mb-1">Resort Muestra</h5>
-          <p class="small text-muted mb-2">Playa — Muy bueno · 4.2</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="fw-bold">AR$ 8.999</div>
-              <small class="text-muted">descuento aplicado</small>
-            </div>
-            <a class="btn btn-outline-primary btn-sm" href="#">Reservar</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-6 col-md-4">
-      <div class="card offer-card h-100">
-        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=60" class="card-img-top" alt="">
-        <div class="card-body">
-          <h5 class="card-title mb-1">Alojamiento Central</h5>
-          <p class="small text-muted mb-2">Centro — Muy bueno · 4.3</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="fw-bold">AR$ 6.750</div>
-              <small class="text-muted">política cancelable</small>
-            </div>
-            <a class="btn btn-outline-primary btn-sm" href="#">Reservar</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Categorías -->
-<section class="container my-5">
-  <h3 class="h6 mb-3">Descubre tu nuevo hospedaje favorito</h3>
-  <div class="row feature-grid">
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card p-3"><i class="bi bi-house-door display-6 text-primary"></i>
-        <div class="mt-2">Apart-hoteles</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card p-3"><i class="bi bi-water display-6 text-primary"></i>
-        <div class="mt-2">Vista al mar</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card p-3"><i class="bi bi-star display-6 text-primary"></i>
-        <div class="mt-2">Todo incluido</div>
-      </div>
-    </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card p-3"><i class="bi bi-tree display-6 text-primary"></i>
-        <div class="mt-2">Cabañas</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Por qué elegirnos -->
-<section class="why-us text-center">
-  <div class="container">
-    <h2 class="h5 fw-bold mb-4">¿Por qué reservar con nosotros?</h2>
-    <div class="row g-4">
-      <div class="col-md-3">
-        <div class="icon-circle"><i class="bi bi-currency-dollar fs-3 text-primary"></i></div>
-        <h6 class="fw-semibold">Mejores precios garantizados</h6>
-        <p class="small text-muted">Comparamos entre cientos de sitios para ofrecerte el mejor precio.</p>
-      </div>
-      <div class="col-md-3">
-        <div class="icon-circle"><i class="bi bi-shield-check fs-3 text-primary"></i></div>
-        <h6 class="fw-semibold">Reservas seguras</h6>
-        <p class="small text-muted">Tu información está protegida con encriptación avanzada.</p>
-      </div>
-      <div class="col-md-3">
-        <div class="icon-circle"><i class="bi bi-clock-history fs-3 text-primary"></i></div>
-        <h6 class="fw-semibold">Cancelación flexible</h6>
-        <p class="small text-muted">Elige alojamientos con políticas de cambio sin penalización.</p>
-      </div>
-      <div class="col-md-3">
-        <div class="icon-circle"><i class="bi bi-geo-alt fs-3 text-primary"></i></div>
-        <h6 class="fw-semibold">Millones de destinos</h6>
-        <p class="small text-muted">Explora hospedajes en más de 190 países alrededor del mundo.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Destinos populares -->
-<section class="container my-5">
-  <h2 class="h5 mb-4 text-center">Destinos más buscados</h2>
-  <div class="row g-3 text-center">
-    <div class="col-6 col-md-3">
-      <div class="destination-card">
-        <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=600&q=60" alt="Buenos Aires" class="w-100">
-        <p class="mt-2">Buenos Aires</p></div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="destination-card">
-        <img src="https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=600&q=60" alt="Bariloche" class="w-100">
-        <p class="mt-2">Bariloche</p></div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="destination-card">
-        <img src="https://images.unsplash.com/photo-1565763815647-59db7d57f9e7?auto=format&fit=crop&w=600&q=60" alt="Mendoza" class="w-100">
-        <p class="mt-2">Mendoza</p></div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="destination-card">
-        <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=60" alt="Córdoba" class="w-100">
-        <p class="mt-2">Córdoba</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- Opiniones -->
-<section class="container my-5">
-  <h2 class="h5 mb-4 text-center">Lo que dicen nuestros clientes</h2>
-  <div class="row g-4">
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <p>"Excelente experiencia, reservé en minutos y el hotel superó mis expectativas."</p>
-        <div class="fw-semibold mt-2">María G.</div>
-        <small class="text-muted">Viajó a Bariloche</small>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <p>"Muy fácil de usar y las fotos de los alojamientos son fieles a la realidad."</p>
-        <div class="fw-semibold mt-2">Jorge L.</div>
-        <small class="text-muted">Viajó a Mendoza</small>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="testimonial-card">
-        <p>"Pude cancelar sin costo y reservar otro lugar en segundos. Recomendadísimo."</p>
-        <div class="fw-semibold mt-2">Sofía R.</div>
-        <small class="text-muted">Viajó a Córdoba</small>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA final -->
-<section class="container my-5">
-  <div class="cta">
-    <h2 class="fw-bold mb-3">¿Listo para tu próxima aventura?</h2>
-    <p class="mb-4">Encuentra hospedajes increíbles al mejor precio. ¡Empieza a planificar hoy mismo!</p>
-    <a href="#" class="btn btn-light btn-lg px-4">Buscar ahora</a>
-  </div>
-</section>
-
