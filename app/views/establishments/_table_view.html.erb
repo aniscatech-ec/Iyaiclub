@@ -1,3 +1,17 @@
+<% if user_signed_in? %>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <!--    <h1 class="mb-0">Establecimientos</h1>-->
+    <% if current_user.administrador? %>
+
+      <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
+        <i class="fa-solid fa-plus"></i> Nuevo
+      <% end %>
+    <% end %>
+
+
+  </div>
+
+<% end %>
 <table class="table table-hover align-middle shadow-sm">
   <thead class="table-light">
   <tr>

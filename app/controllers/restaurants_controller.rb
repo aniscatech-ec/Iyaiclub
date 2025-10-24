@@ -2,7 +2,7 @@
 class RestaurantsController < ApplicationController
   before_action :set_restaurant, only: [:show, :edit, :update, :destroy]
   # layout "dashboard"
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :search_results]
 
   def index
     @cities = City.all
@@ -14,6 +14,79 @@ class RestaurantsController < ApplicationController
       @restaurants = @restaurants.joins(:establishment)
                                  .where(establishments: { city_id: params[:city] })
     end
+
+    if params[:cuisine_type].present?
+      @restaurants = @restaurants.where(cuisine_type: params[:cuisine_type])
+    end
+
+    # 🟢 Filtro por categoría del restaurante
+    if params[:restaurant_type].present?
+      @restaurants = @restaurants.where(restaurant_type: params[:restaurant_type])
+    end
+
+
+
+    if params[:min_price].present? && params[:max_price].present?
+      @restaurants = @restaurants.joins(:establishment)
+                                 .where(establishments: { price_per_night: params[:min_price]..params[:max_price] })
+    elsif params[:min_price].present?
+      @restaurants = @restaurants.joins(:establishment)
+                                 .where("establishments.price_per_night >= ?", params[:min_price])
+    elsif params[:max_price].present?
+      @restaurants = @restaurants.joins(:establishment)
+                                 .where("establishments.price_per_night <= ?", params[:max_price])
+    end
+
+    if params[:amenities].present?
+      establishment_ids = Establishment.joins(:amenities)
+                                       .where(amenities: { id: params[:amenities] })
+                                       .group("establishments.id")
+                                       .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
+                                       .pluck(:id)
+      @restaurants = @restaurants.where(establishment_id: establishment_ids)
+    end
+
+    @restaurants = @restaurants.page(params[:page]).per(9)
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
+  end
+  def search_results
+    @cities = City.all
+    @amenities = Amenity.all
+    @restaurants = Restaurant.includes(establishment: [:city, :amenities])
+
+    # Filtros
+    # if params[:city].present?
+    #   @restaurants = @restaurants.joins(:establishment)
+    #                              .where(establishments: { city_id: params[:city] })
+    # end
+    if params[:city].present?
+      if params[:city].to_s.match?(/^\d+$/)
+        # Si es un número → úsalo como ID
+        puts "ID*******************************"
+        @restaurants = @restaurants.joins(:establishment).where(establishments: { city_id: params[:city] })
+        @city_name = City.find_by(id: params[:city])&.name
+      else
+        # Si es texto → buscar por nombre
+        # Si es un texto => usar
+        puts "TEXTO *******************************"
+
+        @city_name = params[:city]
+        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
+        if city
+          @restaurants = @restaurants.joins(:establishment).where(establishments: { city_id: city.id })
+        else
+          @restaurants = @restaurants.none
+        end
+      end
+    end
+
+
+
+
 
     if params[:cuisine_type].present?
       @restaurants = @restaurants.where(cuisine_type: params[:cuisine_type])

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["form", "resultsContainer", "spinner", "resultsCount", "minInput", "maxInput", "minLabel", "maxLabel"]
+    static targets = ["form", "resultsContainer", "spinner", "resultsCount", "minInput", "maxInput", "minLabel", "maxLabel","cityAlert"]
 
     connect() {
         this.updatePriceLabels()
@@ -58,7 +58,7 @@ export default class extends Controller {
         const queryString = new URLSearchParams(formData).toString()
         this.toggleLoading(true)
 
-        fetch(`/restaurants?${queryString}`, { headers: { "Accept": "text/html" } })
+        fetch(`/restaurants/search_results?${queryString}`, { headers: { "Accept": "text/html" } })
             .then(res => res.text())
             .then(html => {
                 const doc = new DOMParser().parseFromString(html, "text/html")
@@ -69,6 +69,10 @@ export default class extends Controller {
                     this.resultsContainerTarget.innerHTML = newList.innerHTML
                     this.animateCards()
                     this.setupPaginationLinks()
+                    const newAlert = doc.getElementById("city-alert")
+                    if (newAlert && this.hasCityAlertTarget) {
+                        this.cityAlertTarget.innerHTML = newAlert.innerHTML
+                    }
                 }
                 if (newCount) this.resultsCountTarget.textContent = newCount.textContent
             })

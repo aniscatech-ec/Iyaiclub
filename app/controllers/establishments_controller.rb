@@ -299,7 +299,8 @@ class EstablishmentsController < ApplicationController
         # redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
         redirect_to search_results_hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
       when "restaurante"
-        redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+        # redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+        redirect_to search_results_restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
       end
 
     if params[:city].present?

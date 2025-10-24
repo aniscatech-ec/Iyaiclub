@@ -4,7 +4,11 @@ Rails.application.routes.draw do
   get "/terms_and_conditions", to: "terms_and_conditions#index"
   get "/policy_and_privacy", to: "policy_and_privacy#index"
 
-  resources :restaurants
+  resources :restaurants do
+    collection do
+      get :search_results
+    end
+  end
   # resources :countries do
   #   resources :provinces do
   #     resources :cities, only: [:index, :new, :create]

@@ -83,18 +83,40 @@
           </div>
 
           <!-- Comodidades -->
+<!--          <div class="col-12">-->
+<!--            <label class="form-label fw-semibold text-secondary">Comodidades</label>-->
+<!--            <div class="scrollable-amenities border rounded p-2">-->
+              <%# @amenities.each do |amenity| %>
+<!--                <div class="form-check mb-2">-->
+<!--                  <input type="checkbox" name="amenities[]" value="<%#= amenity.id %>"-->
+<!--                         id="amenity_<%#= amenity.id %>" class="form-check-input border-success">-->
+<!--                  <label for="amenity_<%#= amenity.id %>" class="form-check-label small"><%#= amenity.name %></label>-->
+<!--                </div>-->
+              <%# end %>
+<!--            </div>-->
+<!--          </div>-->
+
           <div class="col-12">
             <label class="form-label fw-semibold text-secondary">Comodidades</label>
             <div class="scrollable-amenities border rounded p-2">
               <% @amenities.each do |amenity| %>
+                <% checked = params[:amenities]&.include?(amenity.id.to_s) %>
                 <div class="form-check mb-2">
-                  <input type="checkbox" name="amenities[]" value="<%= amenity.id %>"
-                         id="amenity_<%= amenity.id %>" class="form-check-input border-success">
-                  <label for="amenity_<%= amenity.id %>" class="form-check-label small"><%= amenity.name %></label>
+                  <input type="checkbox"
+                         name="amenities[]"
+                         value="<%= amenity.id %>"
+                         id="amenity_<%= amenity.id %>"
+                         class="form-check-input border-success"
+                         data-establishments-target="input"
+                         <%= "checked" if checked %>>
+                  <label for="amenity_<%= amenity.id %>" class="form-check-label small">
+                    <%= amenity.name %>
+                  </label>
                 </div>
               <% end %>
             </div>
           </div>
+
         </form>
       </section>
     </div>
