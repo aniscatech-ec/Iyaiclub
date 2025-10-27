@@ -602,7 +602,7 @@
     <div class="search-card">
       <form action="/restaurants/search_results" method="get" class="search-form row g-3 align-items-end">
         <!-- Ubicación -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label">Ubicación</label>
           <div class="input-icon">
             <i class="bi bi-geo-alt"></i>
@@ -611,7 +611,7 @@
         </div>
 
         <!-- Tipo de cocina -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label">Tipo de cocina</label>
           <select name="cuisine_type" class="filter-select">
             <option value="">Todas las cocinas</option>
@@ -624,8 +624,21 @@
           </select>
         </div>
 
+        <!-- Tipo de restaurante - NUEVO CAMPO -->
+        <div class="col-md-3">
+          <label class="form-label">Categoría</label>
+          <select name="restaurant_type" class="filter-select">
+            <option value="">Todas las categorías</option>
+            <option value="Familiar" <%= "selected" if params[:restaurant_type] == "Familiar" %>>Familiar</option>
+            <option value="Gourmet" <%= "selected" if params[:restaurant_type] == "Gourmet" %>>Gourmet</option>
+            <option value="Bar" <%= "selected" if params[:restaurant_type] == "Bar" %>>Bar</option>
+            <option value="Café" <%= "selected" if params[:restaurant_type] == "Café" %>>Café</option>
+            <option value="Comida rápida" <%= "selected" if params[:restaurant_type] == "Comida rápida" %>>Comida rápida</option>
+          </select>
+        </div>
+
         <!-- Botón Buscar -->
-        <div class="col-md-4 d-grid">
+        <div class="col-md-3 d-grid">
           <button type="submit" class="search-btn">
             <i class="bi bi-search me-2"></i> Buscar Restaurantes
           </button>
