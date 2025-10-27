@@ -1,3 +1,11 @@
+<!--<style>-->
+<!--    #map {-->
+<!--        height: 400px;-->
+<!--        border-radius: 12px;-->
+<!--        margin-top: 1rem;-->
+<!--    }-->
+
+<!--</style>-->
 <div class="container my-5">
 
   <!-- Encabezado principal -->
@@ -43,7 +51,26 @@
       <p><i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= hotel.establishment.country.name if hotel.establishment.country %></p>
       <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= hotel.establishment.province.name if hotel.establishment.province %></p>
       <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= hotel.establishment.city.name if hotel.establishment.city %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Ubicación:</strong> <%= hotel.establishment.address if hotel.establishment.address %></p>
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Dirección:</strong> <%= hotel.establishment.address if hotel.establishment.address %></p>
+
+
+      <!-- Mapa -->
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Longitude:</strong> <%= hotel.establishment.longitude if hotel.establishment.longitude %></p>
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Latitude:</strong> <%= hotel.establishment.latitude if hotel.establishment.latitude %></p>
+
+      <!-- Mapa -->
+      <% if hotel.establishment.latitude.present? && hotel.establishment.longitude.present? %>
+        <div id="map"
+             data-controller="map-show"
+             data-map-show-lat-value="<%= hotel.establishment.latitude %>"
+             data-map-show-lng-value="<%= hotel.establishment.longitude %>"
+             style="height: 400px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1);">
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">Coordenadas del hotel no registradas, el mapa no puede mostrarse.</p>
+      <% end %>
+
+
 
     </div>
   </div>

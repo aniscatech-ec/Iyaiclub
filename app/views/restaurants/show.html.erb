@@ -61,6 +61,23 @@
         <i class="fas fa-signature me-2 text-secondary"></i><strong>Ubicación:</strong> <%= @restaurant.establishment.address if @restaurant.establishment.address %>
       </p>
 
+      <!-- Mapa -->
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Longitude:</strong> <%= @restaurant.establishment.longitude if @restaurant.establishment.longitude %></p>
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Latitude:</strong> <%= @restaurant.establishment.latitude if @restaurant.establishment.latitude %></p>
+
+      <!-- Mapa -->
+      <% if @restaurant.establishment.latitude.present? && @restaurant.establishment.longitude.present? %>
+        <div id="map"
+             data-controller="map-show"
+             data-map-show-lat-value="<%= @restaurant.establishment.latitude %>"
+             data-map-show-lng-value="<%= @restaurant.establishment.longitude %>"
+             style="height: 400px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1);">
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">Coordenadas del hotel no registradas, el mapa no puede mostrarse.</p>
+      <% end %>
+
+
     </div>
   </div>
 

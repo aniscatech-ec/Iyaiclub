@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import L from "leaflet"
 
 // Conecta este controlador a <div data-controller="map">
 export default class extends Controller {
@@ -6,59 +7,58 @@ export default class extends Controller {
 
     connect() {
         console.log("Connected to the map")
+        console.log("Leaflet cargado ✅")
 
-        const initMap = () => {
-            if (typeof L === "undefined") {
-                console.log("Leaflet todavía no está listo, reintentando...")
-                setTimeout(initMap, 100) // reintenta cada 100ms
-                return
-            }
+        const defaultLat = -0.180653
+        const defaultLng = -78.467834
 
-            console.log("Leaflet cargado ✅")
+        const map = L.map("map").setView([defaultLat, defaultLng], 13)
 
-            const defaultLat = -0.180653
-            const defaultLng = -78.467834
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap contributors"
+        }).addTo(map)
 
-            const map = L.map("map").setView([defaultLat, defaultLng], 13)
+        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map)
 
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                attribution: "&copy; OpenStreetMap contributors",
-            }).addTo(map)
+        const updateLatLng = (lat, lng) => {
+            this.latitudeTarget.value = lat.toFixed(6)
+            this.longitudeTarget.value = lng.toFixed(6)
+        }
 
-            let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map)
+        updateLatLng(defaultLat, defaultLng)
 
-            const updateLatLng = (lat, lng) => {
-                document.getElementById("latitude").value = lat
-                document.getElementById("longitude").value = lng
-            }
+        marker.on("moveend", (e) => {
+            const { lat, lng } = e.target.getLatLng()
+            updateLatLng(lat, lng)
+        })
 
-            updateLatLng(defaultLat, defaultLng)
+        map.on("click", (e) => {
+            marker.setLatLng(e.latlng)
+            updateLatLng(e.latlng.lat, e.latlng.lng)
+        })
 
-            // Cuando se mueve el marcador
-            marker.on("moveend", (e) => {
-                const { lat, lng } = e.target.getLatLng()
-                updateLatLng(lat, lng)
-            })
-
-            // Cuando se hace click en el mapa
-            map.on("click", (e) => {
-                marker.setLatLng(e.latlng)
-                updateLatLng(e.latlng.lat, e.latlng.lng)
-            })
-
-            // Detectar ubicación del usuario
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
+        // 🌍 Detectar ubicación real del usuario
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
                     const lat = pos.coords.latitude
                     const lng = pos.coords.longitude
+                    console.log(`Ubicación detectada: ${lat}, ${lng}`)
+
                     map.setView([lat, lng], 15)
                     marker.setLatLng([lat, lng])
                     updateLatLng(lat, lng)
-                })
-            }
-        }
 
-        // Llamamos al init
-        initMap()
+                    // Agrega un círculo alrededor de tu ubicación (opcional)
+                    L.circle([lat, lng], { radius: 100, color: "blue", fillOpacity: 0.2 }).addTo(map)
+                },
+                (err) => {
+                    console.warn("No se pudo obtener ubicación: ", err.message)
+                }
+            )
+        } else {
+            console.warn("Geolocalización no soportada por este navegador.")
+        }
     }
 }

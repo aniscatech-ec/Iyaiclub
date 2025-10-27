@@ -87,6 +87,25 @@
           <%= e.text_field :address, class: "form-control" %>
         </div>
 
+        <div data-controller="map-edit"
+             data-map-edit-lat-value="<%= @restaurant.establishment.latitude %>"
+             data-map-edit-lng-value="<%= @restaurant.establishment.longitude %>">
+
+          <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <%= e.label :latitude, "Latitud" %>
+              <%= e.text_field :latitude, class: "form-control", data: { map_edit_target: "latitude" }, readonly: true %>
+            </div>
+            <div class="col-md-6">
+              <%= e.label :longitude, "Longitud" %>
+              <%= e.text_field :longitude, class: "form-control", data: { map_edit_target: "longitude" }, readonly: true %>
+            </div>
+          </div>
+        </div>
+
+
       <% end %>
 
       <div class="mb-3">
