@@ -2,6 +2,7 @@ class HotelsController < ApplicationController
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
   # layout "dashboard"
   before_action :authenticate_user!, except: [:index, :show, :search_results]
+  before_action :merge_bed_configuration, only: [:create, :update]
 
   # def index
   #   @hotels = Hotel.all
@@ -272,26 +273,57 @@ class HotelsController < ApplicationController
   #   end
   # end
 
+  # def new
+  #   @hotel = Hotel.new
+  #   @hotel.build_establishment.build_legal_info
+  #   @hotel.establishment.galleries.build.gallery_images.build
+  #
+  #   @unit = @hotel.units.build
+  #
+  #   # Construir precios por temporada si no existen
+  #   if @unit.unit_prices.empty?
+  #     @unit.unit_prices.build(season: "high", price: 0.0) # Temporada alta
+  #     @unit.unit_prices.build(season: "low", price: 0.0) # Temporada baja
+  #   end
+  #
+  #   # Construir disponibilidad de los próximos 7 días
+  #   if @unit.unit_availabilities.empty?
+  #     # (Date.today..Date.today + 7).each do |day|
+  #     #   @unit.unit_availabilities.build(date: day, available: true)
+  #     # end
+  #     @unit.unit_availabilities.build
+  #   end
+  #   if params[:user_id].present?
+  #     @affiliate = User.find(params[:user_id])
+  #     @hotel.establishment.user = @affiliate
+  #     # @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
+  #   elsif current_user&.afiliado?
+  #     # si es un afiliado que crea su propio hotel
+  #     @hotel.establishment.user = current_user
+  #     # @hotel.establishment.legal_info.legal_representative ||= current_user.name
+  #   end
+  # end
   def new
     @hotel = Hotel.new
     @hotel.build_establishment.build_legal_info
     @hotel.establishment.galleries.build.gallery_images.build
 
+    # 🔹 Inicializar una unidad base (opcional)
+    if @hotel.units.empty?
+      unit = @hotel.units.build
+      unit.unit_prices.build(season: "high", price: 0.0)
+      unit.unit_prices.build(season: "low", price: 0.0)
+      unit.unit_availabilities.build
+    end
+
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @hotel.establishment.user = @affiliate
-      # @hotel.establishment.legal_info.legal_representative ||= @affiliate.name
     elsif current_user&.afiliado?
-      # si es un afiliado que crea su propio hotel
       @hotel.establishment.user = current_user
-      # @hotel.establishment.legal_info.legal_representative ||= current_user.name
     end
   end
 
-  def edit
-    @hotel.build_establishment unless @hotel.establishment
-    @hotel.establishment.build_legal_info unless @hotel.establishment.legal_info
-  end
 
   # def create
   #   @hotel = Hotel.new(hotel_params)
@@ -330,6 +362,32 @@ class HotelsController < ApplicationController
     end
 
     if @hotel.save
+      Rails.logger.debug "|-----------------------------------------------------|"
+      Rails.logger.debug "🔎 unit_params: #{params.inspect}"
+      Rails.logger.debug "|-----------------------------------------------------|"
+      # availabilities_json = params[:unit][:availabilities_json]
+
+
+
+      # if availabilities_json.present?
+      #   availabilities = JSON.parse(unit_params[:availabilities_json])
+      #   availabilities.each do |a|
+      #     @unit.unit_availabilities.find_or_initialize_by(date: a["date"]).update!(available: a["available"])
+      #   end
+      # end
+      # Procesar disponibilidad para cada unidad
+      # @hotel.units.each do |unit|
+      #   if params[:unit] && params[:unit][:availabilities_json].present?
+      #     availabilities = JSON.parse(availabilities_json) rescue []
+      #     availabilities.each do |a|
+      #       unit.unit_availabilities.create!(
+      #         date: a["date"],
+      #         available: a["available"]
+      #       )
+      #     end
+      #   end
+      # end
+
       redirect_to @hotel, notice: "Hotel creado correctamente."
     else
       render :new
@@ -351,29 +409,64 @@ class HotelsController < ApplicationController
   #     render :edit
   #   end
   # end
+  def edit
+    @hotel.build_establishment unless @hotel.establishment
+    @hotel.establishment.build_legal_info unless @hotel.establishment.legal_info
+  end
 
   def update
-    if @hotel.update(hotel_params)
-      # Procesar uploads adicionales por galería (si el formulario envió archivos)
-      if params[:gallery_uploads].present?
-        params[:gallery_uploads].each do |gallery_id, files|
-          next if files.blank?
-
-          gallery = Gallery.find_by(id: gallery_id.to_i)
-          next unless gallery
-
-          files.each do |uploaded_file|
-            # crea un GalleryImage por cada archivo (ajusta según tu modelo)
-            gallery.gallery_images.create(file: uploaded_file)
+    ActiveRecord::Base.transaction do
+      if @hotel.update(hotel_params)
+        # Procesar uploads de galerías
+        if params[:gallery_uploads].present?
+          params[:gallery_uploads].each do |gallery_id, files|
+            next if files.blank?
+            gallery = Gallery.find_by(id: gallery_id.to_i)
+            next unless gallery
+            files.each { |file| gallery.gallery_images.create(file: file) }
           end
         end
-      end
 
-      redirect_to @hotel, notice: "Hotel actualizado correctamente."
-    else
-      render :edit
+        # Actualizar unidades y disponibilidad
+        @hotel.units.each do |unit|
+          # 1️⃣ Actualiza atributos de la unidad
+          unit_params = hotel_params[:units_attributes]&.values&.find { |u| u[:id].to_i == unit.id }
+          unit.update(unit_params.except(:unit_prices_attributes)) if unit_params
+
+          # 2️⃣ Actualiza precios de la unidad
+          if unit_params && unit_params[:unit_prices_attributes]
+            unit_params[:unit_prices_attributes].each do |_, price_attrs|
+              price = unit.unit_prices.find(price_attrs[:id])
+              price.update(price_attrs)
+            end
+          end
+
+          # 3️⃣ Actualiza disponibilidad desde params[:unit][:availabilities_json]
+          if params[:unit] && params[:unit][:availabilities_json].present?
+            begin
+              availabilities = JSON.parse(params[:unit][:availabilities_json])
+              availabilities.each do |a|
+                unit.unit_availabilities.find_or_initialize_by(date: a["date"])
+                    .update!(available: a["available"])
+              end
+            rescue JSON::ParserError => e
+              Rails.logger.error "Error parseando availabilities_json para unidad #{unit.id}: #{e.message}"
+            end
+          end
+        end
+
+        redirect_to @hotel, notice: "Hotel actualizado correctamente."
+      else
+        raise ActiveRecord::Rollback
+      end
     end
+  rescue => e
+    Rails.logger.error "Error en update: #{e.message}"
+    flash.now[:alert] = "Ocurrió un error al actualizar el hotel."
+    render :edit
   end
+
+
 
   def remove_image
     gi = GalleryImage.find(params[:remove_gallery_image_id])
@@ -441,8 +534,34 @@ class HotelsController < ApplicationController
           gallery_images_attributes: [:id, :file, :_destroy]
         ]
 
+      ],
+      units_attributes: [
+        :id,
+        :unit_type,
+        :capacity,
+        :base_price,
+        :availabilities_json, # <<--- agregar esto
+        bed_configuration: {},
+        unit_prices_attributes: [:id, :season, :price, :_destroy],
+        unit_availabilities_attributes: [:id, :date, :available, :_destroy]
       ]
     )
   end
 
+  def merge_bed_configuration
+    return unless params[:hotel] && params[:hotel][:units_attributes]
+
+    params[:hotel][:units_attributes].each do |_, unit_params|
+      keys = unit_params.delete(:bed_configuration_keys) || []
+      values = unit_params.delete(:bed_configuration_values) || []
+
+      bed_config = {}
+      keys.each_with_index do |k, i|
+        next if k.blank? || values[i].blank?
+        bed_config[k] = values[i].to_i
+      end
+
+      unit_params[:bed_configuration] = bed_config
+    end
+  end
 end

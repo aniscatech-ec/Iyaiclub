@@ -247,6 +247,108 @@
   </div>
 
 
+  <%= f.fields_for :units do |e| %>
+    <div class="card p-3 mb-4 shadow-sm">
+      <h4 class="mb-3">Información general</h4>
+
+      <div class="mb-3">
+        <%= e.label :unit_type, "Tipo de unidad" %>
+        <%= e.text_field :unit_type, class: "form-control" %>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <%= e.label :capacity, "Capacidad de personas" %>
+          <%= e.number_field :capacity, class: "form-control" %>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <%= e.label :base_price, "Precio base por noche (USD)" %>
+          <%= e.number_field :base_price, step: 0.01, class: "form-control" %>
+        </div>
+      </div>
+
+      <!-- Distribución de camas -->
+      <div data-controller="bed">
+        <label class="form-label">Distribución de camas</label>
+
+        <div data-bed-target="container">
+          <% if e.object.bed_configuration.present? %>
+            <% e.object.bed_configuration.each do |key, value| %>
+              <div class="row mb-2 bed-row">
+                <div class="col-md-6">
+                  <%= text_field_tag "unit[bed_configuration_keys][]", key, class: "form-control" %>
+                </div>
+                <div class="col-md-4">
+                  <%= number_field_tag "unit[bed_configuration_values][]", value, min: 0, class: "form-control" %>
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                  <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <template data-bed-target="template">
+          <div class="row mb-2 bed-row">
+            <div class="col-md-6">
+              <input type="text" name="unit[bed_configuration_keys][]" class="form-control" placeholder="Tipo de cama">
+            </div>
+            <div class="col-md-4">
+              <input type="number" name="unit[bed_configuration_values][]" class="form-control" min="0" placeholder="Cantidad">
+            </div>
+            <div class="col-md-2 d-flex align-items-center">
+              <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>
+            </div>
+          </div>
+        </template>
+
+        <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="bed#addField">
+          + Agregar cama
+        </button>
+      </div>
+    </div>
+
+    <!-- Tarifas -->
+    <div class="card p-3 mb-4 shadow-sm">
+      <h4 class="mb-3">Tarifas por temporada</h4>
+      <table class="table table-bordered">
+        <thead class="table-light">
+        <tr>
+          <th>Temporada</th>
+          <th>Precio (USD)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%= e.fields_for :unit_prices do |price_form| %>
+          <tr>
+            <td><%= price_form.select :season, [["Alta", "high"], ["Baja", "low"], ["Especial", "special"]], {}, class: "form-control" %></td>
+            <td><%= price_form.number_field :price, step: 0.01, class: "form-control" %></td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Disponibilidad -->
+    <div class="card p-3 mb-4 shadow-sm"
+         data-controller="fullcalendar-edit"
+         data-fullcalendar-edit-events-value="<%= e.object.unit_availabilities.select(:date, :available).map { |u|
+           {
+             id: u.date.to_s,
+             title: u.available ? 'Disponible' : 'No disponible',
+             start: u.date.to_s,
+             color: u.available ? 'green' : 'red'
+           }
+         }.to_json %>">
+      <div data-fullcalendar-edit-target="calendar"></div>
+      <%= hidden_field_tag 'unit[availabilities_json]', '', id: 'unit_availabilities_json' %>
+    </div>
+
+  <% end %>
+
+
 
   <!-- Galerías existentes -->
   <%= f.fields_for :establishment do |e| %>

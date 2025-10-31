@@ -1,11 +1,13 @@
 class Hotel < ApplicationRecord
   belongs_to :establishment
 
+  has_many :units, dependent: :destroy
+
   delegate :user,
            :images,
            :establishment_amenities,
            :amenities,
-           :units,
+           # :units,
            :galleries,
            :payment_methods,
            :legal_info,
@@ -13,4 +15,5 @@ class Hotel < ApplicationRecord
            :pricing_policy,
            to: :establishment
   accepts_nested_attributes_for :establishment
+  accepts_nested_attributes_for :units, allow_destroy: true
 end

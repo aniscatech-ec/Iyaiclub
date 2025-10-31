@@ -1,16 +1,9 @@
-<!--<style>-->
-<!--    #map {-->
-<!--        height: 400px;-->
-<!--        border-radius: 12px;-->
-<!--        margin-top: 1rem;-->
-<!--    }-->
-
-<!--</style>-->
 <div class="container my-5">
-
   <!-- Encabezado principal -->
   <div class="text-center mb-5">
-    <h1 class="fw-bold text-primary"><i class="fas fa-hotel me-2"></i><%= hotel.establishment.name %></h1>
+    <h1 class="fw-bold text-primary">
+      <i class="fas fa-hotel me-2"></i><%= hotel.establishment.name %>
+    </h1>
     <p class="text-muted">Detalles completos del hotel</p>
   </div>
 
@@ -20,45 +13,43 @@
       <i class="fas fa-file-contract me-2"></i> Datos legales y contacto
     </div>
     <div class="card-body">
-      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón social:</strong> <%= hotel.establishment.legal_info.business_name %></p>
-      <p><i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC / identificación fiscal:</strong> <%= hotel.establishment.legal_info.document_number %></p>
-      <p><i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= hotel.establishment.legal_info.legal_representative %></p>
-      <p><i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= hotel.establishment.legal_info.contact_email %></p>
-      <p><i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= hotel.establishment.legal_info.contact_phone %></p>
+      <p><strong>Razón social:</strong> <%= hotel.establishment.legal_info.business_name %></p>
+      <p><strong>RUC / identificación fiscal:</strong> <%= hotel.establishment.legal_info.document_number %></p>
+      <p><strong>Responsable:</strong> <%= hotel.establishment.legal_info.legal_representative %></p>
+      <p><strong>Email:</strong> <%= hotel.establishment.legal_info.contact_email %></p>
+      <p><strong>Teléfono:</strong> <%= hotel.establishment.legal_info.contact_phone %></p>
     </div>
   </div>
 
-  <!-- Perfil del hotel -->
+  <!-- Perfil -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-success text-white fw-bold">
       <i class="fas fa-info-circle me-2"></i> Perfil del hotel
     </div>
     <div class="card-body">
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Nombre público:</strong> <%= hotel.establishment.name %></p>
-      <p><i class="fas fa-tag me-2 text-secondary"></i><strong>Tipo de hotel:</strong>
+      <p><strong>Nombre público:</strong> <%= hotel.establishment.name %></p>
+      <p><strong>Tipo de hotel:</strong>
         <span class="badge bg-info text-dark"><%= hotel_type_label(hotel.hotel_type) %></span>
       </p>
-      <p><i class="fas fa-star text-warning me-2"></i><strong>Categoría:</strong>
+      <p><strong>Categoría:</strong>
         <span class="fs-5 text-warning"><%= "⭐" * hotel.stars.to_i %></span>
       </p>
     </div>
   </div>
+
+  <!-- Ubicación -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-warning text-white fw-bold">
-      <i class="fas fa-info-circle me-2"></i> Ubicación
+      <i class="fas fa-map-marker-alt me-2"></i> Ubicación
     </div>
     <div class="card-body">
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= hotel.establishment.country.name if hotel.establishment.country %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= hotel.establishment.province.name if hotel.establishment.province %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= hotel.establishment.city.name if hotel.establishment.city %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Dirección:</strong> <%= hotel.establishment.address if hotel.establishment.address %></p>
+      <p><strong>País:</strong> <%= hotel.establishment.country&.name %></p>
+      <p><strong>Provincia:</strong> <%= hotel.establishment.province&.name %></p>
+      <p><strong>Ciudad:</strong> <%= hotel.establishment.city&.name %></p>
+      <p><strong>Dirección:</strong> <%= hotel.establishment.address %></p>
+      <p><strong>Latitud:</strong> <%= hotel.establishment.latitude %></p>
+      <p><strong>Longitud:</strong> <%= hotel.establishment.longitude %></p>
 
-
-      <!-- Mapa -->
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Longitude:</strong> <%= hotel.establishment.longitude if hotel.establishment.longitude %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Latitude:</strong> <%= hotel.establishment.latitude if hotel.establishment.latitude %></p>
-
-      <!-- Mapa -->
       <% if hotel.establishment.latitude.present? && hotel.establishment.longitude.present? %>
         <div id="map"
              data-controller="map-show"
@@ -67,11 +58,8 @@
              style="height: 400px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1);">
         </div>
       <% else %>
-        <p class="text-muted fst-italic">Coordenadas del hotel no registradas, el mapa no puede mostrarse.</p>
+        <p class="text-muted fst-italic">Coordenadas del hotel no registradas.</p>
       <% end %>
-
-
-
     </div>
   </div>
 
@@ -91,24 +79,109 @@
                   <%= image_tag gi.file.variant(resize_to_limit: [200, 200]),
                                 class: "img-thumbnail shadow-sm rounded" %>
                 </div>
-              <% else %>
-                <p class="text-muted fst-italic">Sin imágenes</p>
               <% end %>
             <% end %>
           </div>
         <% end %>
       <% else %>
-        <p class="text-muted fst-italic">No hay imágenes registradas en la galería.</p>
+        <p class="text-muted fst-italic">No hay imágenes registradas.</p>
       <% end %>
     </div>
   </div>
 
+  <!-- Unidades -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-info text-white fw-bold">
+      <i class="fas fa-bed me-2"></i> Unidades del hotel
+    </div>
+    <div class="card-body">
+      <% if hotel.units.any? %>
+        <% hotel.units.each do |unit| %>
+          <div class="border rounded p-3 mb-5 shadow-sm">
+            <h5 class="fw-bold"><i class="fas fa-door-open me-2 text-primary"></i><%= unit.unit_type %></h5>
+            <p><strong>Capacidad:</strong> <%= unit.capacity %> personas</p>
 
+            <p><strong>Distribución de camas:</strong></p>
+            <% if unit.bed_configuration.present? %>
+              <ul>
+                <% unit.bed_configuration.each do |tipo, cantidad| %>
+                  <li><%= cantidad %> × <%= tipo %></li>
+                <% end %>
+              </ul>
+            <% else %>
+              <p class="text-muted fst-italic">No especificada</p>
+            <% end %>
+
+            <p><strong>Precio base:</strong> $<%= number_with_precision(unit.base_price, precision: 2) %> / noche</p>
+
+            <% if unit.unit_prices.any? %>
+              <h6 class="mt-3 text-secondary"><i class="fas fa-calendar me-2"></i>Tarifas por temporada</h6>
+              <ul>
+                <% unit.unit_prices.each do |p| %>
+                  <li><%= p.season.capitalize %>: $<%= number_with_precision(p.price, precision: 2) %></li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <!-- Disponibilidad (calendario) -->
+            <!-- Disponibilidad (calendario) -->
+            <div class="mt-4">
+              <h6 class="text-secondary mb-2">
+                <i class="fas fa-calendar-check me-2"></i>Disponibilidad
+              </h6>
+
+              <div class="card p-3 shadow-sm"
+                   data-controller="fullcalendar-show"
+                   data-fullcalendar-show-events-value="<%= unit.unit_availabilities
+                                                                .select(:date, :available)
+                                                                .map { |u| { title: u.available ? 'Disponible' : 'Ocupado',
+                                                                             start: u.date.to_s,
+                                                                             color: u.available ? 'green' : 'red' } }
+                                                                .to_json %>">
+                <div class="calendar-container" style="height: 400px;"></div>
+              </div>
+
+            </div>
+            <% availabilities = unit.unit_availabilities.order(:date) %>
+            <% if availabilities.any? %>
+              <div class="mt-3">
+                <h6 class="fw-bold text-secondary">
+                  <i class="fas fa-list me-2"></i> Lista de disponibilidad
+                </h6>
+                <ul class="list-group small">
+                  <% availabilities.each do |a| %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <span><%= a.date.strftime("%A, %d de %B de %Y") %></span>
+                      <span class="<%= a.available ? 'text-success' : 'text-danger' %> fw-bold">
+                        <%= a.available ? "Disponible" : "Ocupado" %>
+                      </span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% else %>
+              <p class="text-muted fst-italic mt-2">No hay fechas de disponibilidad registradas.</p>
+            <% end %>
+
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted fst-italic">No hay unidades registradas para este hotel.</p>
+      <% end %>
+    </div>
+  </div>
 
   <!-- Botones -->
   <div class="text-center mt-4">
     <%= link_to "Editar", edit_hotel_path(hotel), class: "btn btn-primary me-2 px-4" %>
     <%= link_to "Volver", hotels_path, class: "btn btn-outline-secondary px-4" %>
   </div>
-
 </div>
+<style>
+    .calendar-container {
+        min-height: 400px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+</style>

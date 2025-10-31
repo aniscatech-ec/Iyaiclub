@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_11_212350) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_28_050935) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -246,11 +246,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_11_212350) do
     t.string "unit_type"
     t.integer "capacity"
     t.decimal "base_price", precision: 10
-    t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "bed_configuration"
-    t.index ["establishment_id"], name: "index_units_on_establishment_id"
+    t.bigint "hotel_id", null: false
+    t.index ["hotel_id"], name: "index_units_on_hotel_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -300,7 +300,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_11_212350) do
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
-  add_foreign_key "units", "establishments"
+  add_foreign_key "units", "hotels"
   add_foreign_key "users", "cities"
   add_foreign_key "users", "countries"
   add_foreign_key "verifications", "establishments"

@@ -19,13 +19,13 @@ class Establishment < ApplicationRecord
   has_one :legal_info, dependent: :destroy
   has_one :verification, dependent: :destroy
 
-  has_many :units, dependent: :destroy
+  # has_many :units, dependent: :destroy
   has_many :payment_methods, dependent: :destroy
   has_many :galleries, dependent: :destroy
 
   accepts_nested_attributes_for :legal_info
   accepts_nested_attributes_for :verification
-  accepts_nested_attributes_for :units
+  # accepts_nested_attributes_for :units
   accepts_nested_attributes_for :payment_methods
   # accepts_nested_attributes_for :galleries
   accepts_nested_attributes_for :galleries, allow_destroy: true

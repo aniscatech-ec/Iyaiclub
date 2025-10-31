@@ -1,5 +1,7 @@
 class Unit < ApplicationRecord
-  belongs_to :establishment
+  # belongs_to :establishment
+  # belongs_to :establishment, optional: true   # temporalmente opcional
+  belongs_to :hotel, optional: true
   # store :seasonal_prices, accessors: [:high, :low], coder: JSON
   has_many :unit_prices, dependent: :destroy
   has_many :unit_availabilities, dependent: :destroy
