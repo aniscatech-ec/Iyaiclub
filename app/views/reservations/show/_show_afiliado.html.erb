@@ -1,0 +1,14 @@
+<h1>Reservas de <%= unit.unit_type %></h1>
+
+<div
+  data-controller="reservation-show-calendar"
+  data-reservation-show-calendar-hotel-id-value="<%= hotel.id %>"
+  data-reservation-show-calendar-unit-id-value="<%= unit.id %>"
+  data-reservation-show-calendar-reservations-value="<%= reservations.to_json(only: [:id, :start_date, :end_date], include: { user: { only: [:email] } }) %>">
+
+  <div id="calendar"></div>
+</div>
+
+<div class="mt-4">
+  <%= link_to "⬅ Volver a las unidades", hotel_unit_path(hotel, unit.id), class: "btn btn-secondary" %>
+</div>

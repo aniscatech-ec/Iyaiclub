@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_28_050935) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -201,6 +201,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_28_050935) do
     t.index ["country_id"], name: "index_provinces_on_country_id"
   end
 
+  create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.bigint "user_id", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.string "status"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_reservations_on_unit_id"
+    t.index ["user_id"], name: "index_reservations_on_user_id"
+  end
+
   create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "cuisine_type"
@@ -297,6 +310,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_28_050935) do
   add_foreign_key "payment_methods", "establishments"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "reservations", "units"
+  add_foreign_key "reservations", "users"
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"

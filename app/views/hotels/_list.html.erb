@@ -40,7 +40,7 @@
               <h6 class="fw-bold text-dark mb-0 flex-grow-1 me-2"><%= est.name %></h6>
               <div class="text-success">
                 <i class="bi bi-star-fill"></i>
-                <span class="fw-bold">4.5</span>
+                <span class="fw-bold">4.5/5</span>
               </div>
             </div>
 
@@ -85,10 +85,7 @@
                 <!-- Servicios adicionales estáticos para hoteles -->
                 <% if est.amenities.empty? %>
                   <span class="badge bg-light text-dark border small">
-                    <i class="bi bi-wifi text-primary me-1"></i>WiFi
-                  </span>
-                  <span class="badge bg-light text-dark border small">
-                    <i class="bi bi-cup-hot text-info me-1"></i>Desayuno
+                    <i class="bi bi-ban text-primary me-1"></i>No existen registros
                   </span>
                 <% end %>
                 <% if est.amenities.size > 3 %>

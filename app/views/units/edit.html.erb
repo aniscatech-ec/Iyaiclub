@@ -1,0 +1,47 @@
+<div class="container my-5">
+  <h2 class="mb-4 text-primary fw-bold">Editar unidad</h2>
+
+  <div class="card shadow-sm p-4">
+    <%= form_with model: [@hotel, @unit] do |form| %>
+      <% if @unit.errors.any? %>
+        <div class="alert alert-danger">
+          <h5><%= pluralize(@unit.errors.count, "error") %> impidieron guardar la unidad:</h5>
+          <ul>
+            <% @unit.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= form.label :unit_type, "Tipo de unidad", class: "form-label" %>
+          <%= form.text_field :unit_type, class: "form-control" %>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <%= form.label :capacity, "Capacidad", class: "form-label" %>
+          <%= form.number_field :capacity, class: "form-control", min: 1 %>
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <%= form.label :base_price, "Precio base (USD)", class: "form-label" %>
+          <%= form.number_field :base_price, step: 0.01, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :bed_configuration, "Configuración de camas", class: "form-label" %>
+        <%= form.text_area :bed_configuration, rows: 3, class: "form-control", placeholder: '{"doble": 1, "simple": 2}' %>
+        <div class="form-text">Introduce un JSON válido (ej. {"doble":1,"simple":2})</div>
+      </div>
+
+
+      <div class="mt-4 d-flex gap-2">
+        <%= form.submit "Guardar cambios", class: "btn btn-primary" %>
+        <%= link_to "Cancelar", hotel_path(@hotel), class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<!--<div-->
+<!--  data-controller="unit-availability"-->
+<!--  data-unit-availability-hotel-id-value="<%#= @unit.hotel.id %>"-->
+<!--  data-unit-availability-unit-id-value="<%#= @unit.id %>">-->
+<!--  <div id="calendar"></div>-->
+<!--</div>-->
+
+<h2>Disponibilidad de <%= @unit.id %></h2>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th>Fecha</th>
+    <th>Estado</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @unit.unit_availabilities.order(:date).each do |a| %>
+    <tr>
+      <td><%= a.date %></td>
+      <td><%= a.available ? "Disponible" : "Ocupado" %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<%= link_to "Agregar disponibilidad", new_hotel_unit_unit_availability_path(@unit.hotel, @unit), class: "btn btn-primary" %>

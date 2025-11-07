@@ -1,0 +1,36 @@
+<h1>Editar reserva</h1>
+
+<div
+  data-controller="reservation-edit-calendar"
+  data-reservation-edit-calendar-disabled-ranges-value="<%= @reserved_ranges.to_json %>"
+  data-reservation-edit-calendar-initial-start-value="<%= @reservation.start_date %>"
+  data-reservation-edit-calendar-initial-end-value="<%= @reservation.end_date %>"
+  data-reservation-edit-calendar-hotel-id-value="<%= @unit.hotel.id %>"
+  data-reservation-edit-calendar-unit-id-value="<%= @unit.id %>">
+
+  <div id="calendar"></div>
+
+  <p id="selection-message" class="mt-3 text-muted">
+    📅 Puedes modificar las fechas de la reserva seleccionando nuevas fechas.
+  </p>
+
+  <%= form_with(model: [@unit.hotel, @unit, @reservation], local: true) do |f| %>
+    <div class="mt-4">
+      <div class="mb-3">
+        <%= f.label :user_id, "Turista:" %>
+        <%= f.collection_select :user_id, User.where(role: "turista"), :id, :email,
+                                { prompt: "Selecciona un turista" },
+                                class: "form-select" %>
+      </div>
+
+      <%= f.hidden_field :start_date, id: "edit_start_date", value: @reservation.start_date %>
+      <%= f.hidden_field :end_date, id: "edit_end_date", value: @reservation.end_date %>
+
+      <div class="mt-3">
+        <%= f.submit "Actualizar reserva",
+                     id: "edit-submit-btn",
+                     class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

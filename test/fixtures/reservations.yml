@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  unit: one
+  user: one
+  start_date: 2025-11-04
+  end_date: 2025-11-04
+  status: MyString
+  notes: MyText
+
+two:
+  unit: two
+  user: two
+  start_date: 2025-11-04
+  end_date: 2025-11-04
+  status: MyString
+  notes: MyText

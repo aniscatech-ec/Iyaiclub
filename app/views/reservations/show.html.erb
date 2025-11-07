@@ -1,0 +1,27 @@
+<!--<h1>Reservas de <%#= @unit.unit_type %></h1>-->
+
+<!--<div-->
+<!--  data-controller="reservation-show-calendar"-->
+<!--  data-reservation-show-calendar-hotel-id-value="<%#= @hotel.id %>"-->
+<!--  data-reservation-show-calendar-unit-id-value="<%#= @unit.id %>"-->
+<!--  data-reservation-show-calendar-reservations-value="<%#= @reservations.to_json(only: [:id, :start_date, :end_date], include: { user: { only: [:email] } }) %>">-->
+
+<!--  <div id="calendar"></div>-->
+<!--</div>-->
+
+<!--<div class="mt-4">-->
+  <%#= link_to "⬅ Volver a las unidades", hotel_unit_path(@hotel, @unit.id), class: "btn btn-secondary" %>
+<!--</div>-->
+
+<% if user_signed_in? %>
+  <% if current_user.administrador? %>
+    <%= render "reservations/show/show_admin", unit: @unit, hotel: @hotel, reservations: @reservations %>
+  <% elsif current_user.afiliado? %>
+    <%= render "reservations/show/show_afiliado", unit: @unit, hotel: @hotel, reservations: @reservations %>
+  <% elsif current_user.turista? %>
+    <%= render "reservations/show/show_turista", unit: @unit, hotel: @hotel, reservations: @reservations %>
+  <% end %>
+<% else %>
+  <%= render "reservations/show/show_turista", unit: @unit, hotel: @hotel, reservations: @reservations %>
+
+<% end %>

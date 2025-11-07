@@ -6,8 +6,8 @@
         --accent-color: #8db596;
         --light-bg: #f8f9fa;
         --dark-text: #2c3e50;
-        --shadow: 0 4px 12px rgba(0,0,0,0.1);
-        --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
         --gradient-primary: linear-gradient(135deg, #2d5016 0%, #4a7c3a 100%);
         --gradient-hero: linear-gradient(135deg, rgba(45, 80, 22, 0.85) 0%, rgba(0, 0, 0, 0.7) 100%);
         --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -49,7 +49,7 @@
         font-size: 3.5rem;
         font-weight: 800;
         margin-bottom: 1.5rem;
-        text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
         line-height: 1.1;
     }
 
@@ -57,7 +57,7 @@
         font-size: 1.3rem;
         margin-bottom: 2.5rem;
         opacity: 0.95;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         font-weight: 400;
     }
 
@@ -69,12 +69,12 @@
     }
 
     .search-card {
-        background: rgba(255,255,255,0.98);
+        background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(20px);
         border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255,255,255,0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .search-form .form-label {
@@ -408,7 +408,7 @@
     }
 
     .benefit-item:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
         transform: translateY(-5px);
     }
 
@@ -416,7 +416,7 @@
         width: 80px;
         height: 80px;
         margin: 0 auto 1.5rem;
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -427,7 +427,7 @@
     }
 
     .benefit-item:hover .benefit-icon {
-        background: rgba(255,255,255,0.2);
+        background: rgba(255, 255, 255, 0.2);
         transform: scale(1.1);
     }
 
@@ -483,7 +483,7 @@
         left: 0;
         width: 100%;
         padding: 1.5rem;
-        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
         color: white;
     }
 
@@ -602,14 +602,14 @@
 
     .cta-btn:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     /* ==================== Modal Huéspedes ==================== */
     .modal-content {
         border-radius: 20px;
         border: none;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     }
 
     .modal-header {
@@ -793,7 +793,8 @@
   <div class="container">
     <div class="hero-content">
       <h1 class="hero-title">Encuentra tu hospedaje ideal</h1>
-      <p class="hero-subtitle">Descubre hoteles, resorts y alojamientos únicos — compara precios y encuentra las mejores ofertas</p>
+      <p class="hero-subtitle">Descubre hoteles, resorts y alojamientos únicos — compara precios y encuentra las mejores
+        ofertas</p>
     </div>
   </div>
 </section>
@@ -908,11 +909,20 @@
         <div class="col-md-4">
           <div class="hotel-card">
             <div class="position-relative">
-              <% if hotel.images.attached? %>
-                <%= image_tag hotel.images.first, class: "hotel-card-img", alt: hotel.establishment.name, loading: "lazy" %>
+              <% est = hotel.establishment %>
+              <% if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                <% first_image = est.galleries.first.gallery_images.first.file %>
+                <%= image_tag first_image, class: "card-img-top hotel-image", alt: hotel.establishment.name, loading: "lazy", height: 200 if first_image.attached? %>
               <% else %>
-                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" class="hotel-card-img" alt="<%= hotel.establishment.name %>" loading="lazy">
+                <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 200 %>
+
               <% end %>
+
+              <%# if hotel.images.attached? %>
+              <%#= image_tag hotel.images.first, class: "hotel-card-img", alt: hotel.establishment.name, loading: "lazy" %>
+              <%# else %>
+              <!--                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" class="hotel-card-img" alt="<%#= hotel.establishment.name %>" loading="lazy">-->
+              <%# end %>
               <span class="hotel-badge">Destacado</span>
             </div>
             <div class="hotel-card-body">
@@ -923,19 +933,22 @@
                 <%= hotel.establishment.city&.name || "Ubicación no especificada" %>
               </div>
               <div class="hotel-rating">
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-fill"></i>
-                <i class="bi bi-star-half"></i>
-                <span>4.5</span>
+                <div class="text-warning mb-1">
+                  <% stars = hotel.stars || 0 %>
+                  <% 5.times do |i| %>
+                    <i class="bi bi-star-fill <%= i < stars ? 'text-warning' : 'text-light' %>"></i>
+                  <% end %>
+                  <small class="text-muted ms-1">(<%= stars %> estrellas)</small>
+                </div>
               </div>
-              <div class="hotel-price">$120</div>
+              <div class="hotel-price">$<%= hotel.establishment.price_per_night %></div>
               <div class="hotel-price-note">por noche • impuestos incluidos</div>
               <div class="hotel-features">
-                <span class="feature-tag">WiFi</span>
-                <span class="feature-tag">Piscina</span>
-                <span class="feature-tag">Spa</span>
+                <% hotel.establishment.amenities.limit(3).each do |amenity| %>
+                  <span class="badge bg-light text-dark border small">
+                    <i class="bi bi-check-circle text-success me-1"></i><%= amenity.name %>
+                  </span>
+                <% end %>
               </div>
               <%= link_to "Ver Detalles", hotel_path(hotel), class: "hotel-btn" %>
             </div>
@@ -1100,21 +1113,24 @@
     <div class="row g-4">
       <div class="col-md-4">
         <div class="testimonial-card">
-          <p class="testimonial-text">"Excelente experiencia, reservé en minutos y el hotel superó mis expectativas. La atención fue increíble y las instalaciones impecables."</p>
+          <p class="testimonial-text">"Excelente experiencia, reservé en minutos y el hotel superó mis expectativas. La
+            atención fue increíble y las instalaciones impecables."</p>
           <div class="testimonial-author">María González</div>
           <div class="testimonial-hotel">Se hospedó en Quito Royal</div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="testimonial-card">
-          <p class="testimonial-text">"Muy fácil de usar y las fotos de los hoteles son fieles a la realidad. Definitivamente volveré a usar la plataforma para mis próximos viajes."</p>
+          <p class="testimonial-text">"Muy fácil de usar y las fotos de los hoteles son fieles a la realidad.
+            Definitivamente volveré a usar la plataforma para mis próximos viajes."</p>
           <div class="testimonial-author">Carlos Rodríguez</div>
           <div class="testimonial-hotel">Se hospedó en Cuenca Paradise</div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="testimonial-card">
-          <p class="testimonial-text">"Pude cancelar sin costo y reservar otro hotel en segundos. La flexibilidad que ofrecen es invaluable para viajeros frecuentes."</p>
+          <p class="testimonial-text">"Pude cancelar sin costo y reservar otro hotel en segundos. La flexibilidad que
+            ofrecen es invaluable para viajeros frecuentes."</p>
           <div class="testimonial-author">Sofía López</div>
           <div class="testimonial-hotel">Se hospedó en Galápagos Resort</div>
         </div>

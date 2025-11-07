@@ -29,6 +29,13 @@ Rails.application.routes.draw do
     collection do
       get :search_results
     end
+    resources :units do
+      resources :reservations
+      resources :unit_availabilities do
+        post :toggle, on: :collection
+      end
+    end
+
   end
 
   resources :countries do
@@ -45,7 +52,6 @@ Rails.application.routes.draw do
   resources :cities do
     get :autocomplete, on: :collection
   end
-
 
   resources :plan_prices
   resources :subscriptions do
@@ -67,14 +73,14 @@ Rails.application.routes.draw do
 
   resources :establishments do
     collection do
-      get :choose_type  # pantalla de tarjetas
+      get :choose_type # pantalla de tarjetas
       get :select_affiliate
       post :create_type # crear el establecimiento según el tipo
       get :search_results
     end
     resources :establishment_steps
     member do
-      get :dashboard  # /establishments/:id/dashboard
+      get :dashboard # /establishments/:id/dashboard
     end
   end
   namespace :turista do

@@ -1,4 +1,5 @@
-<% @hotel=hotel%>
+<% @hotel = hotel %>
+
 <div class="container my-5">
   <!-- Encabezado principal -->
   <div class="text-center mb-5">
@@ -11,9 +12,10 @@
     </div>
   </div>
 
-    <!-- Perfil y datos legales -->
-    <div class="col mt-5">
-      <div class="card shadow-sm border-0">
+  <div class="row g-4">
+    <!-- Datos legales -->
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-primary text-white fw-bold">
           <i class="bi bi-building"></i> Datos legales
         </div>
@@ -32,8 +34,8 @@
     </div>
 
     <!-- Perfil del hotel -->
-    <div class="col mt-5">
-      <div class="card shadow-sm border-0">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 h-100">
         <div class="card-header bg-primary text-white fw-bold">
           <i class="bi bi-info-circle"></i> Perfil del hotel
         </div>
@@ -41,22 +43,21 @@
           <p><strong>Nombre público:</strong> <%= @hotel.establishment.name %></p>
           <p><strong>Tipo:</strong> <%= @hotel.hotel_type %></p>
           <p><strong>Categoría:</strong> <%= @hotel.stars %> estrellas</p>
-
-
         </div>
       </div>
     </div>
-  <div class="col mt-5">
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-primary text-white fw-bold">
-        <i class="bi bi-building"></i> Ubicación
-      </div>
-      <div class="card-body">
-          <p><strong>País:</strong> <%= @hotel.establishment.country.name if hotel.establishment.country %></p>
-          <p><strong>Provincia:</strong><%= @hotel.establishment.province.name if hotel.establishment.province %></p>
-          <p><strong>Ciudad:</strong> <%= @hotel.establishment.city.name if hotel.establishment.city %></p>
-          <p><strong>Ubicación:</strong> <%= @hotel.establishment.address if hotel.establishment.address %></p>
-      </div>
+  </div>
+
+  <!-- Ubicación -->
+  <div class="card shadow-sm border-0 mt-5">
+    <div class="card-header bg-primary text-white fw-bold">
+      <i class="bi bi-geo-alt"></i> Ubicación
+    </div>
+    <div class="card-body">
+      <p><strong>País:</strong> <%= @hotel.establishment.country&.name || "No especificado" %></p>
+      <p><strong>Provincia:</strong> <%= @hotel.establishment.province&.name || "No especificado" %></p>
+      <p><strong>Ciudad:</strong> <%= @hotel.establishment.city&.name || "No especificado" %></p>
+      <p><strong>Dirección:</strong> <%= @hotel.establishment.address.presence || "No especificada" %></p>
     </div>
   </div>
 
@@ -88,6 +89,37 @@
         </div>
       <% else %>
         <p class="text-muted fst-italic">No hay galerías registradas.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 🏨 Unidades disponibles -->
+  <div class="card shadow-sm border-0 mt-5">
+    <div class="card-header bg-success text-white fw-bold">
+      <i class="bi bi-door-open"></i> Unidades disponibles
+    </div>
+    <div class="card-body">
+      <% if @hotel.units.any? %>
+        <div class="row g-3">
+          <% @hotel.units.each do |unit| %>
+            <div class="col-md-4">
+              <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                  <h5 class="card-title text-primary fw-bold"><%= unit.unit_type %></h5>
+                  <p><strong>Capacidad:</strong> <%= unit.capacity %> personas</p>
+                  <p><strong>Precio por noche:</strong> $<%= unit.base_price %></p>
+                  <div class="text-end">
+                    <%= link_to "Ver disponibilidad",
+                                hotel_unit_reservations_path(@hotel, unit),
+                                class: "btn btn-outline-success btn-sm" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">No hay unidades registradas para este hotel.</p>
       <% end %>
     </div>
   </div>
