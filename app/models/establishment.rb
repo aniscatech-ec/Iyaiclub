@@ -19,6 +19,9 @@ class Establishment < ApplicationRecord
   has_one :legal_info, dependent: :destroy
   has_one :verification, dependent: :destroy
 
+  has_one :hotel, dependent: :destroy
+  has_one :restaurant, dependent: :destroy
+
   # has_many :units, dependent: :destroy
   has_many :payment_methods, dependent: :destroy
   has_many :galleries, dependent: :destroy

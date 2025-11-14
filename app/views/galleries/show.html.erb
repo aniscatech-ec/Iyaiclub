@@ -1,0 +1,78 @@
+<h2>Galería: <%= @gallery.name %></h2>
+<ul>
+  <li><%= link_to "Editar", edit_establishment_gallery_path(@gallery) %></li>
+  <li><%= link_to "Eliminar", establishment_gallery_path(@gallery), data: {
+    turbo_method: :delete,
+    turbo_confirm: "Are you sure?"
+  } %></li>
+</ul>
+
+
+<% if @gallery.gallery_images.any? %>
+  <div class="d-flex flex-wrap gap-3 mt-3">
+    <% @gallery.gallery_images.each do |image| %>
+      <%= link_to establishment_gallery_gallery_image_path(@gallery.establishment, @gallery, image) do %>
+<!--        <div class="position-relative">-->
+          <%# if image.file.attached? %>
+            <%#= image_tag image.file.variant(resize_to_limit: [200, 200]), class: "rounded shadow" %>
+          <%# else %>
+<!--            <div class="border bg-light text-center p-5 rounded">Sin imagen</div>-->
+          <%# end %>
+
+          <%# if image.is_cover %>
+<!--            <span class="badge bg-primary position-absolute top-0 start-0 m-1">Portada</span>-->
+          <%# end %>
+<!--        </div>-->
+        <div class="position-relative">
+          <% if image.file.attached? %>
+            <%= image_tag image.file.variant(resize_to_limit: [200, 200]), class: "rounded shadow" %>
+          <% else %>
+            <div class="border bg-light text-center p-5 rounded">Sin imagen</div>
+          <% end %>
+
+          <% if image.is_cover %>
+            <span class="badge bg-primary position-absolute top-0 start-0 m-1">Portada</span>
+          <% end %>
+
+          <%#= link_to "✕", establishment_gallery_gallery_image_path(@gallery.establishment, @gallery, image), data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta imagen?" }, class: "btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle" %>
+
+
+          <%#= link_to "x", [@gallery.establishment, @gallery, image], data: { turbo_method: :delete, turbo_confirm: "¿Seguro que deseas eliminar esta imagen?" }, class: "btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle" %>
+
+        </div>
+
+      <% end %>
+
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-muted mt-3">Aún no hay imágenes en esta galería.</p>
+<% end %>
+
+<hr>
+
+<!--<h4 class="mt-4">Agregar nueva imagen</h4>-->
+
+<%#= form_with(model: [@gallery.establishment, @gallery, GalleryImage.new], local: true) do |f| %>
+<!--  <div class="mb-3">-->
+    <%#= f.label :file, "Seleccionar imagen" %>
+    <%#= f.file_field :file, accept: "image/*", class: "form-control" %>
+<!--  </div>-->
+
+<!--  <div class="mb-3">-->
+    <%#= f.label :is_cover, "¿Es portada?" %>
+    <%#= f.check_box :is_cover %>
+<!--  </div>-->
+
+<!--    <div class="mb-3">-->
+  <%#= f.label :video_url, "URL de video (opcional)" %>
+  <%#= f.text_field :video_url, class: "form-control" %>
+<!--    </div>-->
+
+  <%#= f.submit "Subir imagen", class: "btn btn-success" %>
+<%# end %>
+
+
+
+
+<%= link_to "Volver", establishment_galleries_path(@gallery.establishment), class: "btn btn-secondary mt-3" %>

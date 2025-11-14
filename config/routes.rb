@@ -82,6 +82,13 @@ Rails.application.routes.draw do
     member do
       get :dashboard # /establishments/:id/dashboard
     end
+    resources :galleries do
+      resources :gallery_images do
+        member do
+          patch :set_cover   # ← agrega esta línea
+        end
+      end
+    end
   end
   namespace :turista do
     get "dashboard/index"
@@ -132,7 +139,7 @@ Rails.application.routes.draw do
       end
 
       # 👇 Aquí anidamos las suscripciones
-      resources :subscriptions, only: [:index, :new, :create]
+      # resources :subscriptions, only: [:index, :new, :create]
     end
   end
 

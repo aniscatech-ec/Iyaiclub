@@ -7,11 +7,28 @@
           <!-- Imagen principal con badges superpuestos -->
           <div class="position-relative">
             <% est = hotel.establishment %>
-            <% if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+            <%# if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+              <%# first_image = est.galleries.first.gallery_images.first.file %>
+              <%#= image_tag first_image, class: "card-img-top hotel-image", height: 200 if first_image.attached? %>
+            <%# else %>
+              <%#= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 200 %>
+            <%# end %>
+
+
+
+
+            <% cover_image = est.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
+
+            <% if cover_image&.attached? %>
+              <!-- Mostrar la portada -->
+              <%= image_tag cover_image, class: "card-img-top hotel-image", height: 300 %>
+            <% elsif est.galleries.any? && est.galleries.first.gallery_images.any? %>
+              <!-- Si no hay portada, usar la primera imagen -->
               <% first_image = est.galleries.first.gallery_images.first.file %>
-              <%= image_tag first_image, class: "card-img-top hotel-image", height: 200 if first_image.attached? %>
+              <%= image_tag first_image, class: "card-img-top hotel-image", height: 300 if first_image.attached? %>
             <% else %>
-              <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 200 %>
+              <!-- Si no hay imágenes -->
+              <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 300 %>
             <% end %>
 
             <!-- Badges superpuestos -->
@@ -104,8 +121,16 @@
                   Check-in: 15:00
                 </div>
                 <div class="col-6 text-end">
-                  <i class="bi bi-person me-1"></i>
-                  Hab. disponibles
+<!--                  Hab. disponibles-->
+                  <% if hotel.units.any? %>
+                    <div class="row g-3">
+<!--                      <i class="bi bi-person me-1"></i>-->
+                      <%= hotel.units.count %> habitaciones disponibles
+                    </div>
+                  <% else %>
+                    <p class="text-muted fst-italic">No hay habitaciones registradas para este hotel.</p>
+                  <% end %>
+
                 </div>
               </div>
             </div>
@@ -139,16 +164,16 @@
 <style>
     .hotel-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 1px solid rgba(0,0,0,0.08);
+        border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .hotel-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
     }
 
     .hotel-image {
-        object-fit: cover;
+        /*object-fit: cover;*/
         transition: transform 0.3s ease;
     }
 

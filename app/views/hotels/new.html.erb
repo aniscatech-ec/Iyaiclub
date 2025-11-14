@@ -199,6 +199,21 @@
       </div>
     </div>
 
+    <!-- Aquí Stimulus inyectará las nuevas galerías -->
+    <div id="galleries-container" data-gallery-target="container"></div>
+
+    <!-- Formulario para agregar nuevas galerías -->
+    <div class="card mb-4">
+      <div class="card-header fw-bold">Agregar galería</div>
+      <div class="card-body">
+        <input type="text" data-gallery-target="name" class="form-control mb-2" placeholder="Nombre de la galería">
+        <input type="file" data-gallery-target="files" multiple class="form-control mb-2">
+        <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
+      </div>
+    </div>
+
+
+
 
 
     <%= f.submit "Guardar", class: "btn btn-primary" %>
