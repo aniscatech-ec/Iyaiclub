@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_25_202417) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -158,6 +158,42 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
     t.index ["establishment_id"], name: "index_legal_infos_on_establishment_id"
   end
 
+  create_table "menu_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "menu_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.bigint "menu_category_id", null: false
+    t.string "name"
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2
+    t.string "image_url"
+    t.boolean "is_vegan"
+    t.boolean "is_vegetarian"
+    t.boolean "is_gluten_free"
+    t.boolean "is_special"
+    t.integer "spicy_level"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_category_id"], name: "index_menu_items_on_menu_category_id"
+    t.index ["restaurant_id"], name: "index_menu_items_on_restaurant_id"
+  end
+
+  create_table "menu_options", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "menu_item_id", null: false
+    t.string "name"
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_item_id"], name: "index_menu_options_on_menu_item_id"
+  end
+
   create_table "payment_methods", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "method_type"
     t.string "bank_name"
@@ -172,6 +208,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
     t.index ["establishment_id"], name: "index_payment_methods_on_establishment_id"
   end
 
+  create_table "payment_receipts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "subscription_id", null: false
+    t.integer "status"
+    t.bigint "user_id", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_payment_receipts_on_subscription_id"
+    t.index ["user_id"], name: "index_payment_receipts_on_user_id"
+  end
+
   create_table "plan_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "plan_type"
     t.integer "duration", default: 0
@@ -180,6 +227,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
     t.datetime "updated_at", null: false
     t.json "features"
     t.integer "target_role"
+    t.bigint "plan_id"
+    t.index ["plan_id"], name: "index_plan_prices_on_plan_id"
+  end
+
+  create_table "plans", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.json "features"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "pricing_policies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -212,6 +269,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
     t.datetime "updated_at", null: false
     t.index ["unit_id"], name: "index_reservations_on_unit_id"
     t.index ["user_id"], name: "index_reservations_on_user_id"
+  end
+
+  create_table "restaurant_menu_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.bigint "menu_category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_category_id"], name: "index_restaurant_menu_categories_on_menu_category_id"
+    t.index ["restaurant_id"], name: "index_restaurant_menu_categories_on_restaurant_id"
   end
 
   create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -307,11 +373,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_04_232828) do
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "hotels", "establishments"
   add_foreign_key "legal_infos", "establishments"
+  add_foreign_key "menu_items", "menu_categories"
+  add_foreign_key "menu_items", "restaurants"
+  add_foreign_key "menu_options", "menu_items"
   add_foreign_key "payment_methods", "establishments"
+  add_foreign_key "payment_receipts", "subscriptions"
+  add_foreign_key "payment_receipts", "users"
+  add_foreign_key "plan_prices", "plans"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
+  add_foreign_key "restaurant_menu_categories", "menu_categories"
+  add_foreign_key "restaurant_menu_categories", "restaurants"
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"

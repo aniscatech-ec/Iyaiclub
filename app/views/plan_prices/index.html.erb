@@ -1,37 +1,219 @@
-<h1>Lista de Precios de Planes</h1>
+<!--<h1>Lista de Precios de Planes</h1>-->
 
-<%= link_to "Nuevo Precio", new_plan_price_path, class: "btn btn-primary mb-3" %>
+<%#= link_to "Nuevo Precio", new_plan_price_path, class: "btn btn-primary mb-3" %>
 
-<table class="table table-striped">
-  <thead>
-  <tr>
-    <th>Usuario</th>
-    <th>Tipo de Plan</th>
-    <th>Duración (meses)</th>
-    <th>Precio (USD)</th>
-    <th>Acciones</th>
-  </tr>
-  </thead>
-  <tbody>
-  <% @plan_prices.each do |plan_price| %>
-    <tr>
-      <td><%= plan_price.target_role.humanize %></td>
-      <td><%= plan_price.plan_type.humanize %></td>
-      <td><%= plan_price.duration %></td>
-      <td><%= number_to_currency(plan_price.price) %></td>
-      <td>
-        <%= link_to plan_price, class: "btn btn-info btn-sm" do %>
-          <i class="fa-solid fa-eye"></i>
-        <% end %>
-        <%= link_to edit_plan_price_path(plan_price), class: "btn btn-warning btn-sm" do %>
-          <i class="fa-solid fa-pen-to-square"></i>
-        <% end %>
-        <%= link_to plan_price_path(plan_price), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este plan?" }, class: "btn btn-danger btn-sm" do %>
-          <i class="fa-solid fa-trash-can"></i>
-        <% end %>
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+<!--<table class="table table-striped">-->
+<!--  <thead>-->
+<!--  <tr>-->
+<!--    <th>Id</th>-->
+<!--    <th>Usuario</th>-->
+<!--    <th>Tipo de Plan</th>-->
+<!--    <th>Duración (meses)</th>-->
+<!--    <th>Precio (USD)</th>-->
+<!--    <th>Acciones</th>-->
+<!--  </tr>-->
+<!--  </thead>-->
+<!--  <tbody>-->
+  <%# @plan_prices.each do |plan_price| %>
+<!--    <tr>-->
+<!--      <td><%#= plan_price.id %></td>-->
+<!--      <td><%#= plan_price.target_role.humanize %></td>-->
+<!--      <td><%#= plan_price.plan_type.humanize %></td>-->
+<!--      <td><%#= plan_price.duration %></td>-->
+<!--      <td><%#= number_to_currency(plan_price.price) %></td>-->
+<!--      <td>-->
+        <%#= link_to plan_price, class: "btn btn-info btn-sm" do %>
+<!--          <i class="fa-solid fa-eye"></i>-->
+        <%# end %>
+        <%#= link_to edit_plan_price_path(plan_price), class: "btn btn-warning btn-sm" do %>
+<!--          <i class="fa-solid fa-pen-to-square"></i>-->
+        <%# end %>
+        <%#= link_to plan_price_path(plan_price), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este plan?" }, class: "btn btn-danger btn-sm" do %>
+<!--          <i class="fa-solid fa-trash-can"></i>-->
+        <%# end %>
+<!--      </td>-->
+<!--    </tr>-->
+  <%# end %>
+<!--  </tbody>-->
+<!--</table>-->
+
+<div class="container py-5">
+
+  <!-- Hero -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold display-5">Planes de Suscripción para Hoteles</h1>
+    <p class="text-muted fs-5">
+      Elige el plan que mejor se adapte a tu establecimiento. Cambia entre facturación mensual o anual.
+    </p>
+  </div>
+
+  <!-- Toggle mensual / anual -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="form-check form-switch fs-5">
+      <input class="form-check-input" type="checkbox" id="billingToggle" />
+      <label class="form-check-label ms-2" for="billingToggle">
+        Facturación anual <span class="text-success">(ahorra 17%)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Planes -->
+  <div class="row g-4">
+
+    <!-- PLAN BÁSICO -->
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Plan Básico</h4>
+          <p class="text-muted">Ideal para pequeños hoteles</p>
+
+          <h2 class="fw-bold mb-3 plan-price">
+            <span class="price-monthly">$9.99</span>
+            <span class="price-annually d-none">$99</span>
+            <small class="billing-label text-muted fs-6">/mes</small>
+          </h2>
+
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Hasta 10 fotos</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Gestión básica</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Soporte estándar</li>
+          </ul>
+
+          <div class="d-grid mt-4">
+            <a href="#" class="btn btn-outline-primary">Elegir Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAN PRO (DESTACADO) -->
+    <div class="col-md-4">
+      <div class="card shadow-lg border-2 border-primary h-100">
+        <div class="card-body p-4">
+          <span class="badge bg-primary mb-3">Recomendado</span>
+          <h4 class="fw-bold">Plan Pro</h4>
+          <p class="text-muted">El más elegido por los hoteles</p>
+
+          <h2 class="fw-bold mb-3 plan-price">
+            <span class="price-monthly">$19.99</span>
+            <span class="price-annually d-none">$199</span>
+            <small class="billing-label text-muted fs-6">/mes</small>
+          </h2>
+
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Hasta 30 fotos</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Destacado en listados</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Reportes avanzados</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Soporte prioritario</li>
+          </ul>
+
+          <div class="d-grid mt-4">
+            <a href="#" class="btn btn-primary">Elegir Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAN PREMIUM -->
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body p-4">
+          <h4 class="fw-bold">Plan Premium</h4>
+          <p class="text-muted">Para hoteles grandes o en expansión</p>
+
+          <h2 class="fw-bold mb-3 plan-price">
+            <span class="price-monthly">$39.99</span>
+            <span class="price-annually d-none">$399</span>
+            <small class="billing-label text-muted fs-6">/mes</small>
+          </h2>
+
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Fotos ilimitadas</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Publicidad premium</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Análisis detallados</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Soporte 24/7</li>
+          </ul>
+
+          <div class="d-grid mt-4">
+            <a href="#" class="btn btn-outline-primary">Elegir Plan</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAQ -->
+  <div class="mt-5 pt-4">
+    <h3 class="fw-bold mb-4 text-center">Preguntas frecuentes</h3>
+
+    <div class="accordion" id="faqAccordion">
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq1">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ans1">
+            ¿Puedo cambiar de plan más adelante?
+          </button>
+        </h2>
+        <div id="ans1" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            Sí, puedes cambiar a un plan superior o inferior en cualquier momento desde tu panel.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq2">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ans2">
+            ¿Hay contratos o permanencia?
+          </button>
+        </h2>
+        <div id="ans2" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            No, nuestros planes son totalmente flexibles sin permanencia obligatoria.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faq3">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ans3">
+            ¿Qué pasa si mi suscripción expira?
+          </button>
+        </h2>
+        <div id="ans3" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            Tu hotel no será eliminado, pero perderá funciones premium hasta que renueves la suscripción.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Script toggle precios -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggle = document.getElementById("billingToggle");
+
+        toggle.addEventListener("change", () => {
+            const annually = toggle.checked;
+
+            document.querySelectorAll(".price-monthly").forEach(e =>
+                e.classList.toggle("d-none", annually)
+            );
+            document.querySelectorAll(".price-annually").forEach(e =>
+                e.classList.toggle("d-none", !annually)
+            );
+
+            document.querySelectorAll(".billing-label").forEach(label => {
+                label.textContent = annually ? "/año" : "/mes";
+            });
+        });
+    });
+</script>
+
+
 

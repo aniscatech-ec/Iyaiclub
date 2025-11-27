@@ -172,7 +172,15 @@ class HotelsController < ApplicationController
       @hotels = @hotels.where(id: hotel_ids)
     end
 
+
+
     if user_signed_in? && current_user.administrador?
+
+    elsif user_signed_in? && current_user.afiliado?
+      @hotels = Hotel.joins(:establishment)
+                               .where(establishments: { user_id: current_user.id, category: "hotel" })
+
+
 
     else
       @hotels = @hotels.page(params[:page]).per(9)

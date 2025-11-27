@@ -1,0 +1,25 @@
+<h1>Categorías de Menú</h1>
+
+<%= link_to "Nueva Categoría", new_menu_category_path, class: "btn btn-primary mb-3" %>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th>Nombre</th>
+    <th>Descripción</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @menu_categories.each do |cat| %>
+    <tr>
+      <td><%= cat.name %></td>
+      <td><%= cat.description %></td>
+      <td>
+        <%= link_to "Editar", edit_menu_category_path(cat), class: "btn btn-sm btn-warning" %>
+        <%= link_to "Eliminar", cat, method: :delete, data: { confirm: "¿Seguro?" }, class: "btn btn-sm btn-danger" %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

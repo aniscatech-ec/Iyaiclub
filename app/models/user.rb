@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :establishments
   has_many :subscriptions, as: :subscribable, dependent: :destroy
   has_many :reservations, dependent: :destroy
+  has_many :payment_receipts, dependent: :destroy
 
   belongs_to :country
   belongs_to :city

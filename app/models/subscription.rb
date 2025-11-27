@@ -6,6 +6,7 @@ class Subscription < ApplicationRecord
   # enum :duration,  mensual: 0, anual: 2
   enum :status, pendiente: 0, activada: 1, vencida: 2, cancelada: 3
   enum :payment_method, transferencia: 0, tarjeta: 1, efectivo: 2
+  has_many :payment_receipts, dependent: :destroy
 
   # Calcula fecha de fin según duración
   def set_dates
@@ -22,7 +23,10 @@ class Subscription < ApplicationRecord
     "transferencia" => "Banco Ejemplo\nCuenta Corriente: 1234567890\nTitular: Empresa Ejemplo S.A.\nRUC: 1234567890001\nEnvie comprobante a pagos@empresa.com",
     "tarjeta" => "Pague con tarjeta de crédito o débito en el siguiente enlace: https://pagos.empresa.com"
   }.freeze
-
+  def active?
+    return false if start_date.blank? || end_date.blank?
+    Date.current.between?(start_date, end_date)
+  end
   # def calculate_amount
   #   price_record = PlanPrice.find_by(plan_type: plan_type, duration: duration)
   #   self.amount = price_record&.price || 0
@@ -30,13 +34,22 @@ class Subscription < ApplicationRecord
   #
   # before_validation :calculate_amount
 
-  validate :only_one_active_subscription, on: :create
+  # validate :only_one_active_subscription, on: :create
+  #
+  # def only_one_active_subscription
+  #   if establishment.subscriptions.where(status: "activada").exists?
+  #     errors.add(:base, "Este establecimiento ya tiene una suscripción activa")
+  #   end
+  # end
 
   def only_one_active_subscription
-    if establishment.subscriptions.where(status: "activada").exists?
+    return unless subscribable_type == "Establishment"
+
+    if subscribable.subscriptions.where(status: :activada).exists?
       errors.add(:base, "Este establecimiento ya tiene una suscripción activa")
     end
   end
+
 
   def affiliate
     establishment.user
@@ -57,19 +70,20 @@ class Subscription < ApplicationRecord
   private
 
   def only_one_active_subscription_for_tourist
-    return unless suscribable_type == "User"
+    return unless subscribable_type == "User"
 
-    if suscribable.subscriptions.where(status: :activada).exists?
+    if subscribable.subscriptions.where(status: :activada).exists?
       errors.add(:base, "El turista ya tiene una suscripción activa")
     end
   end
 
   def only_one_active_subscription_for_establishment
-    return unless suscribable_type == "Establishment"
+    return unless subscribable_type == "Establishment"
 
-    if suscribable.subscriptions.where(status: :activada).exists?
+    if subscribable.subscriptions.where(status: :activada).exists?
       errors.add(:base, "Este establecimiento ya tiene una suscripción activa")
     end
   end
+
 
 end

@@ -3,11 +3,22 @@ Rails.application.routes.draw do
   # get "terms_and_conditions/index"
   get "/terms_and_conditions", to: "terms_and_conditions#index"
   get "/policy_and_privacy", to: "policy_and_privacy#index"
-
+  resources :menu_categories do
+    resources :menu_items
+  end # CRUD global
   resources :restaurants do
+    member do
+      get :menu_categories_selector
+      patch :update_menu_categories
+    end
     collection do
       get :search_results
     end
+    # resources :menu_categories do
+    #   resources :menu_items do
+    #     resources :menu_options
+    #   end
+    # end
   end
   # resources :countries do
   #   resources :provinces do
@@ -53,8 +64,16 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
   end
 
+
+  resources :plans
   resources :plan_prices
   resources :subscriptions do
+    resources :payment_receipts do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
     member do
       patch :approve
       patch :cancel

@@ -17,8 +17,9 @@
 <table class="table">
   <thead>
   <tr>
-    <th>Afiliado</th>
-    <th>Establecimiento</th>
+    <th>Usuario</th>
+<!--    <th>Establecimiento</th>-->
+    <th>Tipo de Suscripción</th>
     <th>Tipo de Plan</th>
     <th>Duración</th>
     <th>Estado</th>
@@ -32,18 +33,29 @@
   </thead>
   <tbody>
   <% if @subscriptions.nil? %>
-  <%else %>
+  <% else %>
     <% @subscriptions.each do |subscription| %>
       <tr>
-        <td><%= subscription.affiliate.name %></td>
-        <td><%= subscription.establishment.name %></td>
+
+        <!--        <td><%#= subscription.affiliate.name %></td>-->
+
+        <% if subscription.subscribable_type == "Establishment" %>
+          <td><%= subscription.subscribable.user.name %></td>
+        <% elsif subscription.subscribable_type == "User" %>
+          <td><%= subscription.subscribable.name %></td>
+        <% end %>
+<!--        <td><%#= subscription.subscribable_type %></td>-->
+        <%# if subscription.subscribable_type == "Establishment" %>
+<!--          <td><%#= subscription.subscribable.name %></td>-->
+        <%# end %>
+        <td><%= subscription.subscribable_type %></td>
         <td><%= PlanPrice.find(subscription.plan_type).plan_type %></td>
         <td><%= PlanPrice.find(subscription.plan_type).display_duration %></td>
         <!--      <td><%#= subscription.duration %> meses</td>-->
         <td><%= subscription.status %></td>
         <td><%= subscription.start_date %></td>
         <td><%= subscription.end_date %></td>
-        <td><%= number_to_currency(PlanPrice.find(subscription.plan_type).price) %></td>
+                <td><%= number_to_currency(PlanPrice.find(subscription.plan_type).price) %></td>
         <td><%= subscription.payment_method.humanize %></td>
         <td>
 
@@ -70,14 +82,11 @@
             <% end %>
           <% end %>
 
-          <% if (current_user.administrador? || subscription.affiliate.id == current_user.id) && subscription.activada? %>
-            <%= button_to cancel_subscription_path(subscription),
-                          method: :patch,
-                          data: { confirm: "¿Seguro que deseas cancelar esta suscripción?" },
-                          class: "btn btn-danger btn-sm" do %>
-              <i class="fa-solid fa-ban"></i>
-            <% end %>
-          <% end %>
+          <%# if (current_user.administrador? || subscription.affiliate.id == current_user.id) && subscription.activada? %>
+          <%#= button_to cancel_subscription_path(subscription), method: :patch, data: { confirm: "¿Seguro que deseas cancelar esta suscripción?" }, class: "btn btn-danger btn-sm" do %>
+          <!--              <i class="fa-solid fa-ban"></i>-->
+          <%# end %>
+          <%# end %>
 
           <% if current_user.administrador? %>
             <% if subscription.cancelada? %>

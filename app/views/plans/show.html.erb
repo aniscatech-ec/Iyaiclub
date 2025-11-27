@@ -1,0 +1,11 @@
+<h1><%= @plan.name %></h1>
+
+<p><strong>Descripción:</strong></p>
+<p><%= @plan.description %></p>
+
+<p><strong>Características (features):</strong></p>
+<pre><%= JSON.pretty_generate(@plan.features || {}) %></pre>
+
+<%= link_to "Editar", edit_plan_path(@plan), class: "btn btn-warning" %>
+<%= link_to "Eliminar", @plan, data: { turbo_method: :delete, turbo_confirm: "¿Seguro?" }, class: "btn btn-danger" %>
+<%= link_to "Volver", plans_path, class: "btn btn-secondary" %>

@@ -4,10 +4,10 @@
   <div class="card mb-3">
     <div class="card-body">
       <%# -------------------- Usuario -------------------- %>
-<!--      <p><strong>Afiliado:</strong> <%#= @subscription.user_id || "N/A" %></p>-->
+      <!--      <p><strong>Afiliado:</strong> <%#= @subscription.user_id || "N/A" %></p>-->
 
       <%# -------------------- Establecimiento -------------------- %>
-      <p><strong>Establecimiento:</strong> <%= @subscription.establishment_id || "N/A" %></p>
+      <p><strong>Establecimiento:</strong> <%= @subscription.subscribable_id || "N/A" %></p>
 
       <%# -------------------- Plan -------------------- %>
       <p><strong>Plan:</strong> <%= @subscription.plan_type || "N/A" %></p>
@@ -17,8 +17,10 @@
       <p><strong>Estado:</strong> <%= @subscription.status.humanize %></p>
 
       <%# -------------------- Fechas -------------------- %>
-      <p><strong>Fecha de inicio:</strong> <%= @subscription.start_date.present? ? l(@subscription.start_date) : "N/A" %></p>
-      <p><strong>Fecha de fin:</strong> <%= @subscription.end_date.present? ? l(@subscription.end_date) : "N/A" %></p>
+      <p>
+        <strong>Fecha de inicio:</strong> <%= @subscription.start_date.present? ? @subscription.start_date : "N/A" %>
+      </p>
+      <p><strong>Fecha de fin:</strong> <%= @subscription.end_date.present? ? @subscription.end_date : "N/A" %></p>
 
 
       <%# -------------------- Método de pago -------------------- %>
@@ -35,4 +37,75 @@
     <%= link_to "Editar", edit_subscription_path(@subscription), class: "btn btn-primary" %>
     <%= link_to "Volver", subscriptions_path, class: "btn btn-secondary" %>
   </div>
+  <h2>Recibos de pago</h2>
+  <% @subscription.payment_receipts.each do |payment_receipt| %>
+    <p>
+      <% if payment_receipt.subscription.subscribable_type == "Establishment" %>
+        <strong>Establecimiento:</strong>
+
+        <%= payment_receipt.subscription.subscribable.user.name %>
+      <% elsif payment_receipt.subscription.subscribable_type == "User" %>
+        <strong>Usuario:</strong>
+
+        <%= payment_receipt.subscription.subscribable.name %>
+      <% end %>
+    </p>
+
+    <p>
+      <strong>Estado:</strong>
+      <%= payment_receipt.status.humanize %>
+    </p>
+
+    <p>
+      <strong>Usuario:</strong>
+      <%= payment_receipt.user.name %>
+    </p>
+
+    <p>
+      <strong>Notas:</strong>
+      <%= payment_receipt.notes %>
+    </p>
+
+    <%= image_tag payment_receipt.file if payment_receipt.file.attached? %>
+    <% if current_user.administrador? %>
+      <div class="d-flex gap-2 my-2">
+
+        <% if payment_receipt.pendiente? %>
+          <%= button_to approve_subscription_payment_receipt_path(@subscription, payment_receipt),
+                        method: :patch,
+                        class: "btn btn-success btn-sm",
+                        data: { turbo_confirm: "¿Aprobar comprobante?" } do %>
+            <i class="fa-solid fa-check"></i> Aprobar
+          <% end %>
+
+          <%= button_to reject_subscription_payment_receipt_path(@subscription, payment_receipt),
+                        method: :patch,
+                        class: "btn btn-danger btn-sm",
+                        data: { turbo_confirm: "¿Rechazar comprobante?" } do %>
+            <i class="fa-solid fa-xmark"></i> Rechazar
+          <% end %>
+        <% end %>
+
+        <% if payment_receipt.aprobado? %>
+          <span class="badge bg-success">Aprobado</span>
+        <% elsif payment_receipt.rechazado? %>
+          <span class="badge bg-danger">Rechazado</span>
+        <% end %>
+
+      </div>
+    <% end %>
+
+
+<% end %>
+
+  <div class="d-flex gap-2">
+    <%= link_to "Agregar comprobante de pago", new_subscription_payment_receipt_path(@subscription), class: "btn btn-primary" %>
+  </div>
+
+  <% if @subscription.active? %>
+    <%= link_to "Funcionalidad Premium", root_path, class: "btn btn-success mb-4" %>
+  <% else %>
+    <p class="text-muted"><em>Activa tu suscripción para desbloquear funcionalidades.</em></p>
+  <% end %>
+
 </div>

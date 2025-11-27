@@ -5,7 +5,11 @@ class Establishment < ApplicationRecord
   # has_many :amenities, through: :establishment_amenities #error por eliminacion
   has_many :establishment_amenities, dependent: :destroy
   has_many :amenities, through: :establishment_amenities
-  # has_many :subscriptions, as: :suscribable, dependent: :destroy
+  has_many :subscriptions, as: :subscribable, dependent: :destroy
+  has_one :current_subscription,
+          -> { where("start_date <= ? AND end_date >= ?", Date.current, Date.current) },
+          as: :subscribable,
+          class_name: "Subscription"
 
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
@@ -41,6 +45,9 @@ class Establishment < ApplicationRecord
     policies || []
   end
 
+  # def active_subscription
+  #   subscriptions.find_by("start_date <= ? AND end_date >= ?", Date.current, Date.current)
+  # end
 
 
 

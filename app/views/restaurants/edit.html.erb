@@ -308,6 +308,9 @@
       <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
     </div>
   </div>
+  <%= link_to "Configurar categorías del menú",
+              menu_categories_selector_restaurant_path(@restaurant),
+              class: "btn btn-outline-primary mt-3" %>
 
   <%= f.submit "Guardar", class: "btn btn-primary" %>
 <% end %>

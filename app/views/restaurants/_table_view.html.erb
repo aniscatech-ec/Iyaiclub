@@ -1,0 +1,49 @@
+<table class="table table-hover align-middle shadow-sm">
+
+  <thead class="table-light">
+  <tr>
+    <th class="text-center">ID-establishment</th>
+    <th class="text-center">ID-restaurant</th>
+    <th class="text-center">Nombre</th>
+    <th class="text-center">Razón social</th>
+    <th class="text-center">Representante</th>
+    <th class="text-center">Afiliado</th>
+    <th class="text-center">Categoría</th>
+    <th class="text-center">Acciones</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% restaurants.each do |restaurant| %>
+    <tr>
+      <td class="text-center"><%= restaurant.establishment.id %></td>
+      <td class="text-center"><%= restaurant.id %></td>
+      <td class="text-center"><%= restaurant.establishment.name %></td>
+      <td class="text-center"><%= restaurant.establishment.legal_info&.business_name || "-" %></td>
+      <td class="text-center"><%= restaurant.establishment.legal_info&.legal_representative || "-" %></td>
+      <td class="text-center"><%= restaurant.establishment.user.name %></td>
+<!--      <td class="text-center"><%#= hotel_type_label(hotel.hotel_type.presence) || "-" %></td>-->
+      <td class="text-center"><%= restaurant.cuisine_type.presence || "-" %></td>
+      <td>
+
+        <div class="d-flex justify-content-center gap-2">
+          <%= link_to restaurant, class: "btn btn-info btn-sm" do %>
+            <i class="fa-solid fa-eye"></i>
+          <% end %>
+          <%= link_to edit_restaurant_path(restaurant), class: "btn btn-warning btn-sm" do %>
+            <i class="fa-solid fa-pen-to-square"></i>
+          <% end %>
+          <%= link_to restaurant_path(restaurant), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este restaurante?" }, class: "btn btn-danger btn-sm" do %>
+            <i class="fa-solid fa-trash-can"></i>
+          <% end %>
+        </div>
+
+
+
+        <%#= link_to "Ver", hotel_path(hotel), class: "btn btn-sm btn-info" %>
+        <%#= link_to "Editar", edit_hotel_path(hotel), class: "btn btn-sm btn-warning" %>
+        <%#= link_to "Eliminar", hotel_path(hotel), method: :delete, data: { confirm: "¿Seguro que deseas eliminar este hotel?" }, class: "btn btn-sm btn-danger" %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

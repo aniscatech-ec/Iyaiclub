@@ -1,6 +1,11 @@
 class Restaurant < ApplicationRecord
   belongs_to :establishment
 
+  has_many :restaurant_menu_categories #tabla intermedia
+  has_many :menu_categories, through: :restaurant_menu_categories # relacion *-*
+
+  has_many :menu_items
+
   delegate :user,
            :images,
            :establishment_amenities,

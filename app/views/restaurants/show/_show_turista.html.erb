@@ -1,0 +1,120 @@
+<div class="container my-5">
+
+  <!-- Encabezado principal -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold text-primary">
+      <i class="fas fa-utensils me-2"></i><%= restaurant.establishment.name %>
+    </h1>
+    <p class="text-muted">Detalles completos del restaurante</p>
+  </div>
+
+  <!-- Datos legales -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white fw-bold">
+      <i class="fas fa-file-contract me-2"></i> Datos legales
+    </div>
+    <div class="card-body">
+      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón
+        social:</strong> <%= restaurant.establishment.legal_info&.business_name || "No especificado" %></p>
+      <p>
+        <i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC:</strong> <%= restaurant.establishment.legal_info&.document_number || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= restaurant.establishment.legal_info&.legal_representative || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= restaurant.establishment.legal_info&.contact_email || "No especificado" %>
+      </p>
+      <p>
+        <i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= restaurant.establishment.legal_info&.contact_phone || "No especificado" %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Perfil del restaurante -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-success text-white fw-bold">
+      <i class="fas fa-info-circle me-2"></i> Perfil del restaurante
+    </div>
+    <div class="card-body">
+      <p><i class="fas fa-drumstick-bite me-2 text-secondary"></i><strong>Tipo de comida:</strong>
+        <span class="badge bg-info text-dark"><%= restaurant.cuisine_type.presence || "No especificado" %></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-warning text-white fw-bold">
+      <i class="fas fa-info-circle me-2"></i> Ubicación
+    </div>
+    <div class="card-body">
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= restaurant.establishment.country.name if restaurant.establishment.country %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= restaurant.establishment.province.name if restaurant.establishment.province %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= restaurant.establishment.city.name if restaurant.establishment.city %>
+      </p>
+      <p>
+        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ubicación:</strong> <%= restaurant.establishment.address if restaurant.establishment.address %>
+      </p>
+
+      <!-- Mapa -->
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Longitude:</strong> <%= restaurant.establishment.longitude if restaurant.establishment.longitude %></p>
+      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Latitude:</strong> <%= restaurant.establishment.latitude if restaurant.establishment.latitude %></p>
+
+      <!-- Mapa -->
+      <% if restaurant.establishment.latitude.present? && restaurant.establishment.longitude.present? %>
+        <div id="map"
+             data-controller="map-show"
+             data-map-show-lat-value="<%= restaurant.establishment.latitude %>"
+             data-map-show-lng-value="<%= restaurant.establishment.longitude %>"
+             style="height: 400px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1);">
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">Coordenadas del hotel no registradas, el mapa no puede mostrarse.</p>
+      <% end %>
+
+
+    </div>
+  </div>
+
+  <!-- Galería -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-dark text-white fw-bold">
+      <i class="fas fa-images me-2"></i> Galería
+    </div>
+    <div class="card-body">
+      <% if restaurant.establishment.galleries.any? %>
+        <% restaurant.establishment.galleries.each do |gallery| %>
+          <h5 class="fw-bold mt-3">
+            <i class="fas fa-folder-open me-2 text-danger"></i><%= gallery.name %>
+          </h5>
+          <div class="d-flex flex-wrap">
+            <% gallery.gallery_images.each do |gi| %>
+              <% if gi.file.attached? %>
+                <div class="m-2">
+                  <%= image_tag gi.file.variant(resize_to_limit: [200, 200]),
+                                class: "img-thumbnail shadow-sm rounded" %>
+                </div>
+              <% else %>
+                <p class="text-muted fst-italic">Sin imágenes</p>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted fst-italic">No hay imágenes registradas en la galería.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Botones -->
+  <div class="text-center mt-4">
+    <%= link_to "Editar", edit_restaurant_path(restaurant), class: "btn btn-primary me-2 px-4" %>
+    <%= link_to "Volver", restaurants_path, class: "btn btn-outline-secondary px-4" %>
+  </div>
+
+</div>

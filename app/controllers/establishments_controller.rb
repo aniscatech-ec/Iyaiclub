@@ -200,9 +200,9 @@ class EstablishmentsController < ApplicationController
     ]
 
     @hotels = [
-      { name: "Hotel Central Quito", city: "Quito", country: "Ecuador", price: 120, rating: 4.5, amenities: ["Wi-Fi","Piscina","Gym"], image: view_context.asset_path("hotel1.jpg") },
-      { name: "Ocean View Hotel", city: "Galápagos", country: "Ecuador", price: 200, rating: 4.8, amenities: ["Desayuno","Wi-Fi","Piscina"], image: view_context.asset_path("hotel2.jpg") },
-      { name: "Boutique Cuenca", city: "Cuenca", country: "Ecuador", price: 90, rating: 4.2, amenities: ["Wi-Fi","Parking"], image: view_context.asset_path("hotel3.jpg")}
+      { name: "Hotel Central Quito", city: "Quito", country: "Ecuador", price: 120, rating: 4.5, amenities: ["Wi-Fi", "Piscina", "Gym"], image: view_context.asset_path("hotel1.jpg") },
+      { name: "Ocean View Hotel", city: "Galápagos", country: "Ecuador", price: 200, rating: 4.8, amenities: ["Desayuno", "Wi-Fi", "Piscina"], image: view_context.asset_path("hotel2.jpg") },
+      { name: "Boutique Cuenca", city: "Cuenca", country: "Ecuador", price: 90, rating: 4.2, amenities: ["Wi-Fi", "Parking"], image: view_context.asset_path("hotel3.jpg") }
     ]
 
     @places = [
@@ -230,7 +230,6 @@ class EstablishmentsController < ApplicationController
     puts params.inspect
     puts "-------------------------------------------------------------"
 
-
     if params[:city].present?
       if params[:city].to_s.match?(/^\d+$/)
         # Si es un número → úsalo como ID
@@ -249,7 +248,6 @@ class EstablishmentsController < ApplicationController
       end
     end
 
-
     if params[:min_price].present? && params[:max_price].present?
       @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])
     elsif params[:min_price].present?
@@ -260,11 +258,11 @@ class EstablishmentsController < ApplicationController
 
     if params[:amenities].present?
 
-      @establishment_ids= @establishments.joins(:amenities)
-                                       .where(amenities: { id: params[:amenities]  })
-                                       .group("establishments.id")
-                                       .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities] .size)
-                                       .pluck(:id)
+      @establishment_ids = @establishments.joins(:amenities)
+                                          .where(amenities: { id: params[:amenities] })
+                                          .group("establishments.id")
+                                          .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
+                                          .pluck(:id)
 
       @establishments = @establishments.where(establishments: { id: @establishment_ids })
     end
@@ -273,6 +271,9 @@ class EstablishmentsController < ApplicationController
     puts "-------------------------------------------------------------"
     # Paginación
     if user_signed_in? && current_user.administrador?
+
+    elsif user_signed_in? && current_user.afiliado?
+      @establishments = current_user.establishments
 
     else
       @establishments = @establishments.page(params[:page]).per(9)
@@ -294,14 +295,14 @@ class EstablishmentsController < ApplicationController
     puts params.inspect
     puts "-------------------------------------------------------------"
 
-      case params[:establishment_type]
-      when "hotel"
-        # redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
-        redirect_to search_results_hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
-      when "restaurante"
-        # redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
-        redirect_to search_results_restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
-      end
+    case params[:establishment_type]
+    when "hotel"
+      # redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
+      redirect_to search_results_hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
+    when "restaurante"
+      # redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+      redirect_to search_results_restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
+    end
 
     if params[:city].present?
       if params[:city].to_s.match?(/^\d+$/)
@@ -321,7 +322,6 @@ class EstablishmentsController < ApplicationController
       end
     end
 
-
     if params[:min_price].present? && params[:max_price].present?
       @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])
     elsif params[:min_price].present?
@@ -332,11 +332,11 @@ class EstablishmentsController < ApplicationController
 
     if params[:amenities].present?
 
-      @establishment_ids= @establishments.joins(:amenities)
-                                         .where(amenities: { id: params[:amenities]  })
-                                         .group("establishments.id")
-                                         .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities] .size)
-                                         .pluck(:id)
+      @establishment_ids = @establishments.joins(:amenities)
+                                          .where(amenities: { id: params[:amenities] })
+                                          .group("establishments.id")
+                                          .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
+                                          .pluck(:id)
 
       @establishments = @establishments.where(establishments: { id: @establishment_ids })
     end
@@ -351,6 +351,7 @@ class EstablishmentsController < ApplicationController
       format.js
     end
   end
+
   def show
     # units_controller.rb
     # @availability_events = @establishment.unit.unit_availabilities.map do |availability|

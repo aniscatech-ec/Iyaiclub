@@ -1,13 +1,13 @@
 <% if user_signed_in? %>
-  <%# if current_user.administrador? %>
-    <%#= render "table_view", establishments: @establishments %>
-  <%# elsif current_user.afiliado? %>
-    <%#= render "card_view", establishments: @establishments %>
-  <%# elsif current_user.turista? %>
-    <%#= render "catalog_view", establishments: @establishments %>
-    <%#= render "landing_page", establishments: @establishments %>
-  <%# end %>
-  <%= render "results_search", cities: @cities %>
+  <% if current_user.administrador? %>
+    <%= render "table_view", restaurants:@restaurants %>
+  <% elsif current_user.afiliado? %>
+    <%= render "card_view", restaurants:@restaurants %>
+  <% elsif current_user.turista? %>
+    <%#= render "catalog_view", restaurants:@restaurants %>
+    <%= render "landing_page", establishments: @establishments %>
+  <% end %>
+  <%#= render "results_search", cities: @cities %>
 
 <% else %>
   <%= render "landing_page", restaurants:@restaurants %>

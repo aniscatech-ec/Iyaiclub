@@ -1,0 +1,36 @@
+<h2 class="mb-4">Categorías del Menú</h2>
+
+<%= form_with url: update_menu_categories_restaurant_path(@restaurant),
+              method: :patch,
+              local: true do %>
+
+  <div class="row row-cols-2 row-cols-md-4 g-4">
+
+    <% @menu_categories.each do |category| %>
+      <div class="col">
+        <div class="card h-100 p-3 <%= "border-primary" if @restaurant.menu_category_ids.include?(category.id) %>">
+
+          <div class="form-check">
+            <%= check_box_tag "menu_category_ids[]", category.id,
+                              @restaurant.menu_category_ids.include?(category.id),
+                              id: "cat_#{category.id}",
+                              class: "form-check-input" %>
+
+            <label for="cat_#{category.id}" class="form-check-label fw-bold">
+              <%= category.name %>
+            </label>
+          </div>
+
+          <% if category.description.present? %>
+            <p class="text-muted mt-2"><%= category.description %></p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-4">
+    <%= submit_tag "Guardar cambios", class: "btn btn-primary" %>
+  </div>
+
+<% end %>

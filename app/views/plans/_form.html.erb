@@ -1,0 +1,18 @@
+<%= form_with model: plan, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :name, "Nombre del plan" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description, "Descripción" %>
+    <%= f.text_area :description, rows: 3, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :features, "Características (JSON)" %>
+    <%= f.text_area :features, rows: 4, class: "form-control", placeholder: '{ "max_photos": 10 }' %>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+<% end %>

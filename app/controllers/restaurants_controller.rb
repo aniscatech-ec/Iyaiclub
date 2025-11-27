@@ -46,7 +46,18 @@ class RestaurantsController < ApplicationController
       @restaurants = @restaurants.where(establishment_id: establishment_ids)
     end
 
-    @restaurants = @restaurants.page(params[:page]).per(9)
+    if user_signed_in? && current_user.administrador?
+
+    elsif user_signed_in? && current_user.afiliado?
+      @restaurants = Restaurant.joins(:establishment)
+                               .where(establishments: { user_id: current_user.id, category: "restaurante" })
+
+
+
+    else
+      @restaurants = @restaurants.page(params[:page]).per(9)
+
+    end
 
     respond_to do |format|
       format.html
@@ -236,6 +247,25 @@ class RestaurantsController < ApplicationController
   def destroy
     @restaurant.destroy
     redirect_to restaurants_path, notice: "Restaurante eliminado."
+  end
+
+  def menu_categories_selector
+    @restaurant = Restaurant.find(params[:id])
+    @menu_categories = MenuCategory.all
+  end
+
+  def update_menu_categories
+    @restaurant = Restaurant.find(params[:id])
+
+    @restaurant.menu_category_ids = params[:menu_category_ids] || []
+
+    if @restaurant.save
+      # redirect_to menu_categories_selector_restaurant_path(@restaurant), notice: "Categorías actualizadas correctamente."
+      redirect_to @restaurant, notice: "Restaurante actualizado correctamente."
+
+    else
+      render :menu_categories_selector, alert: "Error al actualizar categorías."
+    end
   end
 
   private

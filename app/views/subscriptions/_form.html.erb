@@ -26,8 +26,8 @@
         <%= form.label :user_name, current_user.name %>
         <%#= form.hidden_field :user_id, value: current_user.id %>
         <% if current_user.turista? %>
-          <%= form.hidden_field :suscribable_type, value: "User" %>
-          <%= form.hidden_field :suscribable_id, value: current_user.id %>
+          <%= form.hidden_field :subscribable_type, value: "User" %>
+          <%= form.hidden_field :subscribable_id, value: current_user.id %>
         <% end %>
 
 
@@ -47,8 +47,8 @@
         <%= @establishment.name %>
         <%#= form.hidden_field :establishment_id, value: @establishment.id %>
 
-        <%= form.hidden_field :suscribable_type, value: "Establishment" %>
-        <%= form.hidden_field :suscribable_id, value: @establishment.id %>
+        <%= form.hidden_field :subscribable_type, value: "Establishment" %>
+        <%= form.hidden_field :subscribable_id, value: @establishment.id %>
       <% end %>
     </div>
 
@@ -69,7 +69,7 @@
       <%#= form.select :status, Subscription.statuses.keys.map { |s| [s.humanize, s] }, { prompt: "Seleccione estado" }, class: "form-select" %>
       <strong>Estado:</strong>
       <%= Subscription.statuses.first[0].humanize %>
-      <%= form.hidden_field :status, value: Subscription.statuses.first %>
+      <%= form.hidden_field :status, value: Subscription.statuses.first[0] %>
 
     </div>
 

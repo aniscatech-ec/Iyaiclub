@@ -14,6 +14,18 @@
         </div>
       <% end %>
 
+      <!-- Selección del Plan -->
+      <div class="mb-3">
+        <%= form.label :plan_id, "Plan asociado", class: "form-label fw-bold" %>
+        <%= form.collection_select :plan_id,
+                                   Plan.all,
+                                   :id,
+                                   :name,
+                                   { prompt: "Seleccione un Plan" },
+                                   class: "form-select" %>
+      </div>
+
+      <!-- Rol del plan -->
       <div class="mb-3">
         <%= form.label :target_role, "Rol del plan", class: "form-label fw-bold" %>
         <%= form.select :target_role,
@@ -22,20 +34,19 @@
                         class: "form-select" %>
       </div>
 
-
       <!-- Tipo de plan -->
       <div class="mb-3">
         <%= form.label :plan_type, "Tipo de Plan", class: "form-label fw-bold" %>
-        <%= form.text_field :plan_type, class: "form-control", placeholder: "Ej. Básico, Premium, Empresarial" %>
+        <%= form.text_field :plan_type, class: "form-control", placeholder: "Ej. Mensual, Anual, Semestral" %>
       </div>
 
       <!-- Duración -->
       <div class="mb-3">
         <%= form.label :duration, "Duración (meses)", class: "form-label fw-bold" %>
-        <%= form.select :duration, (0..12).map { |m| [m, m] }, { prompt: "Seleccione duración" }, class: "form-select" %>
+        <%= form.select :duration, (1..12).map { |m| [m, m] }, { prompt: "Seleccione duración" }, class: "form-select" %>
       </div>
 
-
+      <!-- Features -->
       <div class="mb-3">
         <%= form.label :features, "Beneficios del plan", class: "form-label fw-bold" %>
         <%= form.text_area :features,
