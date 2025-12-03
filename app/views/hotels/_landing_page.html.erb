@@ -910,12 +910,22 @@
           <div class="hotel-card">
             <div class="position-relative">
               <% est = hotel.establishment %>
-              <% if est.galleries.any? && est.galleries.first.gallery_images.any? %>
-                <% first_image = est.galleries.first.gallery_images.first.file %>
-                <%= image_tag first_image, class: "card-img-top hotel-image", alt: hotel.establishment.name, loading: "lazy", height: 200 if first_image.attached? %>
-              <% else %>
-                <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 200 %>
+              <%# if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                <%# first_image = est.galleries.first.gallery_images.first.file %>
+                <%#= image_tag first_image, class: "card-img-top hotel-image", alt: hotel.establishment.name, loading: "lazy", height: 200 if first_image.attached? %>
+              <%# else %>
+                <%#= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 200 %>
+              <%# end %>
 
+              <% cover_image = est.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
+
+              <% if cover_image&.attached? %>
+                <%= image_tag cover_image, class: "card-img-top hotel-image", height: 300 %>
+              <% elsif est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                <% first_image = est.galleries.first.gallery_images.first.file %>
+                <%= image_tag first_image, class: "card-img-top hotel-image", height: 300 if first_image.attached? %>
+              <% else %>
+                <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 300 %>
               <% end %>
 
               <%# if hotel.images.attached? %>
@@ -927,7 +937,7 @@
             </div>
             <div class="hotel-card-body">
               <h3 class="hotel-card-title"><%= hotel.establishment.name %></h3>
-              <div class="hotel-card-type"><%= hotel.establishment.category&.humanize || "Hotel" %></div>
+              <div class="hotel-card-type"><%= hotel_type_label(hotel.hotel_type.presence)  || "Hotel" %></div>
               <div class="hotel-card-location">
                 <i class="bi bi-geo-alt"></i>
                 <%= hotel.establishment.city&.name || "Ubicación no especificada" %>
@@ -941,12 +951,26 @@
                   <small class="text-muted ms-1">(<%= stars %> estrellas)</small>
                 </div>
               </div>
-              <div class="hotel-price">$<%= hotel.establishment.price_per_night %></div>
+              <div class="hotel-price">
+                <%= number_to_currency(hotel.establishment.price_per_night, unit: "$", precision: 2) %>
+              </div>
+
               <div class="hotel-price-note">por noche • impuestos incluidos</div>
               <div class="hotel-features">
                 <% hotel.establishment.amenities.limit(3).each do |amenity| %>
                   <span class="badge bg-light text-dark border small">
                     <i class="bi bi-check-circle text-success me-1"></i><%= amenity.name %>
+                  </span>
+                <% end %>
+                <!-- Servicios adicionales estáticos para hoteles -->
+                <% if est.amenities.empty? %>
+                  <span class="badge bg-light text-dark border small">
+                    <i class="bi bi-ban text-primary me-1"></i>No existen comodidades registradas
+                  </span>
+                <% end %>
+                <% if est.amenities.size > 3 %>
+                  <span class="badge bg-secondary bg-opacity-10 text-secondary border-0 small">
+                    +<%= est.amenities.size - 3 %> más
                   </span>
                 <% end %>
               </div>
@@ -967,22 +991,41 @@
       <p class="section-subtitle">Encuentra el estilo perfecto para tu viaje</p>
     </div>
     <div class="row g-4">
+<!--      <div class="col-6 col-md-3">-->
+<!--        <div class="category-card">-->
+<!--          <div class="category-icon">-->
+<!--            <i class="bi bi-building"></i>-->
+<!--          </div>-->
+<!--          <div class="category-title">Hoteles convencionales</div>-->
+<!--          <div class="category-count"><%#= Hotel.where(hotel_type: 'conventional').count %> opciones</div>-->
+          <%#= link_to "Hoteles Convencionales", search_results_hotels_path(hotel_type: "conventional"), class: "btn btn-success" %>
+
+<!--        </div>-->
+<!--      </div>-->
       <div class="col-6 col-md-3">
-        <div class="category-card">
-          <div class="category-icon">
-            <i class="bi bi-building"></i>
+        <%= link_to search_results_hotels_path(hotel_type: "conventional"), class: "text-decoration-none" do %>
+          <div class="category-card">
+            <div class="category-icon">
+              <i class="bi bi-building"></i>
+            </div>
+
+            <div class="category-title">Hoteles convencionales</div>
+
+            <div class="category-count">
+              <%= Hotel.where(hotel_type: 'conventional').count %> opciones
+            </div>
+
           </div>
-          <div class="category-title">Hoteles</div>
-          <div class="category-count"><%= Hotel.where(hotel_type: 'conventional').count %> opciones</div>
-        </div>
+        <% end %>
       </div>
+
       <div class="col-6 col-md-3">
         <div class="category-card">
           <div class="category-icon">
             <i class="bi bi-house-door"></i>
           </div>
-          <div class="category-title">Resorts</div>
-          <div class="category-count"><%= Hotel.count %> resorts</div>
+          <div class="category-title">Hoteles boutique</div>
+          <div class="category-count"><%= Hotel.where(hotel_type: 'boutique').count %> opciones</div>
         </div>
       </div>
       <div class="col-6 col-md-3">
@@ -991,7 +1034,7 @@
             <i class="bi bi-tree"></i>
           </div>
           <div class="category-title">Ecolodges</div>
-          <div class="category-count"><%= Hotel.count %> opciones</div>
+          <div class="category-count"><%= Hotel.where(hotel_type: 'ecohotel').count %> opciones</div>
         </div>
       </div>
       <div class="col-6 col-md-3">
@@ -999,8 +1042,8 @@
           <div class="category-icon">
             <i class="bi bi-water"></i>
           </div>
-          <div class="category-title">Playas</div>
-          <div class="category-count"><%= Hotel.count %> alojamientos</div>
+          <div class="category-title">Resorts</div>
+          <div class="category-count"><%= Hotel.where(hotel_type: 'resort').count %> opciones</div>
         </div>
       </div>
     </div>

@@ -1,0 +1,47 @@
+<div class="container py-4">
+  <h2 class="mb-4">Editar platillo</h2>
+
+  <div class="card p-4 shadow-sm">
+    <%= form_with(model: [@menu_category, @menu_item], local: true) do |f| %>
+
+      <!-- Nombre -->
+      <div class="mb-3">
+        <%= f.label :name, "Nombre del platillo", class: "form-label" %>
+        <%= f.text_field :name, class: "form-control" %>
+      </div>
+
+      <!-- Descripción -->
+      <div class="mb-3">
+        <%= f.label :description, "Descripción", class: "form-label" %>
+        <%= f.text_area :description, rows: 4, class: "form-control" %>
+      </div>
+
+      <!-- Precio -->
+      <div class="mb-3">
+        <%= f.label :price, "Precio", class: "form-label" %>
+        <%= f.number_field :price, step: 0.01, class: "form-control" %>
+      </div>
+
+      <!-- Botón Guardar -->
+      <div class="d-flex justify-content-between mt-4">
+        <%= link_to "Cancelar",
+                    menu_category_path(@menu_category),
+                    class: "btn btn-secondary" %>
+
+        <%= f.submit "Guardar cambios", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Zona de eliminación -->
+  <div class="card p-4 shadow-sm mt-4 border-danger">
+    <h5 class="text-danger">Eliminar este platillo</h5>
+    <p class="text-muted">Esta acción no puede deshacerse.</p>
+
+    <%= button_to "Eliminar platillo",
+                  menu_category_menu_item_path(@menu_category, @menu_item),
+                  method: :delete,
+                  data: { turbo_confirm: "¿Eliminar este platillo?" },
+                  class: "btn btn-danger" %>
+  </div>
+</div>

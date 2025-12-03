@@ -54,7 +54,7 @@
         <% if user_signed_in? %>
           <% if current_user.administrador? %>
             <li class="nav-item"><%= link_to "Dashboard", admin_dashboard_index_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "Menùs", menu_categories_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "Menús", menu_categories_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "Planes", plans_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "Planes de pago", plan_prices_path, class: "nav-link" %></li>
 

@@ -86,7 +86,10 @@
           <%= e.label :name, "Nombre público del hotel" %>
           <%= e.text_field :name, class: "form-control" %>
         </div>
-
+        <div class="mb-3">
+          <%= e.label :price_per_night, "Precio por noche" %>
+          <%= e.number_field :price_per_night, step: 0.01, class: "form-control" %>
+        </div>
         <div class="mb-3">
           <%= e.label :address, "Dirección completa" %>
           <%= e.text_field :address, class: "form-control" %>
@@ -131,6 +134,7 @@
                      options_for_select((1..5).map { |i| ["#{"⭐" * i}", i] }, @hotel.stars),
                      {}, class: "form-select" %>
       </div>
+
     </div>
   </div>
 

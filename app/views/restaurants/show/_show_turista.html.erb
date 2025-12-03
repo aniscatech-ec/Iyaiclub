@@ -1,120 +1,545 @@
-<div class="container my-5">
+<!-- app/views/restaurants/show.html.erb -->
+<div class="hybrid-restaurant-show">
+  <!-- Hero Section Mejorada -->
+  <section class="restaurant-hero mb-5">
+    <div class="hero-container position-relative">
+      <!--      <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" class="w-100 hero-image" alt="Restaurante">-->
+      <% cover_image = restaurant.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
 
-  <!-- Encabezado principal -->
-  <div class="text-center mb-5">
-    <h1 class="fw-bold text-primary">
-      <i class="fas fa-utensils me-2"></i><%= restaurant.establishment.name %>
-    </h1>
-    <p class="text-muted">Detalles completos del restaurante</p>
-  </div>
-
-  <!-- Datos legales -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-primary text-white fw-bold">
-      <i class="fas fa-file-contract me-2"></i> Datos legales
-    </div>
-    <div class="card-body">
-      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón
-        social:</strong> <%= restaurant.establishment.legal_info&.business_name || "No especificado" %></p>
-      <p>
-        <i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC:</strong> <%= restaurant.establishment.legal_info&.document_number || "No especificado" %>
-      </p>
-      <p>
-        <i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= restaurant.establishment.legal_info&.legal_representative || "No especificado" %>
-      </p>
-      <p>
-        <i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= restaurant.establishment.legal_info&.contact_email || "No especificado" %>
-      </p>
-      <p>
-        <i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= restaurant.establishment.legal_info&.contact_phone || "No especificado" %>
-      </p>
-    </div>
-  </div>
-
-  <!-- Perfil del restaurante -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-success text-white fw-bold">
-      <i class="fas fa-info-circle me-2"></i> Perfil del restaurante
-    </div>
-    <div class="card-body">
-      <p><i class="fas fa-drumstick-bite me-2 text-secondary"></i><strong>Tipo de comida:</strong>
-        <span class="badge bg-info text-dark"><%= restaurant.cuisine_type.presence || "No especificado" %></span>
-      </p>
-    </div>
-  </div>
-
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-warning text-white fw-bold">
-      <i class="fas fa-info-circle me-2"></i> Ubicación
-    </div>
-    <div class="card-body">
-      <p>
-        <i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= restaurant.establishment.country.name if restaurant.establishment.country %>
-      </p>
-      <p>
-        <i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= restaurant.establishment.province.name if restaurant.establishment.province %>
-      </p>
-      <p>
-        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= restaurant.establishment.city.name if restaurant.establishment.city %>
-      </p>
-      <p>
-        <i class="fas fa-signature me-2 text-secondary"></i><strong>Ubicación:</strong> <%= restaurant.establishment.address if restaurant.establishment.address %>
-      </p>
-
-      <!-- Mapa -->
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Longitude:</strong> <%= restaurant.establishment.longitude if restaurant.establishment.longitude %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Latitude:</strong> <%= restaurant.establishment.latitude if restaurant.establishment.latitude %></p>
-
-      <!-- Mapa -->
-      <% if restaurant.establishment.latitude.present? && restaurant.establishment.longitude.present? %>
-        <div id="map"
-             data-controller="map-show"
-             data-map-show-lat-value="<%= restaurant.establishment.latitude %>"
-             data-map-show-lng-value="<%= restaurant.establishment.longitude %>"
-             style="height: 400px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1);">
-        </div>
+      <% if cover_image&.attached? %>
+        <%= image_tag cover_image, class: "w-100 hero-image", height: 300 %>
+      <% elsif restaurant.galleries.any? && restaurant.galleries.first.gallery_images.any? %>
+        <% first_image = restaurant.galleries.first.gallery_images.first.file %>
+        <%= image_tag first_image, class: "w-100 hero-image", height: 300 if first_image.attached? %>
       <% else %>
-        <p class="text-muted fst-italic">Coordenadas del hotel no registradas, el mapa no puede mostrarse.</p>
+        <%= image_tag "hotel-placeholder.jpg", class: "w-100 hero-image", height: 300 %>
       <% end %>
 
 
+      <div class="hero-content position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end">
+        <div class="container">
+          <div class="row align-items-end">
+            <div class="col-12 col-lg-8">
+              <h1 class="text-white display-5 fw-light mb-2"><%= restaurant.establishment.name %></h1>
+              <div class="d-flex align-items-center text-white-80 mb-3 flex-wrap gap-3">
+                <span class="rating-badge">
+                  <i class="bi bi-star-fill me-1"></i>4.7/5 (247 reseñas)
+                </span>
+                <span class="cuisine-type"><%= restaurant.cuisine_type.presence || "No especificado" %></span>
+                <span class="price-range">$45-85</span>
+              </div>
+            </div>
+            <div class="col-12 col-lg-4 text-lg-end">
+              <div class="status-indicator d-inline-flex align-items-center bg-success text-white px-3 py-2 rounded">
+                <div class="pulse-dot me-2"></div>
+                Abierto hasta las 22:00
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Galería -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-dark text-white fw-bold">
-      <i class="fas fa-images me-2"></i> Galería
-    </div>
-    <div class="card-body">
-      <% if restaurant.establishment.galleries.any? %>
-        <% restaurant.establishment.galleries.each do |gallery| %>
-          <h5 class="fw-bold mt-3">
-            <i class="fas fa-folder-open me-2 text-danger"></i><%= gallery.name %>
-          </h5>
-          <div class="d-flex flex-wrap">
-            <% gallery.gallery_images.each do |gi| %>
-              <% if gi.file.attached? %>
-                <div class="m-2">
-                  <%= image_tag gi.file.variant(resize_to_limit: [200, 200]),
-                                class: "img-thumbnail shadow-sm rounded" %>
+  <div class="container">
+    <div class="row">
+      <!-- Contenido Principal - Funcional -->
+      <div class="col-12 col-lg-8">
+        <!-- Información Rápida -->
+        <section class="quick-info-cards mb-5">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-card text-center p-3 border rounded">
+                <i class="bi bi-geo-alt text-primary fs-4 mb-2"></i>
+                <div class="fw-medium">Ubicación</div>
+                <div class="text-muted small"><%= restaurant.establishment.address if restaurant.establishment.address %></div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-card text-center p-3 border rounded">
+                <i class="bi bi-clock text-primary fs-4 mb-2"></i>
+                <div class="fw-medium">Horario</div>
+                <div class="text-muted small">12:00-22:00</div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-card text-center p-3 border rounded">
+                <i class="bi bi-telephone text-primary fs-4 mb-2"></i>
+                <div class="fw-medium">Teléfono</div>
+                <div class="text-muted small">+1 555-0123</div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <div class="info-card text-center p-3 border rounded">
+                <i class="bi bi-people text-primary fs-4 mb-2"></i>
+                <div class="fw-medium">Capacidad</div>
+                <div class="text-muted small">80 personas</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Descripción Elegante -->
+        <section class="description-section mb-5">
+          <h3 class="h5 fw-normal text-dark mb-3">Experiencia Gastronómica</h3>
+          <p class="text-muted lh-lg mb-4">
+            <td class="text-center"><%= restaurant.establishment.long_description.presence || "No existe descripción" %></td>
+
+          </p>
+          <div class="row g-4">
+            <div class="col-12 col-sm-6">
+              <div class="feature-item d-flex align-items-start">
+                <i class="bi bi-award text-warning mt-1 me-3"></i>
+                <div>
+                  <div class="fw-medium text-dark mb-1">Ingredientes Premium</div>
+                  <div class="text-muted small">Productos locales y orgánicos</div>
                 </div>
-              <% else %>
-                <p class="text-muted fst-italic">Sin imágenes</p>
-              <% end %>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <div class="feature-item d-flex align-items-start">
+                <i class="bi bi-wine-glass text-warning mt-1 me-3"></i>
+                <div>
+                  <div class="fw-medium text-dark mb-1">Bodega Seleccionada</div>
+                  <div class="text-muted small">200+ etiquetas premium</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Menú Destacado Mejorado -->
+        <section class="menu-section mb-5">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="h5 fw-normal text-dark mb-0">Platos Destacados</h3>
+            <button class="btn btn-outline-dark btn-sm rounded-pill">
+              Ver menú completo
+            </button>
+          </div>
+
+          <div class="menu-items">
+            <div class="menu-item border-bottom pb-4 mb-4">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <div class="fw-medium text-dark mb-1">Risotto de Mariscos</div>
+                  <div class="text-muted small mb-2">Arborio, langostinos, calamares, mejillones y azafrán</div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border small">Popular</span>
+                    <span class="badge bg-light text-dark border small">Mariscos</span>
+                  </div>
+                </div>
+                <div class="col-4 text-end">
+                  <div class="h5 text-dark mb-0">$28</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-item border-bottom pb-4 mb-4">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <div class="fw-medium text-dark mb-1">Lomo Angus</div>
+                  <div class="text-muted small mb-2">Corte premium 300g con verduras asadas y reducción de vino</div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border small">Especialidad</span>
+                  </div>
+                </div>
+                <div class="col-4 text-end">
+                  <div class="h5 text-dark mb-0">$35</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Comodidades Elegantes -->
+        <section class="amenities-section mb-5">
+          <h3 class="h5 fw-normal text-dark mb-4">Comodidades</h3>
+          <div class="row g-3">
+
+            <% restaurant.establishment.amenities.limit(3).each do |amenity| %>
+<!--              <div class="col-6 col-sm-4 col-md-3">-->
+<!--                <div class="amenity-item text-center p-3 border rounded">-->
+<!--                      <span class="badge bg-light text-dark border small">-->
+<!--                        <i class="bi bi-check-circle text-success me-1"></i><%#= amenity.name %>-->
+<!--                      </span>-->
+<!--                </div>-->
+<!--              </div>-->
+              <div class="col-6 col-sm-4 col-md-3">
+                <div class="amenity-item text-center p-3 border rounded">
+<!--                  <i class="bi bi-wifi text-primary fs-5 mb-2"></i>-->
+                  <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
+                    <% svg = amenity.custom_icon.download %>
+                    <% svg = svg.gsub(/fill="[^"]*"/, '') %> <!-- elimina colores internos -->
+                    <%= raw svg.gsub('<svg', '<svg width="32" height="32" fill="#28a745" class="text-success"') %>
+                  <% else %>
+                    <i class="bi bi-check-circle text-success me-1"></i>
+                  <% end %>
+
+                  <div class="small"><%= amenity.name %></div>
+                </div>
+              </div>
             <% end %>
           </div>
-        <% end %>
-      <% else %>
-        <p class="text-muted fst-italic">No hay imágenes registradas en la galería.</p>
-      <% end %>
+
+        </section>
+      </div>
+
+      <!-- Sidebar Híbrido -->
+      <div class="col-12 col-lg-4">
+        <div class="sticky-sidebar">
+          <!-- Widget de Reserva Mejorado -->
+          <section class="reservation-widget mb-4">
+            <div class="card border-light shadow-sm">
+              <div class="card-body p-4">
+                <h4 class="h6 fw-medium text-dark mb-3">Reservar mesa</h4>
+
+                <form class="reservation-form">
+                  <div class="mb-3">
+                    <label class="form-label small fw-medium text-muted">Fecha</label>
+                    <input type="date" class="form-control border" value="2024-01-15">
+                  </div>
+
+                  <div class="row g-2 mb-3">
+                    <div class="col-6">
+                      <label class="form-label small fw-medium text-muted">Hora</label>
+                      <select class="form-select border">
+                        <option>19:00</option>
+                        <option>19:30</option>
+                        <option>20:00</option>
+                        <option>20:30</option>
+                      </select>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small fw-medium text-muted">Personas</label>
+                      <select class="form-select border">
+                        <option>2 personas</option>
+                        <option>3 personas</option>
+                        <option>4 personas</option>
+                        <option>5 personas</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label small fw-medium text-muted">Tipo de mesa</label>
+                    <select class="form-select border">
+                      <option>Cualquier mesa</option>
+                      <option>Terraza</option>
+                      <option>Ventana</option>
+                      <option>Privada</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn btn-dark w-100 py-3 fw-medium">
+                    Confirmar reserva
+                  </button>
+
+                  <div class="text-center mt-3">
+                    <small class="text-muted">
+                      <i class="bi bi-shield-check me-1"></i>Reserva segura
+                    </small>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <!-- Contacto Rápido -->
+          <section class="quick-contact">
+            <div class="card border-light shadow-sm">
+              <div class="card-body p-3">
+                <div class="btn-group w-100" role="group">
+                  <button class="btn btn-outline-dark">
+                    <i class="bi bi-telephone"></i>
+                  </button>
+                  <button class="btn btn-outline-dark">
+                    <i class="bi bi-whatsapp"></i>
+                  </button>
+                  <button class="btn btn-outline-dark">
+                    <i class="bi bi-share"></i>
+                  </button>
+                  <button class="btn btn-outline-dark">
+                    <i class="bi bi-heart"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Información Útil -->
+          <section class="useful-info mt-4">
+            <div class="card border-light shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-medium text-dark mb-3">Información útil</h6>
+                <div class="info-list">
+                  <div class="info-item d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Tiempo promedio</span>
+                    <span class="text-dark">1.5-2h</span>
+                  </div>
+                  <div class="info-item d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">Cancelación</span>
+                    <span class="text-dark">2h antes</span>
+                  </div>
+                  <div class="info-item d-flex justify-content-between py-2">
+                    <span class="text-muted">Pagos</span>
+                    <span class="text-dark">Todos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Botones -->
-  <div class="text-center mt-4">
-    <%= link_to "Editar", edit_restaurant_path(restaurant), class: "btn btn-primary me-2 px-4" %>
-    <%= link_to "Volver", restaurants_path, class: "btn btn-outline-secondary px-4" %>
-  </div>
+    <!-- Galería Minimalista -->
+    <section class="gallery-section mt-5 pt-5 border-top">
+      <h3 class="h5 fw-normal text-dark mb-4">Galería</h3>
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+               class="w-100 gallery-image rounded" alt="Interior">
+        </div>
+        <div class="col-6 col-md-3">
+          <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+               class="w-100 gallery-image rounded" alt="Comida">
+        </div>
+        <div class="col-6 col-md-3">
+          <img src="https://images.unsplash.com/photo-1578474846511-04ba529f0b88?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+               class="w-100 gallery-image rounded" alt="Ambiente">
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="w-100 h-100 rounded bg-light d-flex align-items-center justify-content-center">
+            <a href="#" class="text-muted text-decoration-none">
+              <i class="bi bi-plus-circle fs-1"></i>
+              <div class="small mt-1">Ver más</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Reseñas Elegantes -->
+    <section class="reviews-section mt-5 pt-5 border-top">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="h5 fw-normal text-dark mb-0">Opiniones de clientes</h3>
+        <button class="btn btn-outline-dark btn-sm rounded-pill">
+          Ver todas (247)
+        </button>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-12 col-md-6">
+          <div class="review-card p-4 border rounded">
+            <div class="d-flex align-items-center mb-3">
+              <div class="text-warning me-3">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+              <small class="text-muted">Hace 2 días</small>
+            </div>
+            <p class="text-muted mb-3">"Comida excepcional y servicio impecable. El risotto de mariscos es lo mejor que
+              he
+              probado. Volveré sin duda."</p>
+            <div class="d-flex align-items-center">
+              <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                   style="width: 32px; height: 32px; font-size: 0.8rem;">AM
+              </div>
+              <div>
+                <div class="fw-medium text-dark">Ana Martínez</div>
+                <div class="text-muted small">3 reseñas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="review-card p-4 border rounded">
+            <div class="d-flex align-items-center mb-3">
+              <div class="text-warning me-3">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+              </div>
+              <small class="text-muted">Hace 1 semana</small>
+            </div>
+            <p class="text-muted mb-3">"Ambiente perfecto para una cena especial. La terraza tiene vistas increíbles y
+              los
+              cocteles son espectaculares."</p>
+            <div class="d-flex align-items-center">
+              <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                   style="width: 32px; height: 32px; font-size: 0.8rem;">CL
+              </div>
+              <div>
+                <div class="fw-medium text-dark">Carlos López</div>
+                <div class="text-muted small">7 reseñas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </div>
+
+<style>
+    .hybrid-restaurant-show {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .hero-container {
+        border-radius: 0 0 1rem 1rem;
+        overflow: hidden;
+    }
+
+    .hero-image {
+        height: 400px;
+        object-fit: cover;
+    }
+
+    .hero-content {
+        background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.7));
+        padding-bottom: 2rem;
+    }
+
+    .rating-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    .text-white-80 {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .cuisine-type, .price-range {
+        padding: 4px 0;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #fff;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    /* Cards de información */
+    .info-card, .amenity-item {
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef !important;
+    }
+
+    .info-card:hover, .amenity-item:hover {
+        transform: translateY(-2px);
+        border-color: #dee2e6 !important;
+    }
+
+    /* Menú items */
+    .menu-item {
+        transition: border-color 0.3s ease;
+    }
+
+    .menu-item:hover {
+        border-color: #dee2e6 !important;
+    }
+
+    /* Widget de reserva */
+    .reservation-widget .card {
+        border: 1px solid #e9ecef !important;
+    }
+
+    .reservation-form .form-control, .reservation-form .form-select {
+        border-radius: 0.5rem;
+    }
+
+    /* Galería */
+    .gallery-image {
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-image:hover {
+        transform: scale(1.02);
+    }
+
+    /* Reseñas */
+    .review-card {
+        transition: transform 0.3s ease;
+        border: 1px solid #e9ecef !important;
+    }
+
+    .review-card:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Sidebar sticky */
+    .sticky-sidebar {
+        position: sticky;
+        top: 2rem;
+        z-index: 100;
+    }
+
+    /* Botones y elementos interactivos */
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-dark:hover {
+        background: #000;
+        color: #fff;
+    }
+
+    /* Tipografía mejorada */
+    .h5, .h6 {
+        letter-spacing: -0.01em;
+        font-weight: 400;
+    }
+
+    .fw-medium {
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-image {
+            height: 300px;
+        }
+
+        .display-5 {
+            font-size: 2rem;
+        }
+
+        .sticky-sidebar {
+            position: static;
+        }
+    }
+
+    /* Mejoras de espaciado */
+    .section-spacing {
+        margin-bottom: 3rem;
+    }
+
+    .border-top {
+        border-color: #e9ecef !important;
+    }
+</style>

@@ -24,8 +24,6 @@ class RestaurantsController < ApplicationController
       @restaurants = @restaurants.where(restaurant_type: params[:restaurant_type])
     end
 
-
-
     if params[:min_price].present? && params[:max_price].present?
       @restaurants = @restaurants.joins(:establishment)
                                  .where(establishments: { price_per_night: params[:min_price]..params[:max_price] })
@@ -52,8 +50,6 @@ class RestaurantsController < ApplicationController
       @restaurants = Restaurant.joins(:establishment)
                                .where(establishments: { user_id: current_user.id, category: "restaurante" })
 
-
-
     else
       @restaurants = @restaurants.page(params[:page]).per(9)
 
@@ -64,6 +60,7 @@ class RestaurantsController < ApplicationController
       format.js
     end
   end
+
   def search_results
     @cities = City.all
     @amenities = Amenity.all
@@ -95,10 +92,6 @@ class RestaurantsController < ApplicationController
       end
     end
 
-
-
-
-
     if params[:cuisine_type].present?
       @restaurants = @restaurants.where(cuisine_type: params[:cuisine_type])
     end
@@ -107,8 +100,6 @@ class RestaurantsController < ApplicationController
     if params[:restaurant_type].present?
       @restaurants = @restaurants.where(restaurant_type: params[:restaurant_type])
     end
-
-
 
     if params[:min_price].present? && params[:max_price].present?
       @restaurants = @restaurants.joins(:establishment)
@@ -137,9 +128,6 @@ class RestaurantsController < ApplicationController
       format.js
     end
   end
-
-
-
 
   def show
   end
@@ -300,6 +288,7 @@ class RestaurantsController < ApplicationController
         :check_out_time,
         :video,
         :video_url,
+        :price_per_night,
         policies: [],
         amenity_ids: [],
         legal_info_attributes: [

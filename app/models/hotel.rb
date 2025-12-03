@@ -3,6 +3,8 @@ class Hotel < ApplicationRecord
 
   has_many :units, dependent: :destroy
 
+  # enum :hotel_type, conventional: 0, boutique: 1, chain: 2, resort: 3, ecohotel: 4
+
   delegate :user,
            :images,
            :establishment_amenities,

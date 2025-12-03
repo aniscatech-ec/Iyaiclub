@@ -72,14 +72,25 @@
           <!-- Tipo -->
           <div class="col-12">
             <label for="hotel_type" class="form-label fw-semibold text-secondary">Tipo de hotel</label>
+<!--            <select name="hotel_type" id="hotel_type" class="form-select shadow-sm border-success-subtle">-->
+<!--              <option value="">Todos los tipos</option>-->
+<!--              <option value="conventional">Hotel convencional</option>-->
+<!--              <option value="boutique">Hotel boutique</option>-->
+<!--              <option value="chain">Hotel de cadena</option>-->
+<!--              <option value="resort">Resort</option>-->
+<!--              <option value="ecohotel">Ecohotel / Ecolodge</option>-->
+<!--            </select>-->
             <select name="hotel_type" id="hotel_type" class="form-select shadow-sm border-success-subtle">
               <option value="">Todos los tipos</option>
-              <option value="conventional">Hotel convencional</option>
-              <option value="boutique">Hotel boutique</option>
-              <option value="chain">Hotel de cadena</option>
-              <option value="resort">Resort</option>
-              <option value="ecohotel">Ecohotel / Ecolodge</option>
+              <option value="conventional"  <%= "selected" if params[:hotel_type] == "conventional" %>>Hotel convencional</option>
+              <option value="boutique"      <%= "selected" if params[:hotel_type] == "boutique" %>>Hotel boutique</option>
+              <option value="chain_hotel"   <%= "selected" if params[:hotel_type] == "chain_hotel" %>>Hotel de cadena</option>
+              <option value="resort"        <%= "selected" if params[:hotel_type] == "resort" %>>Resort</option>
+              <option value="ecohotel"      <%= "selected" if params[:hotel_type] == "ecohotel" %>>Ecohotel / Ecolodge</option>
             </select>
+
+
+
           </div>
 
           <!-- Comodidades -->

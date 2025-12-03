@@ -527,6 +527,7 @@ class HotelsController < ApplicationController
         :check_out_time,
         :video,
         :video_url,
+        :price_per_night,
         policies: [],
         amenity_ids: [],
         legal_info_attributes: [

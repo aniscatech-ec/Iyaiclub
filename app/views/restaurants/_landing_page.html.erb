@@ -660,11 +660,25 @@
         <div class="col-md-4">
           <div class="restaurant-card">
             <div class="position-relative">
-              <% if restaurant.images.attached? %>
-                <%= image_tag restaurant.images.first, class: "restaurant-card-img", alt: restaurant.establishment.name %>
+
+              <% cover_image = restaurant.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
+
+              <% if cover_image&.attached? %>
+                <%= image_tag cover_image, class: "card-img-top hotel-image", height: 300 %>
+              <% elsif restaurant.galleries.any? && restaurant.galleries.first.gallery_images.any? %>
+                <% first_image = restaurant.galleries.first.gallery_images.first.file %>
+                <%= image_tag first_image, class: "card-img-top hotel-image", height: 300 if first_image.attached? %>
               <% else %>
-                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" class="restaurant-card-img" alt="<%= restaurant.establishment.name %>">
+                <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 300 %>
               <% end %>
+
+
+
+              <%# if restaurant.images.attached? %>
+                <%#= image_tag restaurant.images.first, class: "restaurant-card-img", alt: restaurant.establishment.name %>
+              <%# else %>
+<!--                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" class="restaurant-card-img" alt="<%#= restaurant.establishment.name %>">-->
+              <%# end %>
               <span class="restaurant-badge">Destacado</span>
             </div>
             <div class="restaurant-card-body">

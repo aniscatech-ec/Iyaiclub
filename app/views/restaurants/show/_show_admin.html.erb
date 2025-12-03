@@ -181,9 +181,10 @@
                 <span class="fw-bold"><%= number_to_currency(item.price) %></span>
                 <div class="mt-1">
                   <%= link_to "Editar", edit_menu_category_menu_item_path(category, item), class: "btn btn-sm btn-outline-secondary" %>
-                  <%= link_to "Eliminar", menu_category_menu_item_path(category, item),
-                              method: :delete, data: { confirm: "Eliminar platillo?" },
+                  <%= button_to "Eliminar", menu_category_menu_item_path(category, item),
+                              method: :delete, data: { turbo_confirm: "Eliminar platillo?" },
                               class: "btn btn-sm btn-danger ms-1" %>
+
                 </div>
               </div>
             </li>

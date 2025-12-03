@@ -12,11 +12,22 @@
 
               <!-- Imagen principal con badges superpuestos -->
               <div class="position-relative">
-                <% if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                <%# if est.galleries.any? && est.galleries.first.gallery_images.any? %>
+                  <%# first_image = est.galleries.first.gallery_images.first.file %>
+                  <%#= image_tag first_image, height: 250, class: "card-img-top restaurant-image" if first_image.attached? %>
+                <%# else %>
+                  <%#= image_tag "restaurant-placeholder.jpg", height: 250, class: "card-img-top restaurant-image" %>
+                <%# end %>
+
+                <% cover_image = est.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
+
+                <% if cover_image&.attached? %>
+                  <%= image_tag cover_image, class: "card-img-top hotel-image", height: 300 %>
+                <% elsif est.galleries.any? && est.galleries.first.gallery_images.any? %>
                   <% first_image = est.galleries.first.gallery_images.first.file %>
-                  <%= image_tag first_image, height: 250, class: "card-img-top restaurant-image" if first_image.attached? %>
+                  <%= image_tag first_image, class: "card-img-top hotel-image", height: 300 if first_image.attached? %>
                 <% else %>
-                  <%= image_tag "restaurant-placeholder.jpg", height: 250, class: "card-img-top restaurant-image" %>
+                  <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 300 %>
                 <% end %>
 
                 <!-- Badges superpuestos -->
@@ -34,7 +45,7 @@
                 <!-- Precio promedio -->
                 <div class="position-absolute bottom-0 end-0 m-2">
                   <span class="badge bg-dark bg-opacity-75 text-white fs-6">
-                    $<%= est.price_per_night %>/noche
+                    $<%= est.price_per_night %> / Platillo
                   </span>
                 </div>
               </div>

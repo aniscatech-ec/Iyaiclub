@@ -83,6 +83,11 @@
         </div>
 
         <div class="mb-3">
+          <%= e.label :price_per_night, "Precio promedio por platillo" %>
+          <%= e.number_field :price_per_night, step: 0.01, class: "form-control" %>
+        </div>
+
+        <div class="mb-3">
           <%= e.label :address, "Dirección completa" %>
           <%= e.text_field :address, class: "form-control" %>
         </div>
