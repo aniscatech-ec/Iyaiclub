@@ -26,6 +26,12 @@
     <input type="text" class="form-control" value="<%= @menu_category.name %>" disabled>
   </div>
 
+  <div class="form-check">
+    <%= f.check_box :is_special, class: "form-check-input" %>
+    <%= f.label :is_special, "Platillo destacado", class: "form-check-label" %>
+  </div>
+
+
   <div class="mb-3">
     <%= f.submit "Crear platillo", class: "btn btn-primary" %>
     <%= link_to "Cancelar", restaurant_path(@menu_item.restaurant || params[:restaurant_id]), class: "btn btn-secondary ms-2" %>

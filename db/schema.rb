@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_25_202417) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_03_141733) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -142,6 +142,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_25_202417) do
     t.string "hotel_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.time "check_in_time"
+    t.time "check_out_time"
+    t.time "early_check_in_from"
+    t.time "late_check_out_until"
+    t.boolean "reception_24h", default: false
+    t.time "reception_open_time"
+    t.time "reception_close_time"
     t.index ["establishment_id"], name: "index_hotels_on_establishment_id"
   end
 

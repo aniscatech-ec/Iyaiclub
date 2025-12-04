@@ -38,15 +38,28 @@
 
       <td>
         <div class="d-flex justify-content-center gap-2">
-          <%= link_to est, class: "btn btn-info btn-sm" do %>
-            <i class="fa-solid fa-eye"></i>
-          <% end %>
-          <%= link_to edit_establishment_path(est), class: "btn btn-warning btn-sm" do %>
-            <i class="fa-solid fa-pen-to-square"></i>
-          <% end %>
-          <%= link_to dashboard_establishment_path(est), class: "btn btn-secondary btn-sm" do %>
-            <i class="fa-solid fa-pen-to-square"></i>
-          <% end %>
+          <%#= link_to est, class: "btn btn-info btn-sm" do %>
+<!--            <i class="fa-solid fa-eye"></i>-->
+          <%# end %>
+
+          <%if est.category == "hotel"%>
+            <%= link_to hotel_path(est.hotel), class: "btn btn-info btn-sm" do %>
+              <i class="fa-solid fa-eye"></i>
+            <% end %>
+          <%elsif est.category == "restaurante"%>
+            <%= link_to restaurant_path(est.restaurant), class: "btn btn-info btn-sm" do %>
+              <i class="fa-solid fa-eye"></i>
+            <% end %>
+          <% end%>
+
+
+
+          <%#= link_to edit_establishment_path(est), class: "btn btn-warning btn-sm" do %>
+<!--            <i class="fa-solid fa-pen-to-square"></i>-->
+          <%# end %>
+          <%#= link_to dashboard_establishment_path(est), class: "btn btn-secondary btn-sm" do %>
+<!--            <i class="fa-solid fa-pen-to-square"></i>-->
+          <%# end %>
           <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este establecimiento?" }, class: "btn btn-danger btn-sm" do %>
             <i class="fa-solid fa-trash-can"></i>
           <% end %>

@@ -258,9 +258,24 @@ class RestaurantsController < ApplicationController
 
   private
 
+  # def set_restaurant
+  #   @restaurant = Restaurant.find(params[:id])
+  # end
+
   def set_restaurant
-    @restaurant = Restaurant.find(params[:id])
+    @restaurant = Restaurant
+                    .includes(
+                      establishment: {
+                        galleries: {
+                          gallery_images: {
+                            file_attachment: :blob
+                          }
+                        }
+                      }
+                    )
+                    .find(params[:id])
   end
+
 
   def restaurant_params_1
     params.require(:restaurant).permit(:cuisine_type, :restaurant_type)
@@ -297,7 +312,8 @@ class RestaurantsController < ApplicationController
           :document_number, # RUC
           :legal_representative, # Responsable / gerente
           :contact_email, # Email
-          :contact_phone # Teléfono
+          :contact_phone, # Teléfono
+          :country_code
         ],
         galleries_attributes: [
           :id, :name, :_destroy,

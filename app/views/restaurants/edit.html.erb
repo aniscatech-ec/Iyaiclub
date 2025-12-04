@@ -64,11 +64,53 @@
             <%= l.label :contact_email, "Email de contacto" %>
             <%= l.email_field :contact_email, class: "form-control" %>
           </div>
+<!--          <div class="mb-3">-->
+            <%#= l.label :contact_phone, "Teléfono de contacto" %>
+            <%#= l.telephone_field :contact_phone, class: "form-control" %>
+<!--          </div>-->
+
+
           <div class="mb-3">
-            <%= l.label :contact_phone, "Teléfono de contacto" %>
-            <%= l.telephone_field :contact_phone, class: "form-control" %>
+            <%= l.label :contact_phone, "Teléfono WhatsApp" %>
+
+            <div class="input-group">
+              <!-- SELECT DE PREFIJOS -->
+              <%= l.select :country_code,
+                           [
+                             ["🇪🇨 +593 Ecuador", "593"],
+                             ["🇨🇴 +57 Colombia", "57"],
+                             ["🇵🇪 +51 Perú", "51"],
+                             ["🇨🇱 +56 Chile", "56"],
+                             ["🇦🇷 +54 Argentina", "54"],
+                             ["🇲🇽 +52 México", "52"],
+                             ["🇺🇸 +1 USA", "1"]
+                           ],
+                           {
+                             selected: l.object.contact_phone&.slice(0, 3) || "593"
+                           },
+                           class: "form-select w-25"
+              %>
+
+
+              <!-- INPUT DEL NÚMERO -->
+              <%= l.text_field :contact_phone,
+                               value: l.object.contact_phone&.sub(/^\d{1,3}/, ''),
+                               class: "form-control",
+                               maxlength: 10,
+                               placeholder: "Ej: 983704598" %>
+            </div>
+
+            <small class="text-muted">
+              Seleccione el país e ingrese solo el número sin código.
+            </small>
           </div>
-        <% end %>
+
+
+            <small class="text-muted">Ingrese solo los 9 dígitos sin el 0 inicial</small>
+          </div>
+
+
+      <% end %>
       </div>
     </div>
   <% end %>

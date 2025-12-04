@@ -1,8 +1,12 @@
 class MenuCategoriesController < ApplicationController
-  # before_action :set_menu_category, only: [:show, :edit, :update, :destroy]
+  before_action :set_menu_category, only: [:show, :edit, :update, :destroy]
+  # before_action :set_menu_category, only: [:edit]
 
   def index
     @menu_categories = MenuCategory.all
+  end
+  def show
+
   end
 
   def new
@@ -18,7 +22,10 @@ class MenuCategoriesController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+    # @menu_category = MenuCategory.find(params[:id])
+
+  end
 
   def update
     if @menu_category.update(menu_category_params)

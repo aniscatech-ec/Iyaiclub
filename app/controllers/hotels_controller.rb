@@ -505,6 +505,13 @@ class HotelsController < ApplicationController
     params.require(:hotel).permit(
       :stars,
       :hotel_type,
+      :check_in_time,
+      :check_out_time,
+      :early_check_in_from,
+      :late_check_out_until,
+      :reception_24h,
+      :reception_open_time,
+      :reception_close_time,
       establishment_attributes: [
         :user_id,
         :id, # <-- para que no te bote el warning
@@ -536,7 +543,8 @@ class HotelsController < ApplicationController
           :document_number,
           :legal_representative,
           :contact_email,
-          :contact_phone
+          :contact_phone,
+          :country_code
         ],
         galleries_attributes: [
           :id, :name, :_destroy,
