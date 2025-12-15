@@ -3,6 +3,8 @@ Rails.application.routes.draw do
   # get "terms_and_conditions/index"
   get "/terms_and_conditions", to: "terms_and_conditions#index"
   get "/policy_and_privacy", to: "policy_and_privacy#index"
+  resources :booking_requests
+
   resources :menu_categories do
     resources :menu_items
   end # CRUD global
@@ -64,7 +66,6 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
   end
 
-
   resources :plans
   resources :plan_prices
   resources :subscriptions do
@@ -104,7 +105,7 @@ Rails.application.routes.draw do
     resources :galleries do
       resources :gallery_images do
         member do
-          patch :set_cover   # ← agrega esta línea
+          patch :set_cover # ← agrega esta línea
         end
       end
     end

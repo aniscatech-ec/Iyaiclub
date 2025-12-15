@@ -1,4 +1,5 @@
 class Establishment < ApplicationRecord
+  has_many :booking_requests, dependent: :destroy
   belongs_to :user
   has_many_attached :images
   # has_many :establishment_amenities #da error por elimincacion

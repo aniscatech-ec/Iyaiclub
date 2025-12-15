@@ -224,37 +224,37 @@
         </div>
 
         <!-- Early check-in -->
-        <div class="col-md-6">
-          <%= f.label :early_check_in_from, "Early Check-in desde", class: "form-label fw-semibold" %>
-          <%= f.time_field :early_check_in_from, class: "form-control" %>
-          <small class="text-muted">Opcional</small>
-        </div>
+<!--        <div class="col-md-6">-->
+          <%#= f.label :early_check_in_from, "Early Check-in desde", class: "form-label fw-semibold" %>
+          <%#= f.time_field :early_check_in_from, class: "form-control" %>
+<!--          <small class="text-muted">Opcional</small>-->
+<!--        </div>-->
 
         <!-- Late check-out -->
-        <div class="col-md-6">
-          <%= f.label :late_check_out_until, "Late Check-out hasta", class: "form-label fw-semibold" %>
-          <%= f.time_field :late_check_out_until, class: "form-control" %>
-          <small class="text-muted">Opcional</small>
-        </div>
+<!--        <div class="col-md-6">-->
+          <%#= f.label :late_check_out_until, "Late Check-out hasta", class: "form-label fw-semibold" %>
+          <%#= f.time_field :late_check_out_until, class: "form-control" %>
+<!--          <small class="text-muted">Opcional</small>-->
+<!--        </div>-->
 
         <!-- Recepción 24h -->
-        <div class="col-md-12">
-          <div class="form-check mt-3">
-            <%= f.check_box :reception_24h, class: "form-check-input" %>
-            <%= f.label :reception_24h, "Recepción 24 horas", class: "form-check-label fw-semibold" %>
-          </div>
-        </div>
+<!--        <div class="col-md-12">-->
+<!--          <div class="form-check mt-3">-->
+            <%#= f.check_box :reception_24h, class: "form-check-input" %>
+            <%#= f.label :reception_24h, "Recepción 24 horas", class: "form-check-label fw-semibold" %>
+<!--          </div>-->
+<!--        </div>-->
 
         <!-- Horario recepción -->
-        <div class="col-md-6">
-          <%= f.label :reception_open_time, "Recepción abre", class: "form-label fw-semibold" %>
-          <%= f.time_field :reception_open_time, class: "form-control", disabled: f.object.reception_24h %>
-        </div>
+<!--        <div class="col-md-6">-->
+          <%#= f.label :reception_open_time, "Recepción abre", class: "form-label fw-semibold" %>
+          <%#= f.time_field :reception_open_time, class: "form-control", disabled: f.object.reception_24h %>
+<!--        </div>-->
 
-        <div class="col-md-6">
-          <%= f.label :reception_close_time, "Recepción cierra", class: "form-label fw-semibold" %>
-          <%= f.time_field :reception_close_time, class: "form-control", disabled: f.object.reception_24h %>
-        </div>
+<!--        <div class="col-md-6">-->
+          <%#= f.label :reception_close_time, "Recepción cierra", class: "form-label fw-semibold" %>
+          <%#= f.time_field :reception_close_time, class: "form-control", disabled: f.object.reception_24h %>
+<!--        </div>-->
 
       </div>
     </div>

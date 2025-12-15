@@ -1,0 +1,278 @@
+<%= link_to hotel, class: "text-decoration-none text-dark" do %>
+  <div class="card hotel-card border-0 h-100 rounded-4 overflow-hidden hotel-card-pro">
+
+    <% est = hotel.establishment %>
+
+    <!-- ================= IMAGEN ================= -->
+    <div class="position-relative hotel-image-wrapper">
+
+      <% cover_image =
+           est.galleries
+              .joins(:gallery_images)
+              .find_by(gallery_images: { is_cover: true })
+             &.gallery_images
+             &.find_by(is_cover: true)
+             &.file %>
+
+      <% image_to_show =
+           if cover_image&.attached?
+             cover_image
+           elsif est.galleries.first&.gallery_images&.first&.file&.attached?
+             est.galleries.first.gallery_images.first.file
+           else
+             "hotel-placeholder.jpg"
+           end %>
+
+      <%= image_tag image_to_show,
+                    class: "card-img-top hotel-image",
+                    height: 300,
+                    loading: "lazy" %>
+
+      <div class="rating-badge position-absolute top-0 start-0 m-3">
+        <i class="bi bi-star-fill"></i>
+        <span><%= hotel.stars.presence || "-" %> Estrellas</span>
+      </div>
+
+      <div class="category-badge position-absolute top-0 end-0 m-3">
+        <%= hotel_type_label(hotel.hotel_type.presence) || "Hotel" %>
+      </div>
+
+      <div class="price-tag position-absolute bottom-0 end-0 m-3">
+        <div class="price-amount">$<%= est.price_per_night %></div>
+        <div class="price-label">POR NOCHE</div>
+      </div>
+    </div>
+
+    <!-- ================= BODY ================= -->
+    <div class="card-body p-4 d-flex flex-column">
+
+      <h5 class="hotel-title mb-2 text-truncate">
+        <%= est.name %>
+      </h5>
+
+      <div class="location mb-3">
+        <i class="bi bi-geo-alt-fill me-2"></i>
+        <span>
+          <%= est.city&.name || "Ciudad" %>,
+          <%= est.city&.province&.name || "Provincia" %>
+        </span>
+      </div>
+
+      <!-- Check-in / Check-out -->
+      <div class="timing-pro mb-3">
+        <div class="time-box">
+          <span class="label">Check-in</span>
+          <span class="time"><%= hotel.check_in_time&.strftime("%H:%M") || "-:-" %></span>
+        </div>
+
+        <div class="time-divider">
+          <i class="bi bi-arrow-left-right"></i>
+        </div>
+
+        <div class="time-box">
+          <span class="label">Check-out</span>
+          <span class="time"><%= hotel.check_out_time&.strftime("%H:%M") || "-:-" %></span>
+        </div>
+      </div>
+
+      <!-- Amenities -->
+      <div class="amenities-box mb-4">
+        <% amenities = est.amenities.limit(3) %>
+
+        <% if amenities.any? %>
+          <% amenities.each do |amenity| %>
+            <span class="amenity-pill">
+              <i class="bi bi-check-circle-fill"></i>
+              <%= amenity.name %>
+            </span>
+          <% end %>
+
+          <% if est.amenities.count > 3 %>
+            <span class="amenity-pill more">
+              +<%= est.amenities.count - 3 %>
+            </span>
+          <% end %>
+        <% else %>
+          <span class="amenity-pill empty">
+            Sin comodidades
+          </span>
+        <% end %>
+      </div>
+
+      <div class="mt-auto footer-pro">
+        <div class="rooms">
+          <i class="bi bi-door-closed-fill"></i>
+          <div>
+            <strong><%= hotel.units.count %></strong>
+            <small>Habitaciones</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+<% end %>
+
+<style>
+    .hotel-card-pro {
+        background: linear-gradient(180deg, #ffffff, #f8f9fb);
+        transition: all .35s ease;
+    }
+
+    .hotel-card-pro:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px rgba(0,0,0,.15);
+    }
+
+    /* Imagen */
+    .hotel-image {
+        transition: transform .6s ease;
+    }
+
+    .hotel-card-pro:hover .hotel-image {
+        transform: scale(1.08);
+    }
+
+    /* Badges */
+    .rating-badge,
+    .category-badge {
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .rating-badge {
+        background: rgba(255,193,7,.95);
+    }
+
+    .category-badge {
+        background: rgba(13,110,253,.95);
+        color: #fff;
+    }
+
+    /* Precio */
+    .price-tag {
+        background: rgba(0,0,0,.8);
+        backdrop-filter: blur(6px);
+        padding: 10px 16px;
+        border-radius: 14px;
+        color: white;
+    }
+
+    .price-amount {
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .price-label {
+        font-size: 9px;
+        letter-spacing: .12em;
+    }
+
+    /* Texto */
+    .hotel-title {
+        font-weight: 800;
+        font-size: 1.15rem;
+    }
+
+    .location {
+        font-size: .85rem;
+        color: #6c757d;
+    }
+
+    .location i {
+        color: #0d6efd;
+    }
+
+    /* ✅ Check-in / Check-out (GRADIENT MÁS PEQUEÑO) */
+    .timing-pro {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 10px;              /* 🔽 MENOS ALTO */
+        border-radius: 12px;
+        background: linear-gradient(
+                135deg,
+                rgba(13,110,253,.06),
+                rgba(13,110,253,.14)
+        );
+    }
+
+    .time-box {
+        text-align: center;
+        font-size: .85rem;              /* MISMO QUE BODY */
+    }
+
+    .time-box .label {
+        font-size: .7rem;
+        color: #6c757d;
+    }
+
+    .time-box .time {
+        font-size: .85rem;              /* MISMO BODY */
+        font-weight: 600;
+    }
+
+    .time-divider {
+        font-size: .7rem;
+        color: #6c757d;
+    }
+
+    /* Amenities */
+    .amenities-box {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 14px;
+        background: linear-gradient(
+                135deg,
+                rgba(13,110,253,.06),
+                rgba(13,110,253,.14)
+        );
+    }
+
+    .amenity-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .75rem;
+    }
+
+    .amenity-pill i {
+        color: #198754;
+    }
+
+    .amenity-pill.more {
+        font-weight: 700;
+        color: #0d6efd;
+    }
+
+    .amenity-pill.empty {
+        color: #adb5bd;
+    }
+
+    /* Footer */
+    .footer-pro {
+        border-top: 1px solid #e9ecef;
+        padding-top: 14px;
+    }
+
+    .rooms {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rooms i {
+        font-size: 1.3rem;
+        color: #0d6efd;
+    }
+
+    .rooms small {
+        font-size: .75rem;
+        color: #6c757d;
+    }
+
+</style>
