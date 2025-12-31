@@ -5,14 +5,56 @@
 <% message = URI.encode_www_form_component("Hola, quiero información sobre este hotel") %>
 
 <!-- BOTÓN WHATSAPP FLOTANTE -->
-<a
-  href="https://wa.me/<%= phone %>?text=<%= message %>"
-  target="_blank"
-  rel="noopener"
-  class="floating-whatsapp-btn"
->
-  <i class="bi bi-whatsapp"></i>
-</a>
+<!-- BOTÓN WHATSAPP FLOTANTE -->
+<%# if phone.present? %>
+<!--  <a-->
+<!--    href="https://wa.me/<%#= phone %>?text=<%#= message %>"-->
+<!--    target="_blank"-->
+<!--    rel="noopener"-->
+<!--    class="floating-whatsapp-btn"-->
+<!--    data-controller="booking-request"-->
+<!--    data-booking-request-establishment-id-value="<%#= hotel.establishment.id %>"-->
+<!--    data-booking-request-source-value="whatsapp"-->
+<!--  >-->
+<!--    <i class="bi bi-whatsapp"></i>-->
+<!--  </a>-->
+<%# end %>
+
+
+
+<% if phone.present? %>
+  <div class="whatsapp-circle-wrapper">
+    <svg viewBox="0 0 100 100" class="whatsapp-circle-text">
+      <defs>
+        <path
+          id="circlePath"
+          d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"
+          />
+      </defs>
+
+      <text>
+        <textPath href="#circlePath">
+          Reservar ahora · Reservar ahora ·
+        </textPath>
+      </text>
+    </svg>
+
+    <a
+      href="https://wa.me/<%= phone %>?text=<%= CGI.escape(message) %>"
+      target="_blank"
+      rel="noopener"
+      class="floating-whatsapp-btn"
+      aria-label="Reservar por WhatsApp"
+      data-controller="booking-request"
+      data-booking-request-establishment-id-value="<%= hotel.establishment.id %>"
+      data-booking-request-source-value="whatsapp"
+    >
+      <i class="bi bi-whatsapp"></i>
+    </a>
+  </div>
+<% end %>
+
+
 
 <div class="hybrid-hotel-show">
 
@@ -207,19 +249,51 @@
         margin-bottom: 8px;
     }
 
-    .floating-whatsapp-btn {
+
+    .whatsapp-circle-wrapper {
         position: fixed;
         bottom: 24px;
         right: 24px;
-        width: 60px;
-        height: 60px;
-        background: #25d366;
+        width: 110px;
+        height: 110px;
+        z-index: 9999;
+    }
+
+    /* TEXTO CIRCULAR */
+    .whatsapp-circle-text {
+        position: absolute;
+        inset: 0;
+        fill: #00ff00;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        pointer-events: none; /* no molesta el click */
+    }
+
+    /* BOTÓN CENTRAL */
+    .floating-whatsapp-btn {
+        position: absolute;
+        inset: 22px;
+        background-color: #25D366;
         color: #fff;
         border-radius: 50%;
+
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
-        z-index: 999;
+
+        font-size: 2rem;
+        text-decoration: none;
+
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+    }
+
+    /* MOBILE: ocultamos el texto circular */
+    @media (max-width: 576px) {
+        /*.whatsapp-circle-text {*/
+        /*    display: none;*/
+        /*}*/
     }
 </style>

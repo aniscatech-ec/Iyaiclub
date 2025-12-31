@@ -1,139 +1,299 @@
-<!-- app/views/restaurants/show.html.erb -->
+<% est = restaurant.establishment %>
+<% legal = est.legal_info %>
+<% phone = legal&.contact_phone %>
+<% message = URI.encode_www_form_component("Hola, quiero información sobre este restaurante") %>
+
+<!-- BOTÓN WHATSAPP FLOTANTE -->
+<!-- WHATSAPP FLOAT CON MENSAJE -->
+<% if phone.present? %>
+  <div class="whatsapp-circle-wrapper">
+    <svg viewBox="0 0 100 100" class="whatsapp-circle-text">
+      <defs>
+        <path
+          id="circlePath"
+          d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"
+          />
+      </defs>
+
+      <text>
+        <textPath href="#circlePath">
+          Reservar ahora · Reservar ahora ·
+        </textPath>
+      </text>
+    </svg>
+
+    <a
+      href="https://wa.me/<%= phone %>?text=<%= CGI.escape(message) %>"
+      target="_blank"
+      rel="noopener"
+      class="floating-whatsapp-btn"
+      aria-label="Reservar por WhatsApp"
+      data-controller="booking-request"
+      data-booking-request-establishment-id-value="<%= restaurant.establishment.id %>"
+      data-booking-request-source-value="whatsapp"
+    >
+      <i class="bi bi-whatsapp"></i>
+    </a>
+  </div>
+<% end %>
+
+
+
+
 <div class="hybrid-restaurant-show">
 
-  <!-- Hero Section -->
+  <!-- HERO -->
   <section class="restaurant-hero mb-5">
-    <div class="hero-container position-relative">
+    <div class="container">
 
-      <% cover_image = restaurant.galleries.joins(:gallery_images)
-                                 .find_by(gallery_images: { is_cover: true })&.gallery_images
+      <% cover_image = est.galleries.joins(:gallery_images)
+                          .find_by(gallery_images: { is_cover: true })&.gallery_images
         &.find_by(is_cover: true)&.file %>
 
       <% if cover_image&.attached? %>
-        <%= image_tag cover_image, class: "w-100 hero-image", height: 300 %>
-      <% elsif restaurant.galleries.any? && restaurant.galleries.first.gallery_images.any? %>
-        <% first_image = restaurant.galleries.first.gallery_images.first.file %>
-        <%= image_tag first_image, class: "w-100 hero-image", height: 300 if first_image.attached? %>
+        <%= image_tag cover_image, class: "w-100 hero-image rounded-4" %>
       <% else %>
-        <%= image_tag "hotel-placeholder.jpg", class: "w-100 hero-image", height: 300 %>
+        <%= image_tag "hotel-placeholder.jpg", class: "w-100 hero-image rounded-4" %>
       <% end %>
 
-      <div class="hero-content position-absolute top-0 start-0 w-100 h-100 d-flex align-items-end">
-        <div class="container">
-          <h1 class="text-white display-5 fw-light mb-2">
-            <%= restaurant.establishment.name %>
-          </h1>
+      <div class="mt-3">
+        <h1 class="fw-light"><%= est.name %></h1>
+        <div class="text-muted">
+          <i class="bi bi-geo-alt"></i>
+          <%= est.city&.name %>, <%= est.country&.name %>
         </div>
       </div>
+
     </div>
   </section>
 
   <div class="container">
-    <div class="row">
 
-      <!-- CONTENIDO PRINCIPAL -->
-      <div class="col-12">
+    <!-- INFO RÁPIDA -->
+    <section class="quick-info-cards mb-5">
+      <div class="row g-3">
 
-        <!-- Información Rápida -->
-        <section class="quick-info-cards mb-5">
-          <div class="row g-3">
-
-            <div class="col-12 col-sm-6 col-md-3">
-              <div class="info-card text-center p-3 border rounded">
-                <i class="bi bi-geo-alt text-primary fs-4 mb-2"></i>
-                <div class="fw-medium">Ubicación</div>
-                <div class="text-muted small">
-                  <%= restaurant.establishment.address.presence || "No disponible" %>
-                </div>
-              </div>
+        <div class="col-6 col-md-3">
+          <div class="info-card">
+            <i class="bi bi-geo-alt"></i>
+            <div>
+              <strong>Dirección</strong>
+              <div><%= est.address.presence || "No disponible" %></div>
             </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-              <div class="info-card text-center p-3 border rounded">
-                <i class="bi bi-clock text-primary fs-4 mb-2"></i>
-                <div class="fw-medium">Horario</div>
-                <div class="text-muted small">12:00 - 22:00</div>
-              </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-              <div class="info-card text-center p-3 border rounded">
-                <i class="bi bi-telephone text-primary fs-4 mb-2"></i>
-                <% legal = restaurant.establishment.legal_info %>
-
-                <% if legal&.contact_phone.present? %>
-                  <% phone = legal.contact_phone %>
-                  <div class="fw-medium">Teléfono</div>
-                  <div class="text-muted small"><%= phone %></div>
-                <% else %>
-                  <div class="text-muted small">No disponible</div>
-                <% end %>
-              </div>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3">
-              <div class="info-card text-center p-3 border rounded">
-                <i class="bi bi-people text-primary fs-4 mb-2"></i>
-                <div class="fw-medium">Capacidad</div>
-                <div class="text-muted small">80 personas</div>
-              </div>
-            </div>
-
           </div>
-        </section>
+        </div>
 
-        <!-- DESCRIPCIÓN -->
-        <section class="description-section mb-5">
-          <h3 class="h5 fw-normal text-dark mb-3">Descripción</h3>
-          <p class="text-muted lh-lg">
-            <%= restaurant.establishment.long_description.presence || "No existe descripción" %>
-          </p>
-        </section>
-
-        <!-- COMODIDADES -->
-        <section class="amenities-section mb-5">
-          <h3 class="h5 fw-normal text-dark mb-4">Comodidades</h3>
-
-          <div class="row g-3">
-            <% restaurant.establishment.amenities.limit(3).each do |amenity| %>
-              <div class="col-6 col-sm-4 col-md-3">
-                <div class="amenity-item text-center p-3 border rounded">
-
-                  <% if amenity.custom_icon.attached? &&
-                        amenity.custom_icon.content_type == 'image/svg+xml' %>
-
-                    <% svg = amenity.custom_icon.download.gsub(/fill="[^"]*"/, '') %>
-                    <%= raw svg.gsub('<svg', '<svg width="32" height="32" fill="#28a745"') %>
-                  <% else %>
-                    <i class="bi bi-check-circle text-success me-1"></i>
-                  <% end %>
-
-                  <div class="small"><%= amenity.name %></div>
-                </div>
-              </div>
-            <% end %>
+        <div class="col-6 col-md-3">
+          <div class="info-card">
+            <i class="bi bi-clock"></i>
+            <div>
+              <strong>Horario</strong>
+              <div>12:00 – 22:00</div>
+            </div>
           </div>
-        </section>
+        </div>
 
-        <!-- GALERÍA -->
-        <section class="gallery-section mt-5 pt-5 border-top">
-          <h3 class="h5 fw-normal text-dark mb-4">Galería</h3>
+        <div class="col-6 col-md-3">
+          <div class="info-card">
+            <i class="bi bi-telephone"></i>
+            <div>
+              <strong>Contacto</strong>
+              <div><%= phone || "No disponible" %></div>
+            </div>
+          </div>
+        </div>
 
-          <div class="row g-3">
-            <% images = restaurant.establishment.galleries.flat_map(&:gallery_images) %>
+        <div class="col-6 col-md-3">
+          <div class="info-card">
+            <i class="bi bi-people"></i>
+            <div>
+              <strong>Capacidad</strong>
+              <div>80 personas</div>
+            </div>
+          </div>
+        </div>
 
-            <% images.first(3).each do |img| %>
-              <% if img.file.attached? %>
-                <div class="col-6 col-md-3">
-                  <%= image_tag img.file.variant(resize_to_limit: [600, 600]),
-                                class: "w-100 gallery-image rounded" %>
-                </div>
+      </div>
+    </section>
+
+    <!-- DESCRIPCIÓN -->
+    <section class="mb-5">
+      <h3 class="h5 mb-3">Descripción</h3>
+      <p class="text-muted lh-lg">
+        <%= est.long_description.presence || "No existe descripción disponible." %>
+      </p>
+    </section>
+
+    <!-- COMODIDADES -->
+    <section class="amenities-section mb-5">
+      <h3 class="h5 mb-4">Comodidades</h3>
+
+      <div class="row g-3">
+        <% est.amenities.limit(4).each do |amenity| %>
+          <div class="col-6 col-md-3">
+            <div class="amenity-item text-center p-3 border rounded-4">
+              <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
+                <% svg = amenity.custom_icon.download.gsub(/fill="[^"]*"/, '') %> <%= raw svg.gsub('<svg', '<svg width="32" height="32" fill="#28a745"') %>
+              <% else %> <i class="bi bi-check-circle text-success me-1"></i>
               <% end %>
-            <% end %>
+              <div class="small"><%= amenity.name %></div>
+            </div>
           </div>
-        </section>
+        <% end %>
+      </div>
+    </section>
 
+    <!-- GALERÍA -->
+    <section class="gallery-section mt-5 pt-5 border-top">
+      <h3 class="h5 mb-4">Galería</h3>
+
+      <% images = est.galleries.flat_map(&:gallery_images)
+                     .select { |img| img.file.attached? } %>
+
+      <div class="row g-3">
+
+        <% images.first(3).each do |img| %>
+          <div class="col-6 col-md-3">
+            <%= image_tag img.file.variant(resize_to_limit: [600, 600]),
+                          class: "w-100 gallery-image" %>
+          </div>
+        <% end %>
+
+        <% if images.size > 3 %>
+          <div class="col-6 col-md-3">
+            <div
+              class="gallery-more-card"
+              data-bs-toggle="modal"
+              data-bs-target="#galleryModal">
+              <i class="bi bi-images"></i>
+              <div>Ver todas</div>
+              <small><%= images.size %> fotos</small>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- MODAL GALERÍA -->
+<div class="modal fade" id="galleryModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Galería completa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-3">
+          <% images.each do |img| %>
+            <div class="col-6 col-md-3">
+              <%= image_tag img.file.variant(resize_to_limit: [900, 900]),
+                            class: "w-100 modal-gallery-image" %>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+    .hero-image {
+        max-height: 420px;
+        width: 100%;
+        height: auto;
+    }
+
+    .info-card {
+        display: flex;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 16px;
+        background: #f8f9fb;
+    }
+
+    .info-card i {
+        font-size: 1.4rem;
+        color: #0d6efd;
+    }
+
+    .gallery-image,
+    .modal-gallery-image {
+        border-radius: 18px;
+        transition: transform .3s ease;
+    }
+
+    .gallery-image:hover {
+        transform: scale(1.04);
+    }
+
+    .gallery-more-card {
+        height: 100%;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #f1f3f5, #e9ecef);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .gallery-more-card i {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+
+    .whatsapp-circle-wrapper {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 110px;
+        height: 110px;
+        z-index: 9999;
+    }
+
+    /* TEXTO CIRCULAR */
+    .whatsapp-circle-text {
+        position: absolute;
+        inset: 0;
+        fill: #00ff00;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        pointer-events: none; /* no molesta el click */
+    }
+
+    /* BOTÓN CENTRAL */
+    .floating-whatsapp-btn {
+        position: absolute;
+        inset: 22px;
+        background-color: #25D366;
+        color: #fff;
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 2rem;
+        text-decoration: none;
+
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+    }
+
+    /* MOBILE: ocultamos el texto circular */
+    @media (max-width: 576px) {
+        /*.whatsapp-circle-text {*/
+        /*    display: none;*/
+        /*}*/
+    }
+
+</style>

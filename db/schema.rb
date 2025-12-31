@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_15_144520) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_16_181250) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -291,6 +291,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_15_144520) do
     t.index ["user_id"], name: "index_reservations_on_user_id"
   end
 
+  create_table "restaurant_hours", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.integer "day_of_week"
+    t.time "open_time"
+    t.time "close_time"
+    t.boolean "closed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["restaurant_id"], name: "index_restaurant_hours_on_restaurant_id"
+  end
+
   create_table "restaurant_menu_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "restaurant_id", null: false
     t.bigint "menu_category_id", null: false
@@ -406,6 +417,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_15_144520) do
   add_foreign_key "provinces", "countries"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
+  add_foreign_key "restaurant_hours", "restaurants"
   add_foreign_key "restaurant_menu_categories", "menu_categories"
   add_foreign_key "restaurant_menu_categories", "restaurants"
   add_foreign_key "restaurants", "establishments"

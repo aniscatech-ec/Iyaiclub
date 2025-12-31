@@ -56,15 +56,34 @@
 
       <!-- Acciones -->
       <div class="card-actions">
-        <%= link_to est, class: "btn-action btn-view" do %>
-          <i class="fas fa-eye"></i>
-          <span>Ver</span>
+
+        <%#= link_to est, class: "btn-action btn-view" do %>
+        <!--          <i class="fas fa-eye"></i>-->
+        <!--          <span>Ver</span>-->
+        <%# end %>
+        <% if est.category == "hotel" %>
+          <%= link_to hotel_path(est.hotel), class: "btn-action btn-view" do %>
+            <i class="fas fa-eye"></i>
+            <span>Ver</span>
+          <% end %>
+        <% elsif est.category == "restaurante" %>
+          <%= link_to restaurant_path(est.restaurant), class: "btn-action btn-view" do %>
+            <i class="fas fa-eye"></i>
+            <span>Ver</span>
+          <% end %>
+        <% end %>
+        <% if est.category == "hotel" %>
+          <%= link_to edit_hotel_path(est.hotel), class: "btn-action btn-edit" do %>
+            <i class="fas fa-edit"></i>
+            <span>Editar</span>
+          <% end %>
+        <% elsif est.category == "restaurante" %>
+          <%= link_to edit_restaurant_path(est.restaurant), class: "btn-action btn-edit" do %>
+            <i class="fas fa-edit"></i>
+            <span>Editar</span>
+          <% end %>
         <% end %>
 
-        <%= link_to edit_establishment_path(est), class: "btn-action btn-edit" do %>
-          <i class="fas fa-edit"></i>
-          <span>Editar</span>
-        <% end %>
 
         <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar este establecimiento?" }, class: "btn-action btn-delete" do %>
           <i class="fas fa-trash"></i>

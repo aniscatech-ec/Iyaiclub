@@ -5,131 +5,9 @@
   <div class="row">
     <% if restaurants.any? %>
       <% restaurants.each do |restaurant| %>
-        <% est = restaurant.establishment %>
-        <div class="col-12 col-md-6 col-xl-4 mb-4">
-          <%= link_to restaurant, class: "text-decoration-none text-dark" do %>
-            <div class="card restaurant-card shadow-sm border-0 h-100 rounded-4 overflow-hidden transition-all">
 
-              <!-- Imagen principal con badges superpuestos -->
-              <div class="position-relative">
-                <%# if est.galleries.any? && est.galleries.first.gallery_images.any? %>
-                  <%# first_image = est.galleries.first.gallery_images.first.file %>
-                  <%#= image_tag first_image, height: 250, class: "card-img-top restaurant-image" if first_image.attached? %>
-                <%# else %>
-                  <%#= image_tag "restaurant-placeholder.jpg", height: 250, class: "card-img-top restaurant-image" %>
-                <%# end %>
+        <%= render "restaurants/show/restaurant_card", restaurant: restaurant %>
 
-                <% cover_image = est.galleries.joins(:gallery_images).find_by(gallery_images: { is_cover: true })&.gallery_images&.find_by(is_cover: true)&.file %>
-
-                <% if cover_image&.attached? %>
-                  <%= image_tag cover_image, class: "card-img-top hotel-image", height: 300 %>
-                <% elsif est.galleries.any? && est.galleries.first.gallery_images.any? %>
-                  <% first_image = est.galleries.first.gallery_images.first.file %>
-                  <%= image_tag first_image, class: "card-img-top hotel-image", height: 300 if first_image.attached? %>
-                <% else %>
-                  <%= image_tag "hotel-placeholder.jpg", class: "card-img-top hotel-image", height: 300 %>
-                <% end %>
-
-                <!-- Badges superpuestos -->
-                <div class="position-absolute top-0 start-0 p-2">
-                  <span class="badge bg-success bg-opacity-90 text-white fs-7">
-                    <i class="bi bi-utensils me-1"></i><%= restaurant.restaurant_type %>
-                  </span>
-                </div>
-                <div class="position-absolute top-0 end-0 p-2">
-                  <span class="badge bg-warning bg-opacity-90 text-dark fs-7">
-                    <i class="bi bi-egg-fried me-1"></i><%= restaurant.cuisine_type %>
-                  </span>
-                </div>
-
-                <!-- Precio promedio -->
-                <div class="position-absolute bottom-0 end-0 m-2">
-                  <span class="badge bg-dark bg-opacity-75 text-white fs-6">
-                    $<%= est.price_per_night %> / Platillo
-                  </span>
-                </div>
-              </div>
-
-              <div class="card-body p-3">
-                <!-- Información principal -->
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h6 class="fw-bold text-dark mb-0 flex-grow-1 me-2"><%= est.name %></h6>
-                  <div class="text-success">
-                    <i class="bi bi-star-fill"></i>
-                    <span class="fw-bold">4.5</span>
-                  </div>
-                </div>
-
-                <!-- Ubicación -->
-                <div class="d-flex align-items-center mb-2">
-                  <i class="bi bi-geo-alt text-muted me-2"></i>
-                  <small class="text-muted">
-                    <%= est.city&.name %>, <%= est.city&.province&.name %>
-                  </small>
-                </div>
-
-                <!-- Horario y estado -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span class="badge bg-light text-dark border small">
-                    <i class="bi bi-clock me-1"></i>12:00 - 23:00
-                  </span>
-                  <span class="badge bg-success bg-opacity-10 text-success border-0 small">
-                    <i class="bi bi-circle-fill me-1"></i>Abierto ahora
-                  </span>
-                </div>
-
-                <!-- Especialidades -->
-                <div class="specialties mb-3">
-                  <small class="text-muted d-block mb-1">Especialidades:</small>
-                  <div class="d-flex flex-wrap gap-1">
-                    <span class="badge bg-primary bg-opacity-10 text-primary border-0 small">
-                      Platos locales
-                    </span>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border-0 small">
-                      Postres artesanales
-                    </span>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border-0 small">
-                      Vinos seleccionados
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Comodidades destacadas -->
-                <div class="amenities-preview mb-3">
-                  <small class="text-muted d-block mb-1">Servicios:</small>
-                  <div class="d-flex flex-wrap gap-1">
-                    <% est.amenities.limit(3).each do |amenity| %>
-                      <span class="badge bg-light text-dark border small">
-                        <i class="bi bi-check-circle text-success me-1"></i><%= amenity.name %>
-                      </span>
-                    <% end %>
-                  </div>
-                </div>
-
-                <!-- Información adicional -->
-                <div class="additional-info border-top pt-2">
-                  <div class="row small text-muted">
-                    <div class="col-6">
-                      <i class="bi bi-people me-1"></i>
-                      Capacidad: 50+
-                    </div>
-                    <div class="col-6 text-end">
-                      <i class="bi bi-credit-card me-1"></i>
-                      Tarjetas
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Botón de acción -->
-                <div class="d-grid mt-3">
-                  <button class="btn btn-outline-primary btn-sm rounded-pill">
-                    <i class="bi bi-eye me-1"></i>Ver Menú y Reservas
-                  </button>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
       <% end %>
 
       <!-- Paginación -->
@@ -154,12 +32,12 @@
 <style>
     .restaurant-card {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 1px solid rgba(0,0,0,0.08);
+        border: 1px solid rgba(0, 0, 0, 0.08);
     }
 
     .restaurant-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
     }
 
     .restaurant-image {
@@ -188,7 +66,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
         transform: translateX(-100%);
         transition: transform 0.6s;
         z-index: 1;

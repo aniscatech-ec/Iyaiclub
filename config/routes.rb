@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     resources :menu_items
   end # CRUD global
   resources :restaurants do
+    resources :restaurant_hours
     member do
       get :menu_categories_selector
       patch :update_menu_categories

@@ -1,0 +1,362 @@
+<% est = restaurant.establishment %>
+
+<div class="col-12 col-md-6 col-xl-4 mb-4">
+  <%= link_to restaurant, class: "text-decoration-none text-dark" do %>
+
+    <div class="card restaurant-card-pro border-0 h-100 rounded-4 overflow-hidden">
+
+      <!-- ================= IMAGEN (NO TOCADA) ================= -->
+      <div class="position-relative">
+
+        <% cover_image =
+             est.galleries
+                .joins(:gallery_images)
+                .find_by(gallery_images: { is_cover: true })
+               &.gallery_images
+               &.find_by(is_cover: true)
+               &.file %>
+
+        <% if cover_image&.attached? %>
+          <%= image_tag cover_image, class: "card-img-top", height: 300 %>
+        <% elsif est.galleries.any? && est.galleries.first.gallery_images.any? %>
+          <% first_image = est.galleries.first.gallery_images.first.file %>
+          <%= image_tag first_image, class: "card-img-top", height: 300 if first_image.attached? %>
+        <% else %>
+          <%= image_tag "restaurant-placeholder.jpg", class: "card-img-top", height: 300 %>
+        <% end %>
+
+        <!-- Badges -->
+        <div class="position-absolute top-0 start-0 m-3">
+          <span class="badge badge-soft-success">
+            <i class="bi bi-utensils me-1"></i>
+            <%= restaurant.restaurant_type %>
+          </span>
+        </div>
+
+        <div class="position-absolute top-0 end-0 m-3">
+          <span class="badge badge-soft-warning">
+            <i class="bi bi-egg-fried me-1"></i>
+            <%= restaurant.cuisine_type %>
+          </span>
+        </div>
+
+        <div class="position-absolute bottom-0 end-0 m-3">
+          <div class="price-tag">
+            <div class="price-amount">$<%= est.price_per_night %></div>
+            <div class="price-label">PROMEDIO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= BODY ================= -->
+      <div class="card-body p-4 d-flex flex-column">
+
+        <!-- Nombre + rating -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="restaurant-title mb-0 me-2 text-truncate">
+            <%= est.name %>
+          </h5>
+
+          <div class="rating-pill">
+            <i class="bi bi-star-fill"></i> 4.5
+          </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="location mb-3">
+          <i class="bi bi-geo-alt-fill me-1"></i>
+          <%= est.city&.name %>, <%= est.city&.province&.name %>
+        </div>
+
+        <!-- Horario -->
+        <div class="timing-pro mb-3">
+          <div class="time-box">
+            <span class="label">Hoy</span>
+            <span class="time"><%= restaurant.today_schedule_text %></span>
+          </div>
+
+          <% if restaurant.closes_soon? %>
+            <span class="status-pill closing-soon">
+              <i class="bi bi-clock-fill me-1"></i>
+              Cierra pronto
+            </span>
+
+          <% elsif restaurant.open_now? %>
+            <span class="status-pill open">
+              <i class="bi bi-circle-fill me-1"></i>
+              Abierto
+            </span>
+
+          <% else %>
+            <span class="status-pill closed">
+              <i class="bi bi-x-circle-fill me-1"></i>
+              Cerrado
+            </span>
+          <% end %>
+
+        </div>
+
+        <!-- ================= COMODIDADES ================= -->
+        <div class="amenities-box mb-4">
+          <% if est.amenities.any? %>
+            <span class="amenity-pill tooltip-trigger" tabindex="0">
+              <span class="icon-circle">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
+              </span>
+              Ver comodidades
+
+              <span class="amenities-tooltip">
+                <% est.amenities.each do |amenity| %>
+                  <span>
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= amenity.name %>
+                  </span>
+                <% end %>
+              </span>
+            </span>
+          <% else %>
+            <span class="amenity-pill empty">
+              <i class="bi bi-ban-fill"></i>
+              Sin comodidades registradas
+            </span>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+
+  <% end %>
+</div>
+
+<style>
+    .restaurant-card-pro {
+        background: linear-gradient(180deg, #ffffff, #f8f9fb);
+        transition: all .3s ease;
+    }
+
+    .restaurant-card-pro:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, .12);
+    }
+
+    /* Badges */
+    .badge-soft-success {
+        background: rgba(25, 135, 84, .9);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+
+    .badge-soft-warning {
+        background: rgba(255, 193, 7, .9);
+        color: #212529;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: .7rem;
+        font-weight: 700;
+    }
+
+    /* Precio */
+    .price-tag {
+        background: rgba(0, 0, 0, .8);
+        backdrop-filter: blur(6px);
+        padding: 10px 16px;
+        border-radius: 14px;
+        color: #fff;
+    }
+
+    .price-amount {
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .price-label {
+        font-size: 9px;
+        letter-spacing: .12em;
+    }
+
+    /* Texto */
+    .restaurant-title {
+        font-weight: 800;
+        font-size: 1.05rem;
+    }
+
+    .location {
+        font-size: .85rem;
+        color: #6c757d;
+    }
+
+    .location i {
+        color: #198754;
+    }
+
+    /* Rating */
+    .rating-pill {
+        font-size: .75rem;
+        font-weight: 700;
+        color: #ffc107;
+    }
+
+    /* Horario */
+    .timing-pro {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 12px;
+        background: linear-gradient(
+                135deg,
+                rgba(25, 135, 84, .06),
+                rgba(25, 135, 84, .14)
+        );
+    }
+
+    .time-box {
+        font-size: .8rem;
+    }
+
+    .time-box .label {
+        font-size: .65rem;
+        color: #6c757d;
+    }
+
+    .open-pill {
+        font-size: .7rem;
+        font-weight: 700;
+        color: #198754;
+    }
+
+    /* ================= COMODIDADES ================= */
+    .amenities-box {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Pill principal */
+    .amenity-pill {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: .75rem;
+        padding: 6px 14px;
+        border-radius: 999px;
+
+        background: linear-gradient(
+                135deg,
+                rgba(25, 135, 84, .05),
+                rgba(25, 135, 84, .12)
+        );
+        border: 1px solid rgba(25, 135, 84, .15);
+
+        color: #198754;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .25s ease;
+        white-space: nowrap;
+    }
+
+
+    .amenity-pill:hover {
+        background: linear-gradient(
+                135deg,
+                rgba(25, 135, 84, .2),
+                rgba(25, 135, 84, .35)
+        );
+        box-shadow: 0 8px 20px rgba(25, 135, 84, .25);
+        transform: translateY(-1px);
+    }
+
+    .icon-circle {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(25, 135, 84, .15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-circle i {
+        font-size: .7rem;
+        color: #198754;
+    }
+
+    /* Tooltip */
+    .amenities-tooltip {
+        position: absolute;
+        bottom: 140%;
+        left: 50%;
+        transform: translateX(-50%) translateY(6px);
+        background: rgba(33, 37, 41, .92);
+        backdrop-filter: blur(6px);
+        color: #fff;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-size: .7rem;
+        display: none;
+        min-width: 200px;
+        z-index: 20;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, .35);
+        animation: fadeUp .2s ease forwards;
+    }
+
+    .amenities-tooltip span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .tooltip-trigger:hover .amenities-tooltip,
+    .tooltip-trigger:focus .amenities-tooltip {
+        display: block;
+    }
+
+
+    .status-pill {
+        font-size: .7rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* Abierto */
+    .status-pill.open {
+        color: #198754;
+    }
+
+    /* Cierra pronto */
+    .status-pill.closing-soon {
+        color: #fd7e14;
+        animation: pulseSoft 1.6s infinite;
+    }
+
+    /* Cerrado */
+    .status-pill.closed {
+        color: #dc3545;
+    }
+
+    @keyframes pulseSoft {
+        0% { opacity: 1; }
+        50% { opacity: .6; }
+        100% { opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+
+</style>

@@ -73,7 +73,7 @@
             </td>
 
             <td>
-              <%= l booking.created_at, format: :short %>
+              <%= booking.created_at.strftime("%d/%m/%Y %H:%M") %>
             </td>
 
             <td class="text-end">

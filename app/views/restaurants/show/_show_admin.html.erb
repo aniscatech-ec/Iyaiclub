@@ -200,3 +200,35 @@
   <p class="text-muted">Este restaurante aún no tiene categorías de menú asignadas.</p>
 <% end %>
 
+<%= link_to 'Agregar horario',
+            new_restaurant_restaurant_hour_path(restaurant),
+            class: 'btn btn-outline-primary' %>
+<div class="restaurant-hours mt-4">
+  <h5>Horarios</h5>
+
+  <% if @restaurant.restaurant_hours.any? %>
+
+    <% @restaurant.restaurant_hours.order(:day_of_week).each do |hour| %>
+      <div class="d-flex justify-content-between border-bottom py-1">
+        <span>
+          <%= I18n.t('date.day_names')[hour.day_of_week].capitalize %>
+        </span>
+
+        <% if hour.closed? %>
+          <span class="text-danger">Cerrado</span>
+        <% else %>
+          <span>
+            <%= hour.open_time.strftime('%H:%M') %> –
+            <%= hour.close_time.strftime('%H:%M') %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <p class="text-muted">Horarios no disponibles</p>
+  <% end %>
+</div>
+<%= link_to 'Administrar horarios',
+            restaurant_restaurant_hours_path(@restaurant),
+            class: 'btn btn-sm btn-outline-secondary' %>
