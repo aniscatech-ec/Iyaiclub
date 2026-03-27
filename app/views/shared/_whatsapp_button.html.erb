@@ -1,0 +1,10 @@
+<% phone = local_assigns[:phone] %>
+<% message = local_assigns[:message] %>
+<% css_class = local_assigns[:css_class] || "btn btn-success" %>
+<% url = whatsapp_link(phone, message) %>
+
+<% if url.present? %>
+  <%= link_to url, target: "_blank", rel: "noopener noreferrer", class: css_class do %>
+    <i class="bi bi-whatsapp me-1"></i> WhatsApp
+  <% end %>
+<% end %>

@@ -32,3 +32,28 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# === CREDENCIALES / SEGURIDAD ===
+/config/database.yml
+/config/credentials.yml.dec
+/.kamal/secrets
+ 
+# === IDE / EDITOR ===
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+ 
+# === SISTEMA OPERATIVO ===
+Thumbs.db
+Desktop.ini
+.DS_Store
+ 
+# === PROYECTO ===
+/iyaiclub/
+/node_modules/
+/Docs/generate_modulos_excel.rb
+
+#== DOCUMENTOS ==
+Docs

@@ -1,0 +1,15 @@
+<% latitude = local_assigns[:latitude] %>
+<% longitude = local_assigns[:longitude] %>
+<% name = local_assigns[:name] || "" %>
+
+<% if latitude.present? && longitude.present? %>
+  <div class="map-display-container mb-3"
+       data-controller="map-display"
+       data-map-display-latitude-value="<%= latitude %>"
+       data-map-display-longitude-value="<%= longitude %>"
+       data-map-display-name-value="<%= name %>">
+    <div data-map-display-target="canvas"
+         style="width: 100%; height: 300px; border-radius: 0.5rem;"
+         class="shadow-sm"></div>
+  </div>
+<% end %>

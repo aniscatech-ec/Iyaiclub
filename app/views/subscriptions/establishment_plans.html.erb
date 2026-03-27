@@ -1,231 +1,37 @@
-<div class="container py-5">
-  <!-- Hero Section -->
-  <section class="text-center mb-5" aria-labelledby="plans-heading">
-    <h1 id="plans-heading" class="fw-bold display-5">Planes de Suscripción</h1>
-    <p class="text-muted fs-5">
-      Elige el plan que mejor se adapte a tu establecimiento.
-    </p>
-  </section>
+<div class="plans-container" style="display: flex; gap: 20px; justify-content: center; margin-top: 40px;">
 
-  <!-- Billing Toggle -->
-  <section class="d-flex justify-content-center mb-4" aria-labelledby="billing-toggle-heading">
-    <div class="form-check form-switch fs-5">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="billingToggle"
-        role="switch"
-        aria-describedby="billing-savings"
-        />
-      <label class="form-check-label ms-2" for="billingToggle">
-        Facturación anual <span id="billing-savings" class="text-success">(ahorra 17%)</span>
-      </label>
+  <% @plans.each do |plan| %>
+    <div class="plan-card" style="border: 1px solid #ddd; border-radius: 12px; padding: 24px; width: 280px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+
+      <!-- Nombre del plan -->
+      <h2 style="font-size: 22px; font-weight: bold; margin-bottom: 10px;">
+        <%= plan.plan_type %>
+      </h2>
+
+      <!-- Precio -->
+      <p style="font-size: 20px; margin: 10px 0; color: #333;">
+<!--        $<%#= plan.price %>-->
+        $<%= number_to_currency(plan.price, unit: "", separator: ".", delimiter: ",") %>
+
+      </p>
+
+      <!-- Beneficios -->
+      <ul style="list-style: none; padding: 0; margin: 15px 0; text-align: left; font-size: 14px;">
+        <% if plan.features.nil? %>
+        <% else %>
+          <% plan.features.each do |feature| %>
+            <li style="margin-bottom: 8px;">✅ <%= feature %></li>
+          <% end %>
+        <% end %>
+
+      </ul>
+
+      <!-- Botón de acción -->
+      <%= link_to "Suscribirme", new_subscription_path(plan_id: plan.id, establishment_id: @establishment.id),
+                  class: "subscribe-btn",
+                  style: "display:inline-block; background:#4f46e5; color:white; padding:10px 20px; border-radius:8px; text-decoration:none;" %>
     </div>
-  </section>
+  <% end %>
 
-  <!-- Plans Grid -->
-  <div class="row g-4" role="list" aria-label="Planes de suscripción disponibles">
-    <% grouped = @plan_prices.group_by { |pp| pp.plan_id } %>
-
-    <% grouped.each_with_index do |(plan_id, prices), index| %>
-      <% plan = prices.first.plan %>
-      <% monthly = prices.find { |p| p.duration == 1 } %>
-      <% annually = prices.find { |p| p.duration == 12 } %>
-      <% general_id = prices.first.id %>
-      <div class="col-md-4" role="listitem">
-        <div class="card shadow-sm h-100
-          <% if plan.name.to_s.downcase.include?("pro") %>border-primary<% end %>"
-             data-plan-name="<%= plan.name %>"
-             data-monthly-price="<%= monthly ? monthly.price : 0 %>"
-             data-annual-price="<%= annually ? annually.price : 0 %>">
-
-          <div class="card-body p-4 d-flex flex-column">
-
-            <!-- Badge for recommended plan -->
-            <% if plan.name.to_s.downcase.include?("pro") %>
-              <span class="badge bg-primary mb-3 align-self-start" aria-label="Plan recomendado">
-                Recomendado
-              </span>
-            <% end %>
-
-            <!-- Plan name and description -->
-            <h3 class="fw-bold h4"><%= plan.name %> </h3>
-            <p class="text-muted flex-grow-0"><%= plan.description.presence || "Sin descripción" %></p>
-
-            <!-- Pricing -->
-            <div class="my-3">
-              <h2 class="fw-bold mb-1 plan-price">
-                <span class="price-monthly" aria-live="polite">
-                  <% if monthly %>
-                    $<%= number_to_currency(monthly.price, unit: "", separator: ".", delimiter: ",") %>
-                  <% else %>
-                    No disponible
-                  <% end %>
-                </span>
-
-                <span class="price-annually d-none" aria-live="polite">
-                  <% if annually %>
-                    $<%= number_to_currency(annually.price, unit: "", separator: ".", delimiter: ",") %>
-                  <% else %>
-                    No disponible
-                  <% end %>
-                </span>
-
-                <small class="billing-label text-muted fs-6">/mes</small>
-              </h2>
-
-              <!-- Annual savings display -->
-              <% if monthly && annually %>
-                <div class="price-annually-savings d-none text-success small">
-                  Ahorras $<%= number_to_currency((monthly.price * 12) - annually.price, unit: "", separator: ".", delimiter: ",") %> anuales
-                </div>
-              <% end %>
-            </div>
-
-            <!-- Features list -->
-            <ul class="list-unstyled mb-4 flex-grow-1">
-              <% parse_features(plan).each do |key, value| %>
-                <li class="mb-2">
-                  <i class="bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
-                  <%= feature_text(key, value) %>
-                </li>
-              <% end %>
-
-              <% if monthly&.features.present? %>
-                <% monthly.features.each do |f| %>
-                  <li class="mb-2">
-                    <i class="bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
-                    <%= f %>
-                  </li>
-                <% end %>
-              <% end %>
-            </ul>
-
-            <!-- CTA Button -->
-            <div class="d-grid mt-auto">
-              <%= link_to "Elegir Plan",
-                          new_subscription_path(plan_id: general_id, establishment_id: @establishment.id),
-                          class: "btn btn-outline-primary",
-                          data: {
-                            "monthly-price": monthly ? monthly.price : 0,
-                            "annual-price": annually ? annually.price : 0
-                          } %>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
-  </div>
 </div>
 
-<!-- Enhanced JavaScript -->
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const toggle = document.getElementById("billingToggle");
-        const plans = document.querySelectorAll('[data-plan-name]');
-
-        // Update pricing display based on toggle state
-        const updatePricingDisplay = (isAnnual) => {
-            // Update price visibility
-            document.querySelectorAll(".price-monthly").forEach(e =>
-                e.classList.toggle("d-none", isAnnual)
-            );
-            document.querySelectorAll(".price-annually").forEach(e =>
-                e.classList.toggle("d-none", !isAnnual)
-            );
-
-            // Update savings display
-            document.querySelectorAll(".price-annually-savings").forEach(e =>
-                e.classList.toggle("d-none", !isAnnual)
-            );
-
-            // Update billing labels
-            document.querySelectorAll(".billing-label").forEach(label => {
-                label.textContent = isAnnual ? "/año" : "/mes";
-            });
-
-            // Update button text based on selection
-            document.querySelectorAll('.btn[data-monthly-price]').forEach(button => {
-                const monthlyPrice = button.getAttribute('data-monthly-price');
-                const annualPrice = button.getAttribute('data-annual-price');
-
-                if (isAnnual && annualPrice > 0) {
-                    button.textContent = `Elegir Plan Anual`;
-                } else {
-                    button.textContent = `Elegir Plan Mensual`;
-                }
-            });
-
-            // Announce change for screen readers
-            const announcement = document.getElementById('billing-announcement') ||
-                (() => {
-                    const el = document.createElement('div');
-                    el.id = 'billing-announcement';
-                    el.className = 'sr-only';
-                    el.setAttribute('aria-live', 'polite');
-                    el.setAttribute('aria-atomic', 'true');
-                    document.body.appendChild(el);
-                    return el;
-                })();
-
-            announcement.textContent = `Modo de facturación cambiado a ${isAnnual ? 'anual' : 'mensual'}`;
-        };
-
-        // Add toggle event listener
-        toggle.addEventListener("change", (e) => {
-            updatePricingDisplay(e.target.checked);
-        });
-
-        // Initialize pricing display on page load
-        updatePricingDisplay(toggle.checked);
-
-        // Add keyboard navigation for cards
-        plans.forEach(plan => {
-            plan.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    const button = plan.querySelector('a.btn');
-                    if (button) {
-                        button.click();
-                    }
-                }
-            });
-
-            // Make cards focusable for better accessibility
-            plan.setAttribute('tabindex', '0');
-        });
-    });
-</script>
-
-<style>
-    /* Additional styling improvements */
-    .card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-
-    .card:focus-within {
-        outline: 2px solid #0d6efd;
-        outline-offset: 2px;
-    }
-
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-
-    .price-annually-savings {
-        font-weight: 500;
-    }
-</style>

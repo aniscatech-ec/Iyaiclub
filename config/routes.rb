@@ -1,28 +1,5 @@
 Rails.application.routes.draw do
-  # get "policy_and_privacy/index"
-  # get "terms_and_conditions/index"
-  get "/terms_and_conditions", to: "terms_and_conditions#index"
-  get "/policy_and_privacy", to: "policy_and_privacy#index"
-  resources :booking_requests
-
-  resources :menu_categories do
-    resources :menu_items
-  end # CRUD global
-  resources :restaurants do
-    resources :restaurant_hours
-    member do
-      get :menu_categories_selector
-      patch :update_menu_categories
-    end
-    collection do
-      get :search_results
-    end
-    # resources :menu_categories do
-    #   resources :menu_items do
-    #     resources :menu_options
-    #   end
-    # end
-  end
+  resources :restaurants
   # resources :countries do
   #   resources :provinces do
   #     resources :cities, only: [:index, :new, :create]
@@ -40,16 +17,6 @@ Rails.application.routes.draw do
     member do
       delete :remove_image
     end
-    collection do
-      get :search_results
-    end
-    resources :units do
-      resources :reservations
-      resources :unit_availabilities do
-        post :toggle, on: :collection
-      end
-    end
-
   end
 
   resources :countries do
@@ -67,15 +34,9 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
   end
 
-  resources :plans
+
   resources :plan_prices
   resources :subscriptions do
-    resources :payment_receipts do
-      member do
-        patch :approve
-        patch :reject
-      end
-    end
     member do
       patch :approve
       patch :cancel
@@ -94,21 +55,13 @@ Rails.application.routes.draw do
 
   resources :establishments do
     collection do
-      get :choose_type # pantalla de tarjetas
+      get :choose_type  # pantalla de tarjetas
       get :select_affiliate
       post :create_type # crear el establecimiento según el tipo
-      get :search_results
     end
     resources :establishment_steps
     member do
-      get :dashboard # /establishments/:id/dashboard
-    end
-    resources :galleries do
-      resources :gallery_images do
-        member do
-          patch :set_cover # ← agrega esta línea
-        end
-      end
+      get :dashboard  # /establishments/:id/dashboard
     end
   end
   namespace :turista do
@@ -160,7 +113,7 @@ Rails.application.routes.draw do
       end
 
       # 👇 Aquí anidamos las suscripciones
-      # resources :subscriptions, only: [:index, :new, :create]
+      resources :subscriptions, only: [:index, :new, :create]
     end
   end
 

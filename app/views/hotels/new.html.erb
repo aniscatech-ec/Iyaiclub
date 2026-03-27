@@ -41,46 +41,12 @@
   <div class="card mb-4">
     <div class="card-header fw-bold">2. Perfil del hotel</div>
     <div class="card-body">
-      <%= f.fields_for :establishment do |e| %>
-
-        <div class="mb-3">
+      <div class="mb-3">
+        <%= f.fields_for :establishment do |e| %>
           <%= e.label :name, "Nombre público del hotel" %>
           <%= e.text_field :name, class: "form-control" %>
-        </div>
-
-        <div class="mb-3">
-          <%= e.label :price_per_night, "Precio por noche" %>
-          <%= e.number_field :price_per_night, step: 0.01, class: "form-control" %>
-        </div>
-
-        <div class="mb-3">
-          <%= e.label :address, "Dirección completa" %>
-          <%= e.text_field :address, class: "form-control" %>
-        </div>
-
-        <%# =========================================== %>
-        <%# === Mapa y coordenadas (Leaflet + Stimulus) === %>
-        <%# =========================================== %>
-
-        <div class="mb-3" data-controller="map">
-          <label class="form-label fw-bold">Ubicación del hotel</label>
-
-          <!-- Contenedor del mapa -->
-          <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <%= e.label :latitude, "Latitud" %>
-              <%= e.text_field :latitude, class: "form-control", id: "latitude", data: { map_target: "latitude" }, readonly: true %>
-            </div>
-            <div class="col-md-6">
-              <%= e.label :longitude, "Longitud" %>
-              <%= e.text_field :longitude, class: "form-control", id: "longitude", data: { map_target: "longitude" }, readonly: true %>
-            </div>
-          </div>
-        </div>
-
-      <% end %>
+        <% end %>
+      </div>
 
       <div class="mb-3">
         <%= f.label :hotel_type, "Tipo de hotel", class: "form-label" %>
@@ -99,8 +65,6 @@
                      options_for_select((1..5).map { |i| ["#{"⭐" * i}", i] }, @hotel.stars),
                      {}, class: "form-select" %>
       </div>
-
-
     </div>
   </div>
 
@@ -153,7 +117,7 @@
             <% Amenity.all.each do |amenity| %>
               <div class="col">
                 <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
-                <%= "selected" if @hotel.establishment&.amenity_ids&.include?(amenity.id) %>"
+              <%= "selected" if @hotel.establishment&.amenity_ids&.include?(amenity.id) %>"
                      data-action="click->amenity-selector#toggle">
 
                   <%= e.check_box :amenity_ids,
@@ -164,6 +128,13 @@
                                     data: { amenity_selector_target: "checkbox" } },
                                   amenity.id, nil %>
 
+                  <%# if amenity.custom_icon.attached? %>
+                    <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
+                      <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
+                    <%# else %>
+                      <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
+                    <%# end %>
+                  <%# end %>
 
                   <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
                     <% svg_content = amenity.custom_icon.download %>
@@ -206,59 +177,6 @@
     </div>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-header fw-bold">5. CHECK-IN - CHECK-OUT</div>
-    <div class="card-body">
-      <div class="row g-3">
-
-        <!-- Check-in -->
-        <div class="col-md-6">
-          <%= f.label :check_in_time, "Hora de Check-in", class: "form-label fw-semibold" %>
-          <%= f.time_field :check_in_time, class: "form-control" %>
-        </div>
-
-        <!-- Check-out -->
-        <div class="col-md-6">
-          <%= f.label :check_out_time, "Hora de Check-out", class: "form-label fw-semibold" %>
-          <%= f.time_field :check_out_time, class: "form-control" %>
-        </div>
-
-        <!-- Early check-in -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :early_check_in_from, "Early Check-in desde", class: "form-label fw-semibold" %>
-          <%#= f.time_field :early_check_in_from, class: "form-control" %>
-<!--          <small class="text-muted">Opcional</small>-->
-<!--        </div>-->
-
-        <!-- Late check-out -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :late_check_out_until, "Late Check-out hasta", class: "form-label fw-semibold" %>
-          <%#= f.time_field :late_check_out_until, class: "form-control" %>
-<!--          <small class="text-muted">Opcional</small>-->
-<!--        </div>-->
-
-        <!-- Recepción 24h -->
-<!--        <div class="col-md-12">-->
-<!--          <div class="form-check mt-3">-->
-            <%#= f.check_box :reception_24h, class: "form-check-input" %>
-            <%#= f.label :reception_24h, "Recepción 24 horas", class: "form-check-label fw-semibold" %>
-<!--          </div>-->
-<!--        </div>-->
-
-        <!-- Horario recepción -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :reception_open_time, "Recepción abre", class: "form-label fw-semibold" %>
-          <%#= f.time_field :reception_open_time, class: "form-control", disabled: f.object.reception_24h %>
-<!--        </div>-->
-
-<!--        <div class="col-md-6">-->
-          <%#= f.label :reception_close_time, "Recepción cierra", class: "form-label fw-semibold" %>
-          <%#= f.time_field :reception_close_time, class: "form-control", disabled: f.object.reception_24h %>
-<!--        </div>-->
-
-      </div>
-    </div>
-  </div>
 
 
 
@@ -274,6 +192,8 @@
       <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
     </div>
   </div>
+
+
 
 
 

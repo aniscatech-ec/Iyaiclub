@@ -1,14 +1,9 @@
 class Unit < ApplicationRecord
-  # belongs_to :establishment
-  # belongs_to :establishment, optional: true   # temporalmente opcional
-  belongs_to :hotel, optional: true
+  belongs_to :establishment
   # store :seasonal_prices, accessors: [:high, :low], coder: JSON
   has_many :unit_prices, dependent: :destroy
   has_many :unit_availabilities, dependent: :destroy
   has_many :bookings, dependent: :destroy
-
-  has_many :reservations, dependent: :destroy
-
   # Guardar un JSON de configuración de camas
   # serialize :bed_configuration
 

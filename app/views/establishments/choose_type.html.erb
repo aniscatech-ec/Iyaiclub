@@ -1,7 +1,7 @@
 <h2 class="text-center mb-5 fw-bold">Selecciona el tipo de establecimiento</h2>
 
 <div class="row justify-content-center text-center">
-  <div class="col-md-4 mb-4 d-flex justify-content-center">
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
     <%= link_to new_hotel_path(user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-primary mb-3 mx-auto">
@@ -13,7 +13,7 @@
     <% end %>
   </div>
 
-  <div class="col-md-4 mb-4 d-flex justify-content-center">
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
     <%= link_to new_restaurant_path(user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-success mb-3 mx-auto">
@@ -25,14 +25,50 @@
     <% end %>
   </div>
 
-  <div class="col-md-4 mb-4 d-flex justify-content-center">
-    <%= button_to create_type_establishments_path(type: "agency"), method: :post, class: "card option-card w-100" do %>
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
+    <%= button_to create_type_establishments_path(type: "transporte"), method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light text-info mb-3 mx-auto">
+          <span class="fs-1">🚌</span>
+        </div>
+        <h5 class="fw-bold text-info">Transporte</h5>
+        <p class="text-muted">Movilidad terrestre y acuática</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
+    <%= button_to create_type_establishments_path(type: "agencia"), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-warning mb-3 mx-auto">
           <span class="fs-1">✈️</span>
         </div>
         <h5 class="fw-bold text-warning">Agencia de viajes</h5>
         <p class="text-muted">Organiza tus aventuras</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
+    <%= button_to create_type_establishments_path(type: "escapada"), method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light text-danger mb-3 mx-auto">
+          <span class="fs-1">🏞️</span>
+        </div>
+        <h5 class="fw-bold text-danger">Escapadas</h5>
+        <p class="text-muted">Museos, parques y más</p>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
+    <%= button_to create_type_establishments_path(type: "asistencia"), method: :post, class: "card option-card w-100" do %>
+      <div class="card-body">
+        <div class="icon-circle bg-light mb-3 mx-auto" style="color: #6f42c1;">
+          <span class="fs-1">🏥</span>
+        </div>
+        <h5 class="fw-bold" style="color: #6f42c1;">Asistencia</h5>
+        <p class="text-muted">Farmacias, talleres y más</p>
       </div>
     <% end %>
   </div>

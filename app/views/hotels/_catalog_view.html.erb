@@ -1,134 +1,28 @@
-<div class="row mb-4" data-controller="filter-hotel">
-  <!-- Filtros laterales -->
-  <div class="col-md-3">
-    <div class="card p-3 shadow-sm mb-4">
-      <h5 class="mb-3">Filtrar por comodidades</h5>
-      <% selected_amenity_ids = Array(params[:amenities]).map(&:to_i) if params[:amenities].present? %>
+<div class="row">
+  <% hotels.each do |hotel| %>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm border-0">
+        <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
+          <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
+          <%= image_tag first_image.variant(resize_to_limit: [400, 250]), class: "card-img-top" if first_image.attached? %>
+        <% else %>
+          <%= image_tag "logo-ant.jpg", class: "card-img-top" %>
+        <% end %>
 
-      <% Amenity.all.each do |amenity| %>
-        <div class="form-check">
-          <%= check_box_tag "amenities[]", amenity.id,
-                            selected_amenity_ids&.include?(amenity.id),
-                            class: "form-check-input",
-                            id: "amenity_#{amenity.id}",
-                            data: { filter_hotel_target: "checkbox" } %>
-          <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+        <div class="card-body">
+          <h5 class="card-title"><%= hotel.establishment.id %></h5>
+          <% if hotel.establishment.galleries.any? %>
+
+            <p><strong>Gallerìas:</strong> <%= hotel.establishment.galleries.count %> </p>
+          <% end %>
+          <h5 class="card-title"><%= hotel.establishment.name %></h5>
+          <p class="card-text">
+            <span><%= "⭐" * hotel.stars.to_i %></span><br>
+            <small class="text-muted"><%= hotel.hotel_type.present? ? hotel.hotel_type.humanize : "Sin categoría" %></small>
+          </p>
+          <%= link_to "Ver detalles", hotel_path(hotel), class: "btn btn-primary w-100" %>
         </div>
-      <% end %>
-    </div>
-
-
-    <div class="card p-3 shadow-sm">
-      <h5 class="mb-3">Rango de precios</h5>
-
-      <!-- Wrapper con target para Stimulus -->
-      <div class="price-range-wrapper position-relative mb-2" data-filter-hotel-target="sliderWrapper">
-        <input type="range"
-               min="0" max="1000" step="10"
-               value="<%= params[:min_price] || 0 %>"
-               data-filter-hotel-target="minPrice"
-               class="range-input">
-        <input type="range"
-               min="0" max="1000" step="10"
-               value="<%= params[:max_price] || 1000 %>"
-               data-filter-hotel-target="maxPrice"
-               class="range-input">
-
-        <!-- barra azul entre thumbs -->
-        <div class="slider-range position-absolute" aria-hidden="true"></div>
-      </div>
-
-      <div class="d-flex justify-content-between mb-2">
-        <span data-filter-hotel-target="minPriceValue"><%= params[:min_price] || 0 %></span>
-        <span data-filter-hotel-target="maxPriceValue"><%= params[:max_price] || 1000 %></span>
-      </div>
-
-      <button type="button" class="btn btn-primary btn-sm w-100" data-action="filter-hotel#filterByPrice">
-        Filtrar precio
-      </button>
-    </div>
-
-    <style>
-        /* estilos necesarios (puedes integrarlos en tu CSS) */
-        .price-range-wrapper {
-            position: relative;
-            height: 24px;       /* suficiente espacio vertical para thumbs */
-            padding: 6px 0;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .price-range-wrapper .range-input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            pointer-events: none; /* la interacción se gestiona en JS (pointer) */
-            -webkit-appearance: none;
-            background: transparent;
-            height: 24px;
-            margin: 0;
-            z-index: 2;
-        }
-
-        .price-range-wrapper .range-input::-webkit-slider-thumb {
-            pointer-events: none; /* evitar interacción nativa; manejamos arrastre manual */
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #007bff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-            margin-top: 0;
-        }
-
-        .price-range-wrapper .range-input::-moz-range-thumb {
-            pointer-events: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #007bff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-
-        .price-range-wrapper .slider-range {
-            position: absolute;
-            height: 6px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #007bff;
-            border-radius: 4px;
-            z-index: 1;
-        }
-    </style>
-
-
-
-
-
-
-  </div>
-
-  <!-- Contenedor de hoteles -->
-  <div class="col-md-9">
-    <!-- Contenedor del contador (inicializado con valores desde Rails) -->
-    <div id="resultsCount" data-filter-hotel-target="resultsCount" class="mb-3">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 text-success fw-bold">
-          <span data-filter-hotel-target="resultsTotal"><%= @hotels.total_count %></span> hoteles encontrados
-        </h5>
-        <p class="text-muted mb-0">
-          <span data-filter-hotel-target="resultsRange">Mostrando <%= @hotels.offset_value + 1 %> – <%= [@hotels.offset_value + @hotels.length, @hotels.total_count].min %></span>
-        </p>
       </div>
     </div>
-
-    <!-- Aquí va el partial con la lista (partial debe incluir #hotels-meta — ver abajo) -->
-    <div id="hotelsContainer" data-filter-hotel-target="hotelsContainer">
-      <%= render partial: "hotels/hotels_list", locals: { hotels: @hotels } %>
-    </div>
-  </div>
+  <% end %>
 </div>
-

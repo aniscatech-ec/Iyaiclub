@@ -34,7 +34,7 @@
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong>Fecha de nacimiento:</strong>
-              <span><%= @user.birth_date.present? ? l(@user.birth_date, format: "%d/%m/%Y") : "No registrada" %></span>
+              <span><%= @user.birth_date.present? ? l(@user.birth_date) : "No registrada" %></span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               <strong>Aceptó Términos:</strong>

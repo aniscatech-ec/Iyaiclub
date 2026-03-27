@@ -10,6 +10,7 @@ pin "bootstrap", to: "bootstrap.min.js", preload: true
 pin "@popperjs/core", to: "popper.js", preload: true
 pin "flatpickr" # @4.6.13
 
+# pin "leaflet", to: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js"
 
 
 # FullCalendar core y plugins
@@ -26,4 +27,3 @@ pin "flatpickr" # @4.6.13
 
 pin "jquery" # @3.7.1
 pin "select2" # @4.1.0
-pin "leaflet" # @1.9.4

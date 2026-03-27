@@ -10,7 +10,7 @@
                               when :perfil then @establishment.short_description.present?
                               when :ubicacion then @establishment.address.present?
                               when :galeria then @establishment.galleries.any?
-                              # when :unidades then @establishment.units.any?
+                              when :unidades then @establishment.units.any?
                               when :politicas then @establishment.pricing_policy.present?
                               when :pagos then @establishment.payment_methods.any?
                               when :verificacion then @establishment.verification.present?
@@ -43,6 +43,9 @@
           <p><strong>Documento:</strong> <%= @establishment.legal_info&.document_type %> - <%= @establishment.legal_info&.document_number %></p>
           <p><strong>Email:</strong> <%= @establishment.legal_info&.contact_email %></p>
           <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
+          <%= render "shared/whatsapp_button",
+                     phone: @establishment.legal_info&.contact_phone,
+                     message: "Hola, me interesa el establecimiento #{@establishment.name}" %>
         </div>
       </div>
 
@@ -86,6 +89,10 @@
           <p><strong>Provincia:</strong> <%= @establishment.province&.name %></p>
           <p><strong>Ciudad:</strong> <%= @establishment.city&.name %></p>
           <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
+          <%= render "shared/map_display",
+                     latitude: @establishment.latitude,
+                     longitude: @establishment.longitude,
+                     name: @establishment.name %>
         </div>
       </div>
 
@@ -113,35 +120,37 @@
       </div>
 
       <!-- Unidades -->
-<!--      <div class="card mb-4 shadow-sm">-->
-<!--        <div class="card-header d-flex justify-content-between align-items-center">-->
-<!--          5. Unidades / Habitaciones (<%#= @establishment.units.count %>)-->
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          5. Unidades / Habitaciones (<%= @establishment.units.count %>)
           <%#= link_to "Editar", wizard_path(:unidades, establishment_id: @establishment.id), class: "btn btn-sm btn-primary" %>
-          <%#= link_to "Editar", establishment_establishment_step_path(@establishment, :unidades, edit_mode: true), class: "btn btn-sm btn-warning" %>
-<!--        </div>-->
-<!--        <div class="card-body">-->
-<!--          <table class="table table-sm table-bordered">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--              <th>Tipo</th>-->
-<!--              <th>Capacidad</th>-->
-<!--              <th>Camas</th>-->
-<!--              <th>Precio base</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-            <%# @establishment.units.each do |unit| %>
-<!--              <tr>-->
-<!--                <td><%#= unit.unit_type %></td>-->
-<!--                <td><%#= unit.capacity %></td>-->
+          <%= link_to "Editar",
+                      establishment_establishment_step_path(@establishment, :unidades, edit_mode: true),
+                      class: "btn btn-sm btn-warning" %>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Capacidad</th>
+              <th>Camas</th>
+              <th>Precio base</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% @establishment.units.each do |unit| %>
+              <tr>
+                <td><%= unit.unit_type %></td>
+                <td><%= unit.capacity %></td>
 <!--                <td><%#= unit.beds %></td>-->
-<!--                <td><%#= number_to_currency(unit.base_price) %></td>-->
-<!--              </tr>-->
-            <%# end %>
-<!--            </tbody>-->
-<!--          </table>-->
-<!--        </div>-->
-<!--      </div>-->
+                <td><%= number_to_currency(unit.base_price) %></td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- Políticas -->
       <div class="card mb-4 shadow-sm">

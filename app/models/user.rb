@@ -7,9 +7,6 @@ class User < ApplicationRecord
   enum :role, administrador: 0, afiliado: 1, turista: 2
   has_many :establishments
   has_many :subscriptions, as: :subscribable, dependent: :destroy
-  has_many :reservations, dependent: :destroy
-  has_many :payment_receipts, dependent: :destroy
-
   belongs_to :country
   belongs_to :city
 

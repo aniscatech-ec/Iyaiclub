@@ -4,21 +4,6 @@
   --brand-cofee: #88682B;
   --brand-cofee-black: #7F5935;
 
-  /* Primarios (logo) */
-  --green-500: #34C759;      /* verde brillante (I, A) */
-  --green-700: #0F6B3A;      /* verde oscuro (A fondo) */
-  --brown-700: #4B2E1F;      /* marrón montaña */
-  --red-500:   #E53935;      /* rojo/sol */
-  --white:     #FFFFFF;
-  --offwhite:  #FBFBFB;      /* fondo claro */
-
-  /* Neutros */
-  --gray-600:  #6B7280;      /* texto secundario */
-  --gray-300:  #E5E7EB;      /* bordes / fondos suaves */
-  --black-900: #111827;      /* texto principal */
-
-  /* Acciones / sombras */
-  --shadow:    0 4px 12px rgba(15, 25, 30, 0.08);
   //--bs-primary: #3FBD02;         /* color base */
   //--bs-primary-rgb: 63, 189, 2; /* mismo color en RGB */
 
@@ -47,10 +32,8 @@
   transition: color 0.3s ease;
 }
 
-
-
 .navbar .nav-link:hover {
-  color: var(--green-500);
+  color:  var(--brand-orange); /* naranja */
 }
 
 /*Sobreescribe los colores del botón primario*/
@@ -118,6 +101,7 @@
 
 /*Categories*/
 .category-card {
+  background: #fff;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   cursor: pointer;
@@ -125,48 +109,20 @@
   border: 2px solid transparent;
 }
 
-
+/* Íconos grandes con tu verde */
+.category-card .icon {
+  font-size: 2.5rem;
+  color: var(--brand-green);
+}
 
 /* Hover dinámico con tu paleta */
 .category-card:hover {
   transform: translateY(-5px);
-  border-color: var(--black-900);
+  border-color: var(--brand-orange);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-
-
-/* CATEGORY CARDS */
-//.category-card {
-//  background: var(--white);
-//  border-radius: 15px;
-//  padding: 20px;
-//  transition: transform 0.3s, box-shadow 0.3s;
-//  text-align: center;
-//  cursor: pointer;
-//
-//}
-//.category-card:hover {
-//  transform: translateY(-8px);
-//  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-//}
-.category-card .icon {
-  background: linear-gradient(135deg, var(--green-500), var(--green-700));
-  color: var(--white);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 10px;
-  font-size: 28px;
+.category-card:hover .icon {
+  color: var(--brand-orange);
 }
-//.category-card h5 a {
-//  color: var(--black-900);
-//  text-decoration: none;
-//  transition: color 0.3s;
-//}
-//.category-card h5 a:hover {
-//  color: var(--red-500);
-//}
+

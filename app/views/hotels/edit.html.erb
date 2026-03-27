@@ -80,42 +80,12 @@
   <div class="card mb-4">
     <div class="card-header fw-bold">2. Perfil del hotel</div>
     <div class="card-body">
-      <%= f.fields_for :establishment do |e| %>
-
-        <div class="mb-3">
+      <div class="mb-3">
+        <%= f.fields_for :establishment do |e| %>
           <%= e.label :name, "Nombre público del hotel" %>
           <%= e.text_field :name, class: "form-control" %>
-        </div>
-        <div class="mb-3">
-          <%= e.label :price_per_night, "Precio por noche" %>
-          <%= e.number_field :price_per_night, step: 0.01, class: "form-control" %>
-        </div>
-        <div class="mb-3">
-          <%= e.label :address, "Dirección completa" %>
-          <%= e.text_field :address, class: "form-control" %>
-        </div>
-
-        <div data-controller="map-edit"
-             data-map-edit-lat-value="<%= @hotel.establishment.latitude %>"
-             data-map-edit-lng-value="<%= @hotel.establishment.longitude %>">
-
-          <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <%= e.label :latitude, "Latitud" %>
-              <%= e.text_field :latitude, class: "form-control", data: { map_edit_target: "latitude" }, readonly: true %>
-            </div>
-            <div class="col-md-6">
-              <%= e.label :longitude, "Longitud" %>
-              <%= e.text_field :longitude, class: "form-control", data: { map_edit_target: "longitude" }, readonly: true %>
-            </div>
-          </div>
-        </div>
-
-
-
-    <% end %>
+        <% end %>
+      </div>
 
       <div class="mb-3">
         <%= f.label :hotel_type, "Tipo de hotel", class: "form-label" %>
@@ -134,7 +104,6 @@
                      options_for_select((1..5).map { |i| ["#{"⭐" * i}", i] }, @hotel.stars),
                      {}, class: "form-select" %>
       </div>
-
     </div>
   </div>
 
@@ -249,161 +218,6 @@
 
     </div>
   </div>
-
-  <div class="card mb-4">
-    <div class="card-header fw-bold">5. CHECK-IN - CHECK-OUT</div>
-    <div class="card-body">
-      <div class="row g-3">
-
-        <!-- Check-in -->
-        <div class="col-md-6">
-          <%= f.label :check_in_time, "Hora de Check-in", class: "form-label fw-semibold" %>
-          <%= f.time_field :check_in_time, class: "form-control" %>
-        </div>
-
-        <!-- Check-out -->
-        <div class="col-md-6">
-          <%= f.label :check_out_time, "Hora de Check-out", class: "form-label fw-semibold" %>
-          <%= f.time_field :check_out_time, class: "form-control" %>
-        </div>
-
-        <!-- Early check-in -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :early_check_in_from, "Early Check-in desde", class: "form-label fw-semibold" %>
-          <%#= f.time_field :early_check_in_from, class: "form-control" %>
-<!--          <small class="text-muted">Opcional</small>-->
-<!--        </div>-->
-
-        <!-- Late check-out -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :late_check_out_until, "Late Check-out hasta", class: "form-label fw-semibold" %>
-          <%#= f.time_field :late_check_out_until, class: "form-control" %>
-<!--          <small class="text-muted">Opcional</small>-->
-<!--        </div>-->
-
-        <!-- Recepción 24h -->
-<!--        <div class="col-md-12">-->
-<!--          <div class="form-check mt-3">-->
-            <%#= f.check_box :reception_24h, class: "form-check-input" %>
-            <%#= f.label :reception_24h, "Recepción 24 horas", class: "form-check-label fw-semibold" %>
-<!--          </div>-->
-<!--        </div>-->
-
-        <!-- Horario recepción -->
-<!--        <div class="col-md-6">-->
-          <%#= f.label :reception_open_time, "Recepción abre", class: "form-label fw-semibold" %>
-          <%#= f.time_field :reception_open_time, class: "form-control", disabled: f.object.reception_24h %>
-<!--        </div>-->
-
-<!--        <div class="col-md-6">-->
-          <%#= f.label :reception_close_time, "Recepción cierra", class: "form-label fw-semibold" %>
-          <%#= f.time_field :reception_close_time, class: "form-control", disabled: f.object.reception_24h %>
-<!--        </div>-->
-
-      </div>
-    </div>
-  </div>
-
-  <%= f.fields_for :units do |e| %>
-    <div class="card p-3 mb-4 shadow-sm">
-      <h4 class="mb-3">Información general</h4>
-
-      <div class="mb-3">
-        <%= e.label :unit_type, "Tipo de unidad" %>
-        <%= e.text_field :unit_type, class: "form-control" %>
-      </div>
-
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <%= e.label :capacity, "Capacidad de personas" %>
-          <%= e.number_field :capacity, class: "form-control" %>
-        </div>
-
-        <div class="col-md-4 mb-3">
-          <%= e.label :base_price, "Precio base por noche (USD)" %>
-          <%= e.number_field :base_price, step: 0.01, class: "form-control" %>
-        </div>
-      </div>
-
-      <!-- Distribución de camas -->
-<!--      <div data-controller="bed">-->
-<!--        <label class="form-label">Distribución de camas</label>-->
-
-<!--        <div data-bed-target="container">-->
-          <%# if e.object.bed_configuration.present? %>
-            <%# e.object.bed_configuration.each do |key, value| %>
-<!--              <div class="row mb-2 bed-row">-->
-<!--                <div class="col-md-6">-->
-                  <%#= text_field_tag "unit[bed_configuration_keys][]", key, class: "form-control" %>
-<!--                </div>-->
-<!--                <div class="col-md-4">-->
-                  <%#= number_field_tag "unit[bed_configuration_values][]", value, min: 0, class: "form-control" %>
-<!--                </div>-->
-<!--                <div class="col-md-2 d-flex align-items-center">-->
-<!--                  <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>-->
-<!--                </div>-->
-<!--              </div>-->
-            <%# end %>
-          <%# end %>
-<!--        </div>-->
-
-<!--        <template data-bed-target="template">-->
-<!--          <div class="row mb-2 bed-row">-->
-<!--            <div class="col-md-6">-->
-<!--              <input type="text" name="unit[bed_configuration_keys][]" class="form-control" placeholder="Tipo de cama">-->
-<!--            </div>-->
-<!--            <div class="col-md-4">-->
-<!--              <input type="number" name="unit[bed_configuration_values][]" class="form-control" min="0" placeholder="Cantidad">-->
-<!--            </div>-->
-<!--            <div class="col-md-2 d-flex align-items-center">-->
-<!--              <button class="btn btn-sm btn-danger" data-action="bed#removeField">✖</button>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </template>-->
-
-<!--        <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="bed#addField">-->
-<!--          + Agregar cama-->
-<!--        </button>-->
-<!--      </div>-->
-    </div>
-
-    <!-- Tarifas -->
-    <div class="card p-3 mb-4 shadow-sm">
-      <h4 class="mb-3">Tarifas por temporada</h4>
-      <table class="table table-bordered">
-        <thead class="table-light">
-        <tr>
-          <th>Temporada</th>
-          <th>Precio (USD)</th>
-        </tr>
-        </thead>
-        <tbody>
-        <%= e.fields_for :unit_prices do |price_form| %>
-          <tr>
-            <td><%= price_form.select :season, [["Alta", "high"], ["Baja", "low"], ["Especial", "special"]], {}, class: "form-control" %></td>
-            <td><%= price_form.number_field :price, step: 0.01, class: "form-control" %></td>
-          </tr>
-        <% end %>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Disponibilidad -->
-    <div class="card p-3 mb-4 shadow-sm"
-         data-controller="fullcalendar-edit"
-         data-fullcalendar-edit-events-value="<%= e.object.unit_availabilities.select(:date, :available).map { |u|
-           {
-             id: u.date.to_s,
-             title: u.available ? 'Disponible' : 'No disponible',
-             start: u.date.to_s,
-             color: u.available ? 'green' : 'red'
-           }
-         }.to_json %>">
-      <div data-fullcalendar-edit-target="calendar"></div>
-      <%= hidden_field_tag 'unit[availabilities_json]', '', id: 'unit_availabilities_json' %>
-    </div>
-
-  <% end %>
 
 
 

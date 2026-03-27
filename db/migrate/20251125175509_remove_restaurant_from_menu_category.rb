@@ -1,5 +1,0 @@
-class RemoveRestaurantFromMenuCategory < ActiveRecord::Migration[8.0]
-  def change
-    remove_reference :menu_categories, :restaurant, null: false, foreign_key: true
-  end
-end

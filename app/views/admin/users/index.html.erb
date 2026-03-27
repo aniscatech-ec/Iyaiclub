@@ -43,8 +43,8 @@
           <i class="fa-solid fa-trash-can"></i>
         <% end %>
 
-        <%#= link_to "Nueva Suscripción", new_admin_user_subscription_path(user), class: "btn btn-success btn-sm" %>
-        <%= link_to "Nueva Suscripción", new_subscription_path(user), class: "btn btn-success btn-sm" %>
+        <%= link_to "Nueva Suscripción", new_admin_user_subscription_path(user),
+                    class: "btn btn-success btn-sm" %>
 
         <% if user.afiliado? %>
           <%= link_to choose_type_establishments_path(user_id: user.id),

@@ -2,7 +2,7 @@ class PlanPrice < ApplicationRecord
   # enum :plan_type, basico: 0, vip: 1
   # enum :duration, uno: 0, seis: 1, doce:2
   # DURATION_OPTIONS = [["Mensual", 1], ["Anual", 12]].freeze
-  belongs_to :plan
+
   # validates :plan_type, presence: true
   # validates :duration, presence: true, inclusion: { in: [1, 12] }
   # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }

@@ -1,6 +1,6 @@
 class Afiliado::DashboardController < ApplicationController
   before_action :authenticate_afiliado!
-  # layout "dashboard"
+  layout "dashboard"
 
   def index
   end

@@ -1,82 +1,58 @@
-<!-- Buscador reutilizado -->
-<%= render "shared/search_hotels" %>
+<div class="row">
+  <% establishments.each do |est| %>
+    <div class="col-md-2 mb-2">
+      <div class="card h-100 shadow-sm d-flex flex-column">
 
-<section class="establishments py-5 bg-light">
-  <div class="container">
-    <h2 class="fw-bold text-center text-uppercase mb-5">
-      Explora nuestros establecimientos
-    </h2>
+        <!-- Carrusel de imágenes de la primera galería -->
+        <% first_gallery = est.galleries.first %>
+        <% if first_gallery && first_gallery.gallery_images.any? %>
+          <div id="carouselEstablishment<%= est.id %>" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <% first_gallery.gallery_images.each_with_index do |gi, index| %>
+                <% if gi.file.attached? %>
+                  <div class="carousel-item <%= 'active' if index == 0 %>">
 
-    <div class="row g-4">
-      <% establishments.each do |est| %>
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <%= link_to est, class: "text-decoration-none text-dark" do %>
-            <div class="card h-100 border-0 shadow-sm overflow-hidden rounded-4">
-              <div class="position-relative">
-                <% if est.galleries.first&.gallery_images&.any? %>
-                  <%= image_tag est.galleries.first.gallery_images.first.file, class: "card-img-top", alt: est.name, height: 200 %>
-                <% else %>
-                  <%= image_tag "logo.jpeg", class: "card-img-top w-100", alt: est.name, height: 200%>
-                <% end %>
-
-                <% if est.respond_to?(:stars) && est.stars.present? %>
-                  <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
-                    <i class="bi bi-star-fill"></i> <%= est.stars %>★
-                  </span>
-                <% elsif est.respond_to?(:cuisine) && est.cuisine.present? %>
-                  <span class="badge bg-success position-absolute top-0 end-0 m-2">
-                    <i class="bi bi-egg-fried"></i> <%= est.cuisine.capitalize %>
-                  </span>
-                <% end %>
-              </div>
-
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title text-primary fw-semibold mb-2">
-                  <%= truncate(est.name, length: 40) %>
-                </h5>
-
-                <p class="text-muted small mb-2">
-                  <i class="bi bi-geo-alt"></i>
-                  <%= est.city&.name || "-" %>, <%= est.country&.name || "-" %>
-                </p>
-
-                <% if est.respond_to?(:price_per_night) && est.price_per_night.present? %>
-                  <p class="fw-bold text-success mb-3">
-                    $<%= est.price_per_night %>/noche
-                  </p>
-                <% end %>
-
-                <% if est.amenities.any? %>
-                  <div class="mt-auto">
-                    <% est.amenities.limit(3).each do |a| %>
-                      <span class="badge bg-secondary me-1 mb-1"><%= a.name %></span>
-                    <% end %>
+                    <div class="d-flex justify-content-center">
+                      <%= image_tag gi.file, height: 200,alt: est.name, class: "d-block w-100" %>
+                    </div>
                   </div>
                 <% end %>
-              </div>
+              <% end %>
             </div>
-          <% end %>
+
+            <% if first_gallery.gallery_images.size > 1 %>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselEstablishment<%= est.id %>" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselEstablishment<%= est.id %>" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+              </button>
+            <% end %>
+          </div>
+        <% else %>
+        <% end %>
+
+        <div class="card-body d-flex flex-column">
+          <!-- Nombre -->
+          <h5 class="card-title"><%= est.name %></h5>
+          <h5 class="card-title"><%= est.id %></h5>
+
+          <!-- Ciudad / País -->
+          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city.name.presence || "-" %>, <%= est.country.name.presence || "-" %></p>
+
+          <!-- Comodidades -->
+          <p class="mb-2">
+            <% est.amenities.limit(3).each do |amenity| %>
+              <span class="badge bg-secondary"><%= amenity.name %></span>
+            <% end %>
+          </p>
+
+          <!-- Botón Ver más -->
+          <%= link_to "Ver más", est, class: "btn btn-primary mt-auto w-100" %>
         </div>
-      <% end %>
+      </div>
     </div>
-
-    <div class="d-flex justify-content-center mt-5">
-      <%= paginate establishments %>
-    </div>
-  </div>
-</section>
-<style>
-    .card {
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 22px rgba(0,0,0,0.15);
-    }
-    .card-footer .stretched-link {
-        text-decoration: none;
-        transition: color 0.2s ease;
-    }
-
-
-</style>
+  <% end %>
+</div>

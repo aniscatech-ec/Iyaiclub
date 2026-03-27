@@ -1,11 +1,8 @@
 class EstablishmentsController < ApplicationController
-  # before_action :authenticate_user!, only: %i[create edit update destroy]
-  # solo permite visualizar index sin autenticacion
-  before_action :authenticate_user!, except: [:index, :show, :search_results]
-
+  before_action :authenticate_user!
   before_action :set_establishment, only: %i[show edit update destroy dashboard]
   before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
-  # layout "dashboard"
+  layout "dashboard"
 
   # def index
   #   if params[:search]
@@ -36,319 +33,66 @@ class EstablishmentsController < ApplicationController
   #   # end
   # end
 
-  # def index
-  #   puts "================= PARAMS ================="
-  #   puts params.inspect
-  #   puts "=========================================="
-  #   @establishments = Establishment.all
-  #
-  #   # ------------------------
-  #   # Búsqueda por nombre
-  #   # ------------------------
-  #   if params[:search].present?
-  #     query = params[:search].strip
-  #     @establishments = @establishments.where("name ILIKE ?", "%#{query}%")
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por ciudad
-  #   # ------------------------
-  #   if params[:city].present?
-  #     city = City.find_by(name: params[:city].strip)
-  #     puts "-----------------------------CITY----------------------------------"
-  #     @establishments = @establishments.where(city_id: city.id) if city
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por país
-  #   # ------------------------
-  #   if params[:country].present?
-  #     country = Country.find_by(name: params[:country].strip)
-  #     @establishments = @establishments.where(country_id: country.id) if country
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por comodidades
-  #   # ------------------------
-  #   if params[:amenities].present?
-  #     puts "-----------------------------AMENITIES----------------------------------"
-  #
-  #     amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-  #
-  #     @establishments = @establishments.joins(:amenities)
-  #                                      .where(amenities: { id: amenity_ids })
-  #                                      .distinct
-  #   end
-  #   # ------------------------
-  #   # Filtrar por fechas (opcional)
-  #   # ------------------------
-  #   if params[:checkin].present? && params[:checkout].present?
-  #     checkin = Date.parse(params[:checkin]) rescue nil
-  #     checkout = Date.parse(params[:checkout]) rescue nil
-  #
-  #     if checkin && checkout
-  #       # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
-  #       @establishments = @establishments.select do |est|
-  #         est.available_between?(checkin, checkout)
-  #       end
-  #     end
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por tipo de establecimiento
-  #   # ------------------------
-  #   if params[:establishment_type].present? && params[:establishment_type] != "todos"
-  #     @establishments = @establishments.where(category: params[:establishment_type])
-  #   end
-  #
-  #
-  #   if current_user.afiliado?
-  #     @establishments = current_user.establishments
-  #   end
-  # end
-
-  # def index
-  #   @cities = City.all
-  #   @amenities = Amenity.all
-  #   puts "================= PARAMS ================="
-  #   puts params.inspect
-  #   puts "=========================================="
-  #
-  #   # ------------------------
-  #   # Redirigir según tipo de establecimiento
-  #   # ------------------------
-  #   case params[:establishment_type]
-  #   when "hotel"
-  #     redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
-  #   when "restaurante"
-  #     redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
-  #   end
-  #
-  #   # Si es "todos" o no se envió, seguimos con establishments
-  #   @establishments = Establishment.all
-  #
-  #   # ------------------------
-  #   # Búsqueda por nombre
-  #   # ------------------------
-  #   if params[:search].present?
-  #     query = params[:search].strip
-  #     @establishments = @establishments.where("name ILIKE ?", "%#{query}%")
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por ciudad
-  #   # ------------------------
-  #   if params[:city].present?
-  #     city = City.find_by(name: params[:city].strip)
-  #     @establishments = @establishments.where(city_id: city.id) if city
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por país
-  #   # ------------------------
-  #   if params[:country].present?
-  #     country = Country.find_by(name: params[:country].strip)
-  #     @establishments = @establishments.where(country_id: country.id) if country
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por comodidades
-  #   # ------------------------
-  #   if params[:amenities].present?
-  #     amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
-  #     @establishments = @establishments.joins(:amenities)
-  #                                      .where(amenities: { id: amenity_ids })
-  #                                      .distinct
-  #   end
-  #
-  #   # ------------------------
-  #   # Filtrar por fechas (opcional)
-  #   # ------------------------
-  #   if params[:checkin].present? && params[:checkout].present?
-  #     checkin = Date.parse(params[:checkin]) rescue nil
-  #     checkout = Date.parse(params[:checkout]) rescue nil
-  #     if checkin && checkout
-  #       @establishments = @establishments.select do |est|
-  #         est.available_between?(checkin, checkout)
-  #       end
-  #     end
-  #   end
-  #
-  #   if current_user.afiliado?
-  #     @establishments = current_user.establishments
-  #   end
-  #   # ------------------------
-  #   # Paginación con Kaminari
-  #   # ------------------------
-  #   if current_user.afiliado?
-  #     @establishments = current_user.establishments
-  #     @establishments = @establishments.page(params[:page]).per(12)
-  #   end
-  #   if current_user.turista?
-  #     @establishments = @establishments.page(params[:page]).per(12)
-  #   end
-  # end
-
-  # app/controllers/establishments_controller.rb
-
   def index
-    @destinations = [
-      { name: "Quito", image: view_context.asset_path("quito.jpg"), hotels_count: 12 },
-      { name: "Guayaquil", image: view_context.asset_path("guayaquil.jpg"), hotels_count: 8 },
-      { name: "Cuenca", image: view_context.asset_path("cuenca.jpg"), hotels_count: 5 },
-      { name: "Galápagos", image: view_context.asset_path("galapagos.jpg"), hotels_count: 7 }
-    ]
-
-    @hotels = [
-      { name: "Hotel Central Quito", city: "Quito", country: "Ecuador", price: 120, rating: 4.5, amenities: ["Wi-Fi", "Piscina", "Gym"], image: view_context.asset_path("hotel1.jpg") },
-      { name: "Ocean View Hotel", city: "Galápagos", country: "Ecuador", price: 200, rating: 4.8, amenities: ["Desayuno", "Wi-Fi", "Piscina"], image: view_context.asset_path("hotel2.jpg") },
-      { name: "Boutique Cuenca", city: "Cuenca", country: "Ecuador", price: 90, rating: 4.2, amenities: ["Wi-Fi", "Parking"], image: view_context.asset_path("hotel3.jpg") }
-    ]
-
-    @places = [
-      { name: "Hotel Andino", city: "Quito", country: "Ecuador", image: "hotel1.jpg", type: "hotel", rating: 4.6 },
-      { name: "La Parrilla del Sol", city: "Guayaquil", country: "Ecuador", image: "restaurant1.jpg", type: "restaurant", rating: 4.8 },
-      { name: "Hotel del Lago", city: "Cuenca", country: "Ecuador", image: "hotel2.jpg", type: "hotel", rating: 4.5 }
-    ]
-    @reviews = [
-      { name: "Carlos M.", comment: "Excelente atención y comida deliciosa." },
-      { name: "Andrea G.", comment: "El hotel tenía una vista increíble." },
-      { name: "Luis P.", comment: "Muy fácil hacer mi reserva en minutos." }
-    ]
-
-    # @reviews = [
-    #   { name: "Juan P.", comment: "Excelente ubicación y servicio." },
-    #   { name: "María L.", comment: "Habitaciones cómodas y limpias." },
-    #   { name: "Carlos M.", comment: "Recomiendo 100% para familias." }
-    # ]
-    @cities = City.all
-    @amenities = Amenity.all
-    @establishments = Establishment.includes(:city, :amenities)
-
-    puts "-------------------------------------------------------------"
-    puts "-------------------------REALIZANDO PETICION GET----------------------------"
+    puts "================= PARAMS ================="
     puts params.inspect
-    puts "-------------------------------------------------------------"
+    puts "=========================================="
+    @establishments = Establishment.all
 
+    # ------------------------
+    # Búsqueda por nombre
+    # ------------------------
+    if params[:search].present?
+      query = params[:search].strip
+      @establishments = @establishments.where("name ILIKE ?", "%#{query}%")
+    end
+
+    # ------------------------
+    # Filtrar por ciudad
+    # ------------------------
     if params[:city].present?
-      if params[:city].to_s.match?(/^\d+$/)
-        # Si es un número → úsalo como ID
-        @establishments = @establishments.where(city_id: params[:city].to_i)
-        @city_name = City.find_by(id: params[:city])&.name
-      else
-        # Si es texto → buscar por nombre
-        # Si es un texto => usar
-        @city_name = params[:city]
-        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
-        if city
-          @establishments = @establishments.where(city_id: city.id)
-        else
-          @establishments = @establishments.none
+      city = City.find_by(name: params[:city].strip)
+      puts "-----------------------------CITY----------------------------------"
+      @establishments = @establishments.where(city_id: city.id) if city
+    end
+
+    # ------------------------
+    # Filtrar por país
+    # ------------------------
+    if params[:country].present?
+      country = Country.find_by(name: params[:country].strip)
+      @establishments = @establishments.where(country_id: country.id) if country
+    end
+
+    # ------------------------
+    # Filtrar por comodidades
+    # ------------------------
+    if params[:amenities].present?
+      puts "-----------------------------AMENITIES----------------------------------"
+
+      amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
+
+      @establishments = @establishments.joins(:amenities)
+                                       .where(amenities: { id: amenity_ids })
+                                       .distinct
+    end
+    # ------------------------
+    # Filtrar por fechas (opcional)
+    # ------------------------
+    if params[:checkin].present? && params[:checkout].present?
+      checkin = Date.parse(params[:checkin]) rescue nil
+      checkout = Date.parse(params[:checkout]) rescue nil
+
+      if checkin && checkout
+        # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
+        @establishments = @establishments.select do |est|
+          est.available_between?(checkin, checkout)
         end
       end
     end
 
-    if params[:min_price].present? && params[:max_price].present?
-      @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])
-    elsif params[:min_price].present?
-      @establishments = @establishments.where("price_per_night >= ?", params[:min_price])
-    elsif params[:max_price].present?
-      @establishments = @establishments.where("price_per_night <= ?", params[:max_price])
-    end
-
-    if params[:amenities].present?
-
-      @establishment_ids = @establishments.joins(:amenities)
-                                          .where(amenities: { id: params[:amenities] })
-                                          .group("establishments.id")
-                                          .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
-                                          .pluck(:id)
-
-      @establishments = @establishments.where(establishments: { id: @establishment_ids })
-    end
-    puts "-------------------------------------------------------------"
-    puts @establishments.count
-    puts "-------------------------------------------------------------"
-    # Paginación
-    if user_signed_in? && current_user.administrador?
-
-    elsif user_signed_in? && current_user.afiliado?
+    if current_user.afiliado?
       @establishments = current_user.establishments
-
-    else
-      @establishments = @establishments.page(params[:page]).per(9)
-
-    end
-    respond_to do |format|
-      format.html
-      format.js
-    end
-  end
-
-  def search_results
-    @cities = City.all
-    @amenities = Amenity.all
-    @establishments = Establishment.includes(:city, :amenities)
-
-    puts "-------------------------------------------------------------"
-    puts "-------------------------REALIZANDO PETICION GET----------------------------"
-    puts params.inspect
-    puts "-------------------------------------------------------------"
-
-    case params[:establishment_type]
-    when "hotel"
-      # redirect_to hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
-      redirect_to search_results_hotels_path(params.permit(:search, :city, :country, amenities: [])) and return
-    when "restaurante"
-      # redirect_to restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
-      redirect_to search_results_restaurants_path(params.permit(:search, :city, :country, amenities: [])) and return
-    end
-
-    if params[:city].present?
-      if params[:city].to_s.match?(/^\d+$/)
-        # Si es un número → úsalo como ID
-        @establishments = @establishments.where(city_id: params[:city].to_i)
-        @city_name = City.find_by(id: params[:city])&.name
-      else
-        # Si es texto → buscar por nombre
-        # Si es un texto => usar
-        @city_name = params[:city]
-        city = City.find_by("LOWER(name) = ?", params[:city].downcase)
-        if city
-          @establishments = @establishments.where(city_id: city.id)
-        else
-          @establishments = @establishments.none
-        end
-      end
-    end
-
-    if params[:min_price].present? && params[:max_price].present?
-      @establishments = @establishments.where(price_per_night: params[:min_price]..params[:max_price])
-    elsif params[:min_price].present?
-      @establishments = @establishments.where("price_per_night >= ?", params[:min_price])
-    elsif params[:max_price].present?
-      @establishments = @establishments.where("price_per_night <= ?", params[:max_price])
-    end
-
-    if params[:amenities].present?
-
-      @establishment_ids = @establishments.joins(:amenities)
-                                          .where(amenities: { id: params[:amenities] })
-                                          .group("establishments.id")
-                                          .having("COUNT(DISTINCT amenities.id) = ?", params[:amenities].size)
-                                          .pluck(:id)
-
-      @establishments = @establishments.where(establishments: { id: @establishment_ids })
-    end
-    puts "-------------------------------------------------------------"
-    puts @establishments.count
-    puts "-------------------------------------------------------------"
-    # Paginación
-    @establishments = @establishments.page(params[:page]).per(9)
-
-    respond_to do |format|
-      format.html
-      format.js
     end
   end
 
@@ -475,6 +219,19 @@ class EstablishmentsController < ApplicationController
       # restaurant.save
       # redirect_to edit_restaurant_path(restaurant) and return
       redirect_to new_restaurant_path and return
+
+    when "transporte"
+      redirect_to establishments_path, notice: "Módulo de Transporte próximamente disponible"
+
+    when "agencia"
+      redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
+
+    when "escapada"
+      redirect_to establishments_path, notice: "Módulo de Escapadas próximamente disponible"
+
+    when "asistencia"
+      redirect_to establishments_path, notice: "Módulo de Asistencia al Usuario próximamente disponible"
+
     else
       redirect_to establishments_path, alert: "Tipo no válido"
     end

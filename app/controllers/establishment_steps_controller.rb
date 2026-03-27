@@ -2,8 +2,7 @@ class EstablishmentStepsController < ApplicationController
   include Wicked::Wizard
   layout "dashboard"
 
-  # steps :legal_info, :perfil, :ubicacion, :galeria, :unidades, :politicas, :pagos, :verificacion, :revision
-  steps :legal_info, :perfil, :ubicacion, :galeria, :politicas, :pagos, :verificacion, :revision
+  steps :legal_info, :perfil, :ubicacion, :galeria, :unidades, :politicas, :pagos, :verificacion, :revision
   before_action :merge_bed_configuration, only: [:update]
 
   # def show
@@ -21,21 +20,21 @@ class EstablishmentStepsController < ApplicationController
       # @gallery.gallery_images.build   # Permite que fields_for genere los campos de imagen
     when :verificacion
       @verification = @establishment.verification || @establishment.build_verification
-    # when :unidades
-    #   @unit = @establishment.units.build
-    #
-    #   # Construir precios por temporada si no existen
-    #   if @unit.unit_prices.empty?
-    #     @unit.unit_prices.build(season: "high", price: 0.0) # Temporada alta
-    #     @unit.unit_prices.build(season: "low", price: 0.0) # Temporada baja
-    #   end
-    #
-    #   # Construir disponibilidad de los próximos 7 días
-    #   if @unit.unit_availabilities.empty?
-    #     (Date.today..Date.today + 6).each do |day|
-    #       @unit.unit_availabilities.build(date: day, available: true)
-    #     end
-    #   end
+    when :unidades
+      @unit = @establishment.units.build
+
+      # Construir precios por temporada si no existen
+      if @unit.unit_prices.empty?
+        @unit.unit_prices.build(season: "high", price: 0.0) # Temporada alta
+        @unit.unit_prices.build(season: "low", price: 0.0) # Temporada baja
+      end
+
+      # Construir disponibilidad de los próximos 7 días
+      if @unit.unit_availabilities.empty?
+        (Date.today..Date.today + 6).each do |day|
+          @unit.unit_availabilities.build(date: day, available: true)
+        end
+      end
 
     end
 

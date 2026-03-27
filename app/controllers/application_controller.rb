@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: [:name, :phone, :role, :country_id, :city_id, :birth_date, :terms_accepted, :marketing_consent])
   end
 
-  # Control de acceso a diferentes controladores
+  #Control de acceso a diferentes controladores
   def authenticate_afiliado!
     authenticate_user!
     redirect_to root_path, alert: "Acceso denegado" unless current_user.afiliado?
@@ -25,7 +25,6 @@ class ApplicationController < ActionController::Base
     authenticate_user!
     redirect_to root_path, alert: "Acceso denegado" unless current_user.administrador?
   end
-
   # al iniciar sesión cada usuario vaya a su dashboard
   def after_sign_in_path_for(resource)
     case resource.role
@@ -47,11 +46,6 @@ class ApplicationController < ActionController::Base
   def layout_by_resource
     if devise_controller? && action_name == "edit" && controller_name == "registrations"
       "dashboard"
-      # Si el usuario está logueado y entra a controladores del panel
-      # elsif user_signed_in? && controller_path.start_with?("dashboard", "establishments", "amenities")
-    elsif user_signed_in?
-      "dashboard"
-      # Por defecto, usa el layout público
     else
       "application"
     end

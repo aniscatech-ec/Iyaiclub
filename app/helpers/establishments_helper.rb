@@ -72,7 +72,11 @@ module EstablishmentsHelper
   def establishment_type_label(type)
     {
       "hotel" => "Hotel",
-      "restaurante" => "Restaurante"
+      "restaurante" => "Restaurante",
+      "transporte" => "Transporte",
+      "agencia" => "Agencia de Viajes",
+      "escapada" => "Escapadas",
+      "asistencia" => "Asistencia"
     }[type] || type
   end
 end

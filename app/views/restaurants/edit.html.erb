@@ -64,53 +64,11 @@
             <%= l.label :contact_email, "Email de contacto" %>
             <%= l.email_field :contact_email, class: "form-control" %>
           </div>
-<!--          <div class="mb-3">-->
-            <%#= l.label :contact_phone, "Teléfono de contacto" %>
-            <%#= l.telephone_field :contact_phone, class: "form-control" %>
-<!--          </div>-->
-
-
           <div class="mb-3">
-            <%= l.label :contact_phone, "Teléfono WhatsApp" %>
-
-            <div class="input-group">
-              <!-- SELECT DE PREFIJOS -->
-              <%= l.select :country_code,
-                           [
-                             ["🇪🇨 +593 Ecuador", "593"],
-                             ["🇨🇴 +57 Colombia", "57"],
-                             ["🇵🇪 +51 Perú", "51"],
-                             ["🇨🇱 +56 Chile", "56"],
-                             ["🇦🇷 +54 Argentina", "54"],
-                             ["🇲🇽 +52 México", "52"],
-                             ["🇺🇸 +1 USA", "1"]
-                           ],
-                           {
-                             selected: l.object.contact_phone&.slice(0, 3) || "593"
-                           },
-                           class: "form-select w-25"
-              %>
-
-
-              <!-- INPUT DEL NÚMERO -->
-              <%= l.text_field :contact_phone,
-                               value: l.object.contact_phone&.sub(/^\d{1,3}/, ''),
-                               class: "form-control",
-                               maxlength: 10,
-                               placeholder: "Ej: 983704598" %>
-            </div>
-
-            <small class="text-muted">
-              Seleccione el país e ingrese solo el número sin código.
-            </small>
+            <%= l.label :contact_phone, "Teléfono de contacto" %>
+            <%= l.telephone_field :contact_phone, class: "form-control" %>
           </div>
-
-
-            <small class="text-muted">Ingrese solo los 9 dígitos sin el 0 inicial</small>
-          </div>
-
-
-      <% end %>
+        <% end %>
       </div>
     </div>
   <% end %>
@@ -118,42 +76,12 @@
   <div class="card mb-4">
     <div class="card-header fw-bold">2. Perfil del restaurante</div>
     <div class="card-body">
-      <%= f.fields_for :establishment do |e| %>
-        <div class="mb-3">
+      <div class="mb-3">
+        <%= f.fields_for :establishment do |e| %>
           <%= e.label :name, "Nombre público del restaurante" %>
           <%= e.text_field :name, class: "form-control" %>
-        </div>
-
-        <div class="mb-3">
-          <%= e.label :price_per_night, "Precio promedio por platillo" %>
-          <%= e.number_field :price_per_night, step: 0.01, class: "form-control" %>
-        </div>
-
-        <div class="mb-3">
-          <%= e.label :address, "Dirección completa" %>
-          <%= e.text_field :address, class: "form-control" %>
-        </div>
-
-        <div data-controller="map-edit"
-             data-map-edit-lat-value="<%= @restaurant.establishment.latitude %>"
-             data-map-edit-lng-value="<%= @restaurant.establishment.longitude %>">
-
-          <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
-
-          <div class="row mt-3">
-            <div class="col-md-6">
-              <%= e.label :latitude, "Latitud" %>
-              <%= e.text_field :latitude, class: "form-control", data: { map_edit_target: "latitude" }, readonly: true %>
-            </div>
-            <div class="col-md-6">
-              <%= e.label :longitude, "Longitud" %>
-              <%= e.text_field :longitude, class: "form-control", data: { map_edit_target: "longitude" }, readonly: true %>
-            </div>
-          </div>
-        </div>
-
-
-      <% end %>
+        <% end %>
+      </div>
 
       <div class="mb-3">
         <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
@@ -166,10 +94,10 @@
       </div>
 
       <div class="mb-3">
-        <%= f.label :restaurant_type, "Categoría del restaurante" %>
-        <%= f.select :restaurant_type, options_for_select(
+        <%= f.label :category, "Categoría del restaurante" %>
+        <%= f.select :category, options_for_select(
           ["Familiar", "Gourmet", "Bar", "Café", "Comida rápida"],
-          @restaurant.restaurant_type
+          @restaurant.category
         ),
                      { include_blank: "Seleccione categoría" },
                      class: "form-select" %>
@@ -355,9 +283,6 @@
       <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
     </div>
   </div>
-  <%= link_to "Configurar categorías del menú",
-              menu_categories_selector_restaurant_path(@restaurant),
-              class: "btn btn-outline-primary mt-3" %>
 
   <%= f.submit "Guardar", class: "btn btn-primary" %>
 <% end %>

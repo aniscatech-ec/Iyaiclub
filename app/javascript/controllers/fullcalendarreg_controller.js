@@ -1,14 +1,16 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Controlador Stimulus: fullcalendarreg
 export default class extends Controller {
-    static targets = ["calendar", "availabilitiesContainer"]
-    static values = { events: Array, unitIndex: Number }
+    static values = { events: Array }
 
     connect() {
-        console.log("✅ FullCalendar conectado para unidad", this.unitIndexValue)
-        this.initialLocaleCode = "es"
-        this.waitForFullCalendar(() => this.initializeCalendar())
+        console.log("✅ FullCalendar Stimulus conectado")
+        this.initialLocaleCode = 'es'
+
+        // Espera a que FullCalendar exista antes de inicializar
+        this.waitForFullCalendar(() => {
+            this.initializeCalendar()
+        })
     }
 
     waitForFullCalendar(callback) {
@@ -22,7 +24,7 @@ export default class extends Controller {
     initializeCalendar() {
         if (this.calendar) this.calendar.destroy()
 
-        this.calendar = new window.FullCalendar.Calendar(this.calendarTarget, {
+        this.calendar = new window.FullCalendar.Calendar(this.element, {
             initialView: "dayGridMonth",
             initialDate: new Date().toISOString().split("T")[0],
             headerToolbar: {
@@ -31,22 +33,19 @@ export default class extends Controller {
                 right: "dayGridMonth,dayGridWeek,dayGridDay"
             },
             selectable: true,
+            editable: true,
             locale: this.initialLocaleCode,
             events: this.eventsValue || [],
             dateClick: this.dateClick.bind(this)
         })
 
         this.calendar.render()
-
-        // 🔄 Cargar los hidden fields de las disponibilidades iniciales
-        this.loadInitialAvailabilities()
     }
 
     dateClick(info) {
         const existing = this.calendar.getEventById(info.dateStr)
 
         if (!existing) {
-            // Crear disponibilidad
             this.calendar.addEvent({
                 id: info.dateStr,
                 title: "Disponible",
@@ -54,9 +53,7 @@ export default class extends Controller {
                 allDay: true,
                 color: "green"
             })
-            this.addHiddenAvailability(info.dateStr, true)
         } else if (existing.title === "Disponible") {
-            // Cambiar a no disponible
             existing.remove()
             this.calendar.addEvent({
                 id: info.dateStr,
@@ -65,59 +62,24 @@ export default class extends Controller {
                 allDay: true,
                 color: "red"
             })
-            this.addHiddenAvailability(info.dateStr, false)
         } else {
-            // Quitar disponibilidad
             existing.remove()
-            this.removeHiddenAvailability(info.dateStr)
         }
+
+        this.updateHiddenField()
     }
 
-    addHiddenAvailability(date, available) {
-        // Eliminar si ya existía un campo para esa fecha
-        this.removeHiddenAvailability(date)
-
-        const container = this.availabilitiesContainerTarget
-        const timestamp = new Date().getTime()
-
-        const dateField = document.createElement("input")
-        dateField.type = "hidden"
-        dateField.name = `hotel[units_attributes][${this.unitIndexValue}][unit_availabilities_attributes][${timestamp}][date]`
-        dateField.value = date
-
-        const availableField = document.createElement("input")
-        availableField.type = "hidden"
-        availableField.name = `hotel[units_attributes][${this.unitIndexValue}][unit_availabilities_attributes][${timestamp}][available]`
-        availableField.value = available
-
-        container.appendChild(dateField)
-        container.appendChild(availableField)
-
-        console.log("📅 Añadido availability:", { date, available })
+    updateHiddenField() {
+        const hiddenInput = document.getElementById("unit_availabilities_json")
+        hiddenInput.value = JSON.stringify(this.getAvailableDates())
+        console.log("📩 Fechas actualizadas:", hiddenInput.value)
     }
 
-    removeHiddenAvailability(date) {
-        const container = this.availabilitiesContainerTarget
-        const inputs = container.querySelectorAll("input")
-
-        inputs.forEach(input => {
-            if (input.name.includes("[date]") && input.value === date) {
-                const match = input.name.match(/\[(\d+)\]\[date\]/)
-                if (match) {
-                    const index = match[1]
-                    container
-                        .querySelectorAll(`input[name*="[${index}]"]`)
-                        .forEach(el => el.remove())
-                }
-            }
-        })
-    }
-
-    loadInitialAvailabilities() {
-        // Si ya hay eventos cargados (desde el backend), los sincroniza en hidden fields
-        (this.eventsValue || []).forEach(ev => {
-            this.addHiddenAvailability(ev.start, ev.title === "Disponible")
-        })
+    getAvailableDates() {
+        return this.calendar.getEvents().map(e => ({
+            date: e.startStr,
+            available: e.title === "Disponible"
+        }))
     }
 
     disconnect() {

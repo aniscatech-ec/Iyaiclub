@@ -9,15 +9,10 @@ class SubscriptionsController < ApplicationController
   def index
     if current_user.administrador?
       @subscriptions = Subscription.all
-    else current_user.afiliado?
+    else
       # @subscriptions = current_user.subscriptions
       # @subscriptions = Subscription.joins(:establishment).where(establishments: { user_id: current_user.id })
-      # Obtener los establecimientos del afiliado
-    establishments = current_user.establishments
 
-      # Traer solo sus suscripciones (polimórfico)
-    @subscriptions = Subscription
-                       .where(subscribable: establishments)
     end
   end
 
@@ -35,8 +30,7 @@ class SubscriptionsController < ApplicationController
     else
       # @subscriptions = current_user.subscriptions
       @establishment = Establishment.find(params[:id])
-      # @plans = PlanPrice.where(target_role: current_user.role)
-      @plan_prices = PlanPrice.where(target_role: current_user.role)
+      @plans = PlanPrice.where(target_role: current_user.role)
 
     end
   end
@@ -64,6 +58,7 @@ class SubscriptionsController < ApplicationController
       @establishments = Establishment.all
     elsif current_user.afiliado?
       @establishment = current_user.establishments.find(params[:establishment_id])
+
     elsif current_user.turista?
 
     end
@@ -71,18 +66,8 @@ class SubscriptionsController < ApplicationController
 
   def create
     @subscription = Subscription.new(subscription_params)
-
-    puts subscription_params
     # @subscription.user = current_user
     @subscription.status = :pendiente
-    if current_user.administrador?
-      # @establishments = Establishment.all
-    elsif current_user.afiliado?
-      @establishment = current_user.establishments.find(subscription_params[:subscribable_id])
-    elsif current_user.turista?
-
-    end
-
 
     if @subscription.save
       redirect_to @subscription, notice: "Solicitud enviada. Sigue las instrucciones de pago."
@@ -151,6 +136,6 @@ class SubscriptionsController < ApplicationController
   end
 
   def subscription_params
-    params.require(:subscription).permit(:establishment_id, :plan_type, :payment_method, :payment_instructions, :status, :subscribable_type, :subscribable_id)
+    params.require(:subscription).permit(:establishment_id, :plan_type, :payment_method, :payment_instructions, :status)
   end
 end

@@ -56,7 +56,7 @@ class PlanPricesController < ApplicationController
 
   def plan_price_params
     # params.require(:plan_price).permit(:target_role, :plan_type, :duration, :price)
-    raw_params = params.require(:plan_price).permit(:target_role, :plan_type, :duration, :price, :features, :plan_id)
+    raw_params = params.require(:plan_price).permit(:target_role, :plan_type, :duration, :price, :features)
 
     if raw_params[:features].is_a?(String)
       raw_params[:features] = raw_params[:features].split("\n").map(&:strip).reject(&:blank?)

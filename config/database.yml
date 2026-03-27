@@ -15,11 +15,12 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: rails
   password: RMdf2&/snfgney
-  socket: /var/run/mysqld/mysqld.sock
+  host: 127.0.0.1
+  port: 3307
 
 development:
   <<: *default
-  database: iyaib_club_app_development
+  database: iyaib_club_app_production
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

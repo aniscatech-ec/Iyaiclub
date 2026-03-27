@@ -1,44 +1,48 @@
-
-<section class="search-hotels mb-4" data-controller="modal">
-<!--  <form action="/establishments" method="get" class="row g-2 align-items-end">-->
-  <form action="/establishments/search_results" method="get" class="row g-2 align-items-end">
+<section class="search-hotels bg-white p-3 rounded-3 shadow-sm" data-controller="modal">
+  <form action="/establishments" method="get" class="row g-2 align-items-end">
 
     <!-- Ciudad -->
-    <!-- Ciudad -->
-    <div class="col-md-4 col-12 position-relative" data-controller="autocomplete">
+    <div class="col-md-2" data-controller="autocomplete">
       <label class="form-label fw-semibold">¿A dónde quieres ir?</label>
-      <div class="input-group">
-        <span class="input-group-text bg-white"><i class="bi bi-geo-alt text-muted"></i></span>
-        <input type="text"
-               name="city"
-               class="form-control"
-               placeholder="Ej: Quito, Cuenca..."
-               data-autocomplete-target="input"
-               data-action="input->autocomplete#search">
-      </div>
-      <div class="list-group position-absolute w-100 z-3" data-autocomplete-target="results"></div>
+      <input type="text"
+             name="city"
+             class="form-control"
+             placeholder="Ej: Quito, Cuenca..."
+             data-autocomplete-target="input"
+             data-action="input->autocomplete#search">
+      <div class="list-group position-absolute" data-autocomplete-target="results"></div>
     </div>
 
 
-    <!-- Establecimientos -->
-    <!-- Establecimientos -->
-    <div class="col-md-3">
-      <label class="form-label fw-semibold">Tipo de establecimiento</label>
-      <select name="establishment_type" class="form-select">
-        <option value="todos">Todos</option>
-        <option value="hotel">Hoteles</option>
-        <option value="restaurante">Restaurantes</option>
-      </select>
+    <!-- Check-in -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold">Check-in</label>
+      <input type="date" name="checkin" class="form-control">
     </div>
+
+    <!-- Check-out -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold">Check-out</label>
+      <input type="date" name="checkout" class="form-control">
+    </div>
+
+    <!-- Huéspedes -->
+    <div class="col-md-2">
+      <label class="form-label fw-semibold d-block">Huéspedes</label>
+      <button id="guestsSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
+        <i class="bi bi-people me-2"></i> Seleccionar
+      </button>
+    </div>
+
     <!-- Comodidades -->
-    <div class="col-md-3">
+    <div class="col-md-2">
       <label class="form-label fw-semibold d-block">Comodidades</label>
       <button id="amenitiesSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#amenitiesModal">
         <i class="bi bi-star me-2"></i> Seleccionar
       </button>
     </div>
+    <!-- dentro del form -->
     <div id="selectedAmenities" hidden></div>
-
     <!-- Botón Buscar -->
     <div class="col-md-2 d-grid">
       <button type="submit" class="btn btn-primary btn-lg">Buscar</button>
@@ -46,6 +50,81 @@
 
   </form>
 </section>
+
+<!-- Modal Huéspedes -->
+<div class="modal fade" id="guestsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Selecciona los huéspedes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Adultos</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', -1)">-</button>
+            <input type="text" id="adults" name="adults" class="form-control text-center" value="2" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('adults', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span>Niños</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', -1)">-</button>
+            <input type="text" id="children" name="children" class="form-control text-center" value="0" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('children', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Habitaciones</span>
+          <div class="input-group" style="width: 140px;">
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', -1)">-</button>
+            <input type="text" id="rooms" name="rooms" class="form-control text-center" value="1" readonly>
+            <button type="button" class="btn btn-outline-primary" onclick="updateGuests('rooms', 1)">+</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal" onclick="applyGuests()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Comodidades -->
+<!-- Modal Comodidades -->
+<div class="modal fade" id="amenitiesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Elige las comodidades</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row row-cols-2 row-cols-md-3 g-3">
+          <% Amenity.all.each do |amenity| %>
+            <div class="col">
+              <div class="form-check">
+                <%= check_box_tag "amenities[]", amenity.name, false, class: "form-check-input amenity", id: "amenity_#{amenity.id}" %>
+                <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary rounded-pill" data-bs-dismiss="modal" onclick="applyAmenities()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -71,23 +150,21 @@
         document.getElementById("guestsSummaryBtn").innerHTML = `<i class="bi bi-people me-2"></i> ${summary}`;
     }
 
+    // Comodidades
     function applyAmenities() {
         const checkboxes = document.querySelectorAll('.amenity:checked');
-        const selected = Array.from(checkboxes).map(cb => ({
-            id: cb.value,
-            name: cb.nextElementSibling.textContent.trim() // 👈 toma el texto del label
-        }));
+        const selected = Array.from(checkboxes).map(cb => cb.value);
 
         // Limpiar los hidden inputs anteriores
         const container = document.getElementById("selectedAmenities");
         container.innerHTML = "";
 
         // Crear un hidden input por cada amenity seleccionado
-        selected.forEach(item => {
+        selected.forEach(value => {
             const hidden = document.createElement("input");
             hidden.type = "hidden";
-            hidden.name = "amenities[]";   // Rails lo recibe como array de IDs
-            hidden.value = item.id;
+            hidden.name = "amenities[]";   // 👈 clave para que Rails lo reciba como array
+            hidden.value = value;
             container.appendChild(hidden);
         });
 
@@ -95,7 +172,7 @@
         let summary = `<i class="bi bi-star me-2"></i> Seleccionar`;
         if (selected.length > 0) {
             if (selected.length <= 3) {
-                summary = `<i class="bi bi-star me-2"></i> ${selected.map(i => i.name).join(" · ")}`;
+                summary = `<i class="bi bi-star me-2"></i> ${selected.join(" · ")}`;
             } else {
                 summary = `<i class="bi bi-star me-2"></i> ${selected.length} comodidades seleccionadas`;
             }

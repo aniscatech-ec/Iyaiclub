@@ -17,81 +17,263 @@
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon.png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.19/locales-all.global.min.js" defer></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-
-  <%#= stylesheet_link_tag "leaflet", "data-turbo-track": "reload" %>
-  <%#= javascript_include_tag "leaflet", "data-turbo-track": "reload" %>
-
-  <!-- Scripts Swiper -->
   <%# Includes all stylesheet files in app/assets/stylesheets %>
   <%= stylesheet_link_tag :"application", "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
   <style>
+      .gradient-text {
+          font-size: 1.5rem;
+          font-weight: bold;
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+      }
 
+      .icon-bg {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      .gradient-btn {
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          border: none;
+          color: white;
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          transition: 0.3s ease;
+      }
+
+      .gradient-btn:hover {
+          filter: brightness(1.1);
+          transform: scale(1.05);
+      }
+
+      .gradient-outline-btn {
+          background: transparent;
+          color: #34c759; /* Color inicial del texto */
+          font-weight: bold;
+          padding: 0.5rem 1rem;
+          border: 2px solid transparent;
+          border-image: linear-gradient(to right, #34c759, #c0aa40, #ff9500) 1;
+          border-radius: 8px;
+          transition: 0.3s ease;
+      }
+
+      .gradient-outline-btn:hover {
+          background: linear-gradient(to right, #34c759, #c0aa40, #ff9500);
+          color: white;
+      }
   </style>
 </head>
 <body>
 <!-- Navbar común -->
 
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+  <symbol id="bootstrap" viewBox="0 0 118 94"><title>Bootstrap</title>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z"></path>
+  </symbol>
+  <symbol id="home" viewBox="0 0 16 16">
+    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z"></path>
+  </symbol>
+  <symbol id="speedometer2" viewBox="0 0 16 16">
+    <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"></path>
+    <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"></path>
+  </symbol>
+  <symbol id="table" viewBox="0 0 16 16">
+    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"></path>
+  </symbol>
+  <symbol id="people-circle" viewBox="0 0 16 16">
+    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
+    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"></path>
+  </symbol>
+  <symbol id="grid" viewBox="0 0 16 16">
+    <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"></path>
+  </symbol>
 
-<nav class="navbar navbar-expand-lg border-bottom">
-  <div class="container-fluid">
-    <a class="navbar-brand d-flex flex-column" href="/">
-      <%= image_tag("logo.jpeg", size: "187x77") %>
-      <span class="text-muted" style="font-size: 0.85rem;">Descubre • Reserva • Disfruta</span>
-    </a>
+  <symbol id="exit" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+  </symbol>
+  <symbol id="diamond" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.48 1.48 0 0 1 0-2.098z"/>
+  </symbol>
+  <symbol id="card" viewBox="0 0 16 16">
+    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm9 1.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 0-.5.5M9 8a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1h-4A.5.5 0 0 0 9 8m1 2.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 0-1h-3a.5.5 0 0 0-.5.5m-1 2C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 0 2 13h6.96q.04-.245.04-.5M7 6a2 2 0 1 0-4 0 2 2 0 0 0 4 0"/>
+  </symbol>
+  <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <!-- otros símbolos aquí -->
+    <symbol id="city" viewBox="0 0 640 640">
+      <path d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 128C512 92.7 483.3 64 448 64L192 64zM304 416L336 416C353.7 416 368 430.3 368 448L368 528L272 528L272 448C272 430.3 286.3 416 304 416zM224 176C224 167.2 231.2 160 240 160L272 160C280.8 160 288 167.2 288 176L288 208C288 216.8 280.8 224 272 224L240 224C231.2 224 224 216.8 224 208L224 176zM368 160L400 160C408.8 160 416 167.2 416 176L416 208C416 216.8 408.8 224 400 224L368 224C359.2 224 352 216.8 352 208L352 176C352 167.2 359.2 160 368 160zM224 304C224 295.2 231.2 288 240 288L272 288C280.8 288 288 295.2 288 304L288 336C288 344.8 280.8 352 272 352L240 352C231.2 352 224 344.8 224 336L224 304zM368 288L400 288C408.8 288 416 295.2 416 304L416 336C416 344.8 408.8 352 400 352L368 352C359.2 352 352 344.8 352 336L352 304C352 295.2 359.2 288 368 288z"/>
+    </symbol>
 
-    <div class="collapse navbar-collapse" id="navbarContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item"><%= link_to "Inicio", root_path, class: "nav-link" %></li>
+    <symbol id="province" viewBox="0 0 576 512">
+      <path d="M320 0c-35.3 0-64 28.7-64 64l0 32-48 0 0-72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 72-64 0 0-72C96 10.7 85.3 0 72 0S48 10.7 48 24l0 74c-27.6 7.1-48 32.2-48 62L0 448c0 35.3 28.7 64 64 64l448 0c35.3 0 64-28.7 64-64l0-192c0-35.3-28.7-64-64-64l-64 0 0-128c0-35.3-28.7-64-64-64L320 0zm64 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm-16 80c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zm16 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zm112-16c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM256 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM240 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM128 304l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM112 192c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0z"/>
+    </symbol>
 
-        <% if user_signed_in? %>
-          <% if current_user.administrador? %>
-            <li class="nav-item"><%= link_to "Dashboard", admin_dashboard_index_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "Menús", menu_categories_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "Planes", plans_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "Planes de pago", plan_prices_path, class: "nav-link" %></li>
+
+  </svg>
+
+
+</svg>
+
+<header>
+  <div class="px-3 py-2 border-bottom">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-decoration-none">
+          <div class="d-flex align-items-center p-2" style="gap: 10px;">
+            <!-- Icono -->
+            <div class="d-flex align-items-center justify-content-center icon-bg rounded-circle" style="width: 50px; height: 50px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradiente)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin h-6 w-6">
+                <defs>
+                  <linearGradient id="gradiente" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#000000"/>
+                    <stop offset="100%" stop-color="#000000"/>
+                  </linearGradient>
+                </defs>
+                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+
+            <!-- Texto -->
+            <div class="d-flex flex-column">
+              <span class="gradient-text">IyaiClub</span>
+              <span class="text-muted" style="font-size: 0.85rem;">Descubre • Reserva • Disfruta</span>
+            </div>
+          </div>
+        </a>
+        <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+          <li><a href="/" class="nav-link text-secondary">
+            <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+              <use xlink:href="#home"></use>
+            </svg>
+            Inicio
+          </a></li>
+          <% if user_signed_in? %>
+            <% if current_user.administrador? %>
+              <li>
+                <%= link_to admin_dashboard_index_path, class: "nav-link" do %>
+                  <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                    <use xlink:href="#speedometer2"></use>
+                  </svg>
+                  Dashboard
+                <% end %>
+              </li>
+
+
+              <li>
+                <%= link_to plan_prices_path, class: "nav-link" do %>
+                  <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                    <use xlink:href="#diamond"></use>
+                  </svg>
+                  Planes de pago
+                <% end %>
+              </li>
+
+            <% end %>
+            <% if current_user.afiliado? %>
+              <li>
+                <%= link_to afiliado_dashboard_index_path, class: "nav-link" do %>
+                  <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                    <use xlink:href="#speedometer2"></use>
+                  </svg>
+                  Dashboard
+                <% end %>
+              </li>
+
+            <% end %>
+            <% if current_user.turista? %>
+              <li>
+                <%= link_to turista_dashboard_index_path, class: "nav-link" do %>
+                  <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                    <use xlink:href="#speedometer2"></use>
+                  </svg>
+                  Dashboard
+                <% end %>
+              </li>
+
+            <% end %>
 
           <% end %>
 
-          <% if current_user.afiliado? %>
-            <li class="nav-item"><%= link_to "Dashboard", afiliado_dashboard_index_path, class: "nav-link" %></li>
-          <% end %>
+          <li>
+            <%= link_to subscriptions_path, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#card"></use>
+              </svg>
+              Suscripciones
+            <% end %>
+          </li>
 
-          <% if current_user.turista? %>
-            <li class="nav-item"><%= link_to "Dashboard", turista_dashboard_index_path, class: "nav-link" %></li>
-          <% end %>
-        <% end %>
+          <li>
+            <%= link_to countries_path, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#province"></use>
+              </svg>
+              Paises
+            <% end %>
+          </li>
 
-        <li class="nav-item"><%= link_to "Suscripciones", subscriptions_path, class: "nav-link" %></li>
-        <% if user_signed_in? && current_user.administrador? %>
+          <li>
+            <%= link_to provinces_path, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#province"></use>
+              </svg>
+              Provincias
+            <% end %>
+          </li>
+          <li>
+            <%= link_to cities_path, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#city"></use>
+              </svg>
+              Ciudades
+            <% end %>
+          </li>
 
-
-          <li class="nav-item"><%= link_to "Países", countries_path, class: "nav-link" %></li>
-          <li class="nav-item"><%= link_to "Provincias", provinces_path, class: "nav-link" %></li>
-          <li class="nav-item"><%= link_to "Ciudades", cities_path, class: "nav-link" %></li>
-          <li class="nav-item"><%= link_to "Logs", booking_requests_path, class: "nav-link" %></li>
-        <% end %>
-
-        <li class="nav-item"><%= link_to "Perfil", edit_user_registration_path, class: "nav-link" %></li>
-        <li class="nav-item"><%= link_to "Cerrar sesión", destroy_user_session_path, data: { turbo_method: :delete }, class: "nav-link" %></li>
-      </ul>
+          <li>
+            <%= link_to edit_user_registration_path, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#people-circle"></use>
+              </svg>
+              Perfil
+            <% end %>
+          </li>
+          <li>
+            <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "nav-link" do %>
+              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                <use xlink:href="#exit"></use>
+              </svg>
+              Cerrar sesión
+            <% end %>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-</nav>
-<!-- Barra tipo Booking -->
-<%= render "shared/navigation_bar" %>
 
-<main class="container-fluid">
+</header>
+
+
+<main class="container-fluid my-4">
   <%= yield %>
 </main>
 </body>
-<!-- Bootstrap Icons -->
-<!--<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">-->
 </html>
