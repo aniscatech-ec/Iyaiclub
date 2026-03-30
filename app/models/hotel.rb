@@ -1,6 +1,14 @@
 class Hotel < ApplicationRecord
   belongs_to :establishment
 
+  enum :hotel_type, {
+    hotel: "hotel",
+    hostal: "hostal",
+    glamping: "glamping",
+    ecohotel: "ecohotel",
+    alojamiento_temporal: "alojamiento_temporal"
+  }
+
   delegate :user,
            :images,
            :establishment_amenities,

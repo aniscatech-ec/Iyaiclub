@@ -76,7 +76,7 @@
                     <% gallery.gallery_images.each do |img| %>
                       <% if img.file.attached? %>
                         <%= image_tag img.file.variant(resize_to_limit: [250, 160]),
-                                      class: "img-fluid rounded border" %>
+                                      class: "img-fluid rounded border", loading: "lazy" %>
                       <% end %>
                     <% end %>
                   </div>
@@ -90,6 +90,56 @@
       <% end %>
     </div>
   </div>
+
+  <!-- Unidades disponibles -->
+  <div class="card shadow-sm border-0 mt-5">
+    <div class="card-header bg-success text-white fw-bold">
+      <i class="bi bi-door-open me-2"></i> Habitaciones disponibles
+    </div>
+    <div class="card-body">
+      <% available_units = @hotel.establishment.units.where(status: :disponible) %>
+      <% if available_units.any? %>
+        <div class="row g-3">
+          <% available_units.each do |unit| %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title fw-bold"><%= unit.unit_type.presence || "Habitación" %></h5>
+                  <p class="mb-1"><i class="bi bi-people me-1"></i> Capacidad: <%= unit.capacity %> personas</p>
+                  <p class="mb-1"><i class="bi bi-cash me-1"></i> Desde <strong>$<%= number_with_precision(unit.base_price, precision: 2) %></strong> / noche</p>
+                  <% if unit.price_per_person.present? %>
+                    <p class="mb-1"><i class="bi bi-person me-1"></i> $<%= number_with_precision(unit.price_per_person, precision: 2) %> / persona</p>
+                  <% end %>
+                  <% if unit.bed_configuration.present? %>
+                    <p class="mb-1"><i class="bi bi-lamp me-1"></i> <%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %></p>
+                  <% end %>
+                  <%= link_to new_hotel_booking_path(@hotel, unit_id: unit.id), class: "btn btn-primary w-100 mt-2" do %>
+                    <i class="bi bi-calendar-plus me-1"></i> Reservar
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic">No hay habitaciones disponibles en este momento.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- WhatsApp -->
+  <div class="mt-4 text-center">
+    <% phone = @hotel.establishment.whatsapp.presence || @hotel.establishment.legal_info&.contact_phone %>
+    <%= render "shared/whatsapp_button",
+               phone: phone,
+               message: "Hola, estoy interesado en #{@hotel.establishment.name}" %>
+  </div>
+
+  <!-- Mapa -->
+  <%= render "shared/map_display",
+             latitude: @hotel.establishment.latitude,
+             longitude: @hotel.establishment.longitude,
+             name: @hotel.establishment.name %>
 
   <!-- Botones de acción -->
   <div class="mt-4 text-center">

@@ -11,7 +11,7 @@ class EstablishmentStepsController < ApplicationController
   # end
 
   def show
-    @establishment = Establishment.find(params[:establishment_id])
+    @establishment = Establishment.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, :verification, :pricing_policy, :payment_methods, { galleries: { gallery_images: { file_attachment: :blob } } }).find(params[:establishment_id])
     @edit_mode = params[:edit_mode] == "true" # detecta si estamos en modo edición
     case step
     when :galeria
@@ -42,11 +42,17 @@ class EstablishmentStepsController < ApplicationController
   end
 
   def update
-    @establishment = Establishment.find(params[:establishment_id])
+    @establishment = Establishment.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, :verification, :pricing_policy, :payment_methods, { galleries: { gallery_images: { file_attachment: :blob } } }).find(params[:establishment_id])
     edit_mode = params[:edit_mode] == "true" # <<<<< agregado
     case step
     when :legal_info
-      @establishment.build_legal_info(legal_info_params).save
+      legal_info = @establishment.legal_info || @establishment.build_legal_info
+      legal_info.assign_attributes(legal_info_params)
+      unless legal_info.save
+        @edit_mode = edit_mode
+        flash.now[:alert] = "Algunos campos necesitan corrección. Por favor revisa la información ingresada."
+        render_wizard and return
+      end
     when :perfil, :ubicacion
       @establishment.update(establishment_params)
       # when :galeria
@@ -79,24 +85,18 @@ class EstablishmentStepsController < ApplicationController
       end
       # Caso: agregar nueva galería
       if params[:gallery].present?
-        puts "---------------PARAMETRO DE GALERIA PRESENTE----------------"
         @gallery = @establishment.galleries.create(gallery_params)
       end
       # Caso: agregar imágenes a galería existente
       if params[:gallery_image].present?
         gallery = @establishment.galleries.find(params[:gallery_image][:gallery_id])
 
-        puts "=== PARAMS RECEIVED ==="
-        p params[:gallery_image][:file] # Para depuración
-        puts "======================="
-
         # Filtramos vacíos y elementos sin nombre
         files = Array(params[:gallery_image][:file]).reject do |f|
           f.blank? || (f.respond_to?(:original_filename) && f.original_filename.blank?)
         end
 
-        files.each_with_index do |img, index|
-          puts "Procesando archivo ##{index}: #{img.inspect}"
+        files.each do |img|
           gallery.gallery_images.create(file: img)
         end
       end
@@ -140,10 +140,6 @@ class EstablishmentStepsController < ApplicationController
       #     redirect_to wizard_path(:unidades, establishment_id: @establishment.id) and return
       #   end
     when :unidades
-      # Crear la unidad normalmente con unit_params
-      Rails.logger.debug "|-----------------------------------------------------|"
-      Rails.logger.debug "🔎 unit_params: #{unit_params.inspect}"
-      Rails.logger.debug "|-----------------------------------------------------|"
       availabilities_json = unit_params[:availabilities_json]
       # Tomamos los parámetros completos del formulario
       unit_attrs = unit_params.except(:availabilities_json) # <-- esto quita availabilities_json
@@ -154,7 +150,6 @@ class EstablishmentStepsController < ApplicationController
 
       # Procesar disponibilidad enviada desde FullCalendar
       # Ahora podemos usar availabilities_json para crear los registros de disponibilidad
-      puts "|---------------------------------------------------------------------------|"
       #
       # if availabilities_json.present?
       #   puts "***********CREEANDO UNIT AVAILA**************"
@@ -203,12 +198,12 @@ class EstablishmentStepsController < ApplicationController
         # render_wizard
       end
     end
+    flash[:notice] ||= "Datos guardados correctamente ✓"
     if edit_mode
-      redirect_to dashboard_establishment_path(@establishment), notice: "Cambios guardados" and return
+      redirect_to dashboard_establishment_path(@establishment), notice: "Cambios guardados correctamente ✓" and return
     else
       render_wizard @establishment
     end
-    # render_wizard @establishment
   end
 
   private
@@ -274,6 +269,8 @@ class EstablishmentStepsController < ApplicationController
       :unit_type,
       :capacity,
       :base_price,
+      :price_per_person,
+      :status,
       :availabilities_json, # <<--- agregar esto
       bed_configuration: {},
       unit_prices_attributes: [:id, :season, :price, :_destroy],

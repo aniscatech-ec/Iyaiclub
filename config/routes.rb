@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     member do
       delete :remove_image
     end
+    resources :bookings, only: [:index, :new, :create, :show, :update]
   end
 
   resources :countries do

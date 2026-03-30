@@ -3,7 +3,8 @@ class HotelsController < ApplicationController
   layout "dashboard"
 
   def index
-    @hotels = Hotel.all
+    hotels = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    @pagy, @hotels = pagy(hotels)
   end
 
   def show
@@ -80,7 +81,8 @@ class HotelsController < ApplicationController
     if @hotel.save
       redirect_to @hotel, notice: "Hotel creado correctamente."
     else
-      render :new
+      flash.now[:alert] = "No pudimos guardar el hotel. Por favor revisa los campos marcados en rojo."
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -119,7 +121,8 @@ class HotelsController < ApplicationController
 
       redirect_to @hotel, notice: "Hotel actualizado correctamente."
     else
-      render :edit
+      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos marcados en rojo."
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -145,7 +148,7 @@ class HotelsController < ApplicationController
   private
 
   def set_hotel
-    @hotel = Hotel.find(params[:id])
+    @hotel = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
   end
 
   def hotel_params
@@ -179,6 +182,7 @@ class HotelsController < ApplicationController
         legal_info_attributes: [
           :id, # <-- también aquí
           :business_name,
+          :document_type,
           :document_number,
           :legal_representative,
           :contact_email,

@@ -55,7 +55,7 @@
     <%= f.label :amenities, "Comodidades", class: "form-label fw-bold" %>
 
     <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
-      <% Amenity.all.each do |amenity| %>
+      <% Amenity.with_attached_custom_icon.each do |amenity| %>
         <div class="col">
           <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
                     <%= "selected" if @establishment.amenity_ids.include?(amenity.id) %>"

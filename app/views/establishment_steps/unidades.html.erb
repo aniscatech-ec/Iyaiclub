@@ -65,6 +65,16 @@
         <%= f.label :base_price, "Precio base por noche (USD)" %>
         <%= f.number_field :base_price, step: 0.01, class: "form-control" %>
       </div>
+
+      <div class="col-md-4 mb-3">
+        <%= f.label :price_per_person, "Precio por persona (USD)" %>
+        <%= f.number_field :price_per_person, step: 0.01, class: "form-control" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= f.label :status, "Estado de la unidad" %>
+        <%= f.select :status, [["Disponible", "disponible"], ["No disponible", "no_disponible"]], { include_blank: "Selecciona estado" }, class: "form-select" %>
+      </div>
     </div>
   </div>
 
@@ -156,7 +166,7 @@
 <%# end %>
 
 <hr>
-<h3 class="mt-4">Unidades existentes (<%= @establishment.units.count %>)</h3>
+<h3 class="mt-4">Unidades existentes (<%= @establishment.units.size %>)</h3>
 <% @establishment.units.where.not(id: nil).each do |unit| %>
   <%#= unit.unit_availabilities.count %>
 

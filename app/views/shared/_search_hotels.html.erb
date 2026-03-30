@@ -108,7 +108,7 @@
       </div>
       <div class="modal-body">
         <div class="row row-cols-2 row-cols-md-3 g-3">
-          <% Amenity.all.each do |amenity| %>
+          <% Amenity.with_attached_custom_icon.each do |amenity| %>
             <div class="col">
               <div class="form-check">
                 <%= check_box_tag "amenities[]", amenity.name, false, class: "form-check-input amenity", id: "amenity_#{amenity.id}" %>

@@ -74,3 +74,7 @@
 <% elsif current_user.turista? %>
   <%= render "catalog_view", establishments: @establishments %>
 <% end %>
+
+<nav class="d-flex justify-content-center mt-4">
+  <%== pagy_nav(@pagy) %>
+</nav>

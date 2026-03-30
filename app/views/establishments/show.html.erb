@@ -27,7 +27,7 @@
     <p><strong>Email de contacto:</strong> <%= @establishment.legal_info&.contact_email %></p>
     <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
     <%= render "shared/whatsapp_button",
-               phone: @establishment.legal_info&.contact_phone,
+               phone: @establishment.whatsapp.presence || @establishment.legal_info&.contact_phone,
                message: "Hola, me interesa el establecimiento #{@establishment.name}" %>
   </div>
 </div>
@@ -40,7 +40,7 @@
     <p><strong>Descripción corta:</strong> <%= @establishment.short_description %></p>
     <p><strong>Descripción larga:</strong> <%= @establishment.long_description %></p>
     <p><strong>Categoría:</strong> <%= @establishment.category %></p>
-    <p><strong>Amenities:</strong> (<%= @establishment.amenities.count %>)</p>
+    <p><strong>Amenities:</strong> (<%= @establishment.amenities.size %>)</p>
     <ul>
       <% @establishment.amenities.each do |amenity| %>
         <li><%= amenity.name %></li>
@@ -55,6 +55,20 @@
     </p>
     <p>
       <strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %>
+    </p>
+    <p>
+      <strong>Hora de apertura:</strong> <%= @establishment.opening_time.strftime("%I:%M %p") if @establishment.opening_time %>
+    </p>
+    <p>
+      <strong>Hora de cierre:</strong> <%= @establishment.closing_time.strftime("%I:%M %p") if @establishment.closing_time %>
+    </p>
+    <p><strong>WhatsApp:</strong> <%= @establishment.whatsapp %></p>
+    <p><strong>Estado:</strong>
+      <% if @establishment.active? %>
+        <span class="badge bg-success">Activo</span>
+      <% else %>
+        <span class="badge bg-secondary">Inactivo</span>
+      <% end %>
     </p>
 
     <ul>
@@ -86,15 +100,15 @@
 
 <!-- Sección 4: Galería -->
 <div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">4. Galería (<%= @establishment.galleries.count %>)</div>
+  <div class="card-header fw-bold">4. Galería (<%= @establishment.galleries.size %>)</div>
   <div class="card-body">
     <% @establishment.galleries.each do |gallery| %>
-      <h6><%= gallery.name %> <%= gallery.gallery_images.count %></h6>
+      <h6><%= gallery.name %> <%= gallery.gallery_images.size %></h6>
       <div class="d-flex flex-wrap">
         <% gallery.gallery_images.each do |gi| %>
           <%= gi.video_url %>
           <% if gi.file.attached? %>
-            <%= image_tag gi.file.variant(resize_to_limit: [150, 150]), class: "img-thumbnail me-2 mb-2" %>
+            <%= image_tag gi.file.variant(resize_to_limit: [150, 150]), class: "img-thumbnail me-2 mb-2", loading: "lazy" %>
           <% end %>
         <% end %>
       </div>
@@ -115,7 +129,7 @@
 
 <!-- Sección 5: Unidades -->
 <div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">5. Unidades / Habitaciones (<%= @establishment.units.count %>)</div>
+  <div class="card-header fw-bold">5. Unidades / Habitaciones (<%= @establishment.units.size %>)</div>
   <div class="card-body">
     <table class="table table-sm table-bordered">
       <thead>
@@ -257,7 +271,7 @@
 
 <!-- Sección 7: Métodos de pago -->
 <div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">7. Métodos de pago (<%= @establishment.payment_methods.count %>)</div>
+  <div class="card-header fw-bold">7. Métodos de pago (<%= @establishment.payment_methods.size %>)</div>
   <div class="card-body">
     <ul class="list-group">
       <% @establishment.payment_methods.each do |pm| %>

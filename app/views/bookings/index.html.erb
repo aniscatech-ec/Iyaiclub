@@ -1,0 +1,61 @@
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="bi bi-calendar-check me-2"></i> Reservas — <%= @hotel.establishment.name %>
+    </h2>
+    <%= link_to "Volver al hotel", hotel_path(@hotel), class: "btn btn-outline-secondary" %>
+  </div>
+
+  <% if @bookings.any? %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle shadow-sm">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Huésped</th>
+            <th>Unidad</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Huéspedes</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @bookings.each do |booking| %>
+            <tr>
+              <td><%= booking.id %></td>
+              <td>
+                <strong><%= booking.guest_name %></strong>
+                <br><small class="text-muted"><%= booking.guest_email %></small>
+              </td>
+              <td><%= booking.unit.unit_type.presence || "Sin tipo" %></td>
+              <td><%= booking.start_date.strftime("%d/%m/%Y") %></td>
+              <td><%= booking.end_date.strftime("%d/%m/%Y") %></td>
+              <td class="text-center"><%= booking.guest_count %></td>
+              <td>
+                <% badge_class = case booking.status
+                                 when "pendiente" then "bg-warning text-dark"
+                                 when "confirmado" then "bg-success"
+                                 when "rechazado" then "bg-danger"
+                                 when "cancelado" then "bg-secondary"
+                                 else "bg-light text-dark"
+                                 end %>
+                <span class="badge <%= badge_class %>"><%= booking.status.capitalize %></span>
+              </td>
+              <td>
+                <%= link_to hotel_booking_path(@hotel, booking), class: "btn btn-info btn-sm" do %>
+                  <i class="bi bi-eye"></i> Ver
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="alert alert-info text-center">
+      <i class="bi bi-info-circle me-2"></i> No hay reservas registradas aún.
+    </div>
+  <% end %>
+</div>

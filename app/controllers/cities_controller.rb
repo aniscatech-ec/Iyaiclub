@@ -25,7 +25,7 @@ class CitiesController < ApplicationController
         format.json { render json: @cities.map { |c| { id: c.id, name: c.name } } }
       end
     else
-      @cities = City.includes(:province).all # tu index global
+      @cities = City.includes(province: :country).all # tu index global
     end
   end
 

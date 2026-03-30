@@ -57,6 +57,11 @@
   </div>
 
   <div class="mb-3">
+    <%= form.label :whatsapp, "WhatsApp (con código de país, ej: 593991234567)" %>
+    <%= form.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
+  </div>
+
+  <div class="mb-3">
     <%= form.label :email %>
     <%= form.email_field :email, class: "form-control" %>
   </div>
@@ -74,6 +79,21 @@
   <div class="mb-3">
     <%= form.label :check_out_time, "Hora Check-out" %>
     <%= form.time_field :check_out_time, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :opening_time, "Hora de apertura" %>
+    <%= form.time_field :opening_time, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :closing_time, "Hora de cierre" %>
+    <%= form.time_field :closing_time, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :status, "Estado" %>
+    <%= form.select :status, Establishment.statuses.keys.map { |s| [s.humanize.capitalize, s] }, { prompt: "Seleccione estado" }, class: "form-select" %>
   </div>
 
   <div class="mb-3">
@@ -118,7 +138,7 @@
 
   <div class="mb-3">
     <%= form.label :amenities, "Comodidades" %><br>
-    <% Amenity.all.each do |amenity| %>
+    <% Amenity.with_attached_custom_icon.each do |amenity| %>
       <div class="form-check form-check-inline">
         <%= check_box_tag "establishment[amenity_ids][]", amenity.id, establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
         <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>

@@ -16,7 +16,7 @@
 
   <div class="mb-3">
     <%= f.label :hotel_type, "Tipo de hotel" %>
-    <%= f.text_field :hotel_type, class: "form-control" %>
+    <%= f.select :hotel_type, hotel_type_options, { include_blank: "Selecciona un tipo" }, class: "form-select" %>
   </div>
 
   <%= f.fields_for :establishment do |e| %>
@@ -92,7 +92,7 @@
 
                       <div class="me-2">
                         <% if gi.object.file.attached? %>
-                          <%= image_tag gi.object.display_image, style: "max-width:120px; max-height:80px;", class: "img-thumbnail" %>
+                          <%= image_tag gi.object.display_image, style: "max-width:120px; max-height:80px;", class: "img-thumbnail", loading: "lazy" %>
                         <% end %>
                       </div>
 

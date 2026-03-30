@@ -62,7 +62,7 @@
               <% if gi.file.attached? %>
                 <div class="m-2">
                   <%= image_tag gi.file.variant(resize_to_limit: [200, 200]),
-                                class: "img-thumbnail shadow-sm rounded" %>
+                                class: "img-thumbnail shadow-sm rounded", loading: "lazy" %>
                 </div>
               <% else %>
                 <p class="text-muted fst-italic">Sin imágenes</p>

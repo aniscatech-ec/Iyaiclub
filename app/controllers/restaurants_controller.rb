@@ -4,7 +4,7 @@ class RestaurantsController < ApplicationController
   layout "dashboard"
 
   def index
-    @restaurants = Restaurant.all
+    @restaurants = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
   end
 
   def show
@@ -70,7 +70,8 @@ class RestaurantsController < ApplicationController
     if @restaurant.save
       redirect_to @restaurant, notice: "Restaurante creado correctamente."
     else
-      render :new
+      flash.now[:alert] = "No pudimos guardar el restaurante. Por favor revisa los campos marcados en rojo."
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -106,7 +107,8 @@ class RestaurantsController < ApplicationController
 
       redirect_to @restaurant, notice: "Restaurante actualizado correctamente."
     else
-      render :edit
+      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos marcados en rojo."
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -118,7 +120,7 @@ class RestaurantsController < ApplicationController
   private
 
   def set_restaurant
-    @restaurant = Restaurant.find(params[:id])
+    @restaurant = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
   end
 
   def restaurant_params_1
@@ -152,6 +154,7 @@ class RestaurantsController < ApplicationController
         legal_info_attributes: [
           :id,
           :business_name, # Razón social
+          :document_type, # Tipo de documento
           :document_number, # RUC
           :legal_representative, # Responsable / gerente
           :contact_email, # Email

@@ -9,6 +9,7 @@ class Establishment < ApplicationRecord
 
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
+  enum :status, { active: 0, inactive: 1 }, default: :active
 
   # validates :name, :description, :category, presence: true
   belongs_to :city, optional: true
