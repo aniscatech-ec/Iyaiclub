@@ -130,6 +130,12 @@ class RestaurantsController < ApplicationController
   def restaurant_params
     params.require(:restaurant).permit(
       :cuisine_type, :category,
+      menus_attributes: [
+        :id, :name, :_destroy,
+        menu_items_attributes: [
+          :id, :name, :description, :price, :photo, :_destroy
+        ]
+      ],
       establishment_attributes: [
         :user_id,
         :id,
