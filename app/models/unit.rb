@@ -1,5 +1,8 @@
 class Unit < ApplicationRecord
   belongs_to :establishment
+
+  enum :status, { disponible: 0, no_disponible: 1 }
+
   # store :seasonal_prices, accessors: [:high, :low], coder: JSON
   has_many :unit_prices, dependent: :destroy
   has_many :unit_availabilities, dependent: :destroy

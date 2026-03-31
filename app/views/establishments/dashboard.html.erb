@@ -44,7 +44,7 @@
           <p><strong>Email:</strong> <%= @establishment.legal_info&.contact_email %></p>
           <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
           <%= render "shared/whatsapp_button",
-                     phone: @establishment.legal_info&.contact_phone,
+                     phone: @establishment.whatsapp.presence || @establishment.legal_info&.contact_phone,
                      message: "Hola, me interesa el establecimiento #{@establishment.name}" %>
         </div>
       </div>
@@ -71,6 +71,16 @@
           </ul>
           <p><strong>Check-in:</strong> <%= @establishment.check_in_time.strftime("%I:%M %p") if @establishment.check_in_time %></p>
           <p><strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %></p>
+          <p><strong>Hora de apertura:</strong> <%= @establishment.opening_time.strftime("%I:%M %p") if @establishment.opening_time %></p>
+          <p><strong>Hora de cierre:</strong> <%= @establishment.closing_time.strftime("%I:%M %p") if @establishment.closing_time %></p>
+          <p><strong>WhatsApp:</strong> <%= @establishment.whatsapp %></p>
+          <p><strong>Estado:</strong>
+            <% if @establishment.active? %>
+              <span class="badge bg-success">Activo</span>
+            <% else %>
+              <span class="badge bg-secondary">Inactivo</span>
+            <% end %>
+          </p>
         </div>
       </div>
 
@@ -99,7 +109,7 @@
       <!-- Galería -->
       <div class="card mb-4 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          4. Galería (<%= @establishment.galleries.count %>)
+          4. Galería (<%= @establishment.galleries.size %>)
           <%#= link_to "Editar", wizard_path(:galeria, establishment_id: @establishment.id), class: "btn btn-sm btn-primary" %>
           <%= link_to "Editar",
                       establishment_establishment_step_path(@establishment, :galeria, edit_mode: true),
@@ -107,11 +117,11 @@
         </div>
         <div class="card-body">
           <% @establishment.galleries.each do |gallery| %>
-            <h6><%= gallery.name %> (<%= gallery.gallery_images.count %> imágenes)</h6>
+            <h6><%= gallery.name %> (<%= gallery.gallery_images.size %> imágenes)</h6>
             <div class="d-flex flex-wrap mb-3">
               <% gallery.gallery_images.each do |gi| %>
                 <% if gi.file.attached? %>
-                  <%= image_tag gi.file.variant(resize_to_limit: [150,150]), class: "img-thumbnail me-2 mb-2" %>
+                  <%= image_tag gi.file.variant(resize_to_limit: [150,150], saver: { quality: 80 }), class: "img-thumbnail me-2 mb-2", loading: "lazy" %>
                 <% end %>
               <% end %>
             </div>
@@ -122,7 +132,7 @@
       <!-- Unidades -->
       <div class="card mb-4 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          5. Unidades / Habitaciones (<%= @establishment.units.count %>)
+          5. Unidades / Habitaciones (<%= @establishment.units.size %>)
           <%#= link_to "Editar", wizard_path(:unidades, establishment_id: @establishment.id), class: "btn btn-sm btn-primary" %>
           <%= link_to "Editar",
                       establishment_establishment_step_path(@establishment, :unidades, edit_mode: true),
@@ -177,7 +187,7 @@
       <!-- Pagos -->
       <div class="card mb-4 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          7. Métodos de pago (<%= @establishment.payment_methods.count %>)
+          7. Métodos de pago (<%= @establishment.payment_methods.size %>)
           <%#= link_to "Editar", wizard_path(:pagos, establishment_id: @establishment.id), class: "btn btn-sm btn-primary" %>
           <%= link_to "Editar",
                       establishment_establishment_step_path(@establishment, :pagos),
@@ -206,7 +216,7 @@
             <% v = @establishment.verification %>
             <p><strong>Documento identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %></p>
             <p><strong>Documento propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %></p>
-            <p><strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150,150]), class: "img-thumbnail" if v.selfie.attached? %></p>
+            <p><strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150,150]), class: "img-thumbnail", loading: "lazy" if v.selfie.attached? %></p>
           <% else %>
             <p class="text-muted">No se han subido documentos de verificación.</p>
           <% end %>

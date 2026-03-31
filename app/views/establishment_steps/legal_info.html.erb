@@ -1,52 +1,131 @@
 <h2>Paso 1 – Datos legales y de contacto</h2>
 
-<%= form_with model: @establishment.legal_info || @establishment.build_legal_info, url: wizard_path, method: :put, scope: :legal_info, local: true do |f| %>
+<% legal = @establishment.legal_info || @establishment.build_legal_info %>
+
+<% if legal.errors.any? %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Por favor corrige lo siguiente para continuar:</strong>
+    <ul class="mb-0 mt-1">
+      <% legal.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+<% end %>
+
+<%= form_with model: legal, url: wizard_path, method: :put, scope: :legal_info, local: true do |f| %>
   <div class="mb-3">
     <%= f.label :business_name, "Razón social / Nombre comercial" %>
-    <%= f.text_field :business_name, class: "form-control" %>
+    <%= f.text_field :business_name, class: "form-control #{'is-invalid' if legal.errors[:business_name].any?}",
+                     required: true, minlength: 3, maxlength: 150 %>
+    <% if legal.errors[:business_name].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:business_name].first %></div>
+    <% end %>
   </div>
 
   <div class="mb-3">
     <%= f.label :legal_representative, "Representante legal / Administrador" %>
-    <% if current_user.afiliado? %>
-      <%= f.text_field :legal_representative, value: current_user.name, class: "form-control" %>
-    <% else %>
-      <%= f.text_field :legal_representative, class: "form-control" %>
+    <% rep_value = legal.legal_representative.presence || (current_user.afiliado? ? current_user.name : nil) %>
+    <%= f.text_field :legal_representative, value: rep_value,
+                     class: "form-control #{'is-invalid' if legal.errors[:legal_representative].any?}",
+                     required: true, minlength: 3, maxlength: 100 %>
+    <% if legal.errors[:legal_representative].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:legal_representative].first %></div>
     <% end %>
   </div>
 
   <div class="mb-3">
     <%= f.label :document_type, "Tipo de documento" %>
-    <%= f.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select" %>
+    <%= f.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {},
+                 class: "form-select #{'is-invalid' if legal.errors[:document_type].any?}",
+                 required: true, id: "document_type_select" %>
+    <% if legal.errors[:document_type].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:document_type].first %></div>
+    <% end %>
   </div>
 
   <div class="mb-3">
     <%= f.label :document_number, "Número de documento" %>
-    <%= f.text_field :document_number, class: "form-control" %>
+    <%= f.text_field :document_number,
+                     class: "form-control #{'is-invalid' if legal.errors[:document_number].any?}",
+                     required: true, id: "document_number_input",
+                     placeholder: "Ej: 0901234567001" %>
+    <% if legal.errors[:document_number].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:document_number].first %></div>
+    <% end %>
+    <div class="form-text" id="document_number_hint">Ingrese su número de documento</div>
   </div>
 
   <div class="mb-3">
     <%= f.label :contact_email, "Correo electrónico" %>
-    <% if current_user.afiliado? %>
-      <%= f.email_field :contact_email, value: current_user.email,class: "form-control" %>
-    <% else %>
-      <%= f.email_field :contact_email, class: "form-control" %>
+    <% email_value = legal.contact_email.presence || (current_user.afiliado? ? current_user.email : nil) %>
+    <%= f.email_field :contact_email, value: email_value,
+                      class: "form-control #{'is-invalid' if legal.errors[:contact_email].any?}",
+                      required: true, placeholder: "ejemplo@correo.com" %>
+    <% if legal.errors[:contact_email].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:contact_email].first %></div>
     <% end %>
   </div>
 
   <div class="mb-3">
-    <%= f.label :contact_phone, "Teléfono" %>
-    <% if current_user.afiliado? %>
-      <%= f.telephone_field :contact_phone, value: current_user.phone,class: "form-control" %>
-    <% else %>
-      <%= f.telephone_field :contact_phone, class: "form-control" %>
+    <%= f.label :contact_phone, "Teléfono de contacto" %>
+    <% phone_value = legal.contact_phone.presence || (current_user.afiliado? ? current_user.phone : nil) %>
+    <%= f.telephone_field :contact_phone, value: phone_value,
+                          class: "form-control #{'is-invalid' if legal.errors[:contact_phone].any?}",
+                          required: true, pattern: "[0-9]{10}", maxlength: 10,
+                          placeholder: "Ej: 0991234567" %>
+    <% if legal.errors[:contact_phone].any? %>
+      <div class="invalid-feedback"><%= legal.errors[:contact_phone].first %></div>
     <% end %>
+    <div class="form-text">10 dígitos numéricos</div>
   </div>
 
-  <%#= f.submit "Siguiente", class: "btn btn-primary" %>
   <%= hidden_field_tag :edit_mode, @edit_mode %>
-  <%#= f.submit @edit_mode ? "Guardar cambios" : "Guardar y continuar", class: "btn btn-primary" %>
   <%= f.submit @edit_mode ? "Guardar cambios" : "Guardar y continuar",
-               class: "btn #{@edit_mode ? 'btn-warning' : 'btn-primary'}" %>
+               class: "btn #{@edit_mode ? 'btn-warning' : 'btn-primary'}",
+               data: { disable_with: @edit_mode ? "Guardando..." : "Guardando..." } %>
 
 <% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const typeSelect = document.getElementById("document_type_select");
+    const numberInput = document.getElementById("document_number_input");
+    const hint = document.getElementById("document_number_hint");
+
+    function updatePattern() {
+      switch(typeSelect.value) {
+        case "RUC":
+          numberInput.pattern = "[0-9]{13}";
+          numberInput.maxLength = 13;
+          numberInput.placeholder = "Ej: 0901234567001";
+          hint.textContent = "13 dígitos numéricos";
+          break;
+        case "Cédula":
+          numberInput.pattern = "[0-9]{10}";
+          numberInput.maxLength = 10;
+          numberInput.placeholder = "Ej: 0901234567";
+          hint.textContent = "10 dígitos numéricos";
+          break;
+        case "DNI":
+          numberInput.pattern = "[0-9]{8,12}";
+          numberInput.maxLength = 12;
+          numberInput.placeholder = "Ej: 12345678";
+          hint.textContent = "Entre 8 y 12 dígitos numéricos";
+          break;
+        case "Pasaporte":
+          numberInput.pattern = "[A-Za-z0-9]{6,15}";
+          numberInput.maxLength = 15;
+          numberInput.placeholder = "Ej: AB1234567";
+          hint.textContent = "Entre 6 y 15 caracteres alfanuméricos";
+          break;
+      }
+    }
+
+    if (typeSelect && numberInput) {
+      typeSelect.addEventListener("change", updatePattern);
+      updatePattern();
+    }
+  });
+</script>

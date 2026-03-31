@@ -67,3 +67,4 @@ group :test do
   gem "selenium-webdriver"
 end
 gem 'wicked'
+gem 'pagy', '~> 9.0'

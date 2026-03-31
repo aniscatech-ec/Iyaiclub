@@ -1,28 +1,25 @@
 <div class="row">
   <% hotels.each do |hotel| %>
-    <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm border-0">
-        <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
-          <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
-          <%= image_tag first_image.variant(resize_to_limit: [400, 250]), class: "card-img-top" if first_image.attached? %>
-        <% else %>
-          <%= image_tag "logo-ant.jpg", class: "card-img-top" %>
-        <% end %>
-
-        <div class="card-body">
-          <h5 class="card-title"><%= hotel.establishment.id %></h5>
-          <% if hotel.establishment.galleries.any? %>
-
-            <p><strong>Gallerìas:</strong> <%= hotel.establishment.galleries.count %> </p>
+    <% cache hotel do %>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+          <% if hotel.establishment.galleries.any? && hotel.establishment.galleries.first.gallery_images.any? %>
+            <% first_image = hotel.establishment.galleries.first.gallery_images.first.file %>
+            <%= image_tag first_image.variant(resize_to_limit: [400, 250]), class: "card-img-top", loading: "lazy" if first_image.attached? %>
+          <% else %>
+            <%= image_tag "logo-ant.jpg", class: "card-img-top", loading: "lazy" %>
           <% end %>
-          <h5 class="card-title"><%= hotel.establishment.name %></h5>
-          <p class="card-text">
-            <span><%= "⭐" * hotel.stars.to_i %></span><br>
-            <small class="text-muted"><%= hotel.hotel_type.present? ? hotel.hotel_type.humanize : "Sin categoría" %></small>
-          </p>
-          <%= link_to "Ver detalles", hotel_path(hotel), class: "btn btn-primary w-100" %>
+
+          <div class="card-body">
+            <h5 class="card-title"><%= hotel.establishment.name %></h5>
+            <p class="card-text">
+              <span><%= "⭐" * hotel.stars.to_i %></span><br>
+              <small class="text-muted"><%= hotel.hotel_type.present? ? hotel_type_label(hotel.hotel_type) : "Sin categoría" %></small>
+            </p>
+            <%= link_to "Ver detalles", hotel_path(hotel), class: "btn btn-primary w-100" %>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
   <% end %>
 </div>

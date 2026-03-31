@@ -5,6 +5,29 @@
 
 </style>
 <h2>Editar Restaurante</h2>
+
+<% if @restaurant.errors.any? %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Por favor corrige lo siguiente para poder guardar:</strong>
+    <ul class="mb-0 mt-1">
+      <% @restaurant.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      <% if @restaurant.establishment&.errors&.any? %>
+        <% @restaurant.establishment.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      <% end %>
+      <% if @restaurant.establishment&.legal_info&.errors&.any? %>
+        <% @restaurant.establishment.legal_info.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      <% end %>
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+<% end %>
+
 <%#= render "form",  restaurant: @restaurant%>
 <%= form_with(model: @restaurant, local: true, data: { controller: "gallery", action: "submit->gallery#submitForm",
                                                        model: "restaurant" }) do |f| %>
@@ -15,15 +38,20 @@
         <%= e.fields_for :legal_info do |l| %>
           <div class="mb-3">
             <%= l.label :business_name, "Razón social / nombre comercial" %>
-            <%= l.text_field :business_name, class: "form-control" %>
+            <%= l.text_field :business_name, class: "form-control", required: true, minlength: 3, maxlength: 150 %>
           </div>
           <div class="mb-3">
-            <%= l.label :document_number, "RUC / identificación fiscal" %>
-            <%= l.text_field :document_number, class: "form-control" %>
+            <%= l.label :document_type, "Tipo de documento" %>
+            <%= l.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select", required: true %>
+          </div>
+          <div class="mb-3">
+            <%= l.label :document_number, "Número de documento" %>
+            <%= l.text_field :document_number, class: "form-control", required: true, placeholder: "Ej: 0901234567001" %>
+            <div class="form-text">Ingrese su número de documento</div>
           </div>
           <div class="mb-3">
             <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
-            <%= l.text_field :legal_representative, class: "form-control" %>
+            <%= l.text_field :legal_representative, class: "form-control", required: true, minlength: 3, maxlength: 100 %>
           </div>
 
           <div class="mb-3">
@@ -62,11 +90,12 @@
 
           <div class="mb-3">
             <%= l.label :contact_email, "Email de contacto" %>
-            <%= l.email_field :contact_email, class: "form-control" %>
+            <%= l.email_field :contact_email, class: "form-control", required: true, placeholder: "ejemplo@correo.com" %>
           </div>
           <div class="mb-3">
             <%= l.label :contact_phone, "Teléfono de contacto" %>
-            <%= l.telephone_field :contact_phone, class: "form-control" %>
+            <%= l.telephone_field :contact_phone, class: "form-control", required: true, pattern: "[0-9]{10}", maxlength: 10, placeholder: "Ej: 0991234567" %>
+            <div class="form-text">10 dígitos numéricos</div>
           </div>
         <% end %>
       </div>
@@ -153,7 +182,7 @@
         <div class="mb-3" data-controller="amenity-selector">
 
           <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
-            <% Amenity.all.each do |amenity| %>
+            <% Amenity.with_attached_custom_icon.each do |amenity| %>
               <div class="col">
                 <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
               <%= "selected" if @restaurant.establishment&.amenity_ids&.include?(amenity.id) %>"
@@ -230,8 +259,8 @@
           <div class="d-flex flex-wrap gap-2">
             <% g.object.gallery_images.each do |img| %>
               <div class="position-relative me-2 mb-2">
-                <% if img.file.attached? %>
-                  <%= image_tag img.file.variant(resize_to_limit: [200, 120]) %>
+                <% if img.persisted? && img.file.attached? %>
+                  <%= image_tag img.file.variant(resize_to_limit: [200, 120]), loading: "lazy" %>
                 <% end %>
 
                 <%# Campos correctly-nested para cada imagen %>
@@ -284,5 +313,5 @@
     </div>
   </div>
 
-  <%= f.submit "Guardar", class: "btn btn-primary" %>
+  <%= f.submit "Guardar", class: "btn btn-primary", data: { disable_with: "Guardando..." } %>
 <% end %>

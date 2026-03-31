@@ -35,7 +35,7 @@
     <% if @verification.selfie.attached? %>
       <p class="mt-2">
         Ya subido: ✅
-        <%= image_tag @verification.selfie.variant(resize_to_limit: [150,150]) if @verification.selfie.variable? %>
+        <%= image_tag @verification.selfie.variant(resize_to_limit: [150,150]), loading: "lazy" if @verification.selfie.variable? %>
       </p>
     <% end %>
   </div>

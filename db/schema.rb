@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_30_160000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -46,6 +46,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.integer "establishment_type"
   end
 
+  create_table "booking_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.bigint "user_id"
+    t.string "source"
+    t.string "status"
+    t.string "ip_address"
+    t.text "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_booking_requests_on_establishment_id"
+    t.index ["user_id"], name: "index_booking_requests_on_user_id"
+  end
+
   create_table "bookings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "unit_id", null: false
     t.string "guest_name"
@@ -57,6 +70,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_bookings_on_status"
     t.index ["unit_id"], name: "index_bookings_on_unit_id"
   end
 
@@ -115,7 +129,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.boolean "confirmed"
     t.json "refund_policy"
     t.string "video_url"
+    t.string "whatsapp"
+    t.time "opening_time"
+    t.time "closing_time"
+    t.integer "status", default: 0, null: false
+    t.index ["category"], name: "index_establishments_on_category"
     t.index ["city_id"], name: "index_establishments_on_city_id"
+    t.index ["country_id"], name: "index_establishments_on_country_id"
+    t.index ["status"], name: "index_establishments_on_status"
     t.index ["user_id"], name: "index_establishments_on_user_id"
   end
 
@@ -142,6 +163,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.string "hotel_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.time "check_in_time"
+    t.time "check_out_time"
+    t.time "early_check_in_from"
+    t.time "late_check_out_until"
+    t.boolean "reception_24h", default: false
+    t.time "reception_open_time"
+    t.time "reception_close_time"
     t.index ["establishment_id"], name: "index_hotels_on_establishment_id"
   end
 
@@ -158,6 +186,42 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.index ["establishment_id"], name: "index_legal_infos_on_establishment_id"
   end
 
+  create_table "menu_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "menu_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.bigint "menu_category_id", null: false
+    t.string "name"
+    t.text "description"
+    t.decimal "price", precision: 10, scale: 2
+    t.string "image_url"
+    t.boolean "is_vegan"
+    t.boolean "is_vegetarian"
+    t.boolean "is_gluten_free"
+    t.boolean "is_special"
+    t.integer "spicy_level"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_category_id"], name: "index_menu_items_on_menu_category_id"
+    t.index ["restaurant_id"], name: "index_menu_items_on_restaurant_id"
+  end
+
+  create_table "menu_options", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "menu_item_id", null: false
+    t.string "name"
+    t.decimal "price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_item_id"], name: "index_menu_options_on_menu_item_id"
+  end
+
   create_table "payment_methods", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "method_type"
     t.string "bank_name"
@@ -172,6 +236,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.index ["establishment_id"], name: "index_payment_methods_on_establishment_id"
   end
 
+  create_table "payment_receipts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "subscription_id", null: false
+    t.integer "status"
+    t.bigint "user_id", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_payment_receipts_on_subscription_id"
+    t.index ["user_id"], name: "index_payment_receipts_on_user_id"
+  end
+
   create_table "plan_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "plan_type"
     t.integer "duration", default: 0
@@ -180,6 +255,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.datetime "updated_at", null: false
     t.json "features"
     t.integer "target_role"
+    t.bigint "plan_id", null: false
+    t.index ["plan_id"], name: "index_plan_prices_on_plan_id"
+  end
+
+  create_table "plans", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.json "features"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "pricing_policies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -201,9 +286,43 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.index ["country_id"], name: "index_provinces_on_country_id"
   end
 
+  create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "unit_id", null: false
+    t.bigint "user_id", null: false
+    t.date "start_date"
+    t.date "end_date"
+    t.string "status"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["unit_id"], name: "index_reservations_on_unit_id"
+    t.index ["user_id"], name: "index_reservations_on_user_id"
+  end
+
+  create_table "restaurant_hours", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.integer "day_of_week"
+    t.time "open_time"
+    t.time "close_time"
+    t.boolean "closed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["restaurant_id"], name: "index_restaurant_hours_on_restaurant_id"
+  end
+
+  create_table "restaurant_menu_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.bigint "menu_category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["menu_category_id"], name: "index_restaurant_menu_categories_on_menu_category_id"
+    t.index ["restaurant_id"], name: "index_restaurant_menu_categories_on_restaurant_id"
+  end
+
   create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "cuisine_type"
+    t.string "restaurant_type"
     t.string "category"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -246,11 +365,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
     t.string "unit_type"
     t.integer "capacity"
     t.decimal "base_price", precision: 10
-    t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "bed_configuration"
+    t.bigint "establishment_id", null: false
+    t.decimal "price_per_person", precision: 10
+    t.integer "status"
     t.index ["establishment_id"], name: "index_units_on_establishment_id"
+    t.index ["establishment_id"], name: "index_units_on_hotel_id"
+    t.index ["status"], name: "index_units_on_status"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -284,6 +407,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "booking_requests", "establishments"
+  add_foreign_key "booking_requests", "users"
   add_foreign_key "bookings", "units"
   add_foreign_key "cities", "provinces"
   add_foreign_key "establishment_amenities", "amenities"
@@ -294,13 +419,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_27_152743) do
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "hotels", "establishments"
   add_foreign_key "legal_infos", "establishments"
+  add_foreign_key "menu_items", "menu_categories"
+  add_foreign_key "menu_items", "restaurants"
+  add_foreign_key "menu_options", "menu_items"
   add_foreign_key "payment_methods", "establishments"
+  add_foreign_key "payment_receipts", "subscriptions"
+  add_foreign_key "payment_receipts", "users"
+  add_foreign_key "plan_prices", "plans"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "reservations", "units"
+  add_foreign_key "reservations", "users"
+  add_foreign_key "restaurant_hours", "restaurants"
+  add_foreign_key "restaurant_menu_categories", "menu_categories"
+  add_foreign_key "restaurant_menu_categories", "restaurants"
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
-  add_foreign_key "units", "establishments"
+  add_foreign_key "units", "hotels", column: "establishment_id"
   add_foreign_key "users", "cities"
   add_foreign_key "users", "countries"
   add_foreign_key "verifications", "establishments"

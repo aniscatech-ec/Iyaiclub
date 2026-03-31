@@ -34,10 +34,7 @@ class EstablishmentsController < ApplicationController
   # end
 
   def index
-    puts "================= PARAMS ================="
-    puts params.inspect
-    puts "=========================================="
-    @establishments = Establishment.all
+    @establishments = Establishment.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } })
 
     # ------------------------
     # Búsqueda por nombre
@@ -52,7 +49,6 @@ class EstablishmentsController < ApplicationController
     # ------------------------
     if params[:city].present?
       city = City.find_by(name: params[:city].strip)
-      puts "-----------------------------CITY----------------------------------"
       @establishments = @establishments.where(city_id: city.id) if city
     end
 
@@ -68,8 +64,6 @@ class EstablishmentsController < ApplicationController
     # Filtrar por comodidades
     # ------------------------
     if params[:amenities].present?
-      puts "-----------------------------AMENITIES----------------------------------"
-
       amenity_ids = Amenity.where(name: params[:amenities]).pluck(:id)
 
       @establishments = @establishments.joins(:amenities)
@@ -84,16 +78,19 @@ class EstablishmentsController < ApplicationController
       checkout = Date.parse(params[:checkout]) rescue nil
 
       if checkin && checkout
-        # Aquí depende de cómo manejes disponibilidad. Ejemplo simplificado:
-        @establishments = @establishments.select do |est|
-          est.available_between?(checkin, checkout)
-        end
+        booked_establishment_ids = Booking.where(status: "confirmado")
+                                          .where("start_date <= ? AND end_date >= ?", checkout, checkin)
+                                          .joins(unit: :establishment)
+                                          .select("establishments.id")
+        @establishments = @establishments.where.not(id: booked_establishment_ids)
       end
     end
 
     if current_user.afiliado?
-      @establishments = current_user.establishments
+      @establishments = current_user.establishments.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } })
     end
+
+    @pagy, @establishments = pagy(@establishments)
   end
 
   def show
@@ -204,10 +201,6 @@ class EstablishmentsController < ApplicationController
       # Crear el hotel vinculado
       hotel = Hotel.create(establishment: est)
       hotel.save
-      puts "--------------------------------------"
-      puts hotel.id
-      puts current_user
-      puts "-------------------------------------"
 
       redirect_to edit_hotel_path(hotel)
 
@@ -240,7 +233,7 @@ class EstablishmentsController < ApplicationController
   private
 
   def set_establishment
-    @establishment = Establishment.find(params[:id])
+    @establishment = Establishment.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, :verification, :pricing_policy, :payment_methods, { galleries: { gallery_images: { file_attachment: :blob } } }).find(params[:id])
   end
 
   def authorize_admin_or_owner!
@@ -267,6 +260,10 @@ class EstablishmentsController < ApplicationController
                                           :short_description,
                                           :long_description,
                                           :category,
+                                          :status,
+                                          :whatsapp,
+                                          :opening_time,
+                                          :closing_time,
                                           :amenities,
                                           :address,
                                           :city_id,
