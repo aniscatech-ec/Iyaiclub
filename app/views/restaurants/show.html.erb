@@ -46,6 +46,46 @@
     </div>
   </div>
 
+  <!-- Menús -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-danger text-white fw-bold">
+      <i class="fas fa-list me-2"></i> Menús
+    </div>
+    <div class="card-body">
+      <% if @restaurant.menus.any? %>
+        <% @restaurant.menus.each do |menu| %>
+          <div class="mb-4">
+            <h4 class="fw-bold text-uppercase border-bottom pb-2 mb-3 text-danger"><%= menu.name %></h4>
+            <% if menu.menu_items.any? %>
+              <div class="row">
+                <% menu.menu_items.each do |item| %>
+                  <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 shadow-sm border-light">
+                      <% if item.photo.present? %>
+                        <img src="<%= item.photo %>" class="card-img-top" alt="<%= item.name %>" style="height: 150px; object-fit: cover;" onerror="this.style.display='none'">
+                      <% end %>
+                      <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <h6 class="card-title fw-bold mb-0 text-dark"><%= item.name %></h6>
+                          <span class="badge bg-success fs-6"><%= number_to_currency(item.price) %></span>
+                        </div>
+                        <p class="card-text text-muted small flex-grow-1"><%= item.description %></p>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-muted fst-italic ms-3">Este menú aún no tiene platos.</p>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted fst-italic">Este restaurante aún no ha publicado sus menús.</p>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Galería -->
   <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-dark text-white fw-bold">

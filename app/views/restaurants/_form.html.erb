@@ -42,26 +42,157 @@
 
       <div class="mb-3">
         <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
-        <%= f.select :cuisine_type, options_for_select(
-          ["Ecuatoriana","Italiana","Fusión","Mexicana","Japonesa","Internacional"],
-          restaurant.cuisine_type
-        ),
+        <%= f.select :cuisine_type, options_for_select(Restaurant::CUISINE_TYPES.map{|c| [c.capitalize, c]}, restaurant.cuisine_type),
                      { include_blank: "Seleccione tipo de cocina" },
                      class: "form-select" %>
       </div>
 
       <div class="mb-3">
         <%= f.label :category, "Categoría del restaurante" %>
-        <%= f.select :category, options_for_select(
-          ["Familiar","Gourmet","Bar","Café","Comida rápida"],
-          restaurant.category
-        ),
+        <%= f.select :category, options_for_select(Restaurant::CATEGORIES.map{|c| [c.capitalize, c]}, restaurant.category),
                      { include_blank: "Seleccione categoría" },
                      class: "form-select" %>
       </div>
     </div>
   </div>
 
+  <div class="card mb-4" data-controller="nested-form">
+    <div class="card-header fw-bold">3. Menús del Restaurante (Máximo 5)</div>
+    <div class="card-body">
+      <template data-nested-form-target="template">
+        <div class="nested-fields border p-3 mb-3 bg-light" data-new-record="true">
+          <%= f.fields_for :menus, Menu.new, child_index: 'NEW_RECORD' do |m_fields| %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0">Nuevo Menú</h5>
+              <button type="button" class="btn btn-sm btn-danger" data-action="click->nested-form#remove">Eliminar Menú</button>
+            </div>
+            <%= m_fields.hidden_field :_destroy %>
+            <div class="mb-3">
+              <%= m_fields.label :name, "Nombre del menú (ej. Menú Desayuno)", class: "form-label" %>
+              <%= m_fields.text_field :name, class: "form-control", required: true %>
+            </div>
+
+            <div class="mt-4 ms-4" data-controller="nested-form">
+              <h6>Platos de este menú</h6>
+              <div data-nested-form-target="target"></div>
+              
+              <template data-nested-form-target="template">
+                <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="true">
+                  <%= m_fields.fields_for :menu_items, MenuItem.new, child_index: 'NEW_RECORD' do |mi_fields| %>
+                    <div class="d-flex justify-content-end mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                    </div>
+                    <%= mi_fields.hidden_field :_destroy %>
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
+                        <%= mi_fields.text_field :name, class: "form-control", required: true %>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
+                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
+                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
+                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                    </div>
+                  <% end %>
+                </div>
+              </template>
+              
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="click->nested-form#add">+ Añadir Plato</button>
+            </div>
+          <% end %>
+        </div>
+      </template>
+
+      <div data-nested-form-target="target">
+        <%= f.fields_for :menus do |m_fields| %>
+          <div class="nested-fields border p-3 mb-3 bg-light" data-new-record="<%= m_fields.object.new_record? %>">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="mb-0">Menú: <%= m_fields.object.name %></h5>
+              <button type="button" class="btn btn-sm btn-danger" data-action="click->nested-form#remove">Eliminar Menú</button>
+            </div>
+            <%= m_fields.hidden_field :_destroy %>
+            <div class="mb-3">
+              <%= m_fields.label :name, "Nombre del menú", class: "form-label" %>
+              <%= m_fields.text_field :name, class: "form-control", required: true %>
+            </div>
+
+            <div class="mt-4 ms-4" data-controller="nested-form">
+              <h6>Platos de este menú</h6>
+              <div data-nested-form-target="target">
+                <%= m_fields.fields_for :menu_items do |mi_fields| %>
+                  <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="<%= mi_fields.object.new_record? %>">
+                    <div class="d-flex justify-content-end mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                    </div>
+                    <%= mi_fields.hidden_field :_destroy %>
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
+                        <%= mi_fields.text_field :name, class: "form-control", required: true %>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
+                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
+                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
+                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+              
+              <template data-nested-form-target="template">
+                <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="true">
+                  <%= m_fields.fields_for :menu_items, MenuItem.new, child_index: 'NEW_RECORD' do |mi_fields| %>
+                    <div class="d-flex justify-content-end mb-2">
+                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                    </div>
+                    <%= mi_fields.hidden_field :_destroy %>
+                    <div class="row">
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
+                        <%= mi_fields.text_field :name, class: "form-control", required: true %>
+                      </div>
+                      <div class="col-md-6 mb-2">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
+                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
+                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
+                    </div>
+                    <div class="mb-2">
+                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
+                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                    </div>
+                  <% end %>
+                </div>
+              </template>
+              
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="click->nested-form#add">+ Añadir Plato</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <button type="button" class="btn btn-primary mt-3" data-action="click->nested-form#add">+ Añadir Menú</button>
+    </div>
+  </div>
   <!-- Aquí Stimulus inyectará las galerías -->
   <div id="galleries-container" data-gallery-target="container"></div>
 
