@@ -1,7 +1,7 @@
-<% if current_user.administrador? %>
+<% if current_user&.administrador? %>
   <%= render "hotels/show/show_admin", hotel: @hotel %>
-<% elsif current_user.afiliado? %>
+<% elsif current_user&.afiliado? %>
   <%= render "hotels/show/show_afiliado", hotel: @hotel %>
-<% elsif current_user.turista? %>
+<% else %>
   <%= render "hotels/show/show_turista", hotel: @hotel %>
 <% end %>

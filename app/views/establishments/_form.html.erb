@@ -1,7 +1,11 @@
-<%= form_with(model: establishment, local: true) do |form| %>
+<%= form_with(model: establishment, local: true, html: { class: "establishment-form" }) do |form| %>
   <% if establishment.errors.any? %>
-    <div class="alert alert-danger">
-      <ul>
+    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
+      <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+        <strong>Se encontraron <%= establishment.errors.count %> error(es):</strong>
+      </div>
+      <ul class="mb-0 ps-3">
         <% establishment.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -10,143 +14,327 @@
   <% end %>
 
   <% if current_user.administrador? %>
-    <div class="mb-3">
-      <%= form.label :user_id, "Afiliado" %>
-      <%= form.collection_select :user_id, User.where(role: :afiliado), :id, :email, prompt: "Seleccione afiliado" %>
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+        <i class="fas fa-user-shield me-2"></i> Asignación de afiliado
+      </div>
+      <div class="card-body">
+        <div class="mb-0">
+          <%= form.label :user_id, "Afiliado responsable", class: "form-label fw-semibold" %>
+          <%= form.collection_select :user_id, User.where(role: :afiliado).order(:name), :id, :email,
+              { prompt: "Seleccione un afiliado" }, class: "form-select" %>
+        </div>
+      </div>
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: "form-control" %>
-  </div>
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+      <i class="fas fa-store me-2"></i> 1. Información general
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <%= form.label :name, class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-signature"></i></span>
+            <%= form.text_field :name, class: "form-control", placeholder: "Nombre público del establecimiento" %>
+          </div>
+        </div>
 
-  <div class="mb-3">
-    <%= form.label :description %>
-    <%= form.text_area :description, class: "form-control" %>
-  </div>
+        <div class="col-md-6">
+          <%= form.label :category, "Categoría", class: "form-label fw-semibold" %>
+          <%= form.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] },
+              { prompt: "Seleccione categoría" }, class: "form-select" %>
+        </div>
 
-<!--  <div class="mb-3">-->
-    <%#= form.label :category %>
-    <%#= form.select :category, Establishment.categories.keys.map { |c| [c.titleize, c] }, prompt: "Seleccione categoría", class: "form-select" %>
-<!--  </div>-->
+        <div class="col-md-6">
+          <%= form.label :status, "Estado", class: "form-label fw-semibold" %>
+          <%= form.select :status, Establishment.statuses.keys.map { |s| [s.humanize.capitalize, s] },
+              { prompt: "Seleccione estado" }, class: "form-select" %>
+        </div>
 
-  <div class="mb-3">
-    <%= form.label :category, "Categoría", class: "form-label" %>
-    <%= form.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] }, { prompt: "Seleccione categoría" }, class: "form-select" %>
-  </div>
+        <div class="col-12">
+          <%= form.label :description, "Descripción", class: "form-label fw-semibold" %>
+          <%= form.text_area :description, class: "form-control", rows: 3, placeholder: "Descripción general del establecimiento" %>
+        </div>
 
-  <div class="mb-3">
-    <%= form.label :address %>
-    <%= form.text_field :address, class: "form-control" %>
-  </div>
+        <div class="col-md-6">
+          <%= form.label :short_description, "Descripción corta", class: "form-label fw-semibold" %>
+          <%= form.text_area :short_description, class: "form-control", rows: 2, placeholder: "Resumen breve" %>
+        </div>
 
-  <div class="mb-3">
-    <%= form.label :city %>
-    <%= form.text_field :city, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :country %>
-    <%= form.text_field :country, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :phone %>
-    <%= form.telephone_field :phone, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :whatsapp, "WhatsApp (con código de país, ej: 593991234567)" %>
-    <%= form.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :email %>
-    <%= form.email_field :email, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :website %>
-    <%= form.url_field :website, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :check_in_time, "Hora Check-in" %>
-    <%= form.time_field :check_in_time, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :check_out_time, "Hora Check-out" %>
-    <%= form.time_field :check_out_time, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :opening_time, "Hora de apertura" %>
-    <%= form.time_field :opening_time, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :closing_time, "Hora de cierre" %>
-    <%= form.time_field :closing_time, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :status, "Estado" %>
-    <%= form.select :status, Establishment.statuses.keys.map { |s| [s.humanize.capitalize, s] }, { prompt: "Seleccione estado" }, class: "form-select" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :price_per_night, "Precio por noche" %>
-    <%= form.number_field :price_per_night, step: 0.01, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :total_rooms, "Total de habitaciones" %>
-    <%= form.number_field :total_rooms, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :available_rooms, "Habitaciones disponibles" %>
-    <%= form.number_field :available_rooms, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :latitude %>
-    <%= form.number_field :latitude, step: 0.000001, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :longitude %>
-    <%= form.number_field :longitude, step: 0.000001, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :rating, "Calificación" %>
-    <%= form.number_field :rating, step: 0.1, min: 0, max: 5, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :policies, "Políticas" %>
-    <%= form.text_area :policies, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :images, "Imágenes" %>
-    <%= form.file_field :images, multiple: true, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= form.label :amenities, "Comodidades" %><br>
-    <% Amenity.with_attached_custom_icon.each do |amenity| %>
-      <div class="form-check form-check-inline">
-        <%= check_box_tag "establishment[amenity_ids][]", amenity.id, establishment.amenity_ids.include?(amenity.id), id: "amenity_#{amenity.id}", class: "form-check-input" %>
-        <%= label_tag "amenity_#{amenity.id}", amenity.name, class: "form-check-label" %>
+        <div class="col-md-6">
+          <%= form.label :long_description, "Descripción larga", class: "form-label fw-semibold" %>
+          <%= form.text_area :long_description, class: "form-control", rows: 2, placeholder: "Descripción detallada" %>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+      <i class="fas fa-address-book me-2"></i> 2. Contacto
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= form.label :phone, "Teléfono", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+            <%= form.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :whatsapp, "WhatsApp", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+            <%= form.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
+          </div>
+          <small class="text-muted">Con código de país, sin + ni espacios</small>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :email, "Correo electrónico", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            <%= form.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :website, "Sitio web", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+            <%= form.url_field :website, class: "form-control", placeholder: "https://www.ejemplo.com" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
+      <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <%= form.label :address, "Dirección", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-road"></i></span>
+            <%= form.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :country_id, "País", class: "form-label fw-semibold" %>
+          <%= form.collection_select :country_id, Country.order(:name), :id, :name,
+              { prompt: "Seleccione país" }, class: "form-select" %>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :province_id, "Provincia", class: "form-label fw-semibold" %>
+          <%= form.collection_select :province_id, Province.order(:name), :id, :name,
+              { prompt: "Seleccione provincia" }, class: "form-select" %>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
+          <%= form.collection_select :city_id, City.order(:name), :id, :name,
+              { prompt: "Seleccione ciudad" }, class: "form-select" %>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :arrival_instructions, "Instrucciones de llegada", class: "form-label fw-semibold" %>
+          <%= form.text_area :arrival_instructions, class: "form-control", rows: 2, placeholder: "Cómo llegar al establecimiento" %>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :latitude, "Latitud", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+            <%= form.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :longitude, "Longitud", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+            <%= form.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-info text-white fw-bold rounded-top-3">
+      <i class="fas fa-clock me-2"></i> 4. Horarios y tarifas
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+          <%= form.label :check_in_time, "Check-in", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-sign-in-alt"></i></span>
+            <%= form.time_field :check_in_time, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <%= form.label :check_out_time, "Check-out", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-sign-out-alt"></i></span>
+            <%= form.time_field :check_out_time, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <%= form.label :opening_time, "Apertura", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+            <%= form.time_field :opening_time, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <%= form.label :closing_time, "Cierre", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-door-closed"></i></span>
+            <%= form.time_field :closing_time, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :price_per_night, "Precio por noche ($)", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+            <%= form.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "0.00" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :total_rooms, "Total habitaciones", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-bed"></i></span>
+            <%= form.number_field :total_rooms, class: "form-control", placeholder: "0" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :available_rooms, "Habitaciones disponibles", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+            <%= form.number_field :available_rooms, class: "form-control", placeholder: "0" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :service_fee, "Tarifa de servicio (%)", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-percent"></i></span>
+            <%= form.number_field :service_fee, class: "form-control", placeholder: "0" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= form.label :max_discount, "Descuento máximo (%)", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-tags"></i></span>
+            <%= form.number_field :max_discount, class: "form-control", placeholder: "0" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :rating, "Calificación", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-star text-warning"></i></span>
+            <%= form.number_field :rating, step: 0.1, min: 0, max: 5, class: "form-control", placeholder: "0.0 - 5.0" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= form.label :video_url, "Video (URL)", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-video"></i></span>
+            <%= form.text_field :video_url, class: "form-control", placeholder: "https://youtube.com/..." %>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <%= form.label :policies, "Políticas", class: "form-label fw-semibold" %>
+          <%= form.text_area :policies, class: "form-control", rows: 3, placeholder: "Políticas de cancelación, normas, restricciones..." %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+      <i class="fas fa-images me-2"></i> 5. Imágenes
+    </div>
+    <div class="card-body">
+      <% if establishment.images.attached? %>
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted">Imágenes actuales</label>
+          <div class="d-flex flex-wrap gap-2">
+            <% establishment.images.each do |img| %>
+              <div class="position-relative">
+                <%= image_tag img.variant(resize_to_limit: [120, 120]),
+                    class: "img-thumbnail rounded shadow-sm",
+                    style: "width: 120px; height: 80px; object-fit: cover;",
+                    loading: "lazy" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <hr>
+      <% end %>
+      <div class="mb-0">
+        <%= form.label :images, "Subir nuevas imágenes", class: "form-label fw-semibold" %>
+        <%= form.file_field :images, multiple: true, class: "form-control",
+            accept: "image/jpeg,image/png,image/webp" %>
+        <small class="text-muted">Puedes seleccionar varias imágenes a la vez (JPG, PNG, WEBP)</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header fw-bold rounded-top-3" style="background: var(--brand-green); color: white;">
+      <i class="fas fa-concierge-bell me-2"></i> 6. Comodidades
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        <% Amenity.with_attached_custom_icon.each do |amenity| %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="form-check p-3 border rounded-3 h-100 d-flex align-items-center"
+                 style="cursor: pointer; transition: all 0.2s ease;"
+                 onmouseover="this.style.borderColor='var(--brand-green)'; this.style.background='#f0fdf0';"
+                 onmouseout="this.style.borderColor=''; this.style.background='';">
+              <%= check_box_tag "establishment[amenity_ids][]", amenity.id,
+                  establishment.amenity_ids.include?(amenity.id),
+                  id: "amenity_#{amenity.id}",
+                  class: "form-check-input me-2 flex-shrink-0" %>
+              <%= label_tag "amenity_#{amenity.id}", amenity.name,
+                  class: "form-check-label w-100",
+                  style: "cursor: pointer;" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+    <button type="submit" class="gradient-btn btn-lg flex-grow-1 order-1 order-sm-1">
+      <i class="fas fa-save me-2"></i> Guardar cambios
+    </button>
+    <%= link_to establishment.persisted? ? establishment_path(establishment) : establishments_path,
+        class: "btn btn-outline-secondary btn-lg flex-grow-0 order-2 order-sm-2" do %>
+      <i class="fas fa-times me-2"></i> Cancelar
     <% end %>
   </div>
-
-  <button type="submit" class="btn btn-primary btn-lg">
-    <i class="fa-solid fa-floppy-disk"></i> Guardar
-  </button>
 <% end %>

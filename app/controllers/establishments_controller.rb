@@ -214,7 +214,7 @@ class EstablishmentsController < ApplicationController
       redirect_to new_restaurant_path and return
 
     when "transporte"
-      redirect_to establishments_path, notice: "Módulo de Transporte próximamente disponible"
+      redirect_to new_transport_path(user_id: params[:user_id]) and return
 
     when "agencia"
       redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
@@ -243,46 +243,42 @@ class EstablishmentsController < ApplicationController
   end
 
   def establishment_params
-    allowed = [
-      :name, :description, :category, :address, :city, :country,
-      :phone, :email, :website, :check_in_time, :check_out_time,
-      :price_per_night, :total_rooms, :available_rooms, :latitude,
-      :longitude, :rating, :policies,
-      { images: [] }, # para subir múltiples imágenes
-      amenity_ids: [] # para asignar amenities (array de ids)
+    permitted = [
+      :name,
+      :description,
+      :short_description,
+      :long_description,
+      :category,
+      :status,
+      :whatsapp,
+      :opening_time,
+      :closing_time,
+      :address,
+      :phone,
+      :email,
+      :website,
+      :city_id,
+      :province_id,
+      :country_id,
+      :latitude,
+      :longitude,
+      :arrival_instructions,
+      :service_fee,
+      :max_discount,
+      :refund_policy,
+      :check_in_time,
+      :check_out_time,
+      :price_per_night,
+      :total_rooms,
+      :available_rooms,
+      :video,
+      :video_url,
+      :rating,
+      { images: [], policies: [], amenity_ids: [] }
     ]
-    allowed << :user_id if current_user.administrador?
+    permitted << :user_id if current_user.administrador?
 
-    # params.require(:establishment).permit(*allowed)
-    params.require(:establishment).permit(:name, :description, :category, :city_id)
-
-    params.require(:establishment).permit(:name,
-                                          :short_description,
-                                          :long_description,
-                                          :category,
-                                          :status,
-                                          :whatsapp,
-                                          :opening_time,
-                                          :closing_time,
-                                          :amenities,
-                                          :address,
-                                          :city_id,
-                                          :province_id,
-                                          :country_id,
-                                          :latitude,
-                                          :longitude,
-                                          :arrival_instructions,
-                                          :currency,
-                                          :service_fee,
-                                          :max_discount,
-                                          :refund_policy,
-                                          :check_in_time,
-                                          :check_out_time,
-                                          :video,
-                                          :video_url,
-                                          policies: [],
-                                          amenity_ids: [])
-
+    params.require(:establishment).permit(*permitted)
   end
 
 end

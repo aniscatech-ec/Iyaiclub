@@ -1,56 +1,87 @@
-<div class="row">
+<div class="row g-3">
   <% establishments.each do |est| %>
-    <div class="col-md-2 mb-2">
-      <div class="card h-100 shadow-sm d-flex flex-column">
+    <div class="col-6 col-md-4 col-lg-3 mb-2">
+      <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden"
+           style="transition: all 0.3s ease;"
+           onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)';"
+           onmouseout="this.style.transform=''; this.style.boxShadow='';">
 
-        <!-- Carrusel de imágenes de la primera galería -->
-        <% first_gallery = est.galleries.first %>
-        <% if first_gallery && first_gallery.gallery_images.any? %>
-          <div id="carouselEstablishment<%= est.id %>" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-              <% first_gallery.gallery_images.each_with_index do |gi, index| %>
-                <% if gi.file.attached? %>
+        <%
+          gallery_images = est.galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
+          has_direct_images = est.images.attached?
+          has_any_image = gallery_images.any? || has_direct_images
+        %>
+
+        <% if gallery_images.any? %>
+          <% if gallery_images.size > 1 %>
+            <div id="carouselEst<%= est.id %>" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                <% gallery_images.each_with_index do |gi, index| %>
                   <div class="carousel-item <%= 'active' if index == 0 %>">
-
-                    <div class="d-flex justify-content-center">
-                      <%= image_tag gi.file.variant(resize_to_limit: [400, 250]), height: 200, alt: est.name, class: "d-block w-100", loading: "lazy" %>
-                    </div>
+                    <%= image_tag gi.file.variant(resize_to_fill: [400, 220]),
+                        alt: est.name,
+                        class: "d-block w-100",
+                        style: "height: 180px; object-fit: cover;",
+                        loading: "lazy" %>
                   </div>
                 <% end %>
-              <% end %>
-            </div>
-
-            <% if first_gallery.gallery_images.size > 1 %>
-              <button class="carousel-control-prev" type="button" data-bs-target="#carouselEstablishment<%= est.id %>" data-bs-slide="prev">
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselEst<%= est.id %>" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Anterior</span>
               </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#carouselEstablishment<%= est.id %>" data-bs-slide="next">
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselEst<%= est.id %>" data-bs-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Siguiente</span>
               </button>
-            <% end %>
-          </div>
+            </div>
+          <% else %>
+            <%= image_tag gallery_images.first.file.variant(resize_to_fill: [400, 220]),
+                alt: est.name,
+                class: "card-img-top",
+                style: "height: 180px; object-fit: cover;",
+                loading: "lazy" %>
+          <% end %>
+
+        <% elsif has_direct_images %>
+          <%= image_tag est.images.first.variant(resize_to_fill: [400, 220]),
+              alt: est.name,
+              class: "card-img-top",
+              style: "height: 180px; object-fit: cover;",
+              loading: "lazy" %>
+
         <% else %>
+          <div class="d-flex align-items-center justify-content-center" style="height: 180px; background: #f0f0f0;">
+            <i class="fas fa-image fs-1 text-muted" style="opacity: 0.25;"></i>
+          </div>
         <% end %>
 
-        <div class="card-body d-flex flex-column">
-          <!-- Nombre -->
-          <h5 class="card-title"><%= est.name %></h5>
-          <h5 class="card-title"><%= est.id %></h5>
+        <% if est.category.present? %>
+          <span class="badge position-absolute top-0 start-0 m-2 rounded-pill shadow-sm"
+                style="background: var(--brand-green); font-size: 0.7rem;">
+            <%= est.category.humanize.capitalize %>
+          </span>
+        <% end %>
 
-          <!-- Ciudad / País -->
-          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city&.name.presence || "-" %>, <%= est.country&.name.presence || "-" %></p>
+        <div class="card-body d-flex flex-column p-3">
+          <h6 class="fw-bold mb-1 text-truncate"><%= est.name.presence || "Sin nombre" %></h6>
 
-          <!-- Comodidades -->
-          <p class="mb-2">
-            <% est.amenities.limit(3).each do |amenity| %>
-              <span class="badge bg-secondary"><%= amenity.name %></span>
-            <% end %>
+          <p class="text-muted small mb-2">
+            <i class="fas fa-map-marker-alt me-1" style="color: var(--brand-orange);"></i>
+            <%= est.city&.name.presence || "—" %>, <%= est.country&.name.presence || "—" %>
           </p>
 
-          <!-- Botón Ver más -->
-          <%= link_to "Ver más", est, class: "btn btn-primary mt-auto w-100" %>
+          <% if est.amenities.any? %>
+            <div class="mb-2 d-flex flex-wrap gap-1">
+              <% est.amenities.limit(3).each do |amenity| %>
+                <span class="badge rounded-pill px-2 py-1" style="background: var(--brand-green); font-size: 0.65rem;">
+                  <%= amenity.name %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <%= link_to est, class: "btn btn-primary btn-sm mt-auto w-100 rounded-pill" do %>
+            <i class="fas fa-eye me-1"></i> Ver más
+          <% end %>
         </div>
       </div>
     </div>

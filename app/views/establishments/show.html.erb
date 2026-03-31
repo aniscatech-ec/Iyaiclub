@@ -12,304 +12,528 @@
             })
         }
     })
-
 </script>
-<h2 class="mb-4">Resumen del Establecimiento - <%= @establishment.id %></h2>
 
-<!-- Sección 1: Datos legales -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">1. Datos legales y de contacto</div>
-  <div class="card-body">
-    <p><strong>Razón social:</strong> <%= @establishment.legal_info&.business_name %></p>
-    <p><strong>Representante legal:</strong> <%= @establishment.legal_info&.legal_representative %></p>
-    <p><strong>Documento:</strong> <%= @establishment.legal_info&.document_type %>
-      - <%= @establishment.legal_info&.document_number %></p>
-    <p><strong>Email de contacto:</strong> <%= @establishment.legal_info&.contact_email %></p>
-    <p><strong>Teléfono:</strong> <%= @establishment.legal_info&.contact_phone %></p>
-    <%= render "shared/whatsapp_button",
-               phone: @establishment.whatsapp.presence || @establishment.legal_info&.contact_phone,
-               message: "Hola, me interesa el establecimiento #{@establishment.name}" %>
-  </div>
-</div>
+<div class="container py-4">
 
-<!-- Sección 2: Perfil -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">2. Perfil del establecimiento</div>
-  <div class="card-body">
-    <p><strong>Nombre público:</strong> <%= @establishment.name %></p>
-    <p><strong>Descripción corta:</strong> <%= @establishment.short_description %></p>
-    <p><strong>Descripción larga:</strong> <%= @establishment.long_description %></p>
-    <p><strong>Categoría:</strong> <%= @establishment.category %></p>
-    <p><strong>Amenities:</strong> (<%= @establishment.amenities.size %>)</p>
-    <ul>
-      <% @establishment.amenities.each do |amenity| %>
-        <li><%= amenity.name %></li>
+  <div class="text-center mb-5">
+    <div class="d-inline-flex align-items-center justify-content-center icon-bg rounded-circle mb-3" style="width: 70px; height: 70px;">
+      <i class="fas fa-building text-white fs-3"></i>
+    </div>
+    <h2 class="fw-bold mb-1"><%= @establishment.name.presence || "Establecimiento ##{@establishment.id}" %></h2>
+    <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
+      <% if @establishment.category.present? %>
+        <span class="badge rounded-pill fs-6" style="background: var(--brand-green);"><i class="fas fa-tag me-1"></i> <%= @establishment.category.titleize %></span>
       <% end %>
-    </ul>
-
-    <!--    <p><strong>Políticas:</strong> <%#= @establishment.policies %></p>-->
-
-    <p><strong>Políticas:</strong></p>
-    <p>
-      <strong>Check-in:</strong> <%= @establishment.check_in_time.strftime("%I:%M %p") if @establishment.check_in_time %>
-    </p>
-    <p>
-      <strong>Check-out:</strong> <%= @establishment.check_out_time.strftime("%I:%M %p") if @establishment.check_out_time %>
-    </p>
-    <p>
-      <strong>Hora de apertura:</strong> <%= @establishment.opening_time.strftime("%I:%M %p") if @establishment.opening_time %>
-    </p>
-    <p>
-      <strong>Hora de cierre:</strong> <%= @establishment.closing_time.strftime("%I:%M %p") if @establishment.closing_time %>
-    </p>
-    <p><strong>WhatsApp:</strong> <%= @establishment.whatsapp %></p>
-    <p><strong>Estado:</strong>
       <% if @establishment.active? %>
-        <span class="badge bg-success">Activo</span>
+        <span class="badge rounded-pill bg-success fs-6"><i class="fas fa-check-circle me-1"></i> Activo</span>
       <% else %>
-        <span class="badge bg-secondary">Inactivo</span>
+        <span class="badge rounded-pill bg-secondary fs-6"><i class="fas fa-pause-circle me-1"></i> Inactivo</span>
       <% end %>
-    </p>
-
-    <ul>
-      <% @establishment.policies_array.each do |policy| %>
-        <li><%= policy %></li>
-      <% end %>
-    </ul>
-
-  </div>
-</div>
-
-<!-- Sección 3: Ubicación -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">3. Ubicación</div>
-  <div class="card-body">
-    <p><strong>Dirección:</strong> <%= @establishment.address %></p>
-    <p><strong>País:</strong> <%= @establishment.country.name if @establishment.country %></p>
-    <p><strong>Provincia:</strong> <%= @establishment.province.name if @establishment.province %></p>
-    <p><strong>Ciudad:</strong> <%= @establishment.city.name if @establishment.city %></p>
-    <p><strong>Instrucciones:</strong> <%= @establishment.arrival_instructions %></p>
-    <p><strong>Latitud:</strong> <%= @establishment.latitude %></p>
-    <p><strong>Longitud:</strong> <%= @establishment.longitude %></p>
-    <%= render "shared/map_display",
-               latitude: @establishment.latitude,
-               longitude: @establishment.longitude,
-               name: @establishment.name %>
-  </div>
-</div>
-
-<!-- Sección 4: Galería -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">4. Galería (<%= @establishment.galleries.size %>)</div>
-  <div class="card-body">
-    <% @establishment.galleries.each do |gallery| %>
-      <h6><%= gallery.name %> <%= gallery.gallery_images.size %></h6>
-      <div class="d-flex flex-wrap">
-        <% gallery.gallery_images.each do |gi| %>
-          <%= gi.video_url %>
-          <% if gi.file.attached? %>
-            <%= image_tag gi.file.variant(resize_to_limit: [150, 150]), class: "img-thumbnail me-2 mb-2", loading: "lazy" %>
-          <% end %>
-        <% end %>
-      </div>
+    </div>
+    <% if @establishment.description.present? %>
+      <p class="text-muted mt-2 mx-auto" style="max-width: 600px;"><%= @establishment.description %></p>
     <% end %>
   </div>
-  <h2>Video del establecimiento</h2>
-  <% if @establishment.video.attached? %>
-    <%= video_tag url_for(@establishment.video),
-                  controls: true,
-                  preload: "metadata",
-                  class: "w-100 rounded shadow mb-3" %>
-  <% elsif @establishment.video_url.present? %>
 
-    <%= embed_video_tag_from_url(@establishment.video_url) %>
-
-  <% end %>
-</div>
-
-<!-- Sección 5: Unidades -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">5. Unidades / Habitaciones (<%= @establishment.units.size %>)</div>
-  <div class="card-body">
-    <table class="table table-sm table-bordered">
-      <thead>
-      <tr>
-        <th>Tipo</th>
-        <th>Capacidad</th>
-        <th>Camas</th>
-        <th>Precio base</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% @establishment.units.each do |unit| %>
-        <tr>
-          <td><%= unit.unit_type %></td>
-          <td><%= unit.capacity %></td>
-          <!--          <td><%#= unit.beds %></td>-->
-          <td><%= number_to_currency(unit.base_price) %></td>
-        </tr>
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+      <i class="fas fa-file-contract me-2"></i> 1. Datos legales y de contacto
+    </div>
+    <div class="card-body">
+      <% if @establishment.legal_info.present? %>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-building me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Razón social</small><strong><%= @establishment.legal_info.business_name.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-user-tie me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Representante legal</small><strong><%= @establishment.legal_info.legal_representative.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-id-card me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Documento</small><strong><%= @establishment.legal_info.document_type %> - <%= @establishment.legal_info.document_number.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-envelope me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Email de contacto</small><strong><%= @establishment.legal_info.contact_email.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-phone me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Teléfono</small><strong><%= @establishment.legal_info.contact_phone.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fab fa-whatsapp me-2 mt-1 text-success"></i>
+              <div><small class="text-muted d-block">WhatsApp</small><strong><%= @establishment.whatsapp.presence || "—" %></strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <%= render "shared/whatsapp_button",
+                     phone: @establishment.whatsapp.presence || @establishment.legal_info&.contact_phone,
+                     message: "Hola, me interesa el establecimiento #{@establishment.name}" %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic mb-0">No hay datos legales registrados.</p>
       <% end %>
-      </tbody>
-    </table>
+    </div>
   </div>
-</div>
 
-
-<h2 class="mb-4">Unidades registradas</h2>
-
-<% if @establishment.units.any? %>
-  <% @establishment.units.each do |unit| %>
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-light">
-        <h5 class="mb-0">
-          <%= unit.unit_type.presence || "Unidad sin nombre" %>
-        </h5>
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+      <i class="fas fa-info-circle me-2"></i> 2. Perfil del establecimiento
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-signature me-2 mt-1" style="color: var(--brand-orange);"></i>
+            <div><small class="text-muted d-block">Nombre público</small><strong><%= @establishment.name.presence || "—" %></strong></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-tag me-2 mt-1" style="color: var(--brand-orange);"></i>
+            <div><small class="text-muted d-block">Categoría</small><strong><%= @establishment.category&.titleize || "—" %></strong></div>
+          </div>
+        </div>
+        <% if @establishment.short_description.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-align-left me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Descripción corta</small><%= @establishment.short_description %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.long_description.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-align-justify me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Descripción larga</small><%= @establishment.long_description %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.phone.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-phone-alt me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Teléfono directo</small><strong><%= @establishment.phone %></strong></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.email.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-envelope me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Email directo</small><strong><%= @establishment.email %></strong></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.website.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-globe me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Sitio web</small><%= link_to @establishment.website, @establishment.website, target: "_blank", class: "text-decoration-none" %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.rating.present? && @establishment.rating > 0 %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-star me-2 mt-1 text-warning"></i>
+              <div><small class="text-muted d-block">Calificación</small><strong class="text-warning fs-5"><%= "⭐" * @establishment.rating.to_i %></strong> <span class="text-muted">(<%= @establishment.rating %>)</span></div>
+            </div>
+          </div>
+        <% end %>
       </div>
 
-      <div class="card-body">
-        <p><strong>Capacidad:</strong> <%= unit.capacity || "No especificada" %> personas</p>
-        <p><strong>Distribución de camas:</strong>
-          <% if unit.bed_configuration.present? %>
-            <%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %>
-          <% else %>
-            No especificada
+      <% if @establishment.amenities.any? %>
+        <hr>
+        <h6 class="fw-bold mb-3"><i class="fas fa-concierge-bell me-2" style="color: var(--brand-orange);"></i> Comodidades (<%= @establishment.amenities.size %>)</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <% @establishment.amenities.each do |amenity| %>
+            <span class="badge border rounded-pill px-3 py-2" style="color: var(--brand-green); border-color: var(--brand-green) !important;">
+              <i class="fas fa-check me-1"></i> <%= amenity.name %>
+            </span>
           <% end %>
-        </p>
-        <p><strong>Precio base:</strong>
-          $<%= unit.base_price || "No definido" %> / noche
-        </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
+      <i class="fas fa-clock me-2"></i> 3. Horarios
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-3 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-sign-in-alt fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Check-in</small>
+            <strong><%= @establishment.check_in_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-sign-out-alt fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Check-out</small>
+            <strong><%= @establishment.check_out_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-door-open fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Apertura</small>
+            <strong><%= @establishment.opening_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-3 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-door-closed fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Cierre</small>
+            <strong><%= @establishment.closing_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
       </div>
 
-      <!-- Tarifas -->
-      <% if unit.unit_prices.any? %>
-        <div class="card-body border-top">
-          <h6>Tarifas por temporada</h6>
-          <ul class="list-group list-group-flush">
-            <% unit.unit_prices.each do |price| %>
-              <li class="list-group-item d-flex justify-content-between">
-                <span><%= price.season.capitalize %></span>
-                <span>$<%= price.price %></span>
-              </li>
-            <% end %>
-          </ul>
+      <% if @establishment.policies_array.any? %>
+        <hr>
+        <h6 class="fw-bold"><i class="fas fa-clipboard-list me-2" style="color: var(--brand-cofee);"></i> Políticas</h6>
+        <ul class="list-unstyled mb-0">
+          <% @establishment.policies_array.each do |policy| %>
+            <li class="mb-1"><i class="fas fa-chevron-right me-2 small" style="color: var(--brand-cofee);"></i> <%= policy %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee-black);">
+      <i class="fas fa-map-marker-alt me-2"></i> 4. Ubicación
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-road me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+            <div><small class="text-muted d-block">Dirección</small><strong><%= @establishment.address.presence || "—" %></strong></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-globe-americas me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+            <div>
+              <small class="text-muted d-block">Ubicación</small>
+              <strong>
+                <%= @establishment.city&.name %><%= ", #{@establishment.province&.name}" if @establishment.province %><%= ", #{@establishment.country&.name}" if @establishment.country %>
+              </strong>
+            </div>
+          </div>
+        </div>
+        <% if @establishment.arrival_instructions.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-route me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+              <div><small class="text-muted d-block">Instrucciones de llegada</small><%= @establishment.arrival_instructions %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @establishment.latitude.present? && @establishment.longitude.present? %>
+          <div class="col-12">
+            <small class="text-muted"><i class="fas fa-map-pin me-1"></i> Coordenadas: <%= @establishment.latitude %>, <%= @establishment.longitude %></small>
+          </div>
+        <% end %>
+      </div>
+      <%= render "shared/map_display",
+                 latitude: @establishment.latitude,
+                 longitude: @establishment.longitude,
+                 name: @establishment.name %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+      <i class="fas fa-images me-2"></i> 5. Galería
+      <span class="badge bg-light text-dark ms-2"><%= @establishment.galleries.size %> galería(s)</span>
+    </div>
+    <div class="card-body">
+      <% if @establishment.galleries.any? %>
+        <% @establishment.galleries.each do |gallery| %>
+          <div class="mb-4">
+            <h6 class="fw-bold"><i class="fas fa-folder-open me-2 text-warning"></i> <%= gallery.name %> <span class="badge bg-secondary"><%= gallery.gallery_images.size %></span></h6>
+            <div class="d-flex flex-wrap gap-2">
+              <% gallery.gallery_images.each do |gi| %>
+                <% if gi.file.attached? %>
+                  <div class="position-relative">
+                    <%= image_tag gi.file.variant(resize_to_limit: [180, 180]),
+                        class: "img-thumbnail rounded shadow-sm",
+                        style: "width: 150px; height: 100px; object-fit: cover;",
+                        loading: "lazy" %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted fst-italic mb-0">No hay galerías registradas.</p>
+      <% end %>
+
+      <% if @establishment.images.attached? %>
+        <hr>
+        <h6 class="fw-bold"><i class="fas fa-photo-video me-2 text-info"></i> Imágenes directas</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <% @establishment.images.each do |img| %>
+            <%= image_tag img.variant(resize_to_limit: [180, 180]),
+                class: "img-thumbnail rounded shadow-sm",
+                style: "width: 150px; height: 100px; object-fit: cover;",
+                loading: "lazy" %>
+          <% end %>
         </div>
       <% end %>
 
-
-      <!--      <h3>Disponibilidad (próximos 30 días)</h3>-->
-
-      <!--      <table class="table table-bordered text-center">-->
-      <!--        <thead class="table-light">-->
-      <!--        <tr>-->
-      <!--          <th>Fecha</th>-->
-      <!--          <th>Estado</th>-->
-      <!--        </tr>-->
-      <!--        </thead>-->
-      <!--        <tbody>-->
-      <%# (Date.today..Date.today+30).each do |day| %>
-      <%# availability = unit.unit_availabilities.find_by(date: day) %>
-      <!--          <tr>-->
-      <!--            <td><%#= day.strftime("%d/%m/%Y") %></td>-->
-      <!--            <td>-->
-      <%# if availability.present? %>
-      <%#= availability.available ? "✅ Disponible" : "❌ No disponible" %>
-      <%# else %>
-      <!--                <span class="text-muted">Sin registro</span>-->
-      <%# end %>
-      <!--            </td>-->
-      <!--          </tr>-->
-      <%# end %>
-      <!--        </tbody>-->
-      <!--      </table>-->
-
-
-      <!-- Disponibilidad -->
-      <h3>Disponibilidad</h3>
-
-      <div class="card-body border-top"
-           data-controller="fullcalendar"
-           data-fullcalendar-events-value='<%= raw unit.unit_availabilities.map { |a|
-             { title: a.available ? "✅ Disponible" : "❌ No disponible",
-               start: a.date,
-               color: a.available ? "green" : "red" }
-           }.to_json %>'>
-      </div>
-
-
-    </div>
-  <% end %>
-<% else %>
-  <div class="alert alert-info">No hay unidades registradas para este establecimiento.</div>
-<% end %>
-
-<!-- Sección 6: Políticas de precios -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">6. Políticas de precios y beneficios</div>
-  <div class="card-body">
-    <p><strong>Moneda:</strong> <%= @establishment.pricing_policy&.currency %></p>
-    <p><strong>Comisión servicio:</strong> <%= @establishment.pricing_policy&.service_fee %></p>
-    <p><strong>Descuento máximo:</strong> <%= @establishment.pricing_policy&.max_discount %></p>
-    <p><strong>Políticas de reembolso:</strong></p>
-
-      <% if @establishment.pricing_policy %>
-      <ul>
-
-        <% @establishment.pricing_policy.refund_policy_array.each do |policy| %>
-          <li><%= policy %></li>
+      <% if @establishment.video.attached? || @establishment.video_url.present? %>
+        <hr>
+        <h6 class="fw-bold"><i class="fas fa-video me-2 text-danger"></i> Video</h6>
+        <% if @establishment.video.attached? %>
+          <%= video_tag url_for(@establishment.video),
+                        controls: true,
+                        preload: "metadata",
+                        class: "w-100 rounded shadow" %>
+        <% elsif @establishment.video_url.present? %>
+          <%= embed_video_tag_from_url(@establishment.video_url) %>
         <% end %>
-      </ul>
-
-      <% else %>
-        <div class="alert alert-info">No hay politicas de reembolso registradas para este establecimiento.</div>
-
       <% end %>
-      <%# Array(@establishment.pricing_policy.refund_policy).each do |policy| %>
-
-
+    </div>
   </div>
-</div>
 
-<!-- Sección 7: Métodos de pago -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">7. Métodos de pago (<%= @establishment.payment_methods.size %>)</div>
-  <div class="card-body">
-    <ul class="list-group">
-      <% @establishment.payment_methods.each do |pm| %>
-        <li class="list-group-item">
-          <strong><%= pm.method_type %></strong>
-          <% if pm.bank_name.present? %> - Banco: <%= pm.bank_name %>
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+      <i class="fas fa-bed me-2"></i> 6. Habitaciones / Unidades
+      <span class="badge bg-light text-dark ms-2"><%= @establishment.units.size %></span>
+    </div>
+    <div class="card-body">
+      <% if @establishment.units.any? %>
+        <div class="row g-3">
+          <% @establishment.units.each do |unit| %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 border shadow-sm">
+                <div class="card-body">
+                  <h6 class="card-title fw-bold"><i class="fas fa-door-open me-2" style="color: var(--brand-green);"></i> <%= unit.unit_type.presence || "Habitación" %></h6>
+                  <div class="d-flex flex-column gap-1 small">
+                    <span><i class="fas fa-users me-2 text-muted"></i> Capacidad: <strong><%= unit.capacity || "—" %></strong> personas</span>
+                    <span><i class="fas fa-dollar-sign me-2 text-muted"></i> Precio base: <strong><%= number_to_currency(unit.base_price) %></strong> / noche</span>
+                    <% if unit.price_per_person.present? %>
+                      <span><i class="fas fa-user me-2 text-muted"></i> Por persona: <strong><%= number_to_currency(unit.price_per_person) %></strong></span>
+                    <% end %>
+                    <% if unit.bed_configuration.present? %>
+                      <span><i class="fas fa-bed me-2 text-muted"></i> Camas: <strong><%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %></strong></span>
+                    <% end %>
+                  </div>
+                  <% if unit.unit_prices.any? %>
+                    <hr class="my-2">
+                    <small class="fw-bold text-muted">Tarifas por temporada:</small>
+                    <% unit.unit_prices.each do |price| %>
+                      <div class="d-flex justify-content-between small">
+                        <span><%= price.season.capitalize %></span>
+                        <strong><%= number_to_currency(price.price) %></strong>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
           <% end %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
+        </div>
 
-<!-- Sección 8: Verificación -->
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">8. Verificación</div>
-  <div class="card-body">
-    <% if @establishment.verification %>
-      <% v = @establishment.verification %>
-      <p><strong>Documento
-        identidad:</strong> <%= link_to "Ver", url_for(v.identity_document), target: "_blank" if v.identity_document.attached? %>
-      </p>
-      <p><strong>Documento
-        propiedad:</strong> <%= link_to "Ver", url_for(v.property_document), target: "_blank" if v.property_document.attached? %>
-      </p>
-      <p>
-        <strong>Selfie:</strong> <%= image_tag v.selfie.variant(resize_to_limit: [150, 150]), class: "img-thumbnail" if v.selfie.attached? %>
-      </p>
-    <% else %>
-      <p class="text-muted">No se han subido documentos de verificación.</p>
+        <% @establishment.units.each do |unit| %>
+          <% if unit.unit_availabilities.any? %>
+            <div class="mt-4">
+              <h6 class="fw-bold"><i class="fas fa-calendar-alt me-2" style="color: var(--brand-green);"></i> Disponibilidad — <%= unit.unit_type.presence || "Habitación" %></h6>
+              <div class="border rounded-3 p-2"
+                   data-controller="fullcalendar"
+                   data-fullcalendar-events-value='<%= raw unit.unit_availabilities.map { |a|
+                     { title: a.available ? "Disponible" : "No disponible",
+                       start: a.date,
+                       color: a.available ? "#3FBD02" : "#dc3545" }
+                   }.to_json %>'>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <div class="text-center py-4">
+          <i class="fas fa-bed fs-1 text-muted mb-3 d-block"></i>
+          <p class="text-muted fst-italic mb-0">No hay unidades registradas para este establecimiento.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-info text-white fw-bold rounded-top-3">
+      <i class="fas fa-dollar-sign me-2"></i> 7. Políticas de precios
+    </div>
+    <div class="card-body">
+      <% if @establishment.pricing_policy %>
+        <div class="row g-3">
+          <div class="col-md-4 text-center">
+            <div class="border rounded-3 p-3 h-100">
+              <i class="fas fa-money-bill-wave fs-4 mb-2 text-info"></i>
+              <small class="text-muted d-block">Moneda</small>
+              <strong><%= @establishment.pricing_policy.currency.presence || "—" %></strong>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="border rounded-3 p-3 h-100">
+              <i class="fas fa-percent fs-4 mb-2 text-info"></i>
+              <small class="text-muted d-block">Comisión servicio</small>
+              <strong><%= @establishment.pricing_policy.service_fee || "0" %>%</strong>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="border rounded-3 p-3 h-100">
+              <i class="fas fa-tags fs-4 mb-2 text-info"></i>
+              <small class="text-muted d-block">Descuento máximo</small>
+              <strong><%= @establishment.pricing_policy.max_discount || "0" %>%</strong>
+            </div>
+          </div>
+        </div>
+        <% if @establishment.pricing_policy.refund_policy_array.any? %>
+          <hr>
+          <h6 class="fw-bold"><i class="fas fa-undo me-2 text-info"></i> Políticas de reembolso</h6>
+          <ul class="list-unstyled mb-0">
+            <% @establishment.pricing_policy.refund_policy_array.each do |policy| %>
+              <li class="mb-1"><i class="fas fa-chevron-right me-2 small text-info"></i> <%= policy %></li>
+            <% end %>
+          </ul>
+        <% end %>
+      <% else %>
+        <p class="text-muted fst-italic mb-0">No hay políticas de precios registradas.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+      <i class="fas fa-credit-card me-2"></i> 8. Métodos de pago
+      <span class="badge bg-light text-dark ms-2"><%= @establishment.payment_methods.size %></span>
+    </div>
+    <div class="card-body">
+      <% if @establishment.payment_methods.any? %>
+        <div class="row g-2">
+          <% @establishment.payment_methods.each do |pm| %>
+            <div class="col-md-6">
+              <div class="d-flex align-items-center border rounded-3 p-3">
+                <i class="fas fa-wallet fs-4 me-3" style="color: var(--brand-orange);"></i>
+                <div>
+                  <strong><%= pm.method_type %></strong>
+                  <% if pm.bank_name.present? %>
+                    <small class="text-muted d-block">Banco: <%= pm.bank_name %></small>
+                  <% end %>
+                  <% if pm.account_type.present? %>
+                    <small class="text-muted d-block"><%= pm.account_type %> - <%= pm.account_number %></small>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic mb-0">No hay métodos de pago registrados.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+      <i class="fas fa-shield-alt me-2"></i> 9. Verificación
+    </div>
+    <div class="card-body">
+      <% if @establishment.verification %>
+        <% v = @establishment.verification %>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="text-center border rounded-3 p-3 h-100">
+              <i class="fas fa-id-card fs-3 mb-2 text-muted"></i>
+              <small class="text-muted d-block mb-2">Documento de identidad</small>
+              <% if v.identity_document.attached? %>
+                <%= link_to url_for(v.identity_document), target: "_blank", class: "btn btn-sm btn-outline-primary" do %>
+                  <i class="fas fa-eye me-1"></i> Ver documento
+                <% end %>
+              <% else %>
+                <span class="text-muted fst-italic">No cargado</span>
+              <% end %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center border rounded-3 p-3 h-100">
+              <i class="fas fa-file-alt fs-3 mb-2 text-muted"></i>
+              <small class="text-muted d-block mb-2">Documento de propiedad</small>
+              <% if v.property_document.attached? %>
+                <%= link_to url_for(v.property_document), target: "_blank", class: "btn btn-sm btn-outline-primary" do %>
+                  <i class="fas fa-eye me-1"></i> Ver documento
+                <% end %>
+              <% else %>
+                <span class="text-muted fst-italic">No cargado</span>
+              <% end %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center border rounded-3 p-3 h-100">
+              <i class="fas fa-camera fs-3 mb-2 text-muted"></i>
+              <small class="text-muted d-block mb-2">Selfie de verificación</small>
+              <% if v.selfie.attached? %>
+                <%= image_tag v.selfie.variant(resize_to_limit: [150, 150]), class: "img-thumbnail rounded shadow-sm" %>
+              <% else %>
+                <span class="text-muted fst-italic">No cargada</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-3">
+          <i class="fas fa-shield-alt fs-1 text-muted mb-2 d-block"></i>
+          <p class="text-muted fst-italic mb-0">No se han subido documentos de verificación.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header fw-bold rounded-top-3" style="background: var(--brand-green); color: white;">
+      <i class="fas fa-clipboard-check me-2"></i> 10. Declaración de información
+    </div>
+    <div class="card-body d-flex align-items-center">
+      <% if @establishment.confirmed %>
+        <span class="badge bg-success fs-6 px-3 py-2"><i class="fas fa-check-circle me-1"></i> Información confirmada</span>
+      <% else %>
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="fas fa-exclamation-triangle me-1"></i> Información no confirmada</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+    <%= link_to edit_establishment_path(@establishment), class: "gradient-btn btn-lg text-center text-decoration-none flex-grow-1" do %>
+      <i class="fas fa-pen me-2"></i> Editar establecimiento
+    <% end %>
+    <%= link_to establishments_path, class: "btn btn-outline-secondary btn-lg" do %>
+      <i class="fas fa-arrow-left me-2"></i> Volver al listado
     <% end %>
   </div>
-</div>
 
-<div class="card mb-4 shadow-sm">
-  <div class="card-header fw-bold">9. Declaración de información</div>
-  <div class="card-body">
-    <%= check_box_tag "confirmed", "1", @establishment.confirmed, class: "form-check-input", disabled: true %>
-    <%= @establishment.confirmed ? "Sí" : "No" %>
-  </div>
 </div>

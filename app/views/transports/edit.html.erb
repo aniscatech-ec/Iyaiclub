@@ -1,0 +1,15 @@
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <div class="d-inline-flex align-items-center justify-content-center icon-bg rounded-circle mb-3" style="width: 60px; height: 60px;">
+      <i class="fas fa-pen-to-square text-white fs-4"></i>
+    </div>
+    <h2 class="fw-bold mb-1"><%= @transport.establishment.name.presence || "Editar Transporte" %></h2>
+    <p class="text-muted mb-0">Modifica la información del servicio de transporte</p>
+    <div class="d-flex justify-content-center gap-2 mt-2">
+      <span class="badge rounded-pill" style="background: var(--brand-green);"><%= @transport.transport_type&.humanize&.capitalize %></span>
+      <span class="badge rounded-pill bg-info"><%= @transport.subcategory&.humanize&.titleize %></span>
+    </div>
+  </div>
+
+  <%= render "form", transport: @transport %>
+</div>

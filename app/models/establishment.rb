@@ -17,6 +17,9 @@ class Establishment < ApplicationRecord
   belongs_to :country, optional: true
 
 
+  has_one :hotel, dependent: :destroy
+  has_one :restaurant, dependent: :destroy
+  has_one :transport, dependent: :destroy
   has_one :legal_info, dependent: :destroy
   has_one :verification, dependent: :destroy
 
