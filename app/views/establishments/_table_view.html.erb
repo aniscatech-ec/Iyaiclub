@@ -20,7 +20,7 @@
       <td class="text-center"><%= est.legal_info&.business_name || "-" %></td>
       <td class="text-center"><%= est.legal_info&.legal_representative || "-" %></td>
       <td class="text-center"><%= est.user_id || "-" %></td>
-      <td class="text-center"><%= est.user.name || "-" %></td>
+      <td class="text-center"><%= est.user&.name || "-" %></td>
 
       <td>
         <div class="d-flex justify-content-center gap-2">

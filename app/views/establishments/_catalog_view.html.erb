@@ -40,7 +40,7 @@
           <h5 class="card-title"><%= est.id %></h5>
 
           <!-- Ciudad / País -->
-          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city.name.presence || "-" %>, <%= est.country.name.presence || "-" %></p>
+          <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <%= est.city&.name.presence || "-" %>, <%= est.country&.name.presence || "-" %></p>
 
           <!-- Comodidades -->
           <p class="mb-2">

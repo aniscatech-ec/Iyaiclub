@@ -6,8 +6,8 @@
           <h5 class="card-title"><%= est.name %></h5>
           <p class="card-text">
             <strong>Usuario:</strong> <%= est.user_id %><br>
-            <strong>Nombre:</strong> <%= est.user.name %><br>
-            <strong>Role:</strong> <%= est.user.role %><br>
+            <strong>Nombre:</strong> <%= est.user&.name || "-" %><br>
+            <strong>Role:</strong> <%= est.user&.role || "-" %><br>
 <!--            <strong>Administrador:</strong> <%#= est.legal_info.legal_representative %>-->
           </p>
           <div class="d-flex justify-content-between">
