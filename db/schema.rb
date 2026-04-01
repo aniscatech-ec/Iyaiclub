@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_31_160001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -317,6 +317,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_31_160001) do
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
   end
 
+  create_table "temporary_lodgings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.string "lodging_type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_temporary_lodgings_on_establishment_id"
+    t.index ["lodging_type"], name: "index_temporary_lodgings_on_lodging_type"
+  end
+
   create_table "transports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "transport_type", null: false
@@ -430,6 +439,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_31_160001) do
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"
   add_foreign_key "restaurants", "establishments"
+  add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "transports", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"

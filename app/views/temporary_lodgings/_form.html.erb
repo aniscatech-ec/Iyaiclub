@@ -1,0 +1,310 @@
+<%= form_with(model: temporary_lodging, local: true, html: { class: "temporary-lodging-form", multipart: true }) do |form| %>
+  <% if temporary_lodging.errors.any? %>
+    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
+      <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+        <strong>Se encontraron <%= temporary_lodging.errors.count %> error(es):</strong>
+      </div>
+      <ul class="mb-0 ps-3">
+        <% temporary_lodging.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.fields_for :establishment do |est| %>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+        <i class="fas fa-home me-2"></i> 1. Informacion del alojamiento
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <%= est.label :name, "Nombre del alojamiento", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-signature"></i></span>
+              <%= est.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes" %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <%= form.label :lodging_type, "Tipo de alojamiento", class: "form-label fw-semibold" %>
+            <%= form.select :lodging_type, lodging_type_options,
+                { include_blank: "Selecciona un tipo" }, class: "form-select" %>
+          </div>
+
+          <% if current_user.administrador? %>
+            <div class="col-md-6">
+              <%= est.label :user_id, "Afiliado responsable", class: "form-label fw-semibold" %>
+              <%= est.collection_select :user_id, User.where(role: :afiliado).order(:name), :id, :email,
+                  { prompt: "Seleccione un afiliado" }, class: "form-select" %>
+            </div>
+          <% end %>
+
+          <div class="col-md-6">
+            <%= est.label :short_description, "Descripcion corta", class: "form-label fw-semibold" %>
+            <%= est.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripcion para listados" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :long_description, "Descripcion detallada", class: "form-label fw-semibold" %>
+            <%= est.text_area :long_description, rows: 2, class: "form-control", placeholder: "Descripcion completa del alojamiento" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :video_url, "Video promocional (URL)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-video"></i></span>
+              <%= est.url_field :video_url, class: "form-control", placeholder: "https://youtube.com/..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+        <i class="fas fa-file-contract me-2"></i> 2. Datos legales
+      </div>
+      <div class="card-body">
+        <%= est.fields_for :legal_info do |li| %>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= li.label :business_name, "Razon social", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold" %>
+              <%= li.select :document_type, [["RUC", "RUC"], ["Cedula", "Cedula"], ["Pasaporte", "Pasaporte"]],
+                  { prompt: "Seleccione" }, class: "form-select" %>
+            </div>
+            <div class="col-md-6">
+              <%= li.label :document_number, "Numero de documento", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= li.label :contact_email, "Email de contacto", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= li.label :contact_phone, "Telefono de contacto", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "0991234567" %>
+              </div>
+              <small class="text-success">10 digitos numericos</small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+        <i class="fas fa-address-book me-2"></i> 3. Contacto
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= est.label :phone, "Telefono", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
+            </div>
+            <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :email, "Correo electronico", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :website, "Sitio web", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-globe"></i></span>
+              <%= est.url_field :website, class: "form-control", placeholder: "https://www.ejemplo.com" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
+        <i class="fas fa-map-marker-alt me-2"></i> 4. Ubicacion
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <%= est.label :address, "Direccion", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-road"></i></span>
+              <%= est.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= est.label :country_id, "Pais", class: "form-label fw-semibold" %>
+            <%= est.collection_select :country_id, Country.order(:name), :id, :name,
+                { prompt: "Seleccione pais" }, class: "form-select" %>
+          </div>
+          <div class="col-md-4">
+            <%= est.label :province_id, "Provincia", class: "form-label fw-semibold" %>
+            <%= est.collection_select :province_id, Province.order(:name), :id, :name,
+                { prompt: "Seleccione provincia" }, class: "form-select" %>
+          </div>
+          <div class="col-md-4">
+            <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
+            <%= est.collection_select :city_id, City.order(:name), :id, :name,
+                { prompt: "Seleccione ciudad" }, class: "form-select" %>
+          </div>
+          <div class="col-12">
+            <%= est.label :arrival_instructions, "Instrucciones de llegada", class: "form-label fw-semibold" %>
+            <%= est.text_area :arrival_instructions, class: "form-control", rows: 2, placeholder: "Como llegar al alojamiento" %>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :latitude, "Latitud", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+              <%= est.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :longitude, "Longitud", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+              <%= est.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-info text-white fw-bold rounded-top-3">
+        <i class="fas fa-clock me-2"></i> 5. Horarios
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= est.label :check_in_time, "Hora de entrada (Check-in)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+              <%= est.time_field :check_in_time, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= est.label :check_out_time, "Hora de salida (Check-out)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed"></i></span>
+              <%= est.time_field :check_out_time, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-12">
+            <%= est.label :policies, "Politicas del alojamiento", class: "form-label fw-semibold" %>
+            <%= est.text_area :policies, class: "form-control", rows: 3, placeholder: "Politicas de cancelacion, normas de convivencia..." %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+      <i class="fas fa-images me-2"></i> 6. Galeria de fotos
+    </div>
+    <div class="card-body">
+      <%= form.fields_for :establishment do |est2| %>
+        <% temporary_lodging.establishment&.galleries&.each_with_index do |gallery, gi| %>
+          <%= est2.fields_for :galleries, gallery do |gf| %>
+            <div class="mb-3">
+              <%= gf.hidden_field :id %>
+              <%= gf.label :name, "Nombre de la galeria", class: "form-label fw-semibold" %>
+              <%= gf.text_field :name, class: "form-control mb-2", placeholder: "Ej: Fotos del interior" %>
+
+              <% gallery.gallery_images.each_with_index do |img, ii| %>
+                <%= gf.fields_for :gallery_images, img do |gif| %>
+                  <div class="d-inline-block me-2 mb-2">
+                    <%= gif.hidden_field :id %>
+                    <% if img.persisted? && img.file.attached? %>
+                      <%= image_tag img.file.variant(resize_to_limit: [120, 80]),
+                          class: "img-thumbnail rounded shadow-sm",
+                          style: "width: 120px; height: 80px; object-fit: cover;",
+                          loading: "lazy" %>
+                    <% end %>
+                    <%= gif.file_field :file, class: "form-control form-control-sm mt-1",
+                        accept: "image/jpeg,image/png,image/webp" %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+      <small class="text-muted">Sube las fotos del alojamiento (JPG, PNG, WEBP)</small>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header fw-bold rounded-top-3" style="background: var(--brand-green); color: white;">
+      <i class="fas fa-concierge-bell me-2"></i> 7. Comodidades
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        <% Amenity.with_attached_custom_icon.each do |amenity| %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="form-check p-3 border rounded-3 h-100 d-flex align-items-center"
+                 style="cursor: pointer; transition: all 0.2s ease;"
+                 onmouseover="this.style.borderColor='var(--brand-green)'; this.style.background='#f0fdf0';"
+                 onmouseout="this.style.borderColor=''; this.style.background='';">
+              <%= check_box_tag "temporary_lodging[establishment_attributes][amenity_ids][]", amenity.id,
+                  temporary_lodging.establishment&.amenity_ids&.include?(amenity.id),
+                  id: "amenity_#{amenity.id}",
+                  class: "form-check-input me-2 flex-shrink-0" %>
+              <%= label_tag "amenity_#{amenity.id}", amenity.name,
+                  class: "form-check-label w-100",
+                  style: "cursor: pointer;" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+    <button type="submit" class="gradient-btn btn-lg flex-grow-1 order-1 order-sm-1">
+      <i class="fas fa-save me-2"></i> Guardar alojamiento
+    </button>
+    <%= link_to temporary_lodging.persisted? ? temporary_lodging_path(temporary_lodging) : temporary_lodgings_path,
+        class: "btn btn-outline-secondary btn-lg flex-grow-0 order-2 order-sm-2" do %>
+      <i class="fas fa-times me-2"></i> Cancelar
+    <% end %>
+  </div>
+<% end %>

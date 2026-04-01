@@ -1,0 +1,110 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-home me-2" style="color: var(--brand-green);"></i> <%= @temporary_lodging.establishment.name %></h2>
+    <div class="btn-group">
+      <%= link_to edit_temporary_lodging_path(@temporary_lodging), class: "btn btn-warning" do %>
+        <i class="fas fa-pen me-1"></i> Editar
+      <% end %>
+      <%= link_to temporary_lodgings_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-body">
+          <div class="mb-3">
+            <span class="badge rounded-pill fs-6" style="background: var(--brand-green);">
+              <%= lodging_type_label(@temporary_lodging.lodging_type) %>
+            </span>
+            <% if @temporary_lodging.establishment.active? %>
+              <span class="badge bg-success ms-1">Activo</span>
+            <% else %>
+              <span class="badge bg-secondary ms-1">Inactivo</span>
+            <% end %>
+          </div>
+
+          <% if @temporary_lodging.establishment.short_description.present? %>
+            <p class="text-muted"><%= @temporary_lodging.establishment.short_description %></p>
+          <% end %>
+
+          <% if @temporary_lodging.establishment.long_description.present? %>
+            <p><%= @temporary_lodging.establishment.long_description %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @temporary_lodging.establishment.galleries.any? %>
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+          <div class="card-header fw-bold" style="background: var(--brand-green); color: white;">
+            <i class="fas fa-images me-2"></i> Galeria
+          </div>
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+              <% @temporary_lodging.establishment.galleries.each do |gallery| %>
+                <% gallery.gallery_images.each do |img| %>
+                  <% if img.file.attached? %>
+                    <%= image_tag img.file.variant(resize_to_limit: [200, 150]),
+                        class: "img-thumbnail rounded shadow-sm",
+                        style: "width: 200px; height: 150px; object-fit: cover;",
+                        loading: "lazy" %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 rounded-3 mb-4">
+        <div class="card-header fw-bold" style="background: var(--brand-orange); color: white;">
+          <i class="fas fa-info-circle me-2"></i> Informacion
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <% if @temporary_lodging.establishment.address.present? %>
+              <li class="mb-2"><i class="fas fa-map-marker-alt me-2 text-danger"></i> <%= @temporary_lodging.establishment.address %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.city.present? %>
+              <li class="mb-2"><i class="fas fa-city me-2 text-info"></i> <%= @temporary_lodging.establishment.city.name %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.phone.present? %>
+              <li class="mb-2"><i class="fas fa-phone me-2 text-success"></i> <%= @temporary_lodging.establishment.phone %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.whatsapp.present? %>
+              <li class="mb-2"><i class="fab fa-whatsapp me-2 text-success"></i> <%= @temporary_lodging.establishment.whatsapp %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.email.present? %>
+              <li class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i> <%= @temporary_lodging.establishment.email %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.check_in_time.present? %>
+              <li class="mb-2"><i class="fas fa-door-open me-2"></i> Check-in: <%= @temporary_lodging.establishment.check_in_time&.strftime("%H:%M") %></li>
+            <% end %>
+            <% if @temporary_lodging.establishment.check_out_time.present? %>
+              <li class="mb-2"><i class="fas fa-door-closed me-2"></i> Check-out: <%= @temporary_lodging.establishment.check_out_time&.strftime("%H:%M") %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <% if @temporary_lodging.establishment.legal_info.present? %>
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+          <div class="card-header bg-dark text-white fw-bold">
+            <i class="fas fa-file-contract me-2"></i> Datos legales
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li class="mb-2"><strong>Razon social:</strong> <%= @temporary_lodging.establishment.legal_info.business_name %></li>
+              <li class="mb-2"><strong>Representante:</strong> <%= @temporary_lodging.establishment.legal_info.legal_representative %></li>
+              <li class="mb-2"><strong>Documento:</strong> <%= @temporary_lodging.establishment.legal_info.document_type %> - <%= @temporary_lodging.establishment.legal_info.document_number %></li>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

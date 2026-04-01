@@ -26,6 +26,14 @@ module CategoriesHelper
         grouped: true
       },
       {
+        name: "Alojamientos Temporales",
+        icon: "fa-home",
+        path: temporary_lodgings_path,
+        color: "#8e44ad",
+        subtypes: temporary_lodging_subtypes,
+        grouped: false
+      },
+      {
         name: "Agencias",
         icon: "fa-map-signs",
         path: "#",
@@ -77,6 +85,12 @@ module CategoriesHelper
         items: Restaurant::CUISINE_TYPES.map { |c| { key: c, label: cuisine_labels[c] || c.humanize, path: restaurants_path(cuisine: c) } }
       }
     ]
+  end
+
+  def temporary_lodging_subtypes
+    TemporaryLodgingsHelper::LODGING_TYPE_LABELS.map do |key, label|
+      { key: key, label: label, path: temporary_lodgings_path(type: key) }
+    end
   end
 
   def transport_subtypes

@@ -5,6 +5,7 @@ module EstablishmentTypes
     transporte: 2,
     agencia: 3,
     escapada: 4,
-    asistencia: 5
+    asistencia: 5,
+    alojamiento_temporal: 6
   }.freeze
 end

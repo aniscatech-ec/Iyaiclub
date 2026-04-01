@@ -1,0 +1,98 @@
+<div class="container py-4">
+
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1"><i class="fas fa-home me-2" style="color: var(--brand-green);"></i> Alojamientos Temporales</h2>
+      <p class="text-muted mb-0">Listado de alojamientos temporales registrados</p>
+      <% if @current_type.present? %>
+        <div class="mt-2">
+          <span class="badge rounded-pill bg-success fs-6 filter-badge">
+            <i class="fas fa-filter me-1"></i>
+            <%= lodging_type_label(@current_type) %>
+            <%= link_to temporary_lodgings_path, class: "remove-filter text-white ms-2", title: "Quitar filtro" do %>
+              <i class="fas fa-times"></i>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+    <%= link_to new_temporary_lodging_path, class: "gradient-btn text-decoration-none" do %>
+      <i class="fas fa-plus me-1"></i> Nuevo alojamiento
+    <% end %>
+  </div>
+
+  <% if @temporary_lodgings.any? %>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle shadow-sm rounded-3 overflow-hidden">
+        <thead style="background: var(--brand-green); color: white;">
+          <tr>
+            <th>Nombre</th>
+            <th class="d-none d-md-table-cell">Tipo</th>
+            <th class="d-none d-lg-table-cell">Ciudad</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @temporary_lodgings.each do |lodging| %>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="icon-bg rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; min-width: 36px;">
+                    <i class="fas fa-home text-white small"></i>
+                  </div>
+                  <div>
+                    <strong><%= lodging.establishment.name %></strong>
+                    <small class="text-muted d-block d-md-none"><%= lodging_type_label(lodging.lodging_type) %></small>
+                  </div>
+                </div>
+              </td>
+              <td class="d-none d-md-table-cell">
+                <span class="badge rounded-pill" style="background: var(--brand-green);">
+                  <%= lodging_type_label(lodging.lodging_type) %>
+                </span>
+              </td>
+              <td class="d-none d-lg-table-cell"><%= lodging.establishment.city&.name || "—" %></td>
+              <td>
+                <% if lodging.establishment.active? %>
+                  <span class="badge bg-success">Activo</span>
+                <% else %>
+                  <span class="badge bg-secondary">Inactivo</span>
+                <% end %>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <%= link_to temporary_lodging_path(lodging), class: "btn btn-outline-primary", title: "Ver" do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  <%= link_to edit_temporary_lodging_path(lodging), class: "btn btn-outline-warning", title: "Editar" do %>
+                    <i class="fas fa-pen"></i>
+                  <% end %>
+                  <%= link_to temporary_lodging_path(lodging), method: :delete,
+                      data: { confirm: "Estas seguro de eliminar este alojamiento?" },
+                      class: "btn btn-outline-danger", title: "Eliminar" do %>
+                    <i class="fas fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+      <%== pagy_nav(@pagy) %>
+    </div>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-home fs-1 text-muted mb-3 d-block"></i>
+      <h5 class="text-muted">No hay alojamientos temporales registrados</h5>
+      <p class="text-muted">Comienza registrando un nuevo alojamiento temporal</p>
+      <%= link_to new_temporary_lodging_path, class: "gradient-btn text-decoration-none" do %>
+        <i class="fas fa-plus me-1"></i> Crear primer alojamiento
+      <% end %>
+    </div>
+  <% end %>
+
+</div>

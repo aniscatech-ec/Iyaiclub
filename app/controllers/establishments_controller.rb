@@ -216,6 +216,9 @@ class EstablishmentsController < ApplicationController
     when "transporte"
       redirect_to new_transport_path(user_id: params[:user_id]) and return
 
+    when "alojamiento_temporal"
+      redirect_to new_temporary_lodging_path(user_id: params[:user_id]) and return
+
     when "agencia"
       redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
 

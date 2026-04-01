@@ -1,0 +1,140 @@
+class TemporaryLodgingsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :set_temporary_lodging, only: [:show, :edit, :update, :destroy]
+  layout "dashboard"
+
+  def index
+    lodgings = TemporaryLodging.includes(
+      establishment: [:legal_info, :user, :country, :city, :province, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    )
+    if params[:type].present? && TemporaryLodging::LODGING_TYPES.include?(params[:type])
+      lodgings = lodgings.where(lodging_type: params[:type])
+    end
+    @pagy, @temporary_lodgings = pagy(lodgings)
+    @current_type = params[:type]
+  end
+
+  def show
+  end
+
+  def new
+    @temporary_lodging = TemporaryLodging.new
+    @temporary_lodging.build_establishment.build_legal_info
+    @temporary_lodging.establishment.galleries.build.gallery_images.build
+
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @temporary_lodging.establishment.user = @affiliate
+    elsif current_user&.afiliado?
+      @temporary_lodging.establishment.user = current_user
+    end
+  end
+
+  def edit
+    @temporary_lodging.build_establishment unless @temporary_lodging.establishment
+    @temporary_lodging.establishment.build_legal_info unless @temporary_lodging.establishment.legal_info
+  end
+
+  def create
+    @temporary_lodging = TemporaryLodging.new(temporary_lodging_params)
+
+    if @temporary_lodging.establishment
+      @temporary_lodging.establishment.category = :alojamiento_temporal
+    else
+      @temporary_lodging.build_establishment(category: :alojamiento_temporal)
+    end
+
+    if params[:user_id].present?
+      @affiliate = User.find(params[:user_id])
+      @temporary_lodging.establishment.user = @affiliate
+    elsif current_user&.afiliado?
+      @temporary_lodging.establishment.user = current_user
+    end
+
+    if @temporary_lodging.save
+      redirect_to @temporary_lodging, notice: "Alojamiento temporal creado correctamente."
+    else
+      flash.now[:alert] = "No pudimos guardar el alojamiento. Por favor revisa los campos."
+      render :new, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @temporary_lodging.update(temporary_lodging_params)
+      if params[:gallery_uploads].present?
+        params[:gallery_uploads].each do |gallery_id, files|
+          next if files.blank?
+          gallery = Gallery.find_by(id: gallery_id.to_i)
+          next unless gallery
+          files.each do |uploaded_file|
+            gallery.gallery_images.create(file: uploaded_file)
+          end
+        end
+      end
+
+      redirect_to @temporary_lodging, notice: "Alojamiento temporal actualizado correctamente."
+    else
+      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos."
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @temporary_lodging.establishment.destroy
+    redirect_to temporary_lodgings_path, notice: "Alojamiento temporal eliminado correctamente."
+  end
+
+  private
+
+  def set_temporary_lodging
+    @temporary_lodging = TemporaryLodging.includes(
+      establishment: [:legal_info, :user, :country, :city, :province, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    ).find(params[:id])
+  end
+
+  def temporary_lodging_params
+    params.require(:temporary_lodging).permit(
+      :lodging_type,
+      establishment_attributes: [
+        :id,
+        :user_id,
+        :name,
+        :short_description,
+        :long_description,
+        :address,
+        :phone,
+        :whatsapp,
+        :email,
+        :website,
+        :city_id,
+        :province_id,
+        :country_id,
+        :latitude,
+        :longitude,
+        :arrival_instructions,
+        :check_in_time,
+        :check_out_time,
+        :video,
+        :video_url,
+        :status,
+        policies: [],
+        amenity_ids: [],
+        legal_info_attributes: [
+          :id,
+          :business_name,
+          :document_type,
+          :document_number,
+          :legal_representative,
+          :contact_email,
+          :contact_phone
+        ],
+        galleries_attributes: [
+          :id, :name, :_destroy,
+          gallery_images_attributes: [:id, :file, :_destroy]
+        ]
+      ]
+    )
+  end
+end

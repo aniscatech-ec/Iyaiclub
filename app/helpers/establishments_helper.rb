@@ -76,7 +76,8 @@ module EstablishmentsHelper
       "transporte" => "Transporte",
       "agencia" => "Agencia de Viajes",
       "escapada" => "Escapadas",
-      "asistencia" => "Asistencia"
+      "asistencia" => "Asistencia",
+      "alojamiento_temporal" => "Alojamiento Temporal"
     }[type] || type
   end
 end

@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resources :restaurants
   resources :transports
+  resources :temporary_lodgings
   # resources :countries do
   #   resources :provinces do
   #     resources :cities, only: [:index, :new, :create]
