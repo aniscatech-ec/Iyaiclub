@@ -120,6 +120,7 @@
   transform: translateY(-5px);
   border-color: var(--brand-orange);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  z-index: 10;
 }
 
 .category-card:hover .icon {
@@ -132,10 +133,19 @@
 
 .category-card-wrapper {
   position: relative;
+  z-index: 1;
+}
+
+.category-card-wrapper.is-open .category-dropdown {
+  pointer-events: auto;
 }
 
 .category-card-hover {
   transition: all 0.3s ease;
+}
+
+.category-card-wrapper:hover {
+  z-index: 10;
 }
 
 .category-card-wrapper:hover .category-card-hover {
@@ -149,6 +159,10 @@
   transition: transform 0.2s ease;
 }
 
+.category-card-wrapper:hover .category-dropdown {
+  pointer-events: auto;
+}
+
 .dropdown-chevron {
   transition: transform 0.2s ease;
 }
@@ -156,11 +170,11 @@
 /* Dropdown panel - hidden by default */
 .category-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 220px;
-  z-index: 1050;
+  z-index: 9999;
   padding-top: 6px;
   opacity: 0;
   visibility: hidden;
