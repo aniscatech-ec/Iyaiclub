@@ -131,7 +131,7 @@
 
 .category-card-wrapper {
   position: relative;
-  z-index: 1;
+  width: fit-content;
 }
 
 .category-card-wrapper.is-open .category-dropdown {
@@ -160,6 +160,12 @@
 .category-card-wrapper:hover .category-dropdown {
   pointer-events: auto;
   z-index: 999;
+}
+
+.col {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .dropdown-chevron {
