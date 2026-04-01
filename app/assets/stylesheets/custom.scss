@@ -132,6 +132,7 @@
 .category-card-wrapper {
   position: relative;
   width: fit-content;
+  display: inline-block;
 }
 
 .category-card-wrapper.is-open .category-dropdown {
@@ -167,6 +168,7 @@
   justify-content: center;
   align-items: flex-start;
 }
+
 
 .dropdown-chevron {
   transition: transform 0.2s ease;
