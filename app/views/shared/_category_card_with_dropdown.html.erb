@@ -7,7 +7,7 @@
   is_grouped   = category[:grouped]
 %>
 
-<div class="category-card-wrapper">
+<div class="category-card-wrapper" data-controller="dropdown-hover>
   <% if has_subtypes %>
     <%= link_to cat_path, class: "text-decoration-none category-card-link",
         data: { action: "click->dropdown-hover#toggle" } do %>
@@ -23,7 +23,7 @@
       </div>
     <% end %>
 
-    <div class="category-dropdown" data-controller="dropdown-hover">
+    <div class="category-dropdown">
       <div class="list-group list-group-flush rounded-3 shadow overflow-hidden">
         <%= link_to cat_path, class: "list-group-item list-group-item-action px-3 py-2 fw-semibold",
             style: "font-size: 0.8rem; color: #{cat_color};" do %>
