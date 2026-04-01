@@ -4,7 +4,14 @@ class RestaurantsController < ApplicationController
   layout "dashboard"
 
   def index
-    @restaurants = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    restaurants = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    if params[:type].present? && Restaurant::CATEGORIES.include?(params[:type])
+      restaurants = restaurants.where(category: params[:type])
+    elsif params[:cuisine].present? && Restaurant::CUISINE_TYPES.include?(params[:cuisine])
+      restaurants = restaurants.where(cuisine_type: params[:cuisine])
+    end
+    @restaurants = restaurants
+    @current_type = params[:type] || params[:cuisine]
   end
 
   def show

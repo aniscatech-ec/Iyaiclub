@@ -1,5 +1,18 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="mb-0">Hoteles</h1>
+  <div>
+    <h1 class="mb-0">Hospedaje</h1>
+    <% if @current_type.present? %>
+      <div class="mt-2">
+        <span class="badge rounded-pill bg-success fs-6 filter-badge">
+          <i class="fas fa-filter me-1"></i>
+          <%= hotel_type_label(@current_type) %>
+          <%= link_to hotels_path, class: "remove-filter text-white ms-2", title: "Quitar filtro" do %>
+            <i class="fas fa-times"></i>
+          <% end %>
+        </span>
+      </div>
+    <% end %>
+  </div>
   <% if current_user&.administrador? %>
     <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
       <%#= link_to new_establishment_path, class: "btn btn-success" do %>

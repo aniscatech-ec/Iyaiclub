@@ -4,7 +4,9 @@ class HotelsController < ApplicationController
 
   def index
     hotels = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    hotels = hotels.where(hotel_type: params[:type]) if params[:type].present? && Hotel.hotel_types.key?(params[:type])
     @pagy, @hotels = pagy(hotels)
+    @current_type = params[:type]
   end
 
   def show

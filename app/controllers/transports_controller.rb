@@ -8,7 +8,13 @@ class TransportsController < ApplicationController
       establishment: [:legal_info, :user, :country, :city, :province, :amenities,
                        { galleries: { gallery_images: { file_attachment: :blob } } }]
     )
+    if params[:type].present? && Transport::TRANSPORT_TYPES.include?(params[:type])
+      transports = transports.where(transport_type: params[:type])
+    elsif params[:sub].present? && Transport::ALL_SUBCATEGORIES.include?(params[:sub])
+      transports = transports.where(subcategory: params[:sub])
+    end
     @pagy, @transports = pagy(transports)
+    @current_type = params[:type] || params[:sub]
   end
 
   def show

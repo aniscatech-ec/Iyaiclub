@@ -126,3 +126,99 @@
   color: var(--brand-orange);
 }
 
+/* ======================================
+   Category Card Dropdown on Hover
+   ====================================== */
+
+.category-card-wrapper {
+  position: relative;
+}
+
+.category-card-hover {
+  transition: all 0.3s ease;
+}
+
+.category-card-wrapper:hover .category-card-hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.category-card-wrapper:hover .dropdown-chevron {
+  opacity: 1 !important;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.dropdown-chevron {
+  transition: transform 0.2s ease;
+}
+
+/* Dropdown panel - hidden by default */
+.category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  z-index: 1050;
+  padding-top: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+.category-dropdown .list-group {
+  border: 1px solid rgba(33, 193, 136, 0.3);
+  background: #fff;
+}
+
+.category-dropdown .list-group-item {
+  border-color: rgba(33, 193, 136, 0.1);
+  transition: background 0.15s ease;
+}
+
+.category-dropdown .list-group-item:hover {
+  background: rgba(33, 193, 136, 0.08);
+}
+
+/* Show dropdown on hover */
+.category-card-wrapper:hover .category-dropdown,
+.category-card-wrapper.is-open .category-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Section headers for grouped dropdowns */
+.dropdown-section-header {
+  border-bottom: 1px solid rgba(33, 193, 136, 0.1);
+}
+
+/* Active filter badge */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-badge .remove-filter {
+  color: #fff;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+.filter-badge .remove-filter:hover {
+  opacity: 1;
+}
+
+/* Responsive: full width dropdown on mobile */
+@media (max-width: 767.98px) {
+  .category-dropdown {
+    left: 0;
+    right: 0;
+    transform: none;
+    min-width: unset;
+  }
+}
+
