@@ -196,7 +196,8 @@ class EstablishmentsController < ApplicationController
     when "hotel"
       # hotel = Hotel.new(user: current_user)
       # Crear un establishment vacío
-      est = Establishment.create(user: current_user, category: :hotel)
+      user = params[:user_id] ? User.find(params[:user_id]) : current_user
+      est = Establishment.create(user: user, category: :hotel)
 
       # Crear el hotel vinculado
       hotel = Hotel.create(establishment: est)
@@ -206,12 +207,15 @@ class EstablishmentsController < ApplicationController
 
     when "restaurante"
       # est = Establishment.create(user: current_user, category: :restaurante)
+      user = params[:user_id] ? User.find(params[:user_id]) : current_user
+      # Crear el establishment vacío
+      est = Establishment.create(user: user, category: :restaurante)
 
-      # Crear el hotel vinculado
-      # restaurant = Restaurant.create(establishment: est)
-      # restaurant.save
-      # redirect_to edit_restaurant_path(restaurant) and return
-      redirect_to new_restaurant_path and return
+      # Crear el restaurante vinculado
+      restaurant = Restaurant.create(establishment: est)
+      restaurant.save
+
+      redirect_to edit_restaurant_path(restaurant) and return
 
     when "transporte"
       redirect_to new_transport_path(user_id: params[:user_id]) and return
@@ -281,7 +285,12 @@ class EstablishmentsController < ApplicationController
     ]
     permitted << :user_id if current_user.administrador?
 
-    params.require(:establishment).permit(*permitted)
+    params.require(:establishment).permit(*permitted).tap do |whitelisted|
+      # Convertir policies de string vacío a array si es necesario
+      if whitelisted[:policies].is_a?(String) && whitelisted[:policies].blank?
+        whitelisted[:policies] = []
+      end
+    end
   end
 
 end

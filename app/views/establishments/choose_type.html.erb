@@ -26,7 +26,7 @@
   </div>
 
   <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
-    <%= button_to create_type_establishments_path(type: "transporte"), method: :post, class: "card option-card w-100" do %>
+    <%= button_to create_type_establishments_path(type: "transporte", user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-info mb-3 mx-auto">
           <span class="fs-1">🚌</span>
@@ -50,7 +50,7 @@
   </div>
 
   <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
-    <%= button_to create_type_establishments_path(type: "agencia"), method: :post, class: "card option-card w-100" do %>
+    <%= button_to create_type_establishments_path(type: "agencia", user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-warning mb-3 mx-auto">
           <span class="fs-1">✈️</span>
@@ -62,7 +62,7 @@
   </div>
 
   <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
-    <%= button_to create_type_establishments_path(type: "escapada"), method: :post, class: "card option-card w-100" do %>
+    <%= button_to create_type_establishments_path(type: "escapada", user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light text-danger mb-3 mx-auto">
           <span class="fs-1">🏞️</span>
@@ -74,7 +74,7 @@
   </div>
 
   <div class="col-sm-6 col-md-4 mb-4 d-flex justify-content-center">
-    <%= button_to create_type_establishments_path(type: "asistencia"), method: :post, class: "card option-card w-100" do %>
+    <%= button_to create_type_establishments_path(type: "asistencia", user_id: @user_id), method: :post, class: "card option-card w-100" do %>
       <div class="card-body">
         <div class="icon-circle bg-light mb-3 mx-auto" style="color: #6f42c1;">
           <span class="fs-1">🏥</span>
