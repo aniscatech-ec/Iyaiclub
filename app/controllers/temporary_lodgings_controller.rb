@@ -20,13 +20,17 @@ class TemporaryLodgingsController < ApplicationController
 
   def new
     @temporary_lodging = TemporaryLodging.new
-    @temporary_lodging.build_establishment.build_legal_info
+    @temporary_lodging.build_establishment
+    @temporary_lodging.establishment.build_legal_info
     @temporary_lodging.establishment.galleries.build.gallery_images.build
+
+    # Asignar categoría automáticamente para alojamientos temporales
+    @temporary_lodging.establishment.category = :alojamiento_temporal
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @temporary_lodging.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @temporary_lodging.establishment.user = current_user
     end
   end
@@ -39,16 +43,14 @@ class TemporaryLodgingsController < ApplicationController
   def create
     @temporary_lodging = TemporaryLodging.new(temporary_lodging_params)
 
-    if @temporary_lodging.establishment
-      @temporary_lodging.establishment.category = :alojamiento_temporal
-    else
-      @temporary_lodging.build_establishment(category: :alojamiento_temporal)
-    end
+    # Asignar categoría automáticamente para alojamientos temporales si no viene del formulario
+    @temporary_lodging.establishment.category = :alojamiento_temporal if @temporary_lodging.establishment.category.blank?
 
+    # Asignar usuario ANTES de cualquier validación
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @temporary_lodging.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @temporary_lodging.establishment.user = current_user
     end
 

@@ -1,6 +1,7 @@
 module HotelsHelper
   HOTEL_TYPE_LABELS = {
     "hotel" => "Hotel",
+    "conventional" => "Hotel convencional",
     "hostal" => "Hostal",
     "glamping" => "Glamping",
     "ecohotel" => "Ecohotel / Ecolodge"

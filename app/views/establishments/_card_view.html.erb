@@ -14,7 +14,7 @@
             <%= link_to est, class: "btn btn-outline-info btn-sm" do %>
               <i class="fa-solid fa-eye"></i>
             <% end %>
-            <%= link_to edit_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
+            <%= link_to edit_specific_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
               <i class="fa-solid fa-pen-to-square"></i>
             <% end %>
             <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Seguro de eliminar?" }, class: "btn btn-outline-danger btn-sm" do %>

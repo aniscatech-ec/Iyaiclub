@@ -25,8 +25,12 @@ class HotelsController < ApplicationController
 
   def new
     @hotel = Hotel.new
-    @hotel.build_establishment.build_legal_info
+    @hotel.build_establishment
+    @hotel.establishment.build_legal_info
     @hotel.establishment.galleries.build.gallery_images.build
+
+    # Asignar categoría automáticamente para hoteles
+    @hotel.establishment.category = :hotel
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
@@ -66,24 +70,21 @@ class HotelsController < ApplicationController
   def create
     @hotel = Hotel.new(hotel_params)
 
-    if @hotel.establishment
-      @hotel.establishment.category = :hotel
-    else
-      @hotel.build_establishment(category: :hotel)
-    end
+    # Asignar categoría automáticamente para hoteles si no viene del formulario
+    @hotel.establishment.category = :hotel if @hotel.establishment.category.blank?
 
-    # 👇 Aquí seteamos el user siempre en el servidor
+    # Asignar usuario ANTES de cualquier validación
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @hotel.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @hotel.establishment.user = current_user
     end
 
     if @hotel.save
       redirect_to @hotel, notice: "Hotel creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el hotel. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = "No pudimos guardar el hotel. Errores: #{@hotel.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end
@@ -105,7 +106,11 @@ class HotelsController < ApplicationController
   # end
 
   def update
+    Rails.logger.debug "=== UPDATE PARAMS ==="
+    Rails.logger.debug hotel_params.inspect
+    
     if @hotel.update(hotel_params)
+      Rails.logger.debug "=== UPDATE SUCCESS ==="
       # Procesar uploads adicionales por galería (si el formulario envió archivos)
       if params[:gallery_uploads].present?
         params[:gallery_uploads].each do |gallery_id, files|
@@ -123,7 +128,10 @@ class HotelsController < ApplicationController
 
       redirect_to @hotel, notice: "Hotel actualizado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos marcados en rojo."
+      Rails.logger.debug "=== UPDATE ERRORS ==="
+      Rails.logger.debug @hotel.errors.full_messages
+      Rails.logger.debug @hotel.establishment&.errors&.full_messages
+      flash.now[:alert] = "No pudimos guardar los cambios. Errores: #{@hotel.errors.full_messages.join(', ')}"
       render :edit, status: :unprocessable_entity
     end
   end
@@ -162,12 +170,16 @@ class HotelsController < ApplicationController
       :max_guests,
       establishment_attributes: [
         :user_id,
-        :id, # <-- para que no te bote el warning
+        :id,
         :name,
         :short_description,
         :long_description,
-        :amenities,
         :address,
+        :phone,
+        :whatsapp,
+        :email,
+        :website,
+        :video_url,
         :city_id,
         :province_id,
         :country_id,
@@ -180,12 +192,11 @@ class HotelsController < ApplicationController
         :refund_policy,
         :check_in_time,
         :check_out_time,
-        :video,
-        :video_url,
         policies: [],
         amenity_ids: [],
+        images: [],
         legal_info_attributes: [
-          :id, # <-- también aquí
+          :id,
           :business_name,
           :document_type,
           :document_number,
@@ -197,7 +208,6 @@ class HotelsController < ApplicationController
           :id, :name, :_destroy,
           gallery_images_attributes: [:id, :file, :_destroy]
         ]
-
       ]
     )
   end

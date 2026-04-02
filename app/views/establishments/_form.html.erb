@@ -1,4 +1,4 @@
-<%= form_with(model: establishment, local: true, html: { class: "establishment-form" }) do |form| %>
+<%= form_with(model: establishment, local: true, html: { class: "establishment-form", data: { controller: "form-validation" } }) do |form| %>
   <% if establishment.errors.any? %>
     <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
       <div class="d-flex align-items-center mb-2">
@@ -35,10 +35,10 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-12">
-          <%= form.label :name, class: "form-label fw-semibold" %>
+          <%= form.label :name, "Nombre", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-signature"></i></span>
-            <%= form.text_field :name, class: "form-control", placeholder: "Nombre público del establecimiento" %>
+            <%= form.text_field :name, class: "form-control", placeholder: "Nombre público del establecimiento", required: true %>
           </div>
         </div>
 
@@ -79,27 +79,27 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-md-6">
-          <%= form.label :phone, "Teléfono", class: "form-label fw-semibold" %>
+          <%= form.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-phone"></i></span>
-            <%= form.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456" %>
+            <%= form.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
           </div>
         </div>
 
         <div class="col-md-6">
-          <%= form.label :whatsapp, "WhatsApp", class: "form-label fw-semibold" %>
+          <%= form.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-            <%= form.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
+            <%= form.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
           </div>
           <small class="text-muted">Con código de país, sin + ni espacios</small>
         </div>
 
         <div class="col-md-6">
-          <%= form.label :email, "Correo electrónico", class: "form-label fw-semibold" %>
+          <%= form.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-            <%= form.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com" %>
+            <%= form.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
           </div>
         </div>
 
@@ -121,29 +121,29 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-12">
-          <%= form.label :address, "Dirección", class: "form-label fw-semibold" %>
+          <%= form.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-road"></i></span>
-            <%= form.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria" %>
+            <%= form.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria", required: true %>
           </div>
         </div>
 
         <div class="col-md-4">
-          <%= form.label :country_id, "País", class: "form-label fw-semibold" %>
+          <%= form.label :country_id, "País", class: "form-label fw-semibold required-field" %>
           <%= form.collection_select :country_id, Country.order(:name), :id, :name,
-              { prompt: "Seleccione país" }, class: "form-select" %>
+              { prompt: "Seleccione país" }, class: "form-select", required: true %>
         </div>
 
         <div class="col-md-4">
-          <%= form.label :province_id, "Provincia", class: "form-label fw-semibold" %>
+          <%= form.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
           <%= form.collection_select :province_id, Province.order(:name), :id, :name,
-              { prompt: "Seleccione provincia" }, class: "form-select" %>
+              { prompt: "Seleccione provincia" }, class: "form-select", required: true %>
         </div>
 
         <div class="col-md-4">
-          <%= form.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
+          <%= form.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
           <%= form.collection_select :city_id, City.order(:name), :id, :name,
-              { prompt: "Seleccione ciudad" }, class: "form-select" %>
+              { prompt: "Seleccione ciudad" }, class: "form-select", required: true %>
         </div>
 
         <div class="col-12">
@@ -152,18 +152,18 @@
         </div>
 
         <div class="col-md-6">
-          <%= form.label :latitude, "Latitud", class: "form-label fw-semibold" %>
+          <%= form.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-            <%= form.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086" %>
+            <%= form.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086", required: true %>
           </div>
         </div>
 
         <div class="col-md-6">
-          <%= form.label :longitude, "Longitud", class: "form-label fw-semibold" %>
+          <%= form.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-            <%= form.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653" %>
+            <%= form.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653", required: true %>
           </div>
         </div>
       </div>

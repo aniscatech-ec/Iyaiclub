@@ -2,6 +2,12 @@ Rails.application.routes.draw do
   resources :restaurants
   resources :transports
   resources :temporary_lodgings
+
+  # API para ubicaciones dinámicas
+  namespace :locations do
+    get 'provinces/:country_id', to: 'locations#provinces'
+    get 'cities/:province_id', to: 'locations#cities'
+  end
   # resources :countries do
   #   resources :provinces do
   #     resources :cities, only: [:index, :new, :create]

@@ -3,6 +3,7 @@ class Hotel < ApplicationRecord
 
   enum :hotel_type, {
     hotel: "hotel",
+    conventional: "conventional",
     hostal: "hostal",
     glamping: "glamping",
     ecohotel: "ecohotel"

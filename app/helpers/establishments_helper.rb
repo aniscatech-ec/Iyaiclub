@@ -69,6 +69,22 @@ module EstablishmentsHelper
     end
   end
 
+  # Devuelve la ruta de edición específica según la categoría del establecimiento
+  def edit_specific_establishment_path(est)
+    case est.category
+    when "hotel"
+      est.hotel ? edit_hotel_path(est.hotel) : edit_establishment_path(est)
+    when "restaurante"
+      est.restaurant ? edit_restaurant_path(est.restaurant) : edit_establishment_path(est)
+    when "transporte"
+      est.transport ? edit_transport_path(est.transport) : edit_establishment_path(est)
+    when "alojamiento_temporal"
+      est.temporary_lodging ? edit_temporary_lodging_path(est.temporary_lodging) : edit_establishment_path(est)
+    else
+      edit_establishment_path(est)
+    end
+  end
+
   def establishment_type_label(type)
     {
       "hotel" => "Hotel",

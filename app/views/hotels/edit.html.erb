@@ -43,7 +43,7 @@
 <%= form_with(model: @hotel,
               local: true,
               html: { multipart: true },
-              data: { controller: "gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
+              data: { controller: "form-validation gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
 
   <%= f.fields_for :establishment do |e| %>
 
@@ -56,25 +56,25 @@
         <%= e.fields_for :legal_info do |l| %>
           <div class="row g-3">
             <div class="col-md-6">
-              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold" %>
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-building"></i></span>
                 <%= l.text_field :business_name, class: "form-control", required: true, minlength: 3, maxlength: 150, placeholder: "Nombre legal" %>
               </div>
             </div>
             <div class="col-md-3">
-              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold" %>
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
               <%= l.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select", required: true %>
             </div>
             <div class="col-md-3">
-              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold" %>
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                 <%= l.text_field :document_number, class: "form-control", required: true, placeholder: "Ej: 0901234567001" %>
               </div>
             </div>
             <div class="col-md-6">
-              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold" %>
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
                 <%= l.text_field :legal_representative, class: "form-control", required: true, minlength: 3, maxlength: 100, placeholder: "Nombre completo" %>
@@ -108,14 +108,14 @@
               <% end %>
             </div>
             <div class="col-md-6">
-              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold" %>
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                 <%= l.email_field :contact_email, class: "form-control", required: true, placeholder: "correo@ejemplo.com" %>
               </div>
             </div>
             <div class="col-md-6">
-              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold" %>
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
                 <%= l.telephone_field :contact_phone, class: "form-control", required: true, pattern: "[0-9]{10}", maxlength: 10, placeholder: "Ej: 0991234567" %>
@@ -136,22 +136,22 @@
       <div class="row g-3">
         <div class="col-md-6">
           <%= f.fields_for :establishment do |e| %>
-            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold" %>
+            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-tag"></i></span>
-              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes" %>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
             </div>
           <% end %>
         </div>
         <div class="col-md-3">
-          <%= f.label :hotel_type, "Tipo de hotel", class: "form-label fw-semibold" %>
+          <%= f.label :hotel_type, "Tipo de hotel", class: "form-label fw-semibold required-field" %>
           <%= f.select :hotel_type, options_for_select([
                                                          ['Hotel convencional', 'conventional'],
                                                          ['Hotel boutique', 'boutique'],
                                                          ['Hotel de cadena', 'chain'],
                                                          ['Resort', 'resort'],
                                                          ['Ecohotel / Ecolodge', 'ecohotel']
-                                                       ], @hotel.hotel_type), { include_blank: 'Selecciona un tipo' }, class: "form-select" %>
+                                                       ], @hotel.hotel_type), { include_blank: 'Selecciona un tipo' }, class: "form-select", required: true %>
         </div>
         <div class="col-md-3">
           <%= f.label :stars, "Categoría (estrellas)", class: "form-label fw-semibold" %>

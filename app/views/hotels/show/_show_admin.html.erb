@@ -122,6 +122,19 @@
     </div>
   </div>
 
+  <!-- Mapa -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-info text-white fw-bold">
+      <i class="fas fa-map-marked-alt me-2"></i> Ubicación
+    </div>
+    <div class="card-body p-0">
+      <%= render "shared/map_display",
+                 latitude: hotel.establishment.latitude,
+                 longitude: hotel.establishment.longitude,
+                 name: hotel.establishment.name %>
+    </div>
+  </div>
+
   <!-- Botones -->
   <div class="text-center mt-4">
     <%= link_to "Editar", edit_hotel_path(hotel), class: "btn btn-primary me-2 px-4" %>

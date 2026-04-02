@@ -25,14 +25,17 @@ class RestaurantsController < ApplicationController
 
   def new
     @restaurant = Restaurant.new
-    @restaurant.build_establishment.build_legal_info
+    @restaurant.build_establishment
+    @restaurant.establishment.build_legal_info
     @restaurant.establishment.galleries.build.gallery_images.build
+
+    # Asignar categoría automáticamente para restaurantes
+    @restaurant.establishment.category = :restaurante
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @restaurant.establishment.user = @affiliate
-    elsif current_user&.afiliado?
-      # si es un afiliado que crea su propio hotel
+    elsif current_user&.afiliado? || current_user&.administrador?
       @restaurant.establishment.user = current_user
     end
   end
@@ -60,17 +63,14 @@ class RestaurantsController < ApplicationController
   def create
     @restaurant = Restaurant.new(restaurant_params)
 
-    if @restaurant.establishment
-      @restaurant.establishment.category = :restaurante
-    else
-      @restaurant.build_establishment(category: :restaurante)
-    end
+    # Asignar categoría automáticamente para restaurantes si no viene del formulario
+    @restaurant.establishment.category = :restaurante if @restaurant.establishment.category.blank?
 
-    # 👇 Aquí seteamos el user siempre en el servidor
+    # Asignar usuario ANTES de cualquier validación
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @restaurant.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @restaurant.establishment.user = current_user
     end
 

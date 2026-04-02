@@ -108,6 +108,14 @@
 
         </li>
 
+        <!-- Botón de Asistencia -->
+        <li class="nav-item mx-2">
+          <%= link_to root_path, class: "btn btn-danger btn-sm d-flex align-items-center gap-1", title: "Asistencia de Emergencia" do %>
+            <i class="fas fa-kit-medical"></i>
+            <span class="d-none d-md-inline">Asistencia</span>
+          <% end %>
+        </li>
+
         <% if user_signed_in? %>
         <%else %>
           <li class="nav-item mx-2">

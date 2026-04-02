@@ -22,13 +22,17 @@ class TransportsController < ApplicationController
 
   def new
     @transport = Transport.new
-    @transport.build_establishment.build_legal_info
+    @transport.build_establishment
+    @transport.establishment.build_legal_info
     @transport.establishment.galleries.build.gallery_images.build
+
+    # Asignar categoría automáticamente para transportes
+    @transport.establishment.category = :transporte
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @transport.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @transport.establishment.user = current_user
     end
   end
@@ -41,23 +45,21 @@ class TransportsController < ApplicationController
   def create
     @transport = Transport.new(transport_params)
 
-    if @transport.establishment
-      @transport.establishment.category = :transporte
-    else
-      @transport.build_establishment(category: :transporte)
-    end
+    # Asignar categoría automáticamente para transportes si no viene del formulario
+    @transport.establishment.category = :transporte if @transport.establishment.category.blank?
 
+    # Asignar usuario ANTES de cualquier validación
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @transport.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @transport.establishment.user = current_user
     end
 
     if @transport.save
       redirect_to @transport, notice: "Transporte creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el transporte. Por favor revisa los campos."
+      flash.now[:alert] = "No pudimos guardar el transporte. Por favor revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end

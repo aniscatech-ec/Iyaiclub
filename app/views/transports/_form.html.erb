@@ -1,4 +1,4 @@
-<%= form_with(model: transport, local: true, html: { class: "transport-form", multipart: true }) do |form| %>
+<%= form_with(model: transport, local: true, html: { class: "transport-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
   <% if transport.errors.any? %>
     <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
       <div class="d-flex align-items-center mb-2">
@@ -97,6 +97,43 @@
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
               <%= form.text_field :price_range, class: "form-control", placeholder: "Ej: $5 - $25" %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :total_vehicles, "Total de vehiculos", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-car"></i></span>
+              <%= form.number_field :total_vehicles, class: "form-control", min: 0, placeholder: "Ej: 10" %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :available_vehicles, "Vehiculos disponibles", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+              <%= form.number_field :available_vehicles, class: "form-control", min: 0, placeholder: "Ej: 8" %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <%= form.label :routes, "Rutas o destinos principales", class: "form-label fw-semibold" %>
+            <%= form.text_area :routes, class: "form-control", rows: 2, placeholder: "Ej: Cuenca - Guayaquil, Cuenca - Quito, Cuenca - Loja" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :service_frequency, "Frecuencia del servicio", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-sync-alt"></i></span>
+              <%= form.text_field :service_frequency, class: "form-control", placeholder: "Ej: Cada 30 min, Diario, Semanal" %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :operating_area, "Zona de operacion", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map"></i></span>
+              <%= form.text_field :operating_area, class: "form-control", placeholder: "Ej: Azuay, Interurbano, Nacional" %>
             </div>
           </div>
         </div>
@@ -452,3 +489,115 @@
     <% end %>
   </div>
 <% end %>
+
+<script>
+    // Intentar múltiples eventos para asegurar que el script se ejecute
+    function initLocationScript() {
+        console.log("Inicializando script de ubicación para transporte");
+        
+        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
+        const countrySelect = document.getElementById('establishment_country_id');
+        const provinceSelect = document.getElementById('establishment_province_id');
+        const citySelect = document.getElementById('establishment_city_id');
+
+        console.log('Elementos encontrados:', { countrySelect, provinceSelect, citySelect });
+
+        // Función para cargar provincias
+        function loadProvinces(countryId) {
+            console.log('Cargando provincias para país:', countryId);
+            
+            if (!countryId) {
+                console.log('No hay país seleccionado');
+                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+
+            fetch(`/locations/provinces/${countryId}`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Provincias recibidas:', data);
+                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                    data.forEach(province => {
+                        provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+                    });
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                })
+                .catch(error => {
+                    console.error('Error loading provinces:', error);
+                    provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>';
+                });
+        }
+
+        // Función para cargar ciudades
+        function loadCities(provinceId) {
+            console.log('Cargando ciudades para provincia:', provinceId);
+            
+            if (!provinceId) {
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+
+            fetch(`/locations/cities/${provinceId}`)
+                .then(response => {
+                    console.log('Cities response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Ciudades recibidas:', data);
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    data.forEach(city => {
+                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading cities:', error);
+                    citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                });
+        }
+
+        // Event listeners
+        if (countrySelect) {
+            console.log('Country select encontrado:', countrySelect);
+            countrySelect.addEventListener('change', function() {
+                console.log('Cambio en país seleccionado:', this.value);
+                loadProvinces(this.value);
+            });
+
+            // Cargar provincias si hay un país preseleccionado
+            if (countrySelect.value) {
+                console.log('País preseleccionado:', countrySelect.value);
+                loadProvinces(countrySelect.value);
+            }
+        } else {
+            console.log('No se encontró el select de país');
+        }
+
+        if (provinceSelect) {
+            console.log('Province select encontrado:', provinceSelect);
+            provinceSelect.addEventListener('change', function() {
+                console.log('Cambio en provincia seleccionada:', this.value);
+                loadCities(this.value);
+            });
+        } else {
+            console.log('No se encontró el select de provincia');
+        }
+    }
+
+    // Múltiples intentos para asegurar que el script se ejecute
+    
+    // Intentar inmediatamente
+    initLocationScript();
+    
+    // Intentar con DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initLocationScript);
+    
+    // Intentar con turbo:load
+    document.addEventListener('turbo:load', initLocationScript);
+    
+    // Intentar después de un pequeño delay
+    setTimeout(initLocationScript, 500);
+</script>
