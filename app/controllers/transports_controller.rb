@@ -92,6 +92,11 @@ class TransportsController < ApplicationController
       :capacity,
       :service_description,
       :price_range,
+      :total_vehicles,
+      :available_vehicles,
+      :routes,
+      :service_frequency,
+      :operating_area,
       vehicles_attributes: [:id, :name, :description, :price_per_day, :conditions, :photo, :_destroy],
       establishment_attributes: [
         :id,

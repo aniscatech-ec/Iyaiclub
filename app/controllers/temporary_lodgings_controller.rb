@@ -97,6 +97,9 @@ class TemporaryLodgingsController < ApplicationController
   def temporary_lodging_params
     params.require(:temporary_lodging).permit(
       :lodging_type,
+      :max_guests,
+      :total_rooms,
+      :total_bathrooms,
       establishment_attributes: [
         :id,
         :user_id,

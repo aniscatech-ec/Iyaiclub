@@ -49,14 +49,6 @@ module CategoriesHelper
         subtypes: nil,
         grouped: false
       },
-      {
-        name: "Asistencia",
-        icon: "fa-kit-medical",
-        path: "#",
-        color: "#3498db",
-        subtypes: nil,
-        grouped: false
-      }
     ]
   end
 

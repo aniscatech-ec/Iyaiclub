@@ -14,6 +14,8 @@ class Transport < ApplicationRecord
 
   validates :transport_type, inclusion: { in: TRANSPORT_TYPES }
   validates :subcategory, inclusion: { in: ALL_SUBCATEGORIES }
+  validates :total_vehicles, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
+  validates :available_vehicles, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
   validate :subcategory_matches_type
   validate :validate_vehicles_limit
 

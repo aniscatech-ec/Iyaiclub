@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_01_100004) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -170,6 +170,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
     t.boolean "reception_24h", default: false
     t.time "reception_open_time"
     t.time "reception_close_time"
+    t.integer "total_rooms"
+    t.integer "available_rooms"
+    t.integer "max_guests"
     t.index ["establishment_id"], name: "index_hotels_on_establishment_id"
   end
 
@@ -300,6 +303,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
     t.string "category"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "total_tables"
+    t.integer "seats_per_table"
+    t.integer "available_tables"
+    t.integer "total_capacity"
     t.index ["establishment_id"], name: "index_restaurants_on_establishment_id"
   end
 
@@ -322,6 +329,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
     t.string "lodging_type", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "max_guests"
+    t.integer "total_rooms"
+    t.integer "total_bathrooms"
     t.index ["establishment_id"], name: "index_temporary_lodgings_on_establishment_id"
     t.index ["lodging_type"], name: "index_temporary_lodgings_on_lodging_type"
   end
@@ -335,6 +345,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000001) do
     t.string "price_range"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "total_vehicles"
+    t.integer "available_vehicles"
+    t.text "routes"
+    t.string "service_frequency"
+    t.string "operating_area"
     t.index ["establishment_id"], name: "index_transports_on_establishment_id"
     t.index ["subcategory"], name: "index_transports_on_subcategory"
     t.index ["transport_type"], name: "index_transports_on_transport_type"

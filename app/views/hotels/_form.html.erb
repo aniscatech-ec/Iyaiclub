@@ -21,42 +21,42 @@
         <div class="card-body p-4">
           <div class="row g-3">
             <div class="col-md-6">
-              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold" %>
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-building"></i></span>
-                <%= l.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa" %>
+                <%= l.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
               </div>
             </div>
             <div class="col-md-3">
-              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold" %>
-              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select" %>
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true %>
             </div>
             <div class="col-md-3">
-              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold" %>
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001" %>
+                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true %>
               </div>
             </div>
             <div class="col-md-4">
-              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold" %>
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                <%= l.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo" %>
+                <%= l.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
               </div>
             </div>
             <div class="col-md-4">
-              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold" %>
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <%= l.email_field :contact_email, class: "form-control", placeholder: "correo@ejemplo.com" %>
+                <%= l.email_field :contact_email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
               </div>
             </div>
             <div class="col-md-4">
-              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold" %>
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999" %>
+                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999", required: true %>
               </div>
             </div>
           </div>
@@ -72,15 +72,15 @@
       <div class="card-body p-4">
         <div class="row g-3">
           <div class="col-md-6">
-            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold" %>
+            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-tag"></i></span>
-              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes" %>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
             </div>
           </div>
           <div class="col-md-3">
-            <%= f.label :hotel_type, "Tipo de hospedaje", class: "form-label fw-semibold" %>
-            <%= f.select :hotel_type, hotel_type_options, { include_blank: "Selecciona un tipo" }, class: "form-select" %>
+            <%= f.label :hotel_type, "Tipo de hospedaje", class: "form-label fw-semibold required-field" %>
+            <%= f.select :hotel_type, hotel_type_options, { include_blank: "Selecciona un tipo" }, class: "form-select", required: true %>
           </div>
           <div class="col-md-3">
             <%= f.label :stars, "Estrellas", class: "form-label fw-semibold" %>
@@ -90,8 +90,8 @@
             </div>
           </div>
           <div class="col-12">
-            <%= e.label :short_description, "Descripción corta", class: "form-label fw-semibold" %>
-            <%= e.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripción para listados y previews" %>
+            <%= e.label :short_description, "Descripción corta", class: "form-label fw-semibold required-field" %>
+            <%= e.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripción para listados y previews", required: true %>
           </div>
           <div class="col-12">
             <%= e.label :long_description, "Descripción detallada", class: "form-label fw-semibold" %>
@@ -101,18 +101,50 @@
       </div>
     </div>
 
-    <!-- ═══════════════ 3. CONTACTO ═══════════════ -->
+    <!-- ═══════════════ 3. CAPACIDAD ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> 3. Capacidad</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <%= f.label :total_rooms, "Total de habitaciones", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+              <%= f.number_field :total_rooms, class: "form-control", min: 0, placeholder: "Ej: 20" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= f.label :available_rooms, "Habitaciones disponibles", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed"></i></span>
+              <%= f.number_field :available_rooms, class: "form-control", min: 0, placeholder: "Ej: 15" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= f.label :max_guests, "Capacidad maxima de huespedes", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-users"></i></span>
+              <%= f.number_field :max_guests, class: "form-control", min: 0, placeholder: "Ej: 50" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. CONTACTO ═══════════════ -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 3. Contacto y redes</h5>
+        <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 4. Contacto y redes</h5>
       </div>
       <div class="card-body p-4">
         <div class="row g-3">
           <div class="col-md-6">
-            <%= e.label :address, "Dirección", class: "form-label fw-semibold" %>
+            <%= e.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-              <%= e.text_field :address, class: "form-control", placeholder: "Dirección completa" %>
+              <%= e.text_field :address, class: "form-control", placeholder: "Dirección completa", required: true %>
             </div>
           </div>
           <div class="col-md-6">
@@ -120,6 +152,35 @@
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-route"></i></span>
               <%= e.text_field :arrival_instructions, class: "form-control", placeholder: "Cómo llegar al hotel" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+            </div>
+            <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :email, "Correo electronico", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :website, "Sitio web", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-globe"></i></span>
+              <%= e.url_field :website, class: "form-control", placeholder: "https://www.ejemplo.com" %>
             </div>
           </div>
           <div class="col-md-6">
@@ -133,47 +194,47 @@
       </div>
     </div>
 
-    <!-- ═══════════════ 4. UBICACIÓN ═══════════════ -->
+    <!-- ═══════════════ 5. UBICACIÓN ═══════════════ -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 4. Ubicación</h5>
+        <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 5. Ubicación</h5>
       </div>
       <div class="card-body p-4">
         <div class="row g-3">
           <div class="col-md-4">
-            <%= e.label :country_id, "País", class: "form-label fw-semibold" %>
-            <%= e.collection_select :country_id, Country.order(:name), :id, :name, { include_blank: "Seleccione país" }, class: "form-select" %>
+            <%= e.label :country_id, "País", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :country_id, Country.order(:name), :id, :name, { include_blank: "Seleccione país" }, class: "form-select", required: true %>
           </div>
           <div class="col-md-4">
-            <%= e.label :province_id, "Provincia", class: "form-label fw-semibold" %>
-            <%= e.collection_select :province_id, Province.order(:name), :id, :name, { include_blank: "Seleccione provincia" }, class: "form-select" %>
+            <%= e.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :province_id, Province.order(:name), :id, :name, { include_blank: "Seleccione provincia" }, class: "form-select", required: true %>
           </div>
           <div class="col-md-4">
-            <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
-            <%= e.collection_select :city_id, City.order(:name), :id, :name, { include_blank: "Seleccione ciudad" }, class: "form-select" %>
+            <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :city_id, City.order(:name), :id, :name, { include_blank: "Seleccione ciudad" }, class: "form-select", required: true %>
           </div>
           <div class="col-md-6">
-            <%= e.label :latitude, "Latitud", class: "form-label fw-semibold" %>
+            <%= e.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
-              <%= e.text_field :latitude, class: "form-control", placeholder: "Ej: -2.897095" %>
+              <%= e.text_field :latitude, class: "form-control", placeholder: "Ej: -2.897095", required: true %>
             </div>
           </div>
           <div class="col-md-6">
-            <%= e.label :longitude, "Longitud", class: "form-label fw-semibold" %>
+            <%= e.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
-              <%= e.text_field :longitude, class: "form-control", placeholder: "Ej: -79.004536" %>
+              <%= e.text_field :longitude, class: "form-control", placeholder: "Ej: -79.004536", required: true %>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ═══════════════ 5. HORARIOS ═══════════════ -->
+    <!-- ═══════════════ 6. HORARIOS ═══════════════ -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> 5. Horarios de check-in / check-out</h5>
+        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> 6. Horarios de check-in / check-out</h5>
       </div>
       <div class="card-body p-4">
         <div class="row g-3">
@@ -195,11 +256,11 @@
       </div>
     </div>
 
-    <!-- ═══════════════ 6. COMODIDADES ═══════════════ -->
+    <!-- ═══════════════ 7. COMODIDADES ═══════════════ -->
     <% if Amenity.any? %>
       <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-          <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 6. Comodidades y servicios</h5>
+          <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 7. Comodidades y servicios</h5>
         </div>
         <div class="card-body p-4">
           <div class="row g-2">
@@ -216,10 +277,10 @@
       </div>
     <% end %>
 
-    <!-- ═══════════════ 7. GALERÍAS ═══════════════ -->
+    <!-- ═══════════════ 8. GALERÍAS ═══════════════ -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
       <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 7. Galerías de imágenes</h5>
+        <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 8. Galerías de imágenes</h5>
         <a href="#" id="add-gallery" class="btn btn-sm btn-light fw-semibold rounded-pill px-3">
           <i class="fas fa-plus me-1"></i> Agregar galería
         </a>

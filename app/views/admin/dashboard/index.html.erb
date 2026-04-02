@@ -56,7 +56,7 @@
       <% end %>
     </div>
 
-    <% ["Hospedaje", "Gastronomia", "Transporte"].each do |cat_name| %>
+    <% ["Hospedaje", "Gastronomia", "Transporte", "Alojamientos Temporales"].each do |cat_name| %>
       <% cat = category_catalog.find { |c| c[:name] == cat_name } %>
       <% next unless cat %>
       <div class="col-md-2">

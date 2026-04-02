@@ -22,10 +22,10 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-12">
-            <%= est.label :name, "Nombre del servicio", class: "form-label fw-semibold" %>
+            <%= est.label :name, "Nombre del servicio", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-signature"></i></span>
-              <%= est.text_field :name, class: "form-control", placeholder: "Nombre público del transporte" %>
+              <%= est.text_field :name, class: "form-control", placeholder: "Nombre público del transporte", required: true %>
             </div>
           </div>
 
@@ -38,17 +38,18 @@
           <% end %>
 
           <div class="col-md-6">
-            <%= form.label :transport_type, "Tipo de transporte", class: "form-label fw-semibold" %>
+            <%= form.label :transport_type, "Tipo de transporte", class: "form-label fw-semibold required-field" %>
             <%= form.select :transport_type,
                 Transport::TRANSPORT_TYPES.map { |t| [t.humanize.capitalize, t] },
                 { prompt: "Seleccione tipo" },
                 class: "form-select",
+                required: true,
                 data: { action: "change->nested-form#toggleSubcategories" },
                 id: "transport_type_select" %>
           </div>
 
           <div class="col-md-6">
-            <%= form.label :subcategory, "Subcategoría", class: "form-label fw-semibold" %>
+            <%= form.label :subcategory, "Subcategoría", class: "form-label fw-semibold required-field" %>
             <%= form.select :subcategory,
                 grouped_options_for_select(
                   {
@@ -109,27 +110,27 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <%= est.label :phone, "Teléfono", class: "form-label fw-semibold" %>
+            <%= est.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-phone"></i></span>
-              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456" %>
+              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
             </div>
           </div>
 
           <div class="col-md-6">
-            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold" %>
+            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
+              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
             </div>
             <small class="text-muted">Con código de país, sin + ni espacios</small>
           </div>
 
           <div class="col-md-6">
-            <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold" %>
+            <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com" %>
+              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
             </div>
           </div>
 
@@ -151,29 +152,29 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-12">
-            <%= est.label :address, "Dirección", class: "form-label fw-semibold" %>
+            <%= est.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-road"></i></span>
-              <%= est.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria" %>
+              <%= est.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria", required: true %>
             </div>
           </div>
 
           <div class="col-md-4">
-            <%= est.label :country_id, "País", class: "form-label fw-semibold" %>
+            <%= est.label :country_id, "País", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :country_id, Country.order(:name), :id, :name,
-                { prompt: "Seleccione país" }, class: "form-select" %>
+                { prompt: "Seleccione país" }, class: "form-select", required: true %>
           </div>
 
           <div class="col-md-4">
-            <%= est.label :province_id, "Provincia", class: "form-label fw-semibold" %>
+            <%= est.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :province_id, Province.order(:name), :id, :name,
-                { prompt: "Seleccione provincia" }, class: "form-select" %>
+                { prompt: "Seleccione provincia" }, class: "form-select", required: true %>
           </div>
 
           <div class="col-md-4">
-            <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
+            <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :city_id, City.order(:name), :id, :name,
-                { prompt: "Seleccione ciudad" }, class: "form-select" %>
+                { prompt: "Seleccione ciudad" }, class: "form-select", required: true %>
           </div>
 
           <div class="col-12">
@@ -182,18 +183,18 @@
           </div>
 
           <div class="col-md-6">
-            <%= est.label :latitude, "Latitud", class: "form-label fw-semibold" %>
+            <%= est.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-              <%= est.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086" %>
+              <%= est.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086", required: true %>
             </div>
           </div>
 
           <div class="col-md-6">
-            <%= est.label :longitude, "Longitud", class: "form-label fw-semibold" %>
+            <%= est.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-              <%= est.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653" %>
+              <%= est.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653", required: true %>
             </div>
           </div>
         </div>
@@ -238,48 +239,48 @@
         <%= est.fields_for :legal_info do |li| %>
           <div class="row g-3">
             <div class="col-md-6">
-              <%= li.label :business_name, "Razón social", class: "form-label fw-semibold" %>
+              <%= li.label :business_name, "Razón social", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-building"></i></span>
-                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa" %>
+                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
               </div>
             </div>
 
             <div class="col-md-6">
-              <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold" %>
+              <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo" %>
+                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
               </div>
             </div>
 
             <div class="col-md-6">
-              <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold" %>
+              <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
               <%= li.select :document_type, [["RUC", "RUC"], ["Cédula", "Cedula"], ["Pasaporte", "Pasaporte"]],
-                  { prompt: "Seleccione" }, class: "form-select" %>
+                  { prompt: "Seleccione" }, class: "form-select", required: true %>
             </div>
 
             <div class="col-md-6">
-              <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold" %>
+              <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001" %>
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true %>
               </div>
             </div>
 
             <div class="col-md-6">
-              <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold" %>
+              <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com" %>
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true %>
               </div>
             </div>
 
             <div class="col-md-6">
-              <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold" %>
+              <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "072123456" %>
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "072123456", required: true %>
               </div>
             </div>
           </div>

@@ -5,6 +5,9 @@ class TemporaryLodging < ApplicationRecord
 
   validates :lodging_type, presence: { message: "Debe seleccionar un tipo de alojamiento" },
                            inclusion: { in: LODGING_TYPES, message: "Tipo de alojamiento no valido" }
+  validates :max_guests, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
+  validates :total_rooms, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
+  validates :total_bathrooms, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
 
   delegate :user,
            :images,

@@ -157,6 +157,9 @@ class HotelsController < ApplicationController
     params.require(:hotel).permit(
       :stars,
       :hotel_type,
+      :total_rooms,
+      :available_rooms,
+      :max_guests,
       establishment_attributes: [
         :user_id,
         :id, # <-- para que no te bote el warning
