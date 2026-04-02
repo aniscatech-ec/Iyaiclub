@@ -281,13 +281,28 @@ class EstablishmentsController < ApplicationController
       :video,
       :video_url,
       :rating,
-      { images: [], policies: [], amenity_ids: [] }
+      :policies,
+      { images: [], amenity_ids: [] }
     ]
     permitted << :user_id if current_user.administrador?
 
     params.require(:establishment).permit(*permitted).tap do |whitelisted|
-      # Convertir policies de string vacío a array si es necesario
-      if whitelisted[:policies].is_a?(String) && whitelisted[:policies].blank?
+      # Manejar el campo policies (que es JSON en la BD)
+      if whitelisted[:policies].present?
+        if whitelisted[:policies].is_a?(String)
+          # Si viene como string, convertir a array dividiendo por saltos de línea
+          policies_text = whitelisted[:policies].strip
+          if policies_text.present?
+            whitelisted[:policies] = policies_text.split("\n").map(&:strip).reject(&:blank?)
+          else
+            whitelisted[:policies] = []
+          end
+        elsif whitelisted[:policies].is_a?(Array)
+          # Si ya es array, limpiar elementos vacíos
+          whitelisted[:policies] = whitelisted[:policies].reject(&:blank?)
+        end
+      else
+        # Si no viene o está vacío, establecer como array vacío
         whitelisted[:policies] = []
       end
     end
