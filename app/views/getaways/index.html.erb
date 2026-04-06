@@ -1,29 +1,92 @@
-<h1 class="mb-4">
-  Escapadas en <%= @establishment.name %>
-  <%= link_to 'Nueva Escapada', new_establishment_getaway_path(@establishment), class: 'btn btn-primary float-end' %>
-</h1>
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 60px; height: 60px; background: #e74c3c;">
+      <i class="fas fa-mountain-sun text-white fs-4"></i>
+    </div>
+    <h2 class="fw-bold mb-1">
+      <% if @establishment %>
+        Escapadas en <%= @establishment.name %>
+      <% else %>
+        Escapadas
+      <% end %>
+    </h2>
+    <p class="text-muted mb-0">Descubre lugares increíbles para visitar</p>
+    <% if params[:sub].present? %>
+      <span class="badge rounded-pill mt-2" style="background: #e74c3c;"><%= params[:sub].humanize.titleize %></span>
+    <% end %>
+  </div>
 
-<div class="row">
-  <% if @getaways.any? %>
-    <% @getaways.each do |getaway| %>
-      <div class="col-md-4 mb-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title fw-bold"><%= getaway.subcategory.titleize %></h5>
-            <h6 class="card-subtitle mb-2 text-muted">Precio: <%= number_to_currency(getaway.entry_price) %></h6>
-            <p class="card-text text-truncate"><%= getaway.recommendations %></p>
-            <%= link_to 'Ver más', getaway_path(getaway), class: 'btn btn-outline-primary btn-sm' %>
-            <%= link_to 'Editar', edit_getaway_path(getaway), class: 'btn btn-outline-secondary btn-sm' %>
-            <%= link_to 'Eliminar', getaway_path(getaway), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: 'btn btn-outline-danger btn-sm' %>
+  <% if @establishment %>
+    <div class="d-flex justify-content-end mb-3">
+      <%= link_to new_establishment_getaway_path(@establishment), class: 'btn btn-primary' do %>
+        <i class="fas fa-plus me-1"></i> Nueva Escapada
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <% if @getaways.any? %>
+      <% @getaways.each do |getaway| %>
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm border-0 rounded-3 h-100">
+            <% if getaway.establishment&.images&.attached? %>
+              <%= image_tag getaway.establishment.images.first.variant(resize_to_fill: [400, 200]),
+                  class: "card-img-top rounded-top-3",
+                  style: "height: 150px; object-fit: cover;",
+                  loading: "lazy" %>
+            <% else %>
+              <div class="card-img-top rounded-top-3 d-flex align-items-center justify-content-center" style="height: 150px; background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                <i class="fas fa-mountain-sun text-white fa-3x"></i>
+              </div>
+            <% end %>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge rounded-pill" style="background: #e74c3c;"><%= getaway.subcategory&.humanize&.titleize %></span>
+                <span class="badge bg-success"><%= number_to_currency(getaway.entry_price) %></span>
+              </div>
+              <h5 class="card-title fw-bold"><%= getaway.establishment&.name || "Sin nombre" %></h5>
+              <p class="card-text text-muted small">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                <%= getaway.establishment&.city&.name || "Ubicación no especificada" %>
+              </p>
+              <p class="card-text text-truncate"><%= getaway.recommendations.presence || getaway.establishment&.short_description || "Sin descripción" %></p>
+            </div>
+            <div class="card-footer bg-transparent border-0 d-flex gap-2">
+              <%= link_to getaway_path(getaway), class: 'btn btn-outline-primary btn-sm flex-grow-1' do %>
+                <i class="fas fa-eye me-1"></i> Ver
+              <% end %>
+              <%= link_to edit_getaway_path(getaway), class: 'btn btn-outline-secondary btn-sm' do %>
+                <i class="fas fa-edit"></i>
+              <% end %>
+            </div>
           </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="col-12">
+        <div class="alert alert-info border-0 shadow-sm rounded-3">
+          <i class="fas fa-info-circle me-2"></i>
+          <% if @establishment %>
+            No hay escapadas registradas aún para este establecimiento.
+          <% else %>
+            No hay escapadas registradas aún. ¡Sé el primero en agregar una!
+          <% end %>
         </div>
       </div>
     <% end %>
+  </div>
+
+  <% if @establishment %>
+    <div class="mt-3">
+      <%= link_to establishment_path(@establishment), class: 'btn btn-outline-secondary' do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver al Establecimiento
+      <% end %>
+    </div>
   <% else %>
-    <div class="col-12">
-      <div class="alert alert-info">No hay escapadas registradas aún para este establecimiento.</div>
+    <div class="mt-3">
+      <%= link_to root_path, class: 'btn btn-outline-secondary' do %>
+        <i class="fas fa-home me-1"></i> Volver al Inicio
+      <% end %>
     </div>
   <% end %>
 </div>
-
-<%= link_to 'Volver al Establecimiento', establishment_path(@establishment), class: 'btn btn-secondary mt-3' if @establishment %>

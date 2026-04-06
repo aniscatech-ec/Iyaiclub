@@ -6,7 +6,8 @@ class GetawaysController < ApplicationController
     if @establishment
       @getaways = @establishment.getaways
     else
-      @getaways = Getaway.all
+      @getaways = Getaway.includes(:establishment)
+      @getaways = @getaways.where(subcategory: params[:sub]) if params[:sub].present?
     end
   end
 
@@ -36,9 +37,12 @@ class GetawaysController < ApplicationController
   end
 
   def edit
+    @establishment = @getaway.establishment
+    @establishment.build_legal_info unless @establishment.legal_info
   end
 
   def update
+    @establishment = @getaway.establishment
     if @getaway.update(getaway_params)
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
@@ -63,6 +67,18 @@ class GetawaysController < ApplicationController
   end
 
   def getaway_params
-    params.require(:getaway).permit(:subcategory, :entry_price, :recommendations, :rules, :establishment_id)
+    params.require(:getaway).permit(
+      :subcategory, :entry_price, :recommendations, :rules, :establishment_id,
+      establishment_attributes: [
+        :id, :name, :description, :short_description, :address, :phone, :whatsapp, :email, :website,
+        :country_id, :province_id, :city_id, :latitude, :longitude, :arrival_instructions,
+        :opening_time, :closing_time, :status, :policies, :user_id,
+        { images: [], amenity_ids: [] },
+        legal_info_attributes: [
+          :id, :business_name, :legal_representative, :document_type, :document_number,
+          :contact_email, :contact_phone
+        ]
+      ]
+    )
   end
 end

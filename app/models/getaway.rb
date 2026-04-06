@@ -1,5 +1,6 @@
 class Getaway < ApplicationRecord
   belongs_to :establishment
+  accepts_nested_attributes_for :establishment
 
   enum :subcategory, {
     museo: 0,

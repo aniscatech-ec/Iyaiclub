@@ -1,8 +1,15 @@
-<div class="container mt-4">
-  <h2 class="mb-4">Editar Escapada: <%= @getaway.subcategory.titleize %></h2>
-  <%= render 'form', getaway: @getaway %>
-  <div class="mt-3">
-    <%= link_to 'Volver al detalle', getaway_path(@getaway), class: 'btn btn-info' %>
-    <%= link_to 'Volver a Escapadas', establishment_getaways_path(@getaway.establishment), class: 'btn btn-secondary' %>
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 60px; height: 60px; background: #e74c3c;">
+      <i class="fas fa-mountain-sun text-white fs-4"></i>
+    </div>
+    <h2 class="fw-bold mb-1"><%= @getaway.establishment&.name.presence || "Editar Escapada" %></h2>
+    <p class="text-muted mb-0">Modifica la información de la escapada</p>
+    <div class="d-flex justify-content-center gap-2 mt-2">
+      <span class="badge rounded-pill" style="background: #e74c3c;"><%= @getaway.subcategory&.humanize&.titleize %></span>
+      <span class="badge rounded-pill bg-success"><%= number_to_currency(@getaway.entry_price) %></span>
+    </div>
   </div>
+
+  <%= render "form", getaway: @getaway %>
 </div>

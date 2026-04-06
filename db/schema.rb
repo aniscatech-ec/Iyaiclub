@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_01_100004) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -157,6 +157,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_100004) do
     t.index ["gallery_id"], name: "index_gallery_images_on_gallery_id"
   end
 
+  create_table "getaways", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "subcategory"
+    t.decimal "entry_price", precision: 10, scale: 2
+    t.text "recommendations"
+    t.text "rules"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_getaways_on_establishment_id"
+  end
+
   create_table "hotels", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.integer "stars"
@@ -187,6 +198,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_100004) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["establishment_id"], name: "index_legal_infos_on_establishment_id"
+  end
+
+  create_table "lodgings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "lodging_type", null: false
+    t.decimal "price_per_night", precision: 10, scale: 2, null: false
+    t.time "check_in_time"
+    t.time "check_out_time"
+    t.text "rules"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_lodgings_on_establishment_id"
   end
 
   create_table "menu_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -440,8 +463,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_100004) do
   add_foreign_key "establishments", "users"
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
+  add_foreign_key "getaways", "establishments"
   add_foreign_key "hotels", "establishments"
   add_foreign_key "legal_infos", "establishments"
+  add_foreign_key "lodgings", "establishments"
   add_foreign_key "menu_items", "menus"
   add_foreign_key "menus", "restaurants"
   add_foreign_key "payment_methods", "establishments"

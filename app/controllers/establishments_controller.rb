@@ -227,7 +227,11 @@ class EstablishmentsController < ApplicationController
       redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
 
     when "escapada"
-      redirect_to establishments_path, notice: "Módulo de Escapadas próximamente disponible"
+      user = params[:user_id] ? User.find(params[:user_id]) : current_user
+      est = Establishment.new(user: user, category: :escapada)
+      est.save(validate: false)
+      getaway = Getaway.create(establishment: est, subcategory: :museo, entry_price: 0)
+      redirect_to edit_getaway_path(getaway)
 
     when "asistencia"
       redirect_to establishments_path, notice: "Módulo de Asistencia al Usuario próximamente disponible"

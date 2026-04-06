@@ -44,9 +44,9 @@ module CategoriesHelper
       {
         name: "Escapadas",
         icon: "fa-mountain-sun",
-        path: "#",
+        path: getaways_path,
         color: "#e74c3c",
-        subtypes: nil,
+        subtypes: getaway_subtypes,
         grouped: false
       },
     ]
@@ -102,5 +102,22 @@ module CategoriesHelper
         items: Transport::AQUATIC_SUBCATEGORIES.map { |s| { key: s, label: sub_labels[s] || s.humanize.titleize, path: transports_path(sub: s) } }
       }
     ]
+  end
+
+  def getaway_subtypes
+    sub_labels = {
+      "museo" => "Museos",
+      "parque_mirador" => "Parques y Miradores",
+      "piscina" => "Piscinas",
+      "balneario" => "Balnearios",
+      "centro_recreacional" => "Centros Recreacionales",
+      "parque_extremo" => "Parques Extremos",
+      "senderismo" => "Senderismo",
+      "camping" => "Camping"
+    }
+
+    Getaway.subcategories.keys.map do |key|
+      { key: key, label: sub_labels[key] || key.humanize.titleize, path: getaways_path(sub: key) }
+    end
   end
 end

@@ -1,42 +1,417 @@
-<%= form_with(model: [@establishment, getaway].compact, local: true, class: 'card shadow-sm') do |form| %>
-  <div class="card-body">
-    <% if getaway.errors.any? %>
-      <div class="alert alert-danger">
-        <h5 class="alert-heading"><%= pluralize(getaway.errors.count, "error") %> impidieron guardar la escapada:</h5>
-        <ul class="mb-0">
-          <% getaway.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
+<%= form_with(model: getaway.persisted? ? getaway : [@establishment, getaway], local: true, html: { class: "getaway-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
+  <% if getaway.errors.any? %>
+    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
+      <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+        <strong>Se encontraron <%= getaway.errors.count %> error(es):</strong>
       </div>
+      <ul class="mb-0 ps-3">
+        <% getaway.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        <% if getaway.establishment&.errors&.any? %>
+          <% getaway.establishment.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form.fields_for :establishment do |est| %>
+
+    <!-- ═══════════════ 1. INFORMACIÓN DE LA ESCAPADA ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: #e74c3c;">
+        <i class="fas fa-mountain-sun me-2"></i> 1. Información de la escapada
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <%= est.label :name, "Nombre del lugar", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-signature"></i></span>
+              <%= est.text_field :name, class: "form-control", placeholder: "Nombre público del lugar", required: true %>
+            </div>
+          </div>
+
+          <% if defined?(current_user) && current_user&.administrador? %>
+            <div class="col-md-6">
+              <%= est.label :user_id, "Afiliado responsable", class: "form-label fw-semibold" %>
+              <%= est.collection_select :user_id, User.where(role: :afiliado).order(:name), :id, :email,
+                  { prompt: "Seleccione un afiliado" }, class: "form-select" %>
+            </div>
+          <% end %>
+
+          <div class="col-md-6">
+            <%= form.label :subcategory, "Tipo de escapada", class: "form-label fw-semibold required-field" %>
+            <%= form.select :subcategory,
+                [
+                  ["Museo", "museo"],
+                  ["Parque / Mirador", "parque_mirador"],
+                  ["Piscina", "piscina"],
+                  ["Balneario", "balneario"],
+                  ["Centro Recreacional", "centro_recreacional"],
+                  ["Parque Extremo", "parque_extremo"],
+                  ["Senderismo", "senderismo"],
+                  ["Camping", "camping"]
+                ],
+                { prompt: "Seleccione tipo" },
+                class: "form-select", required: true %>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :entry_price, "Precio de entrada ($)", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+              <%= form.number_field :entry_price, step: 0.01, min: 0, class: "form-control", placeholder: "0.00", required: true %>
+            </div>
+            <small class="text-muted">Ingrese 0 si la entrada es gratuita</small>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :status, "Estado", class: "form-label fw-semibold" %>
+            <%= est.select :status, Establishment.statuses.keys.map { |s| [s.humanize.capitalize, s] },
+                { prompt: "Seleccione estado" }, class: "form-select" %>
+          </div>
+
+          <div class="col-12">
+            <%= est.label :description, "Descripción", class: "form-label fw-semibold" %>
+            <%= est.text_area :description, class: "form-control", rows: 3, placeholder: "Descripción general del lugar" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :short_description, "Descripción corta", class: "form-label fw-semibold" %>
+            <%= est.text_area :short_description, class: "form-control", rows: 2, placeholder: "Resumen breve para listados" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= form.label :recommendations, "Recomendaciones para visitantes", class: "form-label fw-semibold" %>
+            <%= form.text_area :recommendations, class: "form-control", rows: 2, placeholder: "Qué traer, qué esperar, tips..." %>
+          </div>
+
+          <div class="col-12">
+            <%= form.label :rules, "Reglas del lugar", class: "form-label fw-semibold" %>
+            <%= form.text_area :rules, class: "form-control", rows: 2, placeholder: "Restricciones de edad, mascotas, normas de comportamiento..." %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 2. CONTACTO ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+        <i class="fas fa-address-book me-2"></i> 2. Contacto
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= est.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+            </div>
+            <small class="text-muted">Con código de país, sin + ni espacios</small>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :website, "Sitio web", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-globe"></i></span>
+              <%= est.url_field :website, class: "form-control", placeholder: "https://www.ejemplo.com" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 3. UBICACIÓN ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
+        <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <%= est.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-road"></i></span>
+              <%= est.text_field :address, class: "form-control", placeholder: "Calle principal y secundaria", required: true %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <%= est.label :country_id, "País", class: "form-label fw-semibold required-field" %>
+            <%= est.collection_select :country_id, Country.order(:name), :id, :name,
+                { prompt: "Seleccione país" }, class: "form-select", required: true, id: "getaway_country_id" %>
+          </div>
+
+          <div class="col-md-4">
+            <%= est.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
+            <%= est.collection_select :province_id, Province.order(:name), :id, :name,
+                { prompt: "Seleccione provincia" }, class: "form-select", required: true, id: "getaway_province_id" %>
+          </div>
+
+          <div class="col-md-4">
+            <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
+            <%= est.collection_select :city_id, City.order(:name), :id, :name,
+                { prompt: "Seleccione ciudad" }, class: "form-select", required: true, id: "getaway_city_id" %>
+          </div>
+
+          <div class="col-12">
+            <%= est.label :arrival_instructions, "Instrucciones de llegada", class: "form-label fw-semibold" %>
+            <%= est.text_area :arrival_instructions, class: "form-control", rows: 2, placeholder: "Cómo llegar al lugar, referencias..." %>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+              <%= est.number_field :latitude, step: 0.000001, class: "form-control", placeholder: "Ej: -2.897086", required: true %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
+              <%= est.number_field :longitude, step: 0.000001, class: "form-control", placeholder: "Ej: -79.004653", required: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. HORARIOS ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-info text-white fw-bold rounded-top-3">
+        <i class="fas fa-clock me-2"></i> 4. Horarios
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= est.label :opening_time, "Hora de apertura", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+              <%= est.time_field :opening_time, class: "form-control" %>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <%= est.label :closing_time, "Hora de cierre", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed"></i></span>
+              <%= est.time_field :closing_time, class: "form-control" %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <%= est.label :policies, "Políticas del lugar", class: "form-label fw-semibold" %>
+            <%= est.text_area :policies, class: "form-control", rows: 3, placeholder: "Políticas de cancelación, reembolsos, normas generales..." %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. DATOS LEGALES ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+        <i class="fas fa-file-contract me-2"></i> 5. Datos legales
+      </div>
+      <div class="card-body">
+        <%= est.fields_for :legal_info do |li| %>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= li.label :business_name, "Razón social", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= li.select :document_type, [["RUC", "RUC"], ["Cédula", "Cedula"], ["Pasaporte", "Pasaporte"]],
+                  { prompt: "Seleccione" }, class: "form-select", required: true %>
+            </div>
+
+            <div class="col-md-6">
+              <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true %>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "072123456", required: true %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 6. IMÁGENES ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee-black);">
+        <i class="fas fa-images me-2"></i> 6. Imágenes
+      </div>
+      <div class="card-body">
+        <% if getaway.establishment&.images&.attached? %>
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-muted">Imágenes actuales</label>
+            <div class="d-flex flex-wrap gap-2">
+              <% getaway.establishment.images.each do |img| %>
+                <div class="position-relative">
+                  <%= image_tag img.variant(resize_to_limit: [120, 120]),
+                      class: "img-thumbnail rounded shadow-sm",
+                      style: "width: 120px; height: 80px; object-fit: cover;",
+                      loading: "lazy" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          <hr>
+        <% end %>
+        <div class="mb-0">
+          <%= est.label :images, "Subir imágenes", class: "form-label fw-semibold" %>
+          <%= est.file_field :images, multiple: true, class: "form-control",
+              accept: "image/jpeg,image/png,image/webp" %>
+          <small class="text-muted">Puedes seleccionar varias imágenes (JPG, PNG, WEBP)</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 7. COMODIDADES ═══════════════ -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header fw-bold rounded-top-3" style="background: var(--brand-green); color: white;">
+        <i class="fas fa-concierge-bell me-2"></i> 7. Comodidades y servicios
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <% Amenity.with_attached_custom_icon.each do |amenity| %>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="form-check p-3 border rounded-3 h-100 d-flex align-items-center"
+                   style="cursor: pointer; transition: all 0.2s ease;"
+                   onmouseover="this.style.borderColor='var(--brand-green)'; this.style.background='#f0fdf0';"
+                   onmouseout="this.style.borderColor=''; this.style.background='';">
+                <%= check_box_tag "getaway[establishment_attributes][amenity_ids][]", amenity.id,
+                    getaway.establishment&.amenity_ids&.include?(amenity.id),
+                    id: "amenity_#{amenity.id}",
+                    class: "form-check-input me-2 flex-shrink-0" %>
+                <%= label_tag "amenity_#{amenity.id}", amenity.name,
+                    class: "form-check-label w-100",
+                    style: "cursor: pointer;" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+
+  <!-- ═══════════════ BOTONES ═══════════════ -->
+  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+    <button type="submit" class="gradient-btn btn-lg flex-grow-1 order-1 order-sm-1">
+      <i class="fas fa-save me-2"></i> Guardar escapada
+    </button>
+    <%= link_to getaway.persisted? ? getaway_path(getaway) : getaways_path,
+        class: "btn btn-outline-secondary btn-lg flex-grow-0 order-2 order-sm-2" do %>
+      <i class="fas fa-times me-2"></i> Cancelar
     <% end %>
-
-    <% if @establishment %>
-      <%= form.hidden_field :establishment_id, value: @establishment.id %>
-    <% end %>
-
-    <div class="mb-3">
-      <%= form.label :subcategory, "Tipo de Escapada (Subcategoría)", class: "form-label fw-bold" %>
-      <%= form.select :subcategory, Getaway.subcategories.keys.map { |s| [s.titleize, s] }, { include_blank: "Seleccione una categoría" }, class: "form-select" %>
-    </div>
-
-    <div class="mb-3">
-      <%= form.label :entry_price, "Precio de entrada ($)", class: "form-label fw-bold" %>
-      <%= form.number_field :entry_price, step: 0.01, class: "form-control" %>
-    </div>
-
-    <div class="mb-3">
-      <%= form.label :recommendations, "Recomendaciones", class: "form-label fw-bold" %>
-      <%= form.text_area :recommendations, rows: 4, class: "form-control", placeholder: "Qué traer, qué esperar..." %>
-    </div>
-
-    <div class="mb-3">
-      <%= form.label :rules, "Reglas del lugar", class: "form-label fw-bold" %>
-      <%= form.text_area :rules, rows: 4, class: "form-control", placeholder: "Restricciones de edad, mascotas..." %>
-    </div>
-
-    <div class="d-grid mt-4">
-      <%= form.submit "Guardar Escapada", class: "btn btn-primary btn-lg" %>
-    </div>
   </div>
 <% end %>
+
+<script>
+  function initGetawayLocationScript() {
+    const countrySelect = document.getElementById('getaway_country_id');
+    const provinceSelect = document.getElementById('getaway_province_id');
+    const citySelect = document.getElementById('getaway_city_id');
+
+    if (!countrySelect || !provinceSelect || !citySelect) return;
+
+    function loadProvinces(countryId) {
+      if (!countryId) {
+        provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+        citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+        return;
+      }
+
+      fetch(`/locations/provinces/${countryId}`)
+        .then(response => response.json())
+        .then(data => {
+          provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+          data.forEach(province => {
+            provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+          });
+          citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+        })
+        .catch(error => console.error('Error loading provinces:', error));
+    }
+
+    function loadCities(provinceId) {
+      if (!provinceId) {
+        citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+        return;
+      }
+
+      fetch(`/locations/cities/${provinceId}`)
+        .then(response => response.json())
+        .then(data => {
+          citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+          data.forEach(city => {
+            citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+          });
+        })
+        .catch(error => console.error('Error loading cities:', error));
+    }
+
+    countrySelect.addEventListener('change', function() {
+      loadProvinces(this.value);
+    });
+
+    provinceSelect.addEventListener('change', function() {
+      loadCities(this.value);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initGetawayLocationScript);
+  document.addEventListener('turbo:load', initGetawayLocationScript);
+</script>

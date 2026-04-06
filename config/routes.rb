@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :restaurants
   resources :transports
   resources :temporary_lodgings
+  resources :getaways, only: [:index, :show]
 
   # API para ubicaciones dinámicas
   namespace :locations do
