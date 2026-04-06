@@ -1,0 +1,105 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-receipt me-2" style="color: var(--brand-green);"></i>
+      Detalle de Reserva
+    </h3>
+    <%= link_to turista_bookings_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-0">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                 style="width: 60px; height: 60px; background: <%= status_color(@booking.status) %>15;">
+              <i class="fas fa-hotel fa-lg" style="color: <%= status_color(@booking.status) %>;"></i>
+            </div>
+            <div>
+              <h4 class="fw-bold mb-1"><%= @booking.establishment&.name %></h4>
+              <p class="text-muted mb-0">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                <%= @booking.establishment&.address %>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <p class="text-muted small mb-1">Check-in</p>
+              <p class="fw-bold mb-0"><%= @booking.start_date&.strftime("%d/%m/%Y") %></p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted small mb-1">Check-out</p>
+              <p class="fw-bold mb-0"><%= @booking.end_date&.strftime("%d/%m/%Y") %></p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted small mb-1">Noches</p>
+              <p class="fw-bold mb-0"><%= @booking.total_nights %></p>
+            </div>
+            <div class="col-6 col-md-3">
+              <p class="text-muted small mb-1">Huéspedes</p>
+              <p class="fw-bold mb-0"><%= @booking.guest_count %></p>
+            </div>
+          </div>
+          <hr class="my-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <p class="text-muted small mb-1">Unidad</p>
+              <p class="fw-bold mb-0"><%= @booking.unit&.unit_type %></p>
+            </div>
+            <div class="col-12 col-md-6">
+              <p class="text-muted small mb-1">Estado</p>
+              <span class="badge bg-<%= status_badge_class(@booking.status) %> fs-6">
+                <%= @booking.status&.capitalize %>
+              </span>
+            </div>
+          </div>
+          <% if @booking.total_price.present? %>
+            <hr class="my-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted">Total</span>
+              <span class="fw-bold fs-4" style="color: var(--brand-green);">
+                $<%= number_with_precision(@booking.total_price, precision: 2) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-0">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-phone-alt me-2" style="color: var(--brand-orange);"></i>
+            Contacto
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <% if @booking.establishment&.whatsapp.present? %>
+            <a href="https://wa.me/<%= @booking.establishment.whatsapp.gsub(/\D/, '') %>" 
+               target="_blank" 
+               class="btn btn-success w-100 mb-3">
+              <i class="fab fa-whatsapp me-2"></i> Contactar por WhatsApp
+            </a>
+          <% end %>
+          <% if @booking.establishment&.phone.present? %>
+            <a href="tel:<%= @booking.establishment.phone %>" class="btn btn-outline-secondary w-100 mb-3">
+              <i class="fas fa-phone me-2"></i> <%= @booking.establishment.phone %>
+            </a>
+          <% end %>
+          <% if @booking.establishment&.email.present? %>
+            <a href="mailto:<%= @booking.establishment.email %>" class="btn btn-outline-secondary w-100">
+              <i class="fas fa-envelope me-2"></i> Enviar correo
+            </a>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

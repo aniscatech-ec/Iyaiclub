@@ -10,4 +10,19 @@ class User < ApplicationRecord
   belongs_to :country
   belongs_to :city
 
+  has_many :user_points, dependent: :destroy
+  has_many :redemptions, dependent: :destroy
+  has_many :visits, dependent: :destroy
+
+  def total_points
+    user_points.sum(:points_earned) - redemptions.sum(:points_used)
+  end
+
+  def bookings
+    Booking.where(guest_email: email)
+  end
+
+  def active_membership
+    subscriptions.where(status: :active).order(end_date: :desc).first
+  end
 end

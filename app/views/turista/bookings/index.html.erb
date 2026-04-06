@@ -1,0 +1,30 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-calendar-check me-2" style="color: var(--brand-green);"></i>
+      Mis Reservas
+    </h3>
+    <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <% if @bookings.any? %>
+    <div class="row g-3">
+      <% @bookings.each do |booking| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <%= render "turista/shared/booking_card", booking: booking %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+      <h5 class="text-muted">No tienes reservas aún</h5>
+      <p class="text-muted">Explora nuestros establecimientos y realiza tu primera reserva</p>
+      <%= link_to establishments_path, class: "btn btn-primary" do %>
+        <i class="fas fa-search me-1"></i> Explorar establecimientos
+      <% end %>
+    </div>
+  <% end %>
+</div>

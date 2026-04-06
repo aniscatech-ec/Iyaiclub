@@ -1,0 +1,16 @@
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden"
+     style="background: linear-gradient(135deg, var(--brand-orange), #ff6b00);">
+  <div class="card-body p-4 text-white">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <p class="mb-1 opacity-75">Mis puntos</p>
+        <h2 class="fw-bold mb-0"><%= number_with_delimiter(total_points) %></h2>
+        <p class="small mb-0 opacity-75">puntos disponibles</p>
+      </div>
+      <div class="rounded-circle d-flex align-items-center justify-content-center"
+           style="width: 60px; height: 60px; background: rgba(255,255,255,0.2);">
+        <i class="fas fa-star fa-2x"></i>
+      </div>
+    </div>
+  </div>
+</div>

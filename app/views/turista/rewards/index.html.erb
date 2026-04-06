@@ -1,0 +1,43 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-gift me-2" style="color: var(--brand-orange);"></i>
+      Catálogo de Recompensas
+    </h3>
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+        <i class="fas fa-star me-1"></i> <%= number_with_delimiter(@total_points) %> pts disponibles
+      </span>
+      <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <div class="d-flex flex-wrap gap-2">
+      <%= link_to "Todos", turista_rewards_path, 
+          class: "btn btn-sm #{params[:category].blank? ? 'btn-primary' : 'btn-outline-primary'}" %>
+      <% Reward.categories.keys.each do |cat| %>
+        <%= link_to cat.capitalize, turista_rewards_path(category: cat), 
+            class: "btn btn-sm #{params[:category] == cat ? 'btn-primary' : 'btn-outline-primary'}" %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @rewards.any? %>
+    <div class="row g-3">
+      <% @rewards.each do |reward| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <%= render "turista/shared/reward_card", reward: reward, total_points: @total_points %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-gift fa-4x text-muted mb-3"></i>
+      <h5 class="text-muted">No hay recompensas disponibles</h5>
+      <p class="text-muted">Pronto tendremos nuevas recompensas para ti</p>
+    </div>
+  <% end %>
+</div>

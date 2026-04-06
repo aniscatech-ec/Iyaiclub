@@ -1,0 +1,27 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-map-marked-alt me-2" style="color: var(--brand-green);"></i>
+      Lugares Visitados
+    </h3>
+    <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <% if @visits.any? %>
+    <div class="row g-3">
+      <% @visits.each do |visit| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <%= render "turista/shared/visit_card", visit: visit %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-map-marker-alt fa-4x text-muted mb-3"></i>
+      <h5 class="text-muted">No has visitado lugares aún</h5>
+      <p class="text-muted">Tus visitas se registrarán automáticamente al completar reservas</p>
+    </div>
+  <% end %>
+</div>

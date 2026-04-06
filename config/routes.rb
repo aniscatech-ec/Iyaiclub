@@ -77,7 +77,17 @@ Rails.application.routes.draw do
     end
   end
   namespace :turista do
-    get "dashboard/index"
+    resources :dashboard, only: [:index]
+    resources :bookings, only: [:index, :show]
+    resources :visits, only: [:index]
+    resources :points, only: [:index]
+    resources :rewards, only: [:index] do
+      member do
+        post :redeem
+      end
+    end
+    resources :redemptions, only: [:index]
+    resources :memberships, only: [:index]
   end
   namespace :afiliado do
     get "dashboard/index"

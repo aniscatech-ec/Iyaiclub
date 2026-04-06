@@ -1,0 +1,29 @@
+<% if membership.present? %>
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden"
+       style="background: linear-gradient(135deg, <%= membership_gradient(membership.plan_type) %>);">
+    <div class="card-body p-4 text-white">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <p class="mb-1 opacity-75">Mi membresía</p>
+          <h4 class="fw-bold mb-1"><%= membership.plan_type&.capitalize %></h4>
+          <p class="small mb-0">
+            <i class="fas fa-calendar-alt me-1"></i>
+            Vence: <%= membership.end_date&.strftime("%d/%m/%Y") %>
+          </p>
+        </div>
+        <div class="rounded-circle d-flex align-items-center justify-content-center"
+             style="width: 60px; height: 60px; background: rgba(255,255,255,0.2);">
+          <i class="fas fa-crown fa-2x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="card border-0 shadow-sm rounded-4 bg-light">
+    <div class="card-body p-4 text-center">
+      <i class="fas fa-crown fa-2x text-muted mb-2"></i>
+      <p class="mb-2">Sin membresía activa</p>
+      <%= link_to "Ver planes", turista_memberships_path, class: "btn btn-sm btn-outline-primary" %>
+    </div>
+  </div>
+<% end %>

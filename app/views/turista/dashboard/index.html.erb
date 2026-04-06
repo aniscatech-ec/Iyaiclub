@@ -40,56 +40,97 @@
     </div>
   </div>
 
+  <!-- ═══════════════ RESUMEN RÁPIDO ═══════════════ -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100" style="background: linear-gradient(135deg, var(--brand-orange), #ff6b00);">
+        <div class="card-body p-3 text-white">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="mb-0 small opacity-75">Mis puntos</p>
+              <h3 class="fw-bold mb-0"><%= number_with_delimiter(@total_points) %></h3>
+            </div>
+            <i class="fas fa-star fa-2x opacity-50"></i>
+          </div>
+          <%= link_to turista_points_path, class: "btn btn-sm btn-light mt-2 w-100" do %>
+            Ver detalle
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100" style="background: linear-gradient(135deg, var(--brand-green), #2a8c00);">
+        <div class="card-body p-3 text-white">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="mb-0 small opacity-75">Reservas</p>
+              <h3 class="fw-bold mb-0"><%= @bookings_count %></h3>
+            </div>
+            <i class="fas fa-calendar-check fa-2x opacity-50"></i>
+          </div>
+          <%= link_to turista_bookings_path, class: "btn btn-sm btn-light mt-2 w-100" do %>
+            Ver todas
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100" style="background: linear-gradient(135deg, var(--brand-cofee), #8B4513);">
+        <div class="card-body p-3 text-white">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="mb-0 small opacity-75">Visitados</p>
+              <h3 class="fw-bold mb-0"><%= @visits_count %></h3>
+            </div>
+            <i class="fas fa-map-marker-alt fa-2x opacity-50"></i>
+          </div>
+          <%= link_to turista_visits_path, class: "btn btn-sm btn-light mt-2 w-100" do %>
+            Ver historial
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100" style="background: linear-gradient(135deg, <%= @active_membership ? '#FFD700' : '#6c757d' %>, <%= @active_membership ? '#FFA500' : '#495057' %>);">
+        <div class="card-body p-3 text-white">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <p class="mb-0 small opacity-75">Membresía</p>
+              <h5 class="fw-bold mb-0"><%= @active_membership&.plan_type&.capitalize || 'Sin plan' %></h5>
+            </div>
+            <i class="fas fa-crown fa-2x opacity-50"></i>
+          </div>
+          <%= link_to turista_memberships_path, class: "btn btn-sm btn-light mt-2 w-100" do %>
+            Ver planes
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════ MIS PRÓXIMAS RESERVAS ═══════════════ -->
   <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="fw-bold mb-0"><i class="fas fa-calendar-check me-2" style="color: var(--brand-green);"></i> Mis próximas reservas</h4>
-      <a href="#" class="text-decoration-none fw-semibold" style="color: var(--brand-green);">
+      <%= link_to turista_bookings_path, class: "text-decoration-none fw-semibold", style: "color: var(--brand-green);" do %>
         Ver todas <i class="fas fa-arrow-right ms-1"></i>
-      </a>
+      <% end %>
     </div>
     <div class="row g-3">
-      <% reservas = [
-        { nombre: "Hotel Costa Azul", tipo: "Hotel", ciudad: "Cuenca", checkin: "12/08/2025", checkout: "15/08/2025", estado: "Confirmada", color_estado: "success", icon: "fa-hotel", color: "var(--brand-green)" },
-        { nombre: "Domos Cuenca Glamping", tipo: "Glamping", ciudad: "Cuenca", checkin: "20/09/2025", checkout: "22/09/2025", estado: "Pendiente", color_estado: "warning", icon: "fa-campground", color: "var(--brand-cofee)" }
-      ] %>
-      <% reservas.each do |r| %>
-        <div class="col-12 col-md-6">
-          <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100"
-               style="transition: all 0.3s ease;"
-               onmouseover="this.style.transform='translateY(-3px)';"
-               onmouseout="this.style.transform='';">
-            <div class="card-body p-0">
-              <div class="row g-0">
-                <div class="col-4 d-flex align-items-center justify-content-center"
-                     style="background: linear-gradient(135deg, <%= r[:color] %>, <%= r[:color] %>dd); min-height: 140px;">
-                  <i class="fas <%= r[:icon] %> text-white" style="font-size: 2.5rem; opacity: 0.8;"></i>
-                </div>
-                <div class="col-8 p-3">
-                  <div class="d-flex justify-content-between align-items-start mb-1">
-                    <h6 class="fw-bold mb-0"><%= r[:nombre] %></h6>
-                    <span class="badge bg-<%= r[:color_estado] %> rounded-pill" style="font-size: 0.7rem;"><%= r[:estado] %></span>
-                  </div>
-                  <small class="text-muted d-block mb-2">
-                    <i class="fas fa-map-marker-alt me-1" style="color: var(--brand-orange);"></i> <%= r[:ciudad] %>
-                    <span class="badge rounded-pill ms-1" style="background: <%= r[:color] %>; font-size: 0.6rem;"><%= r[:tipo] %></span>
-                  </small>
-                  <div class="d-flex gap-3 mb-2">
-                    <div>
-                      <small class="text-muted d-block" style="font-size: 0.7rem;">Check-in</small>
-                      <small class="fw-bold"><i class="fas fa-sign-in-alt me-1" style="color: var(--brand-green);"></i> <%= r[:checkin] %></small>
-                    </div>
-                    <div>
-                      <small class="text-muted d-block" style="font-size: 0.7rem;">Check-out</small>
-                      <small class="fw-bold"><i class="fas fa-sign-out-alt me-1" style="color: var(--brand-orange);"></i> <%= r[:checkout] %></small>
-                    </div>
-                  </div>
-                  <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                    <i class="fas fa-eye me-1"></i> Ver detalles
-                  </a>
-                </div>
-              </div>
-            </div>
+      <% if @recent_bookings.any? %>
+        <% @recent_bookings.each do |booking| %>
+          <div class="col-12 col-md-6">
+            <%= render "turista/shared/booking_card", booking: booking %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="col-12">
+          <div class="card border-0 shadow-sm rounded-3 p-4 text-center">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <p class="text-muted mb-2">No tienes reservas aún</p>
+            <%= link_to establishments_path, class: "btn btn-outline-primary btn-sm" do %>
+              <i class="fas fa-search me-1"></i> Explorar establecimientos
+            <% end %>
           </div>
         </div>
       <% end %>
@@ -141,7 +182,7 @@
     <h4 class="fw-bold mb-3"><i class="fas fa-bolt me-2" style="color: var(--brand-cofee);"></i> Accesos rápidos</h4>
     <div class="row g-3">
       <div class="col-6 col-md-3">
-        <a href="#" class="text-decoration-none">
+        <%= link_to turista_bookings_path, class: "text-decoration-none" do %>
           <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
                style="transition: all 0.3s ease;"
                onmouseover="this.style.transform='translateY(-3px)';"
@@ -151,27 +192,27 @@
               <i class="fas fa-calendar-alt text-white fs-5"></i>
             </div>
             <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Mis reservas</h6>
-            <small class="text-muted">2 activas</small>
+            <small class="text-muted"><%= @bookings_count %> registradas</small>
           </div>
-        </a>
+        <% end %>
       </div>
       <div class="col-6 col-md-3">
-        <a href="#" class="text-decoration-none">
+        <%= link_to turista_rewards_path, class: "text-decoration-none" do %>
           <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
                style="transition: all 0.3s ease;"
                onmouseover="this.style.transform='translateY(-3px)';"
                onmouseout="this.style.transform='';">
             <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
                  style="width: 50px; height: 50px; background: var(--brand-orange); opacity: 0.9;">
-              <i class="fas fa-heart text-white fs-5"></i>
+              <i class="fas fa-gift text-white fs-5"></i>
             </div>
-            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Favoritos</h6>
-            <small class="text-muted">5 guardados</small>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Recompensas</h6>
+            <small class="text-muted">Canjear puntos</small>
           </div>
-        </a>
+        <% end %>
       </div>
       <div class="col-6 col-md-3">
-        <%= link_to subscriptions_path, class: "text-decoration-none" do %>
+        <%= link_to turista_memberships_path, class: "text-decoration-none" do %>
           <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
                style="transition: all 0.3s ease;"
                onmouseover="this.style.transform='translateY(-3px)';"
@@ -186,19 +227,19 @@
         <% end %>
       </div>
       <div class="col-6 col-md-3">
-        <a href="#" class="text-decoration-none">
+        <%= link_to turista_visits_path, class: "text-decoration-none" do %>
           <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
                style="transition: all 0.3s ease;"
                onmouseover="this.style.transform='translateY(-3px)';"
                onmouseout="this.style.transform='';">
             <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
                  style="width: 50px; height: 50px; background: #3498db; opacity: 0.9;">
-              <i class="fas fa-headset text-white fs-5"></i>
+              <i class="fas fa-map-marked-alt text-white fs-5"></i>
             </div>
-            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Soporte</h6>
-            <small class="text-muted">Ayuda 24/7</small>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Visitados</h6>
+            <small class="text-muted"><%= @visits_count %> lugares</small>
           </div>
-        </a>
+        <% end %>
       </div>
     </div>
   </div>

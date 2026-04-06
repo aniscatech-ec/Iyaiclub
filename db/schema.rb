@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_06_103803) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -295,6 +295,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
     t.index ["country_id"], name: "index_provinces_on_country_id"
   end
 
+  create_table "redemptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "reward_id", null: false
+    t.integer "points_used", null: false
+    t.integer "status", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reward_id"], name: "index_redemptions_on_reward_id"
+    t.index ["status"], name: "index_redemptions_on_status"
+    t.index ["user_id"], name: "index_redemptions_on_user_id"
+  end
+
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "unit_id", null: false
     t.bigint "user_id", null: false
@@ -331,6 +343,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
     t.integer "available_tables"
     t.integer "total_capacity"
     t.index ["establishment_id"], name: "index_restaurants_on_establishment_id"
+  end
+
+  create_table "rewards", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "points_required", null: false
+    t.bigint "establishment_id"
+    t.integer "category", default: 0
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_rewards_on_active"
+    t.index ["category"], name: "index_rewards_on_category"
+    t.index ["establishment_id"], name: "index_rewards_on_establishment_id"
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -411,6 +437,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
     t.index ["status"], name: "index_units_on_status"
   end
 
+  create_table "user_points", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "establishment_id", null: false
+    t.integer "points_earned", default: 0, null: false
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_user_points_on_establishment_id"
+    t.index ["user_id", "created_at"], name: "index_user_points_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_user_points_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -451,6 +489,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
     t.index ["establishment_id"], name: "index_verifications_on_establishment_id"
   end
 
+  create_table "visits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "establishment_id", null: false
+    t.datetime "visited_at", null: false
+    t.integer "source", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_visits_on_establishment_id"
+    t.index ["user_id", "establishment_id"], name: "index_visits_on_user_id_and_establishment_id"
+    t.index ["user_id"], name: "index_visits_on_user_id"
+    t.index ["visited_at"], name: "index_visits_on_visited_at"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "booking_requests", "establishments"
@@ -475,17 +526,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_015400) do
   add_foreign_key "plan_prices", "plans"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "redemptions", "rewards"
+  add_foreign_key "redemptions", "users"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"
   add_foreign_key "restaurants", "establishments"
+  add_foreign_key "rewards", "establishments"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "transports", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "hotels", column: "establishment_id"
+  add_foreign_key "user_points", "establishments"
+  add_foreign_key "user_points", "users"
   add_foreign_key "users", "cities"
   add_foreign_key "users", "countries"
   add_foreign_key "vehicles", "transports"
   add_foreign_key "verifications", "establishments"
+  add_foreign_key "visits", "establishments"
+  add_foreign_key "visits", "users"
 end
