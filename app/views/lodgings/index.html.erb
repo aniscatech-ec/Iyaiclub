@@ -1,0 +1,36 @@
+<h1 class="mb-4">
+  Hospedajes en <%= @establishment.name %>
+  <%= link_to 'Nuevo Hospedaje', new_establishment_lodging_path(@establishment), class: 'btn btn-primary float-end' %>
+</h1>
+
+<div class="row">
+  <% if @lodgings.any? %>
+    <% @lodgings.each do |lodging| %>
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title fw-bold text-primary mb-1"><%= lodging.lodging_type.titleize %></h5>
+            <h6 class="card-subtitle mb-3 text-muted">Precio p/noche: <%= number_to_currency(lodging.price_per_night) %></h6>
+            <div class="mb-3 small">
+              <p class="mb-1"><strong>Check-in:</strong> <%= lodging.check_in_time&.strftime("%H:%M") || "N/A" %></p>
+              <p class="mb-1"><strong>Check-out:</strong> <%= lodging.check_out_time&.strftime("%H:%M") || "N/A" %></p>
+            </div>
+            <div class="mt-auto pt-3 border-top">
+              <%= link_to 'Detalles', lodging_path(lodging), class: 'btn btn-outline-primary btn-sm w-100 mb-2' %>
+              <div class="d-flex gap-2">
+                <%= link_to 'Editar', edit_lodging_path(lodging), class: 'btn btn-outline-secondary btn-sm flex-fill' %>
+                <%= link_to 'Eliminar', lodging_path(lodging), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: 'btn btn-outline-danger btn-sm flex-fill' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="col-12">
+      <div class="alert alert-info">No hay hospedajes registrados aún para este establecimiento.</div>
+    </div>
+  <% end %>
+</div>
+
+<%= link_to 'Volver al Establecimiento', establishment_path(@establishment), class: 'btn btn-secondary mt-3' if @establishment %>

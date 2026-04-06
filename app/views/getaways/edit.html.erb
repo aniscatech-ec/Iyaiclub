@@ -1,0 +1,8 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Editar Escapada: <%= @getaway.subcategory.titleize %></h2>
+  <%= render 'form', getaway: @getaway %>
+  <div class="mt-3">
+    <%= link_to 'Volver al detalle', getaway_path(@getaway), class: 'btn btn-info' %>
+    <%= link_to 'Volver a Escapadas', establishment_getaways_path(@getaway.establishment), class: 'btn btn-secondary' %>
+  </div>
+</div>

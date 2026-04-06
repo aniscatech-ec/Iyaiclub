@@ -1,0 +1,7 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Nueva Escapada</h2>
+  <%= render 'form', getaway: @getaway %>
+  <div class="mt-3">
+    <%= link_to 'Volver', establishment_getaways_path(@getaway.establishment || @establishment), class: 'btn btn-secondary' %>
+  </div>
+</div>

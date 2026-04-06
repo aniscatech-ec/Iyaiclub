@@ -1,0 +1,42 @@
+<%= form_with(model: [@establishment, getaway].compact, local: true, class: 'card shadow-sm') do |form| %>
+  <div class="card-body">
+    <% if getaway.errors.any? %>
+      <div class="alert alert-danger">
+        <h5 class="alert-heading"><%= pluralize(getaway.errors.count, "error") %> impidieron guardar la escapada:</h5>
+        <ul class="mb-0">
+          <% getaway.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if @establishment %>
+      <%= form.hidden_field :establishment_id, value: @establishment.id %>
+    <% end %>
+
+    <div class="mb-3">
+      <%= form.label :subcategory, "Tipo de Escapada (Subcategoría)", class: "form-label fw-bold" %>
+      <%= form.select :subcategory, Getaway.subcategories.keys.map { |s| [s.titleize, s] }, { include_blank: "Seleccione una categoría" }, class: "form-select" %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :entry_price, "Precio de entrada ($)", class: "form-label fw-bold" %>
+      <%= form.number_field :entry_price, step: 0.01, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :recommendations, "Recomendaciones", class: "form-label fw-bold" %>
+      <%= form.text_area :recommendations, rows: 4, class: "form-control", placeholder: "Qué traer, qué esperar..." %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :rules, "Reglas del lugar", class: "form-label fw-bold" %>
+      <%= form.text_area :rules, rows: 4, class: "form-control", placeholder: "Restricciones de edad, mascotas..." %>
+    </div>
+
+    <div class="d-grid mt-4">
+      <%= form.submit "Guardar Escapada", class: "btn btn-primary btn-lg" %>
+    </div>
+  </div>
+<% end %>

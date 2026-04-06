@@ -1,0 +1,29 @@
+<h1 class="mb-4">
+  Escapadas en <%= @establishment.name %>
+  <%= link_to 'Nueva Escapada', new_establishment_getaway_path(@establishment), class: 'btn btn-primary float-end' %>
+</h1>
+
+<div class="row">
+  <% if @getaways.any? %>
+    <% @getaways.each do |getaway| %>
+      <div class="col-md-4 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title fw-bold"><%= getaway.subcategory.titleize %></h5>
+            <h6 class="card-subtitle mb-2 text-muted">Precio: <%= number_to_currency(getaway.entry_price) %></h6>
+            <p class="card-text text-truncate"><%= getaway.recommendations %></p>
+            <%= link_to 'Ver más', getaway_path(getaway), class: 'btn btn-outline-primary btn-sm' %>
+            <%= link_to 'Editar', edit_getaway_path(getaway), class: 'btn btn-outline-secondary btn-sm' %>
+            <%= link_to 'Eliminar', getaway_path(getaway), data: { turbo_method: :delete, turbo_confirm: '¿Estás seguro?' }, class: 'btn btn-outline-danger btn-sm' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="col-12">
+      <div class="alert alert-info">No hay escapadas registradas aún para este establecimiento.</div>
+    </div>
+  <% end %>
+</div>
+
+<%= link_to 'Volver al Establecimiento', establishment_path(@establishment), class: 'btn btn-secondary mt-3' if @establishment %>

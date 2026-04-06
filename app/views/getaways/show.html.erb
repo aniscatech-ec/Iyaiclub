@@ -1,0 +1,24 @@
+<div class="container mt-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Detalle de Escapada: <%= @getaway.subcategory.titleize %></h3>
+      <span class="badge bg-light text-dark fs-5"><%= number_to_currency(@getaway.entry_price) %></span>
+    </div>
+    
+    <div class="card-body">
+      <h5 class="fw-bold">Establecimiento:</h5>
+      <p><%= link_to @getaway.establishment.name, establishment_path(@getaway.establishment) %></p>
+
+      <h5 class="fw-bold mt-4">Recomendaciones:</h5>
+      <p class="text-secondary"><%= simple_format(@getaway.recommendations.presence || 'Sin recomendaciones registradas.') %></p>
+
+      <h5 class="fw-bold mt-4">Reglas:</h5>
+      <p class="text-secondary"><%= simple_format(@getaway.rules.presence || 'Sin reglas registradas.') %></p>
+    </div>
+    
+    <div class="card-footer d-flex gap-2">
+      <%= link_to 'Editar', edit_getaway_path(@getaway), class: 'btn btn-warning' %>
+      <%= link_to 'Volver a Escapadas', establishment_getaways_path(@getaway.establishment), class: 'btn btn-secondary' %>
+    </div>
+  </div>
+</div>

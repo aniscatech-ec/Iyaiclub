@@ -39,6 +39,9 @@ class Establishment < ApplicationRecord
     policies || []
   end
 
+  has_many :getaways, dependent: :destroy
+  has_many :lodgings, dependent: :destroy
+
 
 
 

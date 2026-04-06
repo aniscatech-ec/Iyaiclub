@@ -61,6 +61,8 @@ Rails.application.routes.draw do
       post :create_type # crear el establecimiento según el tipo
     end
     resources :establishment_steps
+    resources :getaways, shallow: true
+    resources :lodgings, shallow: true
     member do
       get :dashboard  # /establishments/:id/dashboard
     end
