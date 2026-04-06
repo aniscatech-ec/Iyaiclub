@@ -1,5 +1,14 @@
-<h1>Editar Establecimiento</h1>
+<div class="container py-4">
+  <div class="text-center mb-4">
+    <div class="d-inline-flex align-items-center justify-content-center icon-bg rounded-circle mb-3" style="width: 60px; height: 60px;">
+      <i class="fas fa-pen-to-square text-white fs-4"></i>
+    </div>
+    <h2 class="fw-bold mb-1"><%= @establishment.name.presence || "Editar Establecimiento" %></h2>
+    <p class="text-muted mb-0">Modifica la información de tu establecimiento</p>
+    <% if @establishment.category.present? %>
+      <span class="badge rounded-pill mt-2" style="background: var(--brand-green);"><%= @establishment.category.titleize %></span>
+    <% end %>
+  </div>
 
-<%= render 'form', establishment: @establishment %>
-
-<%= link_to "Volver", establishment_path(@establishment), class: "btn btn-secondary mt-3" %>
+  <%= render 'form', establishment: @establishment %>
+</div>

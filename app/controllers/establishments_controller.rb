@@ -196,7 +196,8 @@ class EstablishmentsController < ApplicationController
     when "hotel"
       # hotel = Hotel.new(user: current_user)
       # Crear un establishment vacío
-      est = Establishment.create(user: current_user, category: :hotel)
+      user = params[:user_id] ? User.find(params[:user_id]) : current_user
+      est = Establishment.create(user: user, category: :hotel)
 
       # Crear el hotel vinculado
       hotel = Hotel.create(establishment: est)
@@ -206,15 +207,21 @@ class EstablishmentsController < ApplicationController
 
     when "restaurante"
       # est = Establishment.create(user: current_user, category: :restaurante)
+      user = params[:user_id] ? User.find(params[:user_id]) : current_user
+      # Crear el establishment vacío
+      est = Establishment.create(user: user, category: :restaurante)
 
-      # Crear el hotel vinculado
-      # restaurant = Restaurant.create(establishment: est)
-      # restaurant.save
-      # redirect_to edit_restaurant_path(restaurant) and return
-      redirect_to new_restaurant_path and return
+      # Crear el restaurante vinculado
+      restaurant = Restaurant.create(establishment: est)
+      restaurant.save
+
+      redirect_to edit_restaurant_path(restaurant) and return
 
     when "transporte"
-      redirect_to establishments_path, notice: "Módulo de Transporte próximamente disponible"
+      redirect_to new_transport_path(user_id: params[:user_id]) and return
+
+    when "alojamiento_temporal"
+      redirect_to new_temporary_lodging_path(user_id: params[:user_id]) and return
 
     when "agencia"
       redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
@@ -243,46 +250,62 @@ class EstablishmentsController < ApplicationController
   end
 
   def establishment_params
-    allowed = [
-      :name, :description, :category, :address, :city, :country,
-      :phone, :email, :website, :check_in_time, :check_out_time,
-      :price_per_night, :total_rooms, :available_rooms, :latitude,
-      :longitude, :rating, :policies,
-      { images: [] }, # para subir múltiples imágenes
-      amenity_ids: [] # para asignar amenities (array de ids)
+    permitted = [
+      :name,
+      :description,
+      :short_description,
+      :long_description,
+      :category,
+      :status,
+      :whatsapp,
+      :opening_time,
+      :closing_time,
+      :address,
+      :phone,
+      :email,
+      :website,
+      :city_id,
+      :province_id,
+      :country_id,
+      :latitude,
+      :longitude,
+      :arrival_instructions,
+      :service_fee,
+      :max_discount,
+      :refund_policy,
+      :check_in_time,
+      :check_out_time,
+      :price_per_night,
+      :total_rooms,
+      :available_rooms,
+      :video,
+      :video_url,
+      :rating,
+      :policies,
+      { images: [], amenity_ids: [] }
     ]
-    allowed << :user_id if current_user.administrador?
+    permitted << :user_id if current_user.administrador?
 
-    # params.require(:establishment).permit(*allowed)
-    params.require(:establishment).permit(:name, :description, :category, :city_id)
-
-    params.require(:establishment).permit(:name,
-                                          :short_description,
-                                          :long_description,
-                                          :category,
-                                          :status,
-                                          :whatsapp,
-                                          :opening_time,
-                                          :closing_time,
-                                          :amenities,
-                                          :address,
-                                          :city_id,
-                                          :province_id,
-                                          :country_id,
-                                          :latitude,
-                                          :longitude,
-                                          :arrival_instructions,
-                                          :currency,
-                                          :service_fee,
-                                          :max_discount,
-                                          :refund_policy,
-                                          :check_in_time,
-                                          :check_out_time,
-                                          :video,
-                                          :video_url,
-                                          policies: [],
-                                          amenity_ids: [])
-
+    params.require(:establishment).permit(*permitted).tap do |whitelisted|
+      # Manejar el campo policies (que es JSON en la BD)
+      if whitelisted[:policies].present?
+        if whitelisted[:policies].is_a?(String)
+          # Si viene como string, convertir a array dividiendo por saltos de línea
+          policies_text = whitelisted[:policies].strip
+          if policies_text.present?
+            whitelisted[:policies] = policies_text.split("\n").map(&:strip).reject(&:blank?)
+          else
+            whitelisted[:policies] = []
+          end
+        elsif whitelisted[:policies].is_a?(Array)
+          # Si ya es array, limpiar elementos vacíos
+          whitelisted[:policies] = whitelisted[:policies].reject(&:blank?)
+        end
+      else
+        # Si no viene o está vacío, establecer como array vacío
+        whitelisted[:policies] = []
+      end
+    end
   end
 
 end

@@ -1,111 +1,343 @@
-<%= form_with(model: restaurant, local: true, data: { controller: "gallery", action: "submit->gallery#submitForm",
+<%= form_with(model: restaurant, local: true, data: { controller: "form-validation gallery", action: "submit->gallery#submitForm",
                                                       model: "restaurant" }) do |f| %>
-  <%= f.fields_for :establishment do |e| %>
-    <div class="card mb-4">
-      <div class="card-header fw-bold">1. Datos legales y contacto</div>
-      <div class="card-body">
-        <%= e.fields_for :legal_info do |l| %>
-          <div class="mb-3">
-            <%= l.label :business_name, "Razón social / nombre comercial" %>
-            <%= l.text_field :business_name, class: "form-control" %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :document_number, "RUC / identificación fiscal" %>
-            <%= l.text_field :document_number, class: "form-control" %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
-            <%= l.text_field :legal_representative, class: "form-control" %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :contact_email, "Email de contacto" %>
-            <%= l.email_field :contact_email, class: "form-control" %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :contact_phone, "Teléfono de contacto" %>
-            <%= l.telephone_field :contact_phone, class: "form-control" %>
-          </div>
-        <% end %>
-      </div>
+  <% if restaurant.errors.any? %>
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong><%= pluralize(restaurant.errors.count, "error") %> encontrados:</strong>
+      <ul class="mb-0 mt-2">
+        <% restaurant.errors.full_messages.each { |m| concat(content_tag(:li, m)) } %>
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% end %>
 
-  <div class="card mb-4">
-    <div class="card-header fw-bold">2. Perfil del restaurante</div>
-    <div class="card-body">
-      <div class="mb-3">
-        <%= f.fields_for :establishment do |e| %>
-          <%= e.label :name, "Nombre público del restaurante" %>
-          <%= e.text_field :name, class: "form-control" %>
-        <% end %>
-      </div>
+  <%= f.fields_for :establishment do |e| %>
 
-      <div class="mb-3">
-        <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label" %>
-        <%= f.select :cuisine_type, options_for_select(Restaurant::CUISINE_TYPES.map{|c| [c.capitalize, c]}, restaurant.cuisine_type),
-                     { include_blank: "Seleccione tipo de cocina" },
-                     class: "form-select" %>
+    <!-- ═══════════════ 1. DATOS LEGALES ═══════════════ -->
+    <%= e.fields_for :legal_info do |l| %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> 1. Datos legales y contacto</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= l.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true %>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= l.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= l.email_field :contact_email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999", required: true %>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+    <% end %>
 
-      <div class="mb-3">
-        <%= f.label :category, "Categoría del restaurante" %>
-        <%= f.select :category, options_for_select(Restaurant::CATEGORIES.map{|c| [c.capitalize, c]}, restaurant.category),
-                     { include_blank: "Seleccione categoría" },
-                     class: "form-select" %>
+    <!-- ═══════════════ 2. PERFIL DEL RESTAURANTE ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-utensils me-2"></i> 2. Perfil del restaurante</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :name, "Nombre público del restaurante", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-store"></i></span>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :cuisine_type, "Tipo de cocina", class: "form-label fw-semibold required-field" %>
+            <%= f.select :cuisine_type, options_for_select(Restaurant::CUISINE_TYPES.map{|c| [c.capitalize, c]}, restaurant.cuisine_type),
+                         { include_blank: "Seleccione tipo" },
+                         class: "form-select", required: true %>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :category, "Categoría", class: "form-label fw-semibold required-field" %>
+            <%= f.select :category, options_for_select(Restaurant::CATEGORIES.map{|c| [c.capitalize, c]}, restaurant.category),
+                         { include_blank: "Seleccione categoría" },
+                         class: "form-select", required: true %>
+          </div>
+          <div class="col-12">
+            <%= e.label :short_description, "Descripción del restaurante", class: "form-label fw-semibold required-field" %>
+            <%= e.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripción del restaurante y su oferta", required: true %>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card mb-4" data-controller="nested-form">
-    <div class="card-header fw-bold">3. Menús del Restaurante (Máximo 5)</div>
-    <div class="card-body">
+    <!-- ═══════════════ 3. CAPACIDAD ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-chair me-2"></i> 3. Capacidad</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <%= f.label :total_tables, "Total de mesas", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-utensils"></i></span>
+              <%= f.number_field :total_tables, class: "form-control", min: 0, placeholder: "Ej: 15" %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :seats_per_table, "Personas por mesa", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+              <%= f.number_field :seats_per_table, class: "form-control", min: 0, placeholder: "Ej: 4" %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :available_tables, "Mesas disponibles", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
+              <%= f.number_field :available_tables, class: "form-control", min: 0, placeholder: "Ej: 10" %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :total_capacity, "Aforo total", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-users"></i></span>
+              <%= f.number_field :total_capacity, class: "form-control", min: 0, placeholder: "Ej: 60" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. CONTACTO ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 4. Contacto y ubicación</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+              <%= e.text_field :address, class: "form-control", placeholder: "Dirección del restaurante", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :arrival_instructions, "Cómo llegar / referencias", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-route"></i></span>
+              <%= e.text_field :arrival_instructions, class: "form-control", placeholder: "Referencias para llegar" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+            </div>
+            <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :email, "Correo electronico", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :country_id, "País", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :country_id, Country.order(:name), :id, :name, { include_blank: "Seleccione país" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :province_id, Province.order(:name), :id, :name, { include_blank: "Seleccione provincia" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :city_id, City.order(:name), :id, :name, { include_blank: "Seleccione ciudad" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :latitude, class: "form-control", placeholder: "Ej: -2.897095", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :longitude, class: "form-control", placeholder: "Ej: -79.004536", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :video_url, "URL de video (YouTube)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-youtube" style="color: #e74c3c;"></i></span>
+              <%= e.text_field :video_url, class: "form-control", placeholder: "https://youtube.com/watch?v=..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. HORARIOS ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> 5. Horarios de atención</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :check_in_time, "Hora de apertura", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open" style="color: var(--brand-green);"></i></span>
+              <%= e.time_field :check_in_time, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :check_out_time, "Hora de cierre", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed" style="color: var(--brand-orange);"></i></span>
+              <%= e.time_field :check_out_time, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 6. COMODIDADES ═══════════════ -->
+    <% if Amenity.any? %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 5. Comodidades y servicios</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-2">
+            <% Amenity.order(:name).each do |amenity| %>
+              <div class="col-6 col-md-4 col-lg-3">
+                <div class="form-check">
+                  <%= check_box_tag "establishment[amenity_ids][]", amenity.id, e.object.amenity_ids.include?(amenity.id), class: "form-check-input", id: "amenity_#{amenity.id}" %>
+                  <label class="form-check-label" for="amenity_<%= amenity.id %>"><%= amenity.name %></label>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <%= hidden_field_tag "establishment[amenity_ids][]", "" %>
+        </div>
+      </div>
+    <% end %>
+
+  <% end %>
+
+  <!-- ═══════════════ 7. MENÚS ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4" data-controller="nested-form">
+    <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #e67e22, #d35400); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-book-open me-2"></i> 7. Menús del restaurante <small class="opacity-75">(máx. 5)</small></h5>
+      <button type="button" class="btn btn-sm btn-light fw-semibold rounded-pill px-3" data-action="click->nested-form#add">
+        <i class="fas fa-plus me-1"></i> Añadir menú
+      </button>
+    </div>
+    <div class="card-body p-4">
       <template data-nested-form-target="template">
-        <div class="nested-fields border p-3 mb-3 bg-light" data-new-record="true">
+        <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #fff8f0;" data-new-record="true">
           <%= f.fields_for :menus, Menu.new, child_index: 'NEW_RECORD' do |m_fields| %>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="mb-0">Nuevo Menú</h5>
-              <button type="button" class="btn btn-sm btn-danger" data-action="click->nested-form#remove">Eliminar Menú</button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0 fw-bold"><i class="fas fa-clipboard-list me-2" style="color: var(--brand-orange);"></i> Nuevo Menú</h6>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
             </div>
             <%= m_fields.hidden_field :_destroy %>
             <div class="mb-3">
-              <%= m_fields.label :name, "Nombre del menú (ej. Menú Desayuno)", class: "form-label" %>
-              <%= m_fields.text_field :name, class: "form-control", required: true %>
+              <%= m_fields.label :name, "Nombre del menú (ej. Menú Desayuno)", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <%= m_fields.text_field :name, class: "form-control", required: true, placeholder: "Nombre del menú" %>
+              </div>
             </div>
 
-            <div class="mt-4 ms-4" data-controller="nested-form">
-              <h6>Platos de este menú</h6>
+            <div class="mt-3 ms-3 ps-3" style="border-left: 3px solid var(--brand-orange);" data-controller="nested-form">
+              <h6 class="fw-semibold text-muted mb-3"><i class="fas fa-drumstick-bite me-1"></i> Platos de este menú</h6>
               <div data-nested-form-target="target"></div>
-              
+
               <template data-nested-form-target="template">
-                <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="true">
+                <div class="nested-fields rounded-3 p-3 mb-2" style="background: white; border: 1px solid #eee;" data-new-record="true">
                   <%= m_fields.fields_for :menu_items, MenuItem.new, child_index: 'NEW_RECORD' do |mi_fields| %>
                     <div class="d-flex justify-content-end mb-2">
-                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                        <i class="fas fa-times me-1"></i> Quitar
+                      </button>
                     </div>
                     <%= mi_fields.hidden_field :_destroy %>
-                    <div class="row">
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
-                        <%= mi_fields.text_field :name, class: "form-control", required: true %>
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label fw-semibold" %>
+                        <%= mi_fields.text_field :name, class: "form-control", required: true, placeholder: "Ej: Ceviche de camarón" %>
                       </div>
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
-                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      <div class="col-md-6">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                          <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true, placeholder: "0.00" %>
+                        </div>
                       </div>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
-                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
-                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                      <div class="col-12">
+                        <%= mi_fields.label :description, "Descripción", class: "form-label fw-semibold" %>
+                        <%= mi_fields.text_area :description, rows: 2, class: "form-control", placeholder: "Ingredientes, preparación..." %>
+                      </div>
+                      <div class="col-12">
+                        <%= mi_fields.label :photo, "Foto (URL)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-camera"></i></span>
+                          <%= mi_fields.text_field :photo, class: "form-control", placeholder: "URL de la imagen del plato" %>
+                        </div>
+                      </div>
                     </div>
                   <% end %>
                 </div>
               </template>
-              
-              <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="click->nested-form#add">+ Añadir Plato</button>
+
+              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mt-2" data-action="click->nested-form#add">
+                <i class="fas fa-plus me-1"></i> Añadir plato
+              </button>
             </div>
           <% end %>
         </div>
@@ -113,97 +345,304 @@
 
       <div data-nested-form-target="target">
         <%= f.fields_for :menus do |m_fields| %>
-          <div class="nested-fields border p-3 mb-3 bg-light" data-new-record="<%= m_fields.object.new_record? %>">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="mb-0">Menú: <%= m_fields.object.name %></h5>
-              <button type="button" class="btn btn-sm btn-danger" data-action="click->nested-form#remove">Eliminar Menú</button>
+          <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #fff8f0;" data-new-record="<%= m_fields.object.new_record? %>">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0 fw-bold"><i class="fas fa-clipboard-list me-2" style="color: var(--brand-orange);"></i> Menú: <%= m_fields.object.name %></h6>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
             </div>
             <%= m_fields.hidden_field :_destroy %>
             <div class="mb-3">
-              <%= m_fields.label :name, "Nombre del menú", class: "form-label" %>
-              <%= m_fields.text_field :name, class: "form-control", required: true %>
+              <%= m_fields.label :name, "Nombre del menú", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <%= m_fields.text_field :name, class: "form-control", required: true %>
+              </div>
             </div>
 
-            <div class="mt-4 ms-4" data-controller="nested-form">
-              <h6>Platos de este menú</h6>
+            <div class="mt-3 ms-3 ps-3" style="border-left: 3px solid var(--brand-orange);" data-controller="nested-form">
+              <h6 class="fw-semibold text-muted mb-3"><i class="fas fa-drumstick-bite me-1"></i> Platos de este menú</h6>
               <div data-nested-form-target="target">
                 <%= m_fields.fields_for :menu_items do |mi_fields| %>
-                  <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="<%= mi_fields.object.new_record? %>">
+                  <div class="nested-fields rounded-3 p-3 mb-2" style="background: white; border: 1px solid #eee;" data-new-record="<%= mi_fields.object.new_record? %>">
                     <div class="d-flex justify-content-end mb-2">
-                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                        <i class="fas fa-times me-1"></i> Quitar
+                      </button>
                     </div>
                     <%= mi_fields.hidden_field :_destroy %>
-                    <div class="row">
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label fw-semibold" %>
                         <%= mi_fields.text_field :name, class: "form-control", required: true %>
                       </div>
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
-                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      <div class="col-md-6">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                          <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                        </div>
                       </div>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
-                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
-                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                      <div class="col-12">
+                        <%= mi_fields.label :description, "Descripción", class: "form-label fw-semibold" %>
+                        <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
+                      </div>
+                      <div class="col-12">
+                        <%= mi_fields.label :photo, "Foto (URL)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-camera"></i></span>
+                          <%= mi_fields.text_field :photo, class: "form-control" %>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 <% end %>
               </div>
-              
+
               <template data-nested-form-target="template">
-                <div class="nested-fields border-start border-3 border-primary p-3 mb-2 bg-white" data-new-record="true">
+                <div class="nested-fields rounded-3 p-3 mb-2" style="background: white; border: 1px solid #eee;" data-new-record="true">
                   <%= m_fields.fields_for :menu_items, MenuItem.new, child_index: 'NEW_RECORD' do |mi_fields| %>
                     <div class="d-flex justify-content-end mb-2">
-                      <button type="button" class="btn btn-sm btn-outline-danger" data-action="click->nested-form#remove">Quitar Plato</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                        <i class="fas fa-times me-1"></i> Quitar
+                      </button>
                     </div>
                     <%= mi_fields.hidden_field :_destroy %>
-                    <div class="row">
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label" %>
-                        <%= mi_fields.text_field :name, class: "form-control", required: true %>
+                    <div class="row g-2">
+                      <div class="col-md-6">
+                        <%= mi_fields.label :name, "Nombre del plato", class: "form-label fw-semibold" %>
+                        <%= mi_fields.text_field :name, class: "form-control", required: true, placeholder: "Ej: Ceviche de camarón" %>
                       </div>
-                      <div class="col-md-6 mb-2">
-                        <%= mi_fields.label :price, "Precio ($)", class: "form-label" %>
-                        <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true %>
+                      <div class="col-md-6">
+                        <%= mi_fields.label :price, "Precio ($)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                          <%= mi_fields.number_field :price, step: 0.01, class: "form-control", required: true, placeholder: "0.00" %>
+                        </div>
                       </div>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :description, "Descripción", class: "form-label" %>
-                      <%= mi_fields.text_area :description, rows: 2, class: "form-control" %>
-                    </div>
-                    <div class="mb-2">
-                      <%= mi_fields.label :photo, "Foto (URL/Nombre)", class: "form-label" %>
-                      <%= mi_fields.text_field :photo, class: "form-control" %>
+                      <div class="col-12">
+                        <%= mi_fields.label :description, "Descripción", class: "form-label fw-semibold" %>
+                        <%= mi_fields.text_area :description, rows: 2, class: "form-control", placeholder: "Ingredientes, preparación..." %>
+                      </div>
+                      <div class="col-12">
+                        <%= mi_fields.label :photo, "Foto (URL)", class: "form-label fw-semibold" %>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="fas fa-camera"></i></span>
+                          <%= mi_fields.text_field :photo, class: "form-control", placeholder: "URL de la imagen del plato" %>
+                        </div>
+                      </div>
                     </div>
                   <% end %>
                 </div>
               </template>
-              
-              <button type="button" class="btn btn-sm btn-outline-primary mt-2" data-action="click->nested-form#add">+ Añadir Plato</button>
+
+              <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mt-2" data-action="click->nested-form#add">
+                <i class="fas fa-plus me-1"></i> Añadir plato
+              </button>
             </div>
           </div>
         <% end %>
       </div>
-
-      <button type="button" class="btn btn-primary mt-3" data-action="click->nested-form#add">+ Añadir Menú</button>
-    </div>
-  </div>
-  <!-- Aquí Stimulus inyectará las galerías -->
-  <div id="galleries-container" data-gallery-target="container"></div>
-
-  <div class="card mb-4">
-    <div class="card-header fw-bold">Agregar galería</div>
-    <div class="card-body">
-      <input type="text" data-gallery-target="name" class="form-control mb-2" placeholder="Nombre de la galería">
-      <input type="file" data-gallery-target="files" multiple class="form-control mb-2">
-      <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
     </div>
   </div>
 
-  <%= f.submit "Guardar", class: "btn btn-primary" %>
+  <!-- ═══════════════ 8. GALERÍAS ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 8. Galerías de imágenes</h5>
+    </div>
+    <div class="card-body p-4">
+      <div id="galleries-container" data-gallery-target="container"></div>
+      <div class="border rounded-3 p-3" style="background: #fafafa;">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Nombre de la galería</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-folder-open"></i></span>
+              <input type="text" data-gallery-target="name" class="form-control" placeholder="Ej: Platos, Ambiente, Exterior...">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Imágenes</label>
+            <input type="file" data-gallery-target="files" multiple class="form-control" accept="image/jpeg,image/png,image/webp">
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-primary rounded-pill" data-action="gallery#addGallery">
+              <i class="fas fa-plus me-1"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ BOTONES ═══════════════ -->
+  <div class="d-flex gap-2 mb-4">
+    <%= f.submit "Guardar restaurante", class: "btn btn-primary btn-lg rounded-pill px-4 fw-bold" %>
+    <%= link_to restaurants_path, class: "btn btn-outline-secondary btn-lg rounded-pill px-4" do %>
+      <i class="fas fa-times me-1"></i> Cancelar
+    <% end %>
+  </div>
 <% end %>
+
+<script>
+    // Intentar múltiples eventos para asegurar que el script se ejecute
+    function initLocationScript() {
+        console.log("Inicializando script de ubicación para restaurante");
+        
+        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
+        const countrySelect = document.getElementById('establishment_country_id');
+        const provinceSelect = document.getElementById('establishment_province_id');
+        const citySelect = document.getElementById('establishment_city_id');
+
+        console.log('Elementos encontrados:', { countrySelect, provinceSelect, citySelect });
+
+        // Función para cargar provincias
+        function loadProvinces(countryId) {
+            console.log('Cargando provincias para país:', countryId);
+            
+            if (!countryId) {
+                console.log('No hay país seleccionado');
+                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+
+            fetch(`/locations/provinces/${countryId}`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Provincias recibidas:', data);
+                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                    data.forEach(province => {
+                        provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+                    });
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                })
+                .catch(error => {
+                    console.error('Error loading provinces:', error);
+                    provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>';
+                });
+        }
+
+        // Función para cargar ciudades
+        function loadCities(provinceId) {
+            console.log('Cargando ciudades para provincia:', provinceId);
+            
+            if (!provinceId) {
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+
+            fetch(`/locations/cities/${provinceId}`)
+                .then(response => {
+                    console.log('Cities response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Ciudades recibidas:', data);
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    data.forEach(city => {
+                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading cities:', error);
+                    citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                });
+        }
+
+        // Event listeners
+        if (countrySelect) {
+            console.log('Country select encontrado:', countrySelect);
+            countrySelect.addEventListener('change', function() {
+                console.log('Cambio en país seleccionado:', this.value);
+                loadProvinces(this.value);
+            });
+
+            // Cargar provincias si hay un país preseleccionado
+            if (countrySelect.value) {
+                console.log('País preseleccionado:', countrySelect.value);
+                loadProvinces(countrySelect.value);
+            }
+        } else {
+            console.log('No se encontró el select de país');
+        }
+
+        if (provinceSelect) {
+            console.log('Province select encontrado:', provinceSelect);
+            provinceSelect.addEventListener('change', function() {
+                console.log('Cambio en provincia seleccionada:', this.value);
+                loadCities(this.value);
+            });
+        } else {
+            console.log('No se encontró el select de provincia');
+        }
+    }
+
+    // Múltiples intentos para asegurar que el script se ejecute
+    
+    // Intentar inmediatamente
+    initLocationScript();
+    
+    // Intentar con DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initLocationScript);
+    
+    // Intentar con turbo:load
+    document.addEventListener('turbo:load', initLocationScript);
+    
+    // Intentar después de un pequeño delay
+    setTimeout(initLocationScript, 500);
+
+    // ═══════════════ GALERÍAS (mantener funcionalidad existente) ═══════════════
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('#add-gallery')) {
+            ev.preventDefault();
+            const container = document.getElementById('galleries');
+            const template = document.getElementById('new-gallery-template').innerHTML;
+            const newId = new Date().getTime();
+            container.insertAdjacentHTML('beforeend', template.replace(/NEW_GALLERY/g, newId));
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.add-gallery-image')) {
+            ev.preventDefault();
+            const gallery = ev.target.closest('.gallery-fields');
+            const tpl = gallery.querySelector('.new-gallery-image-template').innerHTML;
+            const newId = new Date().getTime();
+            gallery.querySelector('.gallery-images-list').insertAdjacentHTML('beforeend', tpl.replace(/NEW_IMAGE/g, newId));
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.remove-gallery')) {
+            ev.preventDefault();
+            const gallery = ev.target.closest('.gallery-fields');
+            const destroyInput = gallery.querySelector('.gallery-mark-destroy');
+            if (destroyInput) {
+                destroyInput.value = '1';
+                gallery.style.display = 'none';
+            } else {
+                gallery.remove();
+            }
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.remove-gallery-image')) {
+            ev.preventDefault();
+            const gi = ev.target.closest('.gallery-image');
+            const destroyInput = gi.querySelector('.gallery-image-mark-destroy');
+            if (destroyInput) {
+                destroyInput.value = '1';
+                gi.style.display = 'none';
+            } else {
+                gi.remove();
+            }
+        }
+    });
+</script>

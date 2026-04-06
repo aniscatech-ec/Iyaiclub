@@ -108,6 +108,14 @@
 
         </li>
 
+        <!-- Botón de Asistencia -->
+        <li class="nav-item mx-2">
+          <%= link_to root_path, class: "btn btn-danger btn-sm d-flex align-items-center gap-1", title: "Asistencia de Emergencia" do %>
+            <i class="fas fa-kit-medical"></i>
+            <span class="d-none d-md-inline">Asistencia</span>
+          <% end %>
+        </li>
+
         <% if user_signed_in? %>
         <%else %>
           <li class="nav-item mx-2">
@@ -118,18 +126,30 @@
         <% if user_signed_in? %>
           <% if current_user.administrador? %>
             <li class="nav-item mx-2">
-              <%= link_to current_user.name, admin_dashboard_index_path, class: "nav-link fw-bold"  %>
-
+              <%= link_to admin_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
+                <i class="fas fa-shield-alt"></i> Panel Admin
+              <% end %>
+            </li>
+            <li class="nav-item mx-2 d-flex align-items-center">
+              <span class="nav-link fw-bold mb-0"><i class="fas fa-user-shield me-1"></i><%= current_user.name %></span>
             </li>
           <% elsif current_user.afiliado?%>
             <li class="nav-item mx-2">
-              <%= link_to current_user.name, afiliado_dashboard_index_path, class: "nav-link fw-bold"  %>
-
+              <%= link_to afiliado_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
+                <i class="fas fa-store"></i> Mi Panel
+              <% end %>
+            </li>
+            <li class="nav-item mx-2 d-flex align-items-center">
+              <span class="nav-link fw-bold mb-0"><%= current_user.name %></span>
             </li>
           <% elsif current_user.turista?%>
             <li class="nav-item mx-2">
-              <%= link_to current_user.name, turista_dashboard_index_path, class: "nav-link fw-bold"  %>
-
+              <%= link_to turista_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
+                <i class="fas fa-compass"></i> Mi Panel
+              <% end %>
+            </li>
+            <li class="nav-item mx-2 d-flex align-items-center">
+              <span class="nav-link fw-bold mb-0"><%= current_user.name %></span>
             </li>
           <% end %>
 

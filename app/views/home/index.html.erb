@@ -111,6 +111,7 @@
 <div class="container-fluid py-5" style="background-color: #f2f7f8;">
   <div class="container-fluid text-center">
 
+
     <!-- Título -->
     <h2 class="fw-bold" style="color: #7B3F00;">Explora por Categorías</h2>
     <p style="color: #7B3F00;">Encuentra exactamente lo que buscas para tu próxima aventura</p>
@@ -119,31 +120,11 @@
     <section class="categories py-5">
       <div class="container-fluid ms-2 me-2">
         <div class="row row-cols-1 row-cols-md-6 g-4">
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-building icon"></i>
-              <h5 class="mt-3"><%= link_to  "Hospedajes", hotels_path %></h5></div>
-
-          </div>
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-building icon"></i>
-              <h5 class="mt-3">Alojamientos Temporales</h5></div>
-          </div>
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-bus-front icon"></i>
-              <h5 class="mt-3">Transporte</h5></div>
-          </div>
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-balloon-heart icon"></i>
-              <h5 class="mt-3">Escapadas de Momento</h5></div>
-          </div>
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-geo-alt icon"></i>
-              <h5 class="mt-3">Agencias de Viaje</h5></div>
-          </div>
-          <div class="col-6 col-md-2">
-            <div class="category-card text-center p-4 h-100"><i class="bi bi-building icon"></i>
-              <h5 class="mt-3">Restaurantes</h5></div>
-          </div>
+          <% category_catalog.each do |cat| %>
+            <div class="col-6 col-md-2">
+              <%= render "shared/category_card_with_dropdown", category: cat %>
+            </div>
+          <% end %>
         </div>
       </div>
     </section>

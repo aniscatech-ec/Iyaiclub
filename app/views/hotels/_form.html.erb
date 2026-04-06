@@ -1,241 +1,571 @@
-<%= form_with(model: hotel, local: true, html: { multipart: true }) do |f| %>
+<%= form_with(model: hotel, local: true, html: { multipart: true, data: { controller: "form-validation" } }) do |f| %>
   <% if hotel.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(hotel.errors.count, "error") %> encontrados:</h4>
-      <ul>
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong><%= pluralize(hotel.errors.count, "error") %> encontrados:</strong>
+      <ul class="mb-0 mt-2">
         <% hotel.errors.full_messages.each { |m| concat(content_tag(:li, m)) } %>
       </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   <% end %>
 
-  <!-- Datos del hotel -->
-  <div class="mb-3">
-    <%= f.label :stars %>
-    <%= f.number_field :stars, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= f.label :hotel_type, "Tipo de hotel" %>
-    <%= f.select :hotel_type, hotel_type_options, { include_blank: "Selecciona un tipo" }, class: "form-select" %>
-  </div>
-
   <%= f.fields_for :establishment do |e| %>
-    <div class="mb-3">
-      <%= e.label :name, "Nombre" %>
-      <%= e.text_field :name, class: "form-control" %>
-    </div>
 
-    <div class="mb-3">
-      <%= e.label :short_description, "Descripción corta" %>
-      <%= e.text_area :short_description, rows: 2, class: "form-control" %>
-    </div>
-
-    <div class="mb-3">
-      <%= e.label :long_description, "Descripción larga" %>
-      <%= e.text_area :long_description, rows: 4, class: "form-control" %>
-    </div>
-
-    <!-- Info legal -->
+    <!-- ═══════════════ 1. DATOS LEGALES ═══════════════ -->
     <%= e.fields_for :legal_info do |l| %>
-      <div class="card mb-3">
-        <div class="card-header fw-bold">Información Legal</div>
-        <div class="card-body">
-          <%= l.label :business_name, "Razón social" %>
-          <%= l.text_field :business_name, class: "form-control" %>
-
-          <%= l.label :document_number, "RUC / Documento" %>
-          <%= l.text_field :document_number, class: "form-control" %>
-
-          <%= l.label :legal_representative, "Representante Legal" %>
-          <%= l.text_field :legal_representative, class: "form-control" %>
-
-          <%= l.label :contact_email, "Correo de contacto" %>
-          <%= l.email_field :contact_email, class: "form-control" %>
-
-          <%= l.label :contact_phone, "Teléfono de contacto" %>
-          <%= l.telephone_field :contact_phone, class: "form-control" %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> 1. Datos legales y contacto</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= l.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true %>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= l.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= l.email_field :contact_email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999", required: true %>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     <% end %>
 
-    <!-- ---------- GALERÍAS ---------- -->
-    <div class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Galerías</span>
-        <a href="#" id="add-gallery" class="btn btn-sm btn-primary">Agregar galería</a>
+    <!-- ═══════════════ 2. PERFIL DEL HOTEL ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-hotel me-2"></i> 2. Perfil del hotel</h5>
       </div>
-      <div class="card-body">
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-tag"></i></span>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :hotel_type, "Tipo de hospedaje", class: "form-label fw-semibold required-field" %>
+            <%= f.select :hotel_type, hotel_type_options, { include_blank: "Selecciona un tipo" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-3">
+            <%= f.label :stars, "Estrellas", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-star" style="color: #f1c40f;"></i></span>
+              <%= f.number_field :stars, class: "form-control", min: 1, max: 5, placeholder: "1-5" %>
+            </div>
+          </div>
+          <div class="col-12">
+            <%= e.label :short_description, "Descripción corta", class: "form-label fw-semibold required-field" %>
+            <%= e.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripción para listados y previews", required: true %>
+          </div>
+          <div class="col-12">
+            <%= e.label :long_description, "Descripción detallada", class: "form-label fw-semibold" %>
+            <%= e.text_area :long_description, rows: 4, class: "form-control", placeholder: "Descripción completa del hotel, servicios, etc." %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 3. CAPACIDAD ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> 3. Capacidad</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <%= f.label :total_rooms, "Total de habitaciones", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+              <%= f.number_field :total_rooms, class: "form-control", min: 0, placeholder: "Ej: 20" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= f.label :available_rooms, "Habitaciones disponibles", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed"></i></span>
+              <%= f.number_field :available_rooms, class: "form-control", min: 0, placeholder: "Ej: 15" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= f.label :max_guests, "Capacidad maxima de huespedes", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-users"></i></span>
+              <%= f.number_field :max_guests, class: "form-control", min: 0, placeholder: "Ej: 50" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. CONTACTO ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 4. Contacto y redes</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+              <%= e.text_field :address, class: "form-control", placeholder: "Dirección completa", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :arrival_instructions, "Instrucciones de llegada", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-route"></i></span>
+              <%= e.text_field :arrival_instructions, class: "form-control", placeholder: "Cómo llegar al hotel" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+            </div>
+            <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :email, "Correo electronico", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :website, "Sitio web", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-globe"></i></span>
+              <%= e.url_field :website, class: "form-control", placeholder: "https://www.ejemplo.com" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :video_url, "URL de video (YouTube)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-youtube" style="color: #e74c3c;"></i></span>
+              <%= e.text_field :video_url, class: "form-control", placeholder: "https://youtube.com/watch?v=..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. UBICACIÓN ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 5. Ubicación</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <%= e.label :country_id, "País", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :country_id, Country.order(:name), :id, :name, { include_blank: "Seleccione país" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :province_id, Province.order(:name), :id, :name, { include_blank: "Seleccione provincia" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :city_id, City.order(:name), :id, :name, { include_blank: "Seleccione ciudad" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :latitude, class: "form-control", placeholder: "Ej: -2.897095", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :longitude, class: "form-control", placeholder: "Ej: -79.004536", required: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 6. HORARIOS ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> 6. Horarios de check-in / check-out</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :check_in_time, "Hora de check-in", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-sign-in-alt" style="color: var(--brand-green);"></i></span>
+              <%= e.time_field :check_in_time, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :check_out_time, "Hora de check-out", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-sign-out-alt" style="color: var(--brand-orange);"></i></span>
+              <%= e.time_field :check_out_time, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 7. COMODIDADES ═══════════════ -->
+    <% if Amenity.any? %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 7. Comodidades y servicios</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-2">
+            <% Amenity.order(:name).each do |amenity| %>
+              <div class="col-6 col-md-4 col-lg-3">
+                <div class="form-check">
+                  <%= check_box_tag "establishment[amenity_ids][]", amenity.id, e.object.amenity_ids.include?(amenity.id), class: "form-check-input", id: "amenity_#{amenity.id}" %>
+                  <label class="form-check-label" for="amenity_<%= amenity.id %>"><%= amenity.name %></label>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <%= hidden_field_tag "establishment[amenity_ids][]", "" %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- ═══════════════ 8. GALERÍAS ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 8. Galerías de imágenes</h5>
+        <a href="#" id="add-gallery" class="btn btn-sm btn-light fw-semibold rounded-pill px-3">
+          <i class="fas fa-plus me-1"></i> Agregar galería
+        </a>
+      </div>
+      <div class="card-body p-4">
         <div id="galleries">
           <% e.object.galleries.each do |gallery| %>
             <%= e.fields_for :galleries, gallery do |g| %>
-              <div class="gallery-fields border rounded p-3 mb-3">
+              <div class="gallery-fields border rounded-3 p-3 mb-3" style="background: #fafafa;">
                 <%= g.hidden_field :id %>
                 <%= g.hidden_field :_destroy, value: false, class: "gallery-mark-destroy" %>
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                   <div class="flex-grow-1 me-2">
-                    <%= g.label :name, "Nombre galería" %>
-                    <%= g.text_field :name, class: "form-control" %>
+                    <%= g.label :name, "Nombre de la galería", class: "form-label fw-semibold" %>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-folder-open"></i></span>
+                      <%= g.text_field :name, class: "form-control", placeholder: "Ej: Habitaciones, Exteriores..." %>
+                    </div>
                   </div>
                   <div class="align-self-end">
-                    <a href="#" class="remove-gallery btn btn-sm btn-outline-danger">Eliminar galería</a>
+                    <a href="#" class="remove-gallery btn btn-outline-danger btn-sm rounded-pill">
+                      <i class="fas fa-trash me-1"></i> Eliminar
+                    </a>
                   </div>
                 </div>
 
-                <hr>
-
                 <div class="gallery-images-list">
                   <%= g.fields_for :gallery_images do |gi| %>
-                    <div class="gallery-image mb-2 d-flex align-items-center">
+                    <div class="gallery-image mb-2 d-flex align-items-center p-2 rounded" style="background: white; border: 1px solid #eee;">
                       <%= gi.hidden_field :id %>
                       <%= gi.hidden_field :_destroy, value: false, class: "gallery-image-mark-destroy" %>
 
                       <div class="me-2">
-                        <% if gi.object.file.attached? %>
-                          <%= image_tag gi.object.display_image, style: "max-width:120px; max-height:80px;", class: "img-thumbnail", loading: "lazy" %>
+                        <% if gi.object.file.attached? && gi.object.persisted? %>
+                          <%= image_tag gi.object.display_image, style: "max-width:100px; max-height:70px;", class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
+                        <% elsif gi.object.file.attached? && !gi.object.persisted? %>
+                          <!-- Imagen nueva aún no guardada -->
+                          <div class="text-muted small">Imagen seleccionada</div>
                         <% end %>
                       </div>
 
                       <div class="flex-grow-1">
-                        <%= gi.file_field :file, direct_upload: true, class: "form-control" %>
-                        <div class="form-check form-check-inline">
+                        <%= gi.file_field :file, direct_upload: true, class: "form-control form-control-sm" %>
+                        <div class="form-check form-check-inline mt-1">
                           <%= gi.check_box :_destroy, {}, "1", "0" %>
-                          <%= gi.label :_destroy, "Eliminar imagen", class: "form-check-label ms-1" %>
+                          <%= gi.label :_destroy, "Eliminar", class: "form-check-label ms-1 text-danger small" %>
                         </div>
                       </div>
 
                       <div class="ms-2">
-                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger">Quitar</a>
+                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger rounded-pill">
+                          <i class="fas fa-times"></i>
+                        </a>
                       </div>
                     </div>
                   <% end %>
                 </div>
 
                 <div class="mt-2">
-                  <a href="#" class="add-gallery-image btn btn-sm btn-secondary">Agregar imagen</a>
+                  <a href="#" class="add-gallery-image btn btn-sm btn-outline-secondary rounded-pill">
+                    <i class="fas fa-plus me-1"></i> Agregar imagen
+                  </a>
                 </div>
 
-                <%# plantilla para nueva imagen %>
-                <% image_template = capture do %>
-                  <%= g.fields_for :gallery_images, GalleryImage.new, child_index: 'NEW_IMAGE' do |gi_t| %>
-                    <div class="gallery-image mb-2 d-flex align-items-center">
-                      <%= gi_t.hidden_field :id %>
-                      <%= gi_t.hidden_field :_destroy, value: false, class: "gallery-image-mark-destroy" %>
-                      <div class="flex-grow-1">
-                        <%= gi_t.file_field :file, direct_upload: true, class: "form-control" %>
-                      </div>
-                      <div class="ms-2">
-                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger">Quitar</a>
-                      </div>
-                    </div>
-                  <% end %>
-                <% end %>
-                <div class="new-gallery-image-template" style="display:none;"><%= j image_template %></div>
-              </div>
+                              </div>
             <% end %>
           <% end %>
         </div>
 
-        <%# plantilla para nueva galería %>
-        <% gallery_template = capture do %>
-          <%= e.fields_for :galleries, Gallery.new, child_index: 'NEW_GALLERY' do |g_template| %>
-            <div class="gallery-fields border rounded p-3 mb-3">
-              <%= g_template.hidden_field :id %>
-              <%= g_template.hidden_field :_destroy, value: false, class: "gallery-mark-destroy" %>
-              <div class="d-flex justify-content-between">
-                <div class="flex-grow-1 me-2">
-                  <%= g_template.label :name, "Nombre galería" %>
-                  <%= g_template.text_field :name, class: "form-control" %>
-                </div>
-                <div class="align-self-end">
-                  <a href="#" class="remove-gallery btn btn-sm btn-outline-danger">Eliminar galería</a>
-                </div>
               </div>
-              <hr>
-              <div class="gallery-images-list"></div>
-              <div class="mt-2">
-                <a href="#" class="add-gallery-image btn btn-sm btn-secondary">Agregar imagen</a>
-              </div>
-              <div class="new-gallery-image-template" style="display:none;">
-                <%= j capture {
-                  g_template.fields_for :gallery_images, GalleryImage.new, child_index: 'NEW_IMAGE' do |gi_t|
-                    concat(content_tag(:div, class: "gallery-image mb-2 d-flex align-items-center") do
-                      gi_t.hidden_field(:id) +
-                        gi_t.hidden_field(:_destroy, value: false, class: "gallery-image-mark-destroy") +
-                        content_tag(:div, gi_t.file_field(:file, direct_upload: true, class: "form-control"), class: "flex-grow-1") +
-                        content_tag(:div, link_to("Quitar", "#", class: "remove-gallery-image btn btn-sm btn-outline-danger"), class: "ms-2")
-                    end)
-                  end
-                } %>
-              </div>
-            </div>
-          <% end %>
-        <% end %>
-        <div id="new-gallery-template" style="display:none;"><%= j gallery_template %></div>
-      </div>
     </div>
-    <!-- ---------- FIN GALERÍAS ---------- -->
+
   <% end %>
 
-  <div class="mt-3">
-    <%= f.submit class: "btn btn-success" %>
-    <%= link_to "Cancelar", hotels_path, class: "btn btn-secondary" %>
+  <!-- ═══════════════ BOTONES ═══════════════ -->
+  <div class="d-flex gap-2 mb-4">
+    <%= f.submit "Guardar hotel", class: "btn btn-primary btn-lg rounded-pill px-4 fw-bold" %>
+    <%= link_to hotels_path, class: "btn btn-outline-secondary btn-lg rounded-pill px-4" do %>
+      <i class="fas fa-times me-1"></i> Cancelar
+    <% end %>
   </div>
 <% end %>
 
-<!-- JS para manejar agregar/eliminar -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // agregar galería
-        document.addEventListener('click', function (ev) {
-            if (ev.target.matches('#add-gallery')) {
-                ev.preventDefault();
-                const container = document.getElementById('galleries');
-                const template = document.getElementById('new-gallery-template').innerHTML;
-                const newId = new Date().getTime();
-                container.insertAdjacentHTML('beforeend', template.replace(/NEW_GALLERY/g, newId));
-            }
-        });
+    // Intentar múltiples eventos para asegurar que el script se ejecute
+    function initLocationScript() {
+        console.log("Inicializando script de ubicación");
+        
+        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
+        const countrySelect = document.getElementById('establishment_country_id');
+        const provinceSelect = document.getElementById('establishment_province_id');
+        const citySelect = document.getElementById('establishment_city_id');
 
-        // agregar imagen
-        document.addEventListener('click', function (ev) {
-            if (ev.target.matches('.add-gallery-image')) {
-                ev.preventDefault();
-                const gallery = ev.target.closest('.gallery-fields');
-                const tpl = gallery.querySelector('.new-gallery-image-template').innerHTML;
-                const newId = new Date().getTime();
-                gallery.querySelector('.gallery-images-list').insertAdjacentHTML('beforeend', tpl.replace(/NEW_IMAGE/g, newId));
-            }
-        });
+        console.log('Elementos encontrados:', { countrySelect, provinceSelect, citySelect });
 
-        // eliminar galería
-        document.addEventListener('click', function (ev) {
-            if (ev.target.matches('.remove-gallery')) {
-                ev.preventDefault();
-                const gallery = ev.target.closest('.gallery-fields');
-                const destroyInput = gallery.querySelector('.gallery-mark-destroy');
-                if (destroyInput) {
-                    destroyInput.value = '1';
-                    gallery.style.display = 'none';
-                } else {
-                    gallery.remove();
-                }
+        // Función para cargar provincias
+        function loadProvinces(countryId) {
+            console.log('Cargando provincias para país:', countryId);
+            
+            if (!countryId) {
+                console.log('No hay país seleccionado');
+                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
             }
-        });
 
-        // eliminar imagen
-        document.addEventListener('click', function (ev) {
-            if (ev.target.matches('.remove-gallery-image')) {
-                ev.preventDefault();
-                const gi = ev.target.closest('.gallery-image');
-                const destroyInput = gi.querySelector('.gallery-image-mark-destroy');
-                if (destroyInput) {
-                    destroyInput.value = '1';
-                    gi.style.display = 'none';
-                } else {
-                    gi.remove();
-                }
+            fetch(`/locations/provinces/${countryId}`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Provincias recibidas:', data);
+                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                    data.forEach(province => {
+                        provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+                    });
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                })
+                .catch(error => {
+                    console.error('Error loading provinces:', error);
+                    provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>';
+                });
+        }
+
+        // Función para cargar ciudades
+        function loadCities(provinceId) {
+            console.log('Cargando ciudades para provincia:', provinceId);
+            
+            if (!provinceId) {
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
             }
-        });
+
+            fetch(`/locations/cities/${provinceId}`)
+                .then(response => {
+                    console.log('Cities response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Ciudades recibidas:', data);
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    data.forEach(city => {
+                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading cities:', error);
+                    citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
+                });
+        }
+
+        // Event listeners
+        if (countrySelect) {
+            console.log('Country select encontrado:', countrySelect);
+            countrySelect.addEventListener('change', function() {
+                console.log('Cambio en país seleccionado:', this.value);
+                loadProvinces(this.value);
+            });
+
+            // Cargar provincias si hay un país preseleccionado
+            if (countrySelect.value) {
+                console.log('País preseleccionado:', countrySelect.value);
+                loadProvinces(countrySelect.value);
+            }
+        } else {
+            console.log('No se encontró el select de país');
+        }
+
+        if (provinceSelect) {
+            console.log('Province select encontrado:', provinceSelect);
+            provinceSelect.addEventListener('change', function() {
+                console.log('Cambio en provincia seleccionada:', this.value);
+                loadCities(this.value);
+            });
+        } else {
+            console.log('No se encontró el select de provincia');
+        }
+    }
+
+    // Múltiples intentos para asegurar que el script se ejecute
+    
+    // Intentar inmediatamente
+    initLocationScript();
+    
+    // Intentar con DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', initLocationScript);
+    
+    // Intentar con turbo:load
+    document.addEventListener('turbo:load', initLocationScript);
+    
+    // Intentar después de un pequeño delay
+    setTimeout(initLocationScript, 500);
+
+    // ═══════════════ GALERÍAS (funcionalidad corregida) ═══════════════
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('#add-gallery')) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            
+            const container = document.getElementById('galleries');
+            const newId = new Date().getTime();
+            
+            // Crear HTML directamente para evitar problemas de encoding
+            const newGallery = `
+                <div class="gallery-fields border rounded-3 p-3 mb-3" style="background: #fafafa;">
+                    <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${newId}][id]" id="">
+                    <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${newId}][_destroy]" value="false" class="gallery-mark-destroy">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex-grow-1 me-2">
+                            <label class="form-label fw-semibold">Nombre de la galería</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-folder-open"></i></span>
+                                <input type="text" name="hotel[establishment_attributes][galleries_attributes][${newId}][name]" class="form-control" placeholder="Ej: Habitaciones, Exteriores...">
+                            </div>
+                        </div>
+                        <div class="align-self-end">
+                            <a href="#" class="remove-gallery btn btn-outline-danger btn-sm rounded-pill"><i class="fas fa-trash me-1"></i> Eliminar</a>
+                        </div>
+                    </div>
+                    <div class="gallery-images-list"></div>
+                    <div class="mt-2">
+                        <a href="#" class="add-gallery-image btn btn-sm btn-outline-secondary rounded-pill"><i class="fas fa-plus me-1"></i> Agregar imagen</a>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', newGallery);
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.add-gallery-image')) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            
+            const gallery = ev.target.closest('.gallery-fields');
+            const galleryId = gallery.querySelector('input[name*="[galleries_attributes]["]').name.match(/\[galleries_attributes\]\[(\d+)\]/)[1];
+            const newId = new Date().getTime();
+            
+            // Crear HTML directamente para la imagen - SIN template de imagen interno
+            const newImage = `
+                <div class="gallery-image mb-2 d-flex align-items-center p-2 rounded" style="background: white; border: 1px solid #eee;">
+                    <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][id]" id="">
+                    <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][_destroy]" value="false" class="gallery-image-mark-destroy">
+                    <div class="flex-grow-1">
+                        <input type="file" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][file]" direct_upload="true" class="form-control form-control-sm">
+                    </div>
+                    <div class="ms-2">
+                        <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger rounded-pill"><i class="fas fa-times"></i></a>
+                    </div>
+                </div>
+            `;
+            
+            gallery.querySelector('.gallery-images-list').insertAdjacentHTML('beforeend', newImage);
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.remove-gallery')) {
+            ev.preventDefault();
+            const gallery = ev.target.closest('.gallery-fields');
+            const destroyInput = gallery.querySelector('.gallery-mark-destroy');
+            if (destroyInput) {
+                destroyInput.value = '1';
+                gallery.style.display = 'none';
+            } else {
+                gallery.remove();
+            }
+        }
+    });
+
+    document.addEventListener('click', function (ev) {
+        if (ev.target.matches('.remove-gallery-image')) {
+            ev.preventDefault();
+            const gi = ev.target.closest('.gallery-image');
+            const destroyInput = gi.querySelector('.gallery-image-mark-destroy');
+            if (destroyInput) {
+                destroyInput.value = '1';
+                gi.style.display = 'none';
+            } else {
+                gi.remove();
+            }
+        }
     });
 </script>

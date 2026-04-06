@@ -1,46 +1,217 @@
-<div class="container my-4">
-  <h2 class="mb-4">Bienvenido, <%= current_user.name %> 👋</h2>
+<div class="container-fluid px-3 px-md-4 py-4">
 
-  <!-- Búsqueda rápida -->
-  <div class="mb-4">
-    <form class="d-flex">
-      <input class="form-control me-2" type="search" placeholder="Buscar destinos o establecimientos">
-      <button class="btn btn-primary" type="submit">Buscar</button>
-    </form>
-  </div>
-
-  <!-- Próximas reservas -->
-  <h4>Mis Próximas Reservas</h4>
-  <div class="row g-3">
-    <% 2.times do %>
-      <div class="col-md-6">
-        <div class="card">
-          <img src="https://via.placeholder.com/600x200" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Hotel Costa Azul</h5>
-            <p class="card-text">Check-in: 12/08/2025 - Check-out: 15/08/2025</p>
-            <a href="#" class="btn btn-outline-primary btn-sm">Ver detalles</a>
+  <!-- ═══════════════ HERO / BIENVENIDA ═══════════════ -->
+  <div class="rounded-4 shadow overflow-hidden mb-4"
+       style="background: linear-gradient(135deg, var(--brand-green), #2a8c00); color: white;">
+    <div class="row align-items-center g-0">
+      <div class="col-lg-8 p-4 p-md-5">
+        <h2 class="fw-bold mb-1">
+          ¡Hola, <%= current_user.name %>!
+        </h2>
+        <p class="mb-3 opacity-75 fs-5">Descubre los mejores destinos y experiencias cerca de ti</p>
+        <form action="<%= establishments_path %>" method="get" class="d-flex gap-2" style="max-width: 500px;">
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+            <input type="search" name="search" class="form-control border-0 shadow-none"
+                   placeholder="Buscar destinos, hoteles, restaurantes..." style="font-size: 0.95rem;">
           </div>
-        </div>
+          <button class="btn btn-warning fw-bold px-4 rounded-3" type="submit">
+            <i class="fas fa-search d-md-none"></i>
+            <span class="d-none d-md-inline">Buscar</span>
+          </button>
+        </form>
       </div>
-    <% end %>
+      <div class="col-lg-4 d-none d-lg-block text-center p-4">
+        <i class="fas fa-compass" style="font-size: 6rem; opacity: 0.2;"></i>
+      </div>
+    </div>
   </div>
 
-  <!-- Recomendaciones -->
-  <div class="mt-5">
-    <h4>Recomendaciones para ti</h4>
+  
+  <!-- ═══════════════ CATEGORÍAS RÁPIDAS ═══════════════ -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-3"><i class="fas fa-th-large me-2" style="color: var(--brand-orange);"></i> Explorar por categoría</h4>
     <div class="row g-3">
-      <% ["Playa Dorada", "Montaña Verde", "Tour Gastronómico"].each do |nombre| %>
-        <div class="col-md-4">
-          <div class="card">
-            <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="<%= nombre %>">
-            <div class="card-body">
-              <h5 class="card-title"><%= nombre %></h5>
-              <a href="#" class="btn btn-outline-success btn-sm">Explorar</a>
+      <% category_catalog.each do |cat| %>
+        <div class="col-4 col-md-2">
+          <%= render "shared/category_card_with_dropdown", category: cat %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MIS PRÓXIMAS RESERVAS ═══════════════ -->
+  <div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold mb-0"><i class="fas fa-calendar-check me-2" style="color: var(--brand-green);"></i> Mis próximas reservas</h4>
+      <a href="#" class="text-decoration-none fw-semibold" style="color: var(--brand-green);">
+        Ver todas <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="row g-3">
+      <% reservas = [
+        { nombre: "Hotel Costa Azul", tipo: "Hotel", ciudad: "Cuenca", checkin: "12/08/2025", checkout: "15/08/2025", estado: "Confirmada", color_estado: "success", icon: "fa-hotel", color: "var(--brand-green)" },
+        { nombre: "Domos Cuenca Glamping", tipo: "Glamping", ciudad: "Cuenca", checkin: "20/09/2025", checkout: "22/09/2025", estado: "Pendiente", color_estado: "warning", icon: "fa-campground", color: "var(--brand-cofee)" }
+      ] %>
+      <% reservas.each do |r| %>
+        <div class="col-12 col-md-6">
+          <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100"
+               style="transition: all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='';">
+            <div class="card-body p-0">
+              <div class="row g-0">
+                <div class="col-4 d-flex align-items-center justify-content-center"
+                     style="background: linear-gradient(135deg, <%= r[:color] %>, <%= r[:color] %>dd); min-height: 140px;">
+                  <i class="fas <%= r[:icon] %> text-white" style="font-size: 2.5rem; opacity: 0.8;"></i>
+                </div>
+                <div class="col-8 p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h6 class="fw-bold mb-0"><%= r[:nombre] %></h6>
+                    <span class="badge bg-<%= r[:color_estado] %> rounded-pill" style="font-size: 0.7rem;"><%= r[:estado] %></span>
+                  </div>
+                  <small class="text-muted d-block mb-2">
+                    <i class="fas fa-map-marker-alt me-1" style="color: var(--brand-orange);"></i> <%= r[:ciudad] %>
+                    <span class="badge rounded-pill ms-1" style="background: <%= r[:color] %>; font-size: 0.6rem;"><%= r[:tipo] %></span>
+                  </small>
+                  <div class="d-flex gap-3 mb-2">
+                    <div>
+                      <small class="text-muted d-block" style="font-size: 0.7rem;">Check-in</small>
+                      <small class="fw-bold"><i class="fas fa-sign-in-alt me-1" style="color: var(--brand-green);"></i> <%= r[:checkin] %></small>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block" style="font-size: 0.7rem;">Check-out</small>
+                      <small class="fw-bold"><i class="fas fa-sign-out-alt me-1" style="color: var(--brand-orange);"></i> <%= r[:checkout] %></small>
+                    </div>
+                  </div>
+                  <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <i class="fas fa-eye me-1"></i> Ver detalles
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       <% end %>
     </div>
   </div>
+
+  <!-- ═══════════════ RECOMENDACIONES ═══════════════ -->
+  <div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold mb-0"><i class="fas fa-star me-2" style="color: var(--brand-orange);"></i> Recomendaciones para ti</h4>
+      <%= link_to establishments_path, class: "text-decoration-none fw-semibold", style: "color: var(--brand-green);" do %>
+        Ver todos <i class="fas fa-arrow-right ms-1"></i>
+      <% end %>
+    </div>
+    <div class="row g-3">
+      <% recomendaciones = [
+        { nombre: "Playa Dorada", desc: "Arena blanca y aguas cristalinas", icon: "fa-umbrella-beach", color: "#3498db", badge: "Escapada" },
+        { nombre: "Montaña Verde", desc: "Senderismo y naturaleza pura", icon: "fa-mountain", color: "var(--brand-green)", badge: "Aventura" },
+        { nombre: "Tour Gastronómico", desc: "Sabores auténticos de la región", icon: "fa-utensils", color: "var(--brand-orange)", badge: "Gastronomía" },
+        { nombre: "Ruta del Cacao", desc: "Descubre el origen del chocolate", icon: "fa-seedling", color: "var(--brand-cofee)", badge: "Cultural" },
+        { nombre: "Cajas National Park", desc: "Lagunas y páramos andinos", icon: "fa-water", color: "#2ecc71", badge: "Naturaleza" },
+        { nombre: "City Tour Cuenca", desc: "Patrimonio cultural de la humanidad", icon: "fa-city", color: "var(--brand-cofee-black)", badge: "Turismo" }
+      ] %>
+      <% recomendaciones.each do |r| %>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="#" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 rounded-3 overflow-hidden text-center"
+                 style="transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)';"
+                 onmouseout="this.style.transform=''; this.style.boxShadow='';">
+              <div class="d-flex align-items-center justify-content-center"
+                   style="height: 110px; background: linear-gradient(135deg, <%= r[:color] %>22, <%= r[:color] %>44);">
+                <i class="fas <%= r[:icon] %>" style="font-size: 2.5rem; color: <%= r[:color] %>; opacity: 0.8;"></i>
+              </div>
+              <div class="card-body p-2">
+                <span class="badge rounded-pill mb-1" style="background: <%= r[:color] %>; font-size: 0.6rem;"><%= r[:badge] %></span>
+                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.8rem;"><%= r[:nombre] %></h6>
+                <small class="text-muted" style="font-size: 0.7rem;"><%= r[:desc] %></small>
+              </div>
+            </div>
+          </a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ACCESOS RÁPIDOS ═══════════════ -->
+  <div class="mb-5">
+    <h4 class="fw-bold mb-3"><i class="fas fa-bolt me-2" style="color: var(--brand-cofee);"></i> Accesos rápidos</h4>
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
+               style="transition: all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='';">
+            <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+                 style="width: 50px; height: 50px; background: var(--brand-green); opacity: 0.9;">
+              <i class="fas fa-calendar-alt text-white fs-5"></i>
+            </div>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Mis reservas</h6>
+            <small class="text-muted">2 activas</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
+               style="transition: all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='';">
+            <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+                 style="width: 50px; height: 50px; background: var(--brand-orange); opacity: 0.9;">
+              <i class="fas fa-heart text-white fs-5"></i>
+            </div>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Favoritos</h6>
+            <small class="text-muted">5 guardados</small>
+          </div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <%= link_to subscriptions_path, class: "text-decoration-none" do %>
+          <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
+               style="transition: all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='';">
+            <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+                 style="width: 50px; height: 50px; background: var(--brand-cofee); opacity: 0.9;">
+              <i class="fas fa-crown text-white fs-5"></i>
+            </div>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Mi membresía</h6>
+            <small class="text-muted">Ver planes</small>
+          </div>
+        <% end %>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="#" class="text-decoration-none">
+          <div class="card border-0 shadow-sm rounded-3 p-3 text-center h-100"
+               style="transition: all 0.3s ease;"
+               onmouseover="this.style.transform='translateY(-3px)';"
+               onmouseout="this.style.transform='';">
+            <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+                 style="width: 50px; height: 50px; background: #3498db; opacity: 0.9;">
+              <i class="fas fa-headset text-white fs-5"></i>
+            </div>
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">Soporte</h6>
+            <small class="text-muted">Ayuda 24/7</small>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CTA / EXPLORAR MÁS ═══════════════ -->
+  <div class="rounded-4 shadow p-4 p-md-5 text-center mb-4"
+       style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white;">
+    <i class="fas fa-binoculars fs-1 mb-3 d-block" style="opacity: 0.7;"></i>
+    <h3 class="fw-bold mb-2">Explora todo lo que tenemos para ti</h3>
+    <p class="mb-3 opacity-75">Hoteles, restaurantes, transporte, actividades y mucho más</p>
+    <%= link_to establishments_path, class: "btn btn-light btn-lg fw-bold rounded-pill px-4" do %>
+      <i class="fas fa-compass me-2" style="color: var(--brand-orange);"></i> Explorar catálogo
+    <% end %>
+  </div>
+
 </div>

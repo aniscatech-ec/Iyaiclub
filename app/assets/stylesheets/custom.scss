@@ -89,8 +89,6 @@
   color: #36a30c;
 }
 
-
-
 // 2. Luego tus estilos personalizados
 .my-custom-btn {
   background-color: #ff6678;
@@ -120,9 +118,272 @@
   transform: translateY(-5px);
   border-color: var(--brand-orange);
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  z-index: 10;
 }
 
 .category-card:hover .icon {
   color: var(--brand-orange);
+}
+
+/* ======================================
+   Category Card Dropdown on Hover
+   ====================================== */
+
+.category-card-wrapper {
+  position: relative;
+}
+
+.category-card-wrapper.is-open .category-dropdown {
+  pointer-events: auto;
+}
+
+.category-card-hover {
+  transition: all 0.3s ease;
+}
+
+.category-card-wrapper:hover {
+  z-index: 50;
+}
+
+.category-card-wrapper:hover .category-card-hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.category-card-wrapper:hover .dropdown-chevron {
+  opacity: 1 !important;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.category-card-wrapper:hover .category-dropdown {
+  pointer-events: auto;
+  z-index: 999;
+}
+
+.col {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+
+.dropdown-chevron {
+  transition: transform 0.2s ease;
+}
+
+/* Dropdown panel - hidden by default */
+.category-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  z-index: 9999;
+  padding-top: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  pointer-events: none;
+}
+
+
+.category-dropdown .list-group {
+  border: 1px solid rgba(33, 193, 136, 0.3);
+  background: #fff;
+}
+
+.category-dropdown .list-group-item {
+  border-color: rgba(33, 193, 136, 0.1);
+  transition: background 0.15s ease;
+}
+
+.category-dropdown .list-group-item:hover {
+  background: rgba(33, 193, 136, 0.08);
+}
+
+/* Show dropdown on hover */
+.category-card-wrapper.is-open .category-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Section headers for grouped dropdowns */
+.dropdown-section-header {
+  border-bottom: 1px solid rgba(33, 193, 136, 0.1);
+}
+
+/* Active filter badge */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-badge .remove-filter {
+  color: #fff;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+.filter-badge .remove-filter:hover {
+  opacity: 1;
+}
+
+/* Responsive: full width dropdown on mobile */
+@media (max-width: 767.98px) {
+  .category-dropdown {
+    left: 0;
+    right: 0;
+    transform: none;
+    min-width: unset;
+  }
+}
+
+.category-dropdown {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.category-card-wrapper.is-open .category-dropdown {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* ======================================
+   Emergency Assistance Banner
+   ====================================== */
+.emergency-banner {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(231, 76, 60, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+  }
+
+  .emergency-banner__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .emergency-banner__icon {
+    font-size: 1.5rem;
+    animation: pulse-emergency 2s infinite;
+  }
+
+  .emergency-banner__title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .emergency-banner__subtitle {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .emergency-banner__btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 6px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+  }
+}
+
+@keyframes pulse-emergency {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (max-width: 575.98px) {
+  .emergency-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+    padding: 16px;
+  }
+}
+
+/* ======================================
+   Required Field Indicator
+   ====================================== */
+.required-field::after {
+  content: " *";
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+// ── Toast de validación de formularios ──
+.validation-toast {
+  min-width: 340px;
+  max-width: 450px;
+  border: none;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideInRight 0.35s ease-out;
+
+  .toast-header {
+    border-radius: 0.75rem 0.75rem 0 0;
+    padding: 0.75rem 1rem;
+  }
+
+  .toast-body {
+    padding: 1rem;
+    font-size: 0.9rem;
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+
+      li {
+        padding: 4px 0;
+        color: #c0392b;
+        font-weight: 500;
+
+        &::before {
+          content: "\f071";
+          font-family: "Font Awesome 6 Free";
+          font-weight: 900;
+          margin-right: 8px;
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 

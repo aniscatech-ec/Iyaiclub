@@ -4,7 +4,14 @@ class RestaurantsController < ApplicationController
   layout "dashboard"
 
   def index
-    @restaurants = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    restaurants = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    if params[:type].present? && Restaurant::CATEGORIES.include?(params[:type])
+      restaurants = restaurants.where(category: params[:type])
+    elsif params[:cuisine].present? && Restaurant::CUISINE_TYPES.include?(params[:cuisine])
+      restaurants = restaurants.where(cuisine_type: params[:cuisine])
+    end
+    @restaurants = restaurants
+    @current_type = params[:type] || params[:cuisine]
   end
 
   def show
@@ -18,14 +25,17 @@ class RestaurantsController < ApplicationController
 
   def new
     @restaurant = Restaurant.new
-    @restaurant.build_establishment.build_legal_info
+    @restaurant.build_establishment
+    @restaurant.establishment.build_legal_info
     @restaurant.establishment.galleries.build.gallery_images.build
+
+    # Asignar categoría automáticamente para restaurantes
+    @restaurant.establishment.category = :restaurante
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @restaurant.establishment.user = @affiliate
-    elsif current_user&.afiliado?
-      # si es un afiliado que crea su propio hotel
+    elsif current_user&.afiliado? || current_user&.administrador?
       @restaurant.establishment.user = current_user
     end
   end
@@ -53,17 +63,14 @@ class RestaurantsController < ApplicationController
   def create
     @restaurant = Restaurant.new(restaurant_params)
 
-    if @restaurant.establishment
-      @restaurant.establishment.category = :restaurante
-    else
-      @restaurant.build_establishment(category: :restaurante)
-    end
+    # Asignar categoría automáticamente para restaurantes si no viene del formulario
+    @restaurant.establishment.category = :restaurante if @restaurant.establishment.category.blank?
 
-    # 👇 Aquí seteamos el user siempre en el servidor
+    # Asignar usuario ANTES de cualquier validación
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
       @restaurant.establishment.user = @affiliate
-    elsif current_user&.afiliado?
+    elsif current_user&.afiliado? || current_user&.administrador?
       @restaurant.establishment.user = current_user
     end
 
@@ -130,6 +137,7 @@ class RestaurantsController < ApplicationController
   def restaurant_params
     params.require(:restaurant).permit(
       :cuisine_type, :category,
+      :total_tables, :seats_per_table, :available_tables, :total_capacity,
       menus_attributes: [
         :id, :name, :_destroy,
         menu_items_attributes: [

@@ -6,15 +6,15 @@
           <h5 class="card-title"><%= est.name %></h5>
           <p class="card-text">
             <strong>Usuario:</strong> <%= est.user_id %><br>
-            <strong>Nombre:</strong> <%= est.user.name %><br>
-            <strong>Role:</strong> <%= est.user.role %><br>
+            <strong>Nombre:</strong> <%= est.user&.name || "-" %><br>
+            <strong>Role:</strong> <%= est.user&.role || "-" %><br>
 <!--            <strong>Administrador:</strong> <%#= est.legal_info.legal_representative %>-->
           </p>
           <div class="d-flex justify-content-between">
             <%= link_to est, class: "btn btn-outline-info btn-sm" do %>
               <i class="fa-solid fa-eye"></i>
             <% end %>
-            <%= link_to edit_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
+            <%= link_to edit_specific_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
               <i class="fa-solid fa-pen-to-square"></i>
             <% end %>
             <%= link_to est, data: { turbo_method: :delete, turbo_confirm: "¿Seguro de eliminar?" }, class: "btn btn-outline-danger btn-sm" do %>

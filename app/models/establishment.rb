@@ -11,12 +11,29 @@ class Establishment < ApplicationRecord
   enum :category, EstablishmentTypes::TYPES
   enum :status, { active: 0, inactive: 1 }, default: :active
 
-  # validates :name, :description, :category, presence: true
-  belongs_to :city, optional: true
-  belongs_to :province, optional: true
-  belongs_to :country, optional: true
+  # ── Validaciones obligatorias según documento de requerimientos ──
+  validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }
+  validates :category, presence: { message: "Debe seleccionar una categoria" }
+  validates :address, presence: { message: "La direccion es obligatoria" }
+  validates :phone, presence: { message: "El telefono de contacto es obligatorio" }
+  validates :whatsapp, presence: { message: "El enlace de WhatsApp es obligatorio" }
+  validates :email, presence: { message: "El correo electronico es obligatorio" },
+                    format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo no es valido", allow_blank: true }
+  validates :latitude, presence: { message: "La latitud es obligatoria (ubicacion en Google Maps)" }
+  validates :longitude, presence: { message: "La longitud es obligatoria (ubicacion en Google Maps)" }
+  validates :country_id, presence: { message: "Debe seleccionar un pais" }
+  validates :province_id, presence: { message: "Debe seleccionar una provincia" }
+  validates :city_id, presence: { message: "Debe seleccionar una ciudad" }
+
+  belongs_to :city
+  belongs_to :province
+  belongs_to :country
 
 
+  has_one :hotel, dependent: :destroy
+  has_one :restaurant, dependent: :destroy
+  has_one :transport, dependent: :destroy
+  has_one :temporary_lodging, dependent: :destroy
   has_one :legal_info, dependent: :destroy
   has_one :verification, dependent: :destroy
 

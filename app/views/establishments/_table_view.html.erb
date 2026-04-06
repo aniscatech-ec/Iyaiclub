@@ -20,14 +20,14 @@
       <td class="text-center"><%= est.legal_info&.business_name || "-" %></td>
       <td class="text-center"><%= est.legal_info&.legal_representative || "-" %></td>
       <td class="text-center"><%= est.user_id || "-" %></td>
-      <td class="text-center"><%= est.user.name || "-" %></td>
+      <td class="text-center"><%= est.user&.name || "-" %></td>
 
       <td>
         <div class="d-flex justify-content-center gap-2">
           <%= link_to est, class: "btn btn-info btn-sm" do %>
             <i class="fa-solid fa-eye"></i>
           <% end %>
-          <%= link_to edit_establishment_path(est), class: "btn btn-warning btn-sm" do %>
+          <%= link_to edit_specific_establishment_path(est), class: "btn btn-warning btn-sm" do %>
             <i class="fa-solid fa-pen-to-square"></i>
           <% end %>
           <%= link_to dashboard_establishment_path(est), class: "btn btn-secondary btn-sm" do %>

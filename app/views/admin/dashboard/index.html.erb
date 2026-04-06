@@ -47,23 +47,31 @@
   <!-- Sección Establecimientos -->
   <h4 class="mb-3 fw-bold">Establecimientos</h4>
   <div class="row g-4 mb-5">
-    <% est_links = [
-      {title: "Todos", path: establishments_path, icon: "fa-building", color: "success"},
-      {title: "Hoteles", path: hotels_path, icon: "fa-hotel", color: "info"},
-      {title: "Restaurantes", path: restaurants_path, icon: "fa-utensils", color: "warning"},
-      {title: "Comodidades", path: amenities_path, icon: "fa-star", color: "secondary"}
-    ] %>
+    <div class="col-md-2">
+      <%= link_to establishments_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-building fa-2x text-success mb-3"></i>
+          <h6 class="card-title fw-bold">Todos</h6>
+        </div>
+      <% end %>
+    </div>
 
-    <% est_links.each do |e| %>
-      <div class="col-md-3">
-        <%= link_to e[:path], class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
-          <div class="card-body">
-            <i class="fa-solid <%= e[:icon] %> fa-3x text-<%= e[:color] %> mb-3"></i>
-            <h6 class="card-title fw-bold"><%= e[:title] %></h6>
-          </div>
-        <% end %>
+    <% ["Hospedaje", "Gastronomia", "Transporte", "Alojamientos Temporales"].each do |cat_name| %>
+      <% cat = category_catalog.find { |c| c[:name] == cat_name } %>
+      <% next unless cat %>
+      <div class="col-md-2">
+        <%= render "shared/category_card_with_dropdown", category: cat %>
       </div>
     <% end %>
+
+    <div class="col-md-2">
+      <%= link_to amenities_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-star fa-2x text-secondary mb-3"></i>
+          <h6 class="card-title fw-bold">Comodidades</h6>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <!-- Sección Membresías -->

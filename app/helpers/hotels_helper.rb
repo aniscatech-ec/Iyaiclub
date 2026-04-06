@@ -1,10 +1,10 @@
 module HotelsHelper
   HOTEL_TYPE_LABELS = {
     "hotel" => "Hotel",
+    "conventional" => "Hotel convencional",
     "hostal" => "Hostal",
     "glamping" => "Glamping",
-    "ecohotel" => "Ecohotel / Ecolodge",
-    "alojamiento_temporal" => "Alojamiento temporal"
+    "ecohotel" => "Ecohotel / Ecolodge"
   }.freeze
 
   def hotel_type_label(type)

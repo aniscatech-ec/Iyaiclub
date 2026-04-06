@@ -1,15 +1,27 @@
 <style>
-    [data-user-search-target="results"]:empty {
-        display: none;
-    }
-
+    [data-user-search-target="results"]:empty { display: none; }
+    .amenity-card.selected { background-color: rgba(63,189,2,0.12) !important; border-color: var(--brand-green) !important; }
+    .amenity-card:hover { border-color: var(--brand-green); background-color: rgba(63,189,2,0.05); cursor: pointer; }
+    .amenity-card.selected img { transform: scale(1.1); filter: brightness(1.2); transition: transform 0.2s, filter 0.2s; }
 </style>
-<h1>Editar hotel</h1>
+
+<!-- ═══════════════ ENCABEZADO ═══════════════ -->
+<div class="text-center mb-4">
+  <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+       style="width: 60px; height: 60px; background: var(--brand-green); opacity: 0.9;">
+    <i class="fas fa-hotel text-white fs-4"></i>
+  </div>
+  <h2 class="fw-bold mb-1">Editar hotel</h2>
+  <% if @hotel.establishment&.name.present? %>
+    <p class="text-muted"><%= @hotel.establishment.name %></p>
+  <% end %>
+</div>
 
 <% if @hotel.errors.any? %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Por favor corrige lo siguiente para poder guardar:</strong>
-    <ul class="mb-0 mt-1">
+  <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <strong>Por favor corrige lo siguiente:</strong>
+    <ul class="mb-0 mt-2">
       <% @hotel.errors.full_messages.each do |msg| %>
         <li><%= msg %></li>
       <% end %>
@@ -24,170 +36,185 @@
         <% end %>
       <% end %>
     </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 <% end %>
 
 <%= form_with(model: @hotel,
               local: true,
-              html: { multipart: true }, # <-- necesario para subir archivos
-              data: { controller: "gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
+              html: { multipart: true },
+              data: { controller: "form-validation gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
 
   <%= f.fields_for :establishment do |e| %>
-    <!-- Datos legales -->
-    <div class="card mb-4">
-      <div class="card-header fw-bold">1. Datos legales y contacto</div>
-      <div class="card-body">
+
+    <!-- ═══════════════ 1. DATOS LEGALES ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> 1. Datos legales y contacto</h5>
+      </div>
+      <div class="card-body p-4">
         <%= e.fields_for :legal_info do |l| %>
-          <div class="mb-3">
-            <%= l.label :business_name, "Razón social / nombre comercial" %>
-            <%= l.text_field :business_name, class: "form-control", required: true, minlength: 3, maxlength: 150 %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :document_type, "Tipo de documento" %>
-            <%= l.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select", required: true %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :document_number, "Número de documento" %>
-            <%= l.text_field :document_number, class: "form-control", required: true, placeholder: "Ej: 0901234567001" %>
-            <div class="form-text">Ingrese su número de documento</div>
-          </div>
-          <div class="mb-3">
-            <%= l.label :legal_representative, "Nombre del responsable / administrador" %>
-            <%= l.text_field :legal_representative, class: "form-control", required: true, minlength: 3, maxlength: 100 %>
-          </div>
-          <div class="mb-3">
-
-            <%= f.fields_for :establishment do |e| %>
-              <% if current_user.administrador? %>
-
-                <div data-controller="user-search" class="position-relative"
-                     data-user-search-default-name="<%= @hotel.establishment.user&.name %>"
-                     data-user-search-default-id="<%= @hotel.establishment.user_id %>">
-                  <label for="user_search_input">Seleccionar usuario (administrador)</label>
-                  <input type="text" id="user_search_input"
-                         data-user-search-target="input"
-                         data-action="input->user-search#search"
-                         class="form-control"
-                         placeholder="Escribe nombre o email...">
-
-                  <!-- Hidden field para enviar el user_id al guardar -->
-                  <%= f.fields_for :establishment do |e| %>
-                    <%= e.hidden_field :user_id, data: { user_search_target: "hidden" } %>
-                  <% end %>
-
-                  <!-- Dropdown de resultados -->
-                  <div data-user-search-target="results"
-                       class="border position-absolute bg-white w-100"
-                       style="z-index: 1000; max-height: 200px; overflow-y: auto;"></div>
-                </div>
-
-
-              <% else %>
-                <%= e.hidden_field :user_id, value: current_user.id %>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= l.text_field :business_name, class: "form-control", required: true, minlength: 3, maxlength: 150, placeholder: "Nombre legal" %>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= l.select :document_type, ["RUC", "DNI", "Pasaporte", "Cédula"], {}, class: "form-select", required: true %>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= l.text_field :document_number, class: "form-control", required: true, placeholder: "Ej: 0901234567001" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= l.text_field :legal_representative, class: "form-control", required: true, minlength: 3, maxlength: 100, placeholder: "Nombre completo" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= f.fields_for :establishment do |e2| %>
+                <% if current_user.administrador? %>
+                  <div data-controller="user-search" class="position-relative"
+                       data-user-search-default-name="<%= @hotel.establishment.user&.name %>"
+                       data-user-search-default-id="<%= @hotel.establishment.user_id %>">
+                    <label class="form-label fw-semibold">Afiliado asignado</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
+                      <input type="text" id="user_search_input"
+                             data-user-search-target="input"
+                             data-action="input->user-search#search"
+                             class="form-control"
+                             placeholder="Escribe nombre o email...">
+                    </div>
+                    <%= f.fields_for :establishment do |e3| %>
+                      <%= e3.hidden_field :user_id, data: { user_search_target: "hidden" } %>
+                    <% end %>
+                    <div data-user-search-target="results"
+                         class="border position-absolute bg-white w-100 rounded shadow-sm"
+                         style="z-index: 1000; max-height: 200px; overflow-y: auto;"></div>
+                  </div>
+                <% else %>
+                  <%= e2.hidden_field :user_id, value: current_user.id %>
+                <% end %>
               <% end %>
-            <% end %>
-          </div>
-
-
-          <div class="mb-3">
-            <%= l.label :contact_email, "Email de contacto" %>
-            <%= l.email_field :contact_email, class: "form-control", required: true, placeholder: "ejemplo@correo.com" %>
-          </div>
-          <div class="mb-3">
-            <%= l.label :contact_phone, "Teléfono de contacto" %>
-            <%= l.telephone_field :contact_phone, class: "form-control", required: true, pattern: "[0-9]{10}", maxlength: 10, placeholder: "Ej: 0991234567" %>
-            <div class="form-text">10 dígitos numéricos</div>
+            </div>
+            <div class="col-md-6">
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= l.email_field :contact_email, class: "form-control", required: true, placeholder: "correo@ejemplo.com" %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= l.telephone_field :contact_phone, class: "form-control", required: true, pattern: "[0-9]{10}", maxlength: 10, placeholder: "Ej: 0991234567" %>
+              </div>
+            </div>
           </div>
         <% end %>
       </div>
     </div>
   <% end %>
 
-  <!-- Perfil -->
-  <div class="card mb-4">
-    <div class="card-header fw-bold">2. Perfil del hotel</div>
-    <div class="card-body">
-      <div class="mb-3">
-        <%= f.fields_for :establishment do |e| %>
-          <%= e.label :name, "Nombre público del hotel" %>
-          <%= e.text_field :name, class: "form-control" %>
-        <% end %>
-      </div>
-
-      <div class="mb-3">
-        <%= f.label :hotel_type, "Tipo de hotel", class: "form-label" %>
-        <%= f.select :hotel_type, options_for_select([
-                                                       ['Hotel convencional', 'conventional'],
-                                                       ['Hotel boutique', 'boutique'],
-                                                       ['Hotel de cadena', 'chain'],
-                                                       ['Resort', 'resort'],
-                                                       ['Ecohotel / Ecolodge', 'ecohotel']
-                                                     ], @hotel.hotel_type), { include_blank: 'Selecciona un tipo' }, class: "form-select" %>
-      </div>
-
-      <div class="mb-3">
-        <%= f.label :stars, "Categoría" %>
-        <%= f.select :stars,
-                     options_for_select((1..5).map { |i| ["#{"⭐" * i}", i] }, @hotel.stars),
-                     {}, class: "form-select" %>
-      </div>
+  <!-- ═══════════════ 2. PERFIL DEL HOTEL ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-hotel me-2"></i> 2. Perfil del hotel</h5>
     </div>
-  </div>
-
-
-  <div class="card mb-4">
-    <div class="card-header fw-bold">3. Ubicación general</div>
-    <div class="card-body">
-      <%= f.fields_for :establishment do |e| %>
-
-
-        <div data-controller="location">
-
-          <div class="mb-3">
-            <%= e.label :country_id, "País" %>
-            <%= e.collection_select :country_id, Country.all, :id, :name, { prompt: "Seleccionar país" },
-                                    { class: "form-select",
-                                      data: { action: "change->location#updateProvinces", location_target: "country" } } %>
-          </div>
-
-          <div class="mb-3">
-            <%= e.label :province_id, "Provincia" %>
-            <%= e.collection_select :province_id,
-                                    e.object.country.present? ? e.object.country.provinces : [],
-                                    :id, :name, { prompt: "Seleccionar provincia" },
-                                    { class: "form-select", data: { action: "change->location#updateCities", location_target: "province" } } %>
-          </div>
-
-
-          <div class="mb-3">
-            <%= e.label :city_id, "Ciudad" %>
-            <%= e.collection_select :city_id,
-                                    e.object.province.present? ? e.object.province.cities : [],
-                                    :id, :name,
-                                    { prompt: "Seleccionar ciudad" },
-                                    class: "form-select",
-                                    data: { location_target: "city" } %>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= f.fields_for :establishment do |e| %>
+            <%= e.label :name, "Nombre público del hotel", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-tag"></i></span>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
+            </div>
+          <% end %>
+        </div>
+        <div class="col-md-3">
+          <%= f.label :hotel_type, "Tipo de hotel", class: "form-label fw-semibold required-field" %>
+          <%= f.select :hotel_type, options_for_select([
+                                                         ['Hotel convencional', 'conventional'],
+                                                         ['Hotel boutique', 'boutique'],
+                                                         ['Hotel de cadena', 'chain'],
+                                                         ['Resort', 'resort'],
+                                                         ['Ecohotel / Ecolodge', 'ecohotel']
+                                                       ], @hotel.hotel_type), { include_blank: 'Selecciona un tipo' }, class: "form-select", required: true %>
+        </div>
+        <div class="col-md-3">
+          <%= f.label :stars, "Categoría (estrellas)", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-star" style="color: #f1c40f;"></i></span>
+            <%= f.select :stars,
+                         options_for_select((1..5).map { |i| ["#{"⭐" * i}", i] }, @hotel.stars),
+                         {}, class: "form-select" %>
           </div>
         </div>
-
-      <% end %>
-
+      </div>
     </div>
   </div>
 
+  <!-- ═══════════════ 3. UBICACIÓN ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 3. Ubicación general</h5>
+    </div>
+    <div class="card-body p-4">
+      <%= f.fields_for :establishment do |e| %>
+        <div data-controller="location">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <%= e.label :country_id, "País", class: "form-label fw-semibold" %>
+              <%= e.collection_select :country_id, Country.all, :id, :name, { prompt: "Seleccionar país" },
+                                      { class: "form-select",
+                                        data: { action: "change->location#updateProvinces", location_target: "country" } } %>
+            </div>
+            <div class="col-md-4">
+              <%= e.label :province_id, "Provincia", class: "form-label fw-semibold" %>
+              <%= e.collection_select :province_id,
+                                      e.object.country.present? ? e.object.country.provinces : [],
+                                      :id, :name, { prompt: "Seleccionar provincia" },
+                                      { class: "form-select", data: { action: "change->location#updateCities", location_target: "province" } } %>
+            </div>
+            <div class="col-md-4">
+              <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
+              <%= e.collection_select :city_id,
+                                      e.object.province.present? ? e.object.province.cities : [],
+                                      :id, :name,
+                                      { prompt: "Seleccionar ciudad" },
+                                      class: "form-select",
+                                      data: { location_target: "city" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
-  <div class="card mb-4">
-    <div class="card-header fw-bold">4. Comodidades</div>
-    <div class="card-body">
-
+  <!-- ═══════════════ 4. COMODIDADES ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 4. Comodidades y servicios</h5>
+    </div>
+    <div class="card-body p-4">
       <%= f.fields_for :establishment do |e| %>
         <div class="mb-3" data-controller="amenity-selector">
-
-          <div class="row row-cols-2 row-cols-md-5 g-3 mt-2">
+          <div class="row row-cols-2 row-cols-md-5 g-3">
             <% Amenity.with_attached_custom_icon.each do |amenity| %>
               <div class="col">
-                <div class="form-check d-flex flex-column align-items-center border rounded p-2 h-100
+                <div class="amenity-card form-check d-flex flex-column align-items-center border rounded-3 p-2 h-100
               <%= "selected" if @hotel.establishment&.amenity_ids&.include?(amenity.id) %>"
                      data-action="click->amenity-selector#toggle">
 
@@ -199,14 +226,6 @@
                                     data: { amenity_selector_target: "checkbox" } },
                                   amenity.id, nil %>
 
-                  <%# if amenity.custom_icon.attached? %>
-                  <%# if amenity.custom_icon.blob.content_type == "image/svg+xml" %>
-                  <%#= image_tag url_for(amenity.custom_icon), alt: amenity.name, style: "width:32px; height:32px; object-fit:contain;" %>
-                  <%# else %>
-                  <%#= image_tag amenity.custom_icon.variant(resize_to_limit: [32,32]), alt: amenity.name %>
-                  <%# end %>
-                  <%# end %>
-
                   <% if amenity.custom_icon.attached? && amenity.custom_icon.content_type == 'image/svg+xml' %>
                     <% svg_content = amenity.custom_icon.download %>
                     <%= raw svg_content.gsub('<svg', '<svg width="32" height="32"') %>
@@ -214,106 +233,110 @@
                     <i class="fa fa-circle-question fa-2x text-muted"></i>
                   <% end %>
 
-
-                  <span class="mt-1 text-center"><%= amenity.name %></span>
+                  <span class="mt-1 text-center small"><%= amenity.name %></span>
                 </div>
               </div>
             <% end %>
           </div>
         </div>
       <% end %>
-      <style>
-          /* Estilo de tarjeta seleccionada */
-          .form-check.selected {
-              background-color: rgba(13, 110, 253, 0.15);
-              border-color: #0d6efd;
-          }
-
-          /* Ícono de la tarjeta seleccionada */
-          .form-check.selected img {
-              transform: scale(1.1);
-              filter: brightness(1.2);
-              transition: transform 0.2s, filter 0.2s;
-          }
-
-          /* Hover sobre la tarjeta */
-          .form-check:hover {
-              border-color: #0d6efd;
-              background-color: rgba(13, 110, 253, 0.05);
-              cursor: pointer;
-          }
-      </style>
-
     </div>
   </div>
 
-
-
-  <!-- Galerías existentes -->
+  <!-- ═══════════════ 5. GALERÍAS EXISTENTES ═══════════════ -->
   <%= f.fields_for :establishment do |e| %>
     <% if e.object.galleries.any? %>
-      <h2>Galerías existentes</h2>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 5. Galerías de imágenes</h5>
+        </div>
+        <div class="card-body p-4">
+          <%= e.fields_for :galleries do |g| %>
+            <div class="border rounded-3 p-3 mb-3" style="background: #fafafa;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0"><i class="fas fa-folder-open me-2" style="color: var(--brand-cofee);"></i> <%= g.object.name %></h6>
+                <div class="form-check">
+                  <%= g.hidden_field :id %>
+                  <%= g.check_box :_destroy, class: "form-check-input" %>
+                  <%= g.label :_destroy, "Eliminar galería", class: "form-check-label text-danger small" %>
+                </div>
+              </div>
 
-      <%= e.fields_for :galleries do |g| %>
-        <div class="card mb-4 p-3">
-          <p class="fw-bold">Galería: <%= g.object.name %> (ID: <%= g.object.id %>)</p>
-          <div class="mb-2">
-            <%= g.label :name, "Nombre de la galería", class: "form-label fw-bold" %>
-            <%= g.text_field :name, class: "form-control", value: g.object.name %>
-          </div>
+              <div class="mb-2">
+                <%= g.label :name, "Nombre de la galería", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-pencil-alt"></i></span>
+                  <%= g.text_field :name, class: "form-control", value: g.object.name %>
+                </div>
+              </div>
 
-          <div class="d-flex flex-wrap gap-2">
-            <% g.object.gallery_images.each do |img| %>
-              <div class="position-relative me-2 mb-2">
-                <% if img.persisted? && img.file.attached? %>
-                  <%= image_tag img.file.variant(resize_to_limit: [200, 120]), loading: "lazy" %>
-                <% end %>
-
-                <%# Campos correctly-nested para cada imagen %>
-                <%= g.fields_for :gallery_images, img do |gi| %>
-                  <%= gi.hidden_field :id %>              <!-- imprescindible -->
-                  <div class="form-check">
-                    <%= gi.check_box :_destroy, class: "form-check-input" %>
-                    <%= gi.label :_destroy, "Eliminar imagen", class: "form-check-label" %>
+              <div class="d-flex flex-wrap gap-3 mb-3">
+                <% g.object.gallery_images.each do |img| %>
+                  <div class="text-center" style="max-width: 150px;">
+                    <% if img.persisted? && img.file.attached? %>
+                      <%= image_tag img.file.variant(resize_to_limit: [200, 120]), class: "img-thumbnail rounded shadow-sm mb-1", loading: "lazy" %>
+                    <% end %>
+                    <%= g.fields_for :gallery_images, img do |gi| %>
+                      <%= gi.hidden_field :id %>
+                      <div class="form-check">
+                        <%= gi.check_box :_destroy, class: "form-check-input" %>
+                        <%= gi.label :_destroy, "Eliminar", class: "form-check-label text-danger small" %>
+                      </div>
+                    <% end %>
                   </div>
                 <% end %>
               </div>
-            <% end %>
-          </div>
 
-          <!-- NUEVO: input para agregar más imágenes a esta galería -->
-          <div class="mt-3">
-            <label class="form-label">Agregar imágenes a esta galería</label>
-            <!-- name es gallery_uploads[<gallery_id>][] para procesarlo fácilmente en el controlador -->
-            <%= file_field_tag "gallery_uploads[#{g.object.id}][]",
-                               multiple: true,
-                               accept: "image/*",
-                               class: "form-control" %>
-            <small class="text-muted">Selecciona varias imágenes (no reemplazan las existentes).</small>
-          </div>
-
-          <div class="form-check mt-2">
-            <%= g.hidden_field :id %>                  <!-- imprescindible -->
-            <%= g.check_box :_destroy, class: "form-check-input" %>
-            <%= g.label :_destroy, "Eliminar galería", class: "form-check-label" %>
-          </div>
+              <div class="mt-2">
+                <label class="form-label fw-semibold"><i class="fas fa-plus-circle me-1" style="color: var(--brand-green);"></i> Agregar más imágenes</label>
+                <%= file_field_tag "gallery_uploads[#{g.object.id}][]",
+                                   multiple: true,
+                                   accept: "image/*",
+                                   class: "form-control form-control-sm" %>
+                <small class="text-muted">No reemplazan las existentes.</small>
+              </div>
+            </div>
+          <% end %>
         </div>
-      <% end %>
+      </div>
     <% end %>
   <% end %>
 
-  <!-- Aquí Stimulus inyectará las nuevas galerías -->
-  <div id="galleries-container" data-gallery-target="container"></div>
-
-  <!-- Formulario para agregar nuevas galerías -->
-  <div class="card mb-4">
-    <div class="card-header fw-bold">Agregar nueva galería</div>
-    <div class="card-body">
-      <input type="text" data-gallery-target="name" class="form-control mb-2" placeholder="Nombre de la galería">
-      <input type="file" data-gallery-target="files" multiple class="form-control mb-2">
-      <button type="button" class="btn btn-secondary" data-action="gallery#addGallery">Agregar galería</button>
+  <!-- ═══════════════ 6. NUEVA GALERÍA ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-folder-plus me-2"></i> 6. Agregar nueva galería</h5>
+    </div>
+    <div class="card-body p-4">
+      <div id="galleries-container" data-gallery-target="container"></div>
+      <div class="border rounded-3 p-3" style="background: #fafafa;">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Nombre de la galería</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-folder-open"></i></span>
+              <input type="text" data-gallery-target="name" class="form-control" placeholder="Ej: Habitaciones, Exteriores...">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Imágenes</label>
+            <input type="file" data-gallery-target="files" multiple class="form-control" accept="image/jpeg,image/png,image/webp">
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-primary rounded-pill" data-action="gallery#addGallery">
+              <i class="fas fa-plus me-1"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <%= f.submit "Actualizar hotel", class: "btn btn-primary", data: { disable_with: "Guardando..." } %>
+  <!-- ═══════════════ BOTONES ═══════════════ -->
+  <div class="d-flex gap-2 mb-4">
+    <%= f.submit "Actualizar hotel", class: "btn btn-primary btn-lg rounded-pill px-4 fw-bold", data: { disable_with: "Guardando..." } %>
+    <%= link_to hotels_path, class: "btn btn-outline-secondary btn-lg rounded-pill px-4" do %>
+      <i class="fas fa-times me-1"></i> Cancelar
+    <% end %>
+  </div>
 <% end %>

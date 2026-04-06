@@ -1,0 +1,71 @@
+<%
+  has_subtypes = category[:subtypes].present?
+  cat_path     = category[:path]
+  cat_color    = category[:color]
+  cat_icon     = category[:icon]
+  cat_name     = category[:name]
+  is_grouped   = category[:grouped]
+%>
+
+<div class="category-card-wrapper" data-controller="dropdown-hover">
+  <% if has_subtypes %>
+    <%= link_to cat_path, class: "text-decoration-none category-card-link",
+        data: { action: "click->dropdown-hover#toggle" } do %>
+      <div class="card border-0 shadow-sm text-center p-3 rounded-3 category-card-hover">
+        <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+             style="width: 50px; height: 50px; background: <%= cat_color %>15;">
+          <i class="fas <%= cat_icon %> fs-4" style="color: <%= cat_color %>;"></i>
+        </div>
+        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;">
+          <%= cat_name %>
+          <i class="fas fa-chevron-down ms-1 dropdown-chevron" style="font-size: 0.6rem; opacity: 0.5;"></i>
+        </h6>
+      </div>
+    <% end %>
+
+    <div class="category-dropdown">
+      <div class="list-group list-group-flush rounded-3 shadow overflow-hidden">
+        <%= link_to cat_path, class: "list-group-item list-group-item-action px-3 py-2 fw-semibold",
+            style: "font-size: 0.8rem; color: #{cat_color};" do %>
+          <i class="fas fa-th-list me-2"></i> Ver todos
+        <% end %>
+
+        <% if is_grouped %>
+          <% category[:subtypes].each do |group| %>
+            <div class="dropdown-section-header px-3 py-1" style="background: <%= cat_color %>10;">
+              <small class="fw-bold text-uppercase" style="font-size: 0.7rem; color: <%= cat_color %>; letter-spacing: 0.5px;">
+                <%= group[:group] %>
+              </small>
+            </div>
+            <% group[:items].each do |sub| %>
+              <%= link_to sub[:path], class: "list-group-item list-group-item-action px-3 py-2",
+                  style: "font-size: 0.8rem; padding-left: 1.5rem !important;" do %>
+                <i class="fas fa-angle-right me-2" style="color: <%= cat_color %>;"></i>
+                <%= sub[:label] %>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% else %>
+          <% category[:subtypes].each do |sub| %>
+            <%= link_to sub[:path], class: "list-group-item list-group-item-action px-3 py-2",
+                style: "font-size: 0.8rem;" do %>
+              <i class="fas fa-angle-right me-2" style="color: <%= cat_color %>;"></i>
+              <%= sub[:label] %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+  <% else %>
+    <%= link_to cat_path, class: "text-decoration-none" do %>
+      <div class="card border-0 shadow-sm h-100 text-center p-3 rounded-3 category-card-hover">
+        <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle mb-2"
+             style="width: 50px; height: 50px; background: <%= cat_color %>15;">
+          <i class="fas <%= cat_icon %> fs-4" style="color: <%= cat_color %>;"></i>
+        </div>
+        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.85rem;"><%= cat_name %></h6>
+      </div>
+    <% end %>
+  <% end %>
+</div>

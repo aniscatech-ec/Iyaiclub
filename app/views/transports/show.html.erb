@@ -1,0 +1,338 @@
+<div class="container py-4">
+
+  <div class="text-center mb-5">
+    <div class="d-inline-flex align-items-center justify-content-center icon-bg rounded-circle mb-3" style="width: 70px; height: 70px;">
+      <i class="fas fa-bus text-white fs-3"></i>
+    </div>
+    <h2 class="fw-bold mb-1"><%= @transport.establishment.name.presence || "Transporte ##{@transport.id}" %></h2>
+    <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
+      <span class="badge rounded-pill fs-6" style="background: var(--brand-green);">
+        <i class="fas fa-tag me-1"></i> <%= @transport.transport_type&.humanize&.capitalize %>
+      </span>
+      <span class="badge rounded-pill bg-info fs-6">
+        <i class="fas fa-layer-group me-1"></i> <%= @transport.subcategory&.humanize&.titleize %>
+      </span>
+      <% if @transport.establishment.active? %>
+        <span class="badge rounded-pill bg-success fs-6"><i class="fas fa-check-circle me-1"></i> Activo</span>
+      <% else %>
+        <span class="badge rounded-pill bg-secondary fs-6"><i class="fas fa-pause-circle me-1"></i> Inactivo</span>
+      <% end %>
+    </div>
+    <% if @transport.establishment.description.present? %>
+      <p class="text-muted mt-2 mx-auto" style="max-width: 600px;"><%= @transport.establishment.description %></p>
+    <% end %>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+      <i class="fas fa-file-contract me-2"></i> 1. Datos legales y de contacto
+    </div>
+    <div class="card-body">
+      <% if @transport.legal_info.present? %>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-building me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Razón social</small><strong><%= @transport.legal_info.business_name.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-user-tie me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Representante legal</small><strong><%= @transport.legal_info.legal_representative.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-id-card me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Documento</small><strong><%= @transport.legal_info.document_type %> - <%= @transport.legal_info.document_number.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-envelope me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Email de contacto</small><strong><%= @transport.legal_info.contact_email.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-phone me-2 mt-1" style="color: var(--brand-green);"></i>
+              <div><small class="text-muted d-block">Teléfono</small><strong><%= @transport.legal_info.contact_phone.presence || "—" %></strong></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fab fa-whatsapp me-2 mt-1 text-success"></i>
+              <div><small class="text-muted d-block">WhatsApp</small><strong><%= @transport.establishment.whatsapp.presence || "—" %></strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <%= render "shared/whatsapp_button",
+                     phone: @transport.establishment.whatsapp.presence || @transport.legal_info&.contact_phone,
+                     message: "Hola, me interesa el servicio de transporte #{@transport.establishment.name}" %>
+        </div>
+      <% else %>
+        <p class="text-muted fst-italic mb-0">No hay datos legales registrados.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-orange);">
+      <i class="fas fa-info-circle me-2"></i> 2. Perfil del servicio
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-signature me-2 mt-1" style="color: var(--brand-orange);"></i>
+            <div><small class="text-muted d-block">Nombre</small><strong><%= @transport.establishment.name.presence || "—" %></strong></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-dollar-sign me-2 mt-1" style="color: var(--brand-orange);"></i>
+            <div><small class="text-muted d-block">Rango de precios</small><strong><%= @transport.price_range.presence || "—" %></strong></div>
+          </div>
+        </div>
+        <% if @transport.capacity.present? && @transport.capacity > 0 %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-users me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Capacidad</small><strong><%= @transport.capacity %> personas</strong></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.service_description.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-align-left me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Descripción del servicio</small><%= @transport.service_description %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.establishment.short_description.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-align-justify me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Descripción corta</small><%= @transport.establishment.short_description %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.establishment.phone.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-phone-alt me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Teléfono directo</small><strong><%= @transport.establishment.phone %></strong></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.establishment.email.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-envelope me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Email</small><strong><%= @transport.establishment.email %></strong></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.establishment.website.present? %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-globe me-2 mt-1" style="color: var(--brand-orange);"></i>
+              <div><small class="text-muted d-block">Sitio web</small><%= link_to @transport.establishment.website, @transport.establishment.website, target: "_blank", class: "text-decoration-none" %></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @transport.amenities.any? %>
+        <hr>
+        <h6 class="fw-bold mb-3"><i class="fas fa-concierge-bell me-2" style="color: var(--brand-orange);"></i> Comodidades (<%= @transport.amenities.size %>)</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <% @transport.amenities.each do |amenity| %>
+            <span class="badge border rounded-pill px-3 py-2" style="color: var(--brand-green); border-color: var(--brand-green) !important;">
+              <i class="fas fa-check me-1"></i> <%= amenity.name %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
+      <i class="fas fa-clock me-2"></i> 3. Horarios
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-6 col-md-6 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-door-open fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Inicio de servicio</small>
+            <strong><%= @transport.establishment.opening_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
+        <div class="col-6 col-md-6 text-center">
+          <div class="border rounded-3 p-3 h-100">
+            <i class="fas fa-door-closed fs-4 mb-2" style="color: var(--brand-cofee);"></i>
+            <small class="text-muted d-block">Fin de servicio</small>
+            <strong><%= @transport.establishment.closing_time&.strftime("%I:%M %p") || "—" %></strong>
+          </div>
+        </div>
+      </div>
+
+      <% if @transport.establishment.policies_array.any? %>
+        <hr>
+        <h6 class="fw-bold"><i class="fas fa-clipboard-list me-2" style="color: var(--brand-cofee);"></i> Políticas</h6>
+        <ul class="list-unstyled mb-0">
+          <% @transport.establishment.policies_array.each do |policy| %>
+            <li class="mb-1"><i class="fas fa-chevron-right me-2 small" style="color: var(--brand-cofee);"></i> <%= policy %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee-black);">
+      <i class="fas fa-map-marker-alt me-2"></i> 4. Ubicación
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-road me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+            <div><small class="text-muted d-block">Dirección</small><strong><%= @transport.establishment.address.presence || "—" %></strong></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-start mb-2">
+            <i class="fas fa-globe-americas me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+            <div>
+              <small class="text-muted d-block">Ubicación</small>
+              <strong>
+                <%= @transport.establishment.city&.name %><%= ", #{@transport.establishment.province&.name}" if @transport.establishment.province %><%= ", #{@transport.establishment.country&.name}" if @transport.establishment.country %>
+              </strong>
+            </div>
+          </div>
+        </div>
+        <% if @transport.establishment.arrival_instructions.present? %>
+          <div class="col-12">
+            <div class="d-flex align-items-start mb-2">
+              <i class="fas fa-route me-2 mt-1" style="color: var(--brand-cofee-black);"></i>
+              <div><small class="text-muted d-block">Instrucciones de llegada</small><%= @transport.establishment.arrival_instructions %></div>
+            </div>
+          </div>
+        <% end %>
+        <% if @transport.establishment.latitude.present? && @transport.establishment.longitude.present? %>
+          <div class="col-12">
+            <small class="text-muted"><i class="fas fa-map-pin me-1"></i> Coordenadas: <%= @transport.establishment.latitude %>, <%= @transport.establishment.longitude %></small>
+          </div>
+        <% end %>
+      </div>
+      <%= render "shared/map_display",
+                 latitude: @transport.establishment.latitude,
+                 longitude: @transport.establishment.longitude,
+                 name: @transport.establishment.name %>
+    </div>
+  </div>
+
+  <% if @transport.rentadora? && @transport.vehicles.any? %>
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-green);">
+        <i class="fas fa-car me-2"></i> 5. Vehículos disponibles
+        <span class="badge bg-light text-dark ms-2"><%= @transport.vehicles.size %></span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <% @transport.vehicles.each do |vehicle| %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 border shadow-sm">
+                <% if vehicle.photo.attached? %>
+                  <%= image_tag vehicle.photo.variant(resize_to_limit: [400, 250]),
+                      class: "card-img-top",
+                      style: "height: 180px; object-fit: cover;",
+                      loading: "lazy" %>
+                <% else %>
+                  <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                    <i class="fas fa-car fs-1 text-muted"></i>
+                  </div>
+                <% end %>
+                <div class="card-body">
+                  <h6 class="card-title fw-bold"><%= vehicle.name %></h6>
+                  <% if vehicle.price_per_day.present? %>
+                    <p class="fs-5 fw-bold mb-2" style="color: var(--brand-green);">
+                      $<%= number_with_precision(vehicle.price_per_day, precision: 2) %> <small class="text-muted fw-normal">/ día</small>
+                    </p>
+                  <% end %>
+                  <% if vehicle.description.present? %>
+                    <p class="small text-muted mb-2"><%= vehicle.description %></p>
+                  <% end %>
+                  <% if vehicle.conditions.present? %>
+                    <div class="small">
+                      <strong><i class="fas fa-info-circle me-1 text-warning"></i> Condiciones:</strong>
+                      <p class="text-muted mb-0"><%= vehicle.conditions %></p>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-dark text-white fw-bold rounded-top-3">
+      <i class="fas fa-images me-2"></i> <%= @transport.rentadora? ? "6" : "5" %>. Galería
+    </div>
+    <div class="card-body">
+      <% if @transport.galleries.any? %>
+        <% @transport.galleries.each do |gallery| %>
+          <div class="mb-4">
+            <h6 class="fw-bold"><i class="fas fa-folder-open me-2 text-warning"></i> <%= gallery.name %> <span class="badge bg-secondary"><%= gallery.gallery_images.size %></span></h6>
+            <div class="d-flex flex-wrap gap-2">
+              <% gallery.gallery_images.each do |gi| %>
+                <% if gi.file.attached? %>
+                  <%= image_tag gi.file.variant(resize_to_limit: [180, 180]),
+                      class: "img-thumbnail rounded shadow-sm",
+                      style: "width: 150px; height: 100px; object-fit: cover;",
+                      loading: "lazy" %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if @transport.images.attached? %>
+        <% if @transport.galleries.any? %><hr><% end %>
+        <h6 class="fw-bold"><i class="fas fa-photo-video me-2 text-info"></i> Imágenes directas</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <% @transport.images.each do |img| %>
+            <%= image_tag img.variant(resize_to_limit: [180, 180]),
+                class: "img-thumbnail rounded shadow-sm",
+                style: "width: 150px; height: 100px; object-fit: cover;",
+                loading: "lazy" %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if !@transport.galleries.any? && !@transport.images.attached? %>
+        <p class="text-muted fst-italic mb-0">No hay imágenes registradas.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+    <%= link_to edit_transport_path(@transport), class: "gradient-btn btn-lg text-center text-decoration-none flex-grow-1" do %>
+      <i class="fas fa-pen me-2"></i> Editar transporte
+    <% end %>
+    <%= link_to transports_path, class: "btn btn-outline-secondary btn-lg" do %>
+      <i class="fas fa-arrow-left me-2"></i> Volver al listado
+    <% end %>
+  </div>
+
+</div>
