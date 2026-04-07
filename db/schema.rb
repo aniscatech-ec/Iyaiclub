@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_06_103803) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -274,6 +274,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_06_103803) do
     t.json "features"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "plan_key"
+    t.integer "discount_percentage", default: 0
+    t.integer "fixed_discount", default: 0
+    t.integer "points_earned", default: 1
+    t.integer "dollars_per_point", default: 5
+    t.integer "pool_visits_per_year", default: 0
+    t.integer "pool_level", default: 0
+    t.integer "max_pool_guests", default: 0
+    t.integer "free_nights", default: 0
+    t.integer "free_days", default: 0
+    t.boolean "includes_breakfast", default: false
+    t.boolean "includes_dinner", default: false
+    t.integer "max_lodging_guests", default: 0
+    t.boolean "events_access", default: false
+    t.boolean "is_student_plan", default: false
+    t.boolean "is_active", default: true
+    t.integer "sort_order", default: 0
+    t.index ["is_active"], name: "index_plans_on_is_active"
+    t.index ["plan_key"], name: "index_plans_on_plan_key", unique: true
   end
 
   create_table "pricing_policies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

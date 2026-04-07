@@ -1,0 +1,23 @@
+<div class="card border-warning mb-3 shadow-sm">
+  <div class="card-body text-center py-4">
+    <div class="mb-3">
+      <i class="fas fa-lock fa-3x text-warning"></i>
+    </div>
+    <h5 class="card-title fw-bold">Contenido exclusivo para miembros</h5>
+    <p class="text-muted mb-3">
+      Esta función requiere membresía
+      <strong class="text-warning"><%= required_level.to_s.humanize %></strong>
+      o superior
+    </p>
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+      <%= link_to turista_memberships_path, class: "btn btn-warning" do %>
+        <i class="fas fa-crown me-1"></i> Ver planes de membresía
+      <% end %>
+      <% if current_user.nil? %>
+        <%= link_to new_user_session_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-sign-in-alt me-1"></i> Iniciar sesión
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

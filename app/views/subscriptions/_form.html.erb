@@ -1,114 +1,591 @@
-<%= form_with(model: subscription, local: true) do |form| %>
-  <% if subscription.errors.any? %>
-    <div class="alert alert-danger">
-      <ul>
-        <% subscription.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
+<style>
+  .subscription-wrapper {
+    min-height: calc(100vh - 120px);
+    padding: 1rem;
+  }
+  .subscription-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    max-width: 560px;
+    margin: 0 auto;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+  .subscription-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+  .subscription-header {
+    background: linear-gradient(135deg, var(--brand-green) 0%, #36a30c 100%);
+    color: #fff;
+    padding: 1.75rem 1.5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .subscription-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .subscription-header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+    position: relative;
+  }
+  .subscription-header p {
+    opacity: 0.9;
+    font-size: 0.85rem;
+    margin: 0;
+    position: relative;
+  }
+  .header-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    color: var(--brand-green);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.25rem;
+    margin: -1.5rem 1rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 2;
+  }
+  .summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+    gap: 0.75rem;
+  }
+  .summary-row:last-child {
+    border-bottom: none;
+  }
+  .summary-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #6c757d;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .summary-label i {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(63, 189, 2, 0.1);
+    color: var(--brand-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  .summary-value {
+    color: #212529;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: right;
+    word-break: break-word;
+  }
+  .summary-value.price {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--brand-green);
+  }
+  .summary-value.price-period {
+    font-size: 0.7rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin-left: 0.25rem;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(235, 99, 59, 0.12);
+    color: var(--brand-orange);
+    padding: 0.3rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .status-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-orange);
+    animation: pulse-dot 1.5s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .form-section {
+    padding: 1.5rem 1.25rem;
+  }
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title i {
+    color: var(--brand-green);
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, transparent 100%);
+  }
+  .payment-methods {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .payment-option {
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+  }
+  .payment-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .payment-option-label {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.9rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: #fff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .payment-option-label:hover {
+    border-color: var(--brand-orange);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  .payment-option input[type="radio"]:checked + .payment-option-label {
+    border-color: var(--brand-green);
+    background: rgba(63, 189, 2, 0.04);
+    box-shadow: 0 4px 12px rgba(63, 189, 2, 0.15);
+  }
+  .payment-option input[type="radio"]:checked + .payment-option-label .payment-icon {
+    background: var(--brand-green);
+    color: #fff;
+  }
+  .payment-option input[type="radio"]:checked + .payment-option-label .payment-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .payment-option input[type="radio"]:focus-visible + .payment-option-label {
+    outline: 2px solid var(--brand-green);
+    outline-offset: 2px;
+  }
+  .payment-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #f1f3f5;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+  .payment-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .payment-name {
+    font-weight: 700;
+    color: #212529;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .payment-desc {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  .payment-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--brand-green);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.25s ease;
+    flex-shrink: 0;
+  }
+  .modern-textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.25s ease;
+    background: #fff;
+    color: #212529;
+  }
+  .modern-textarea:focus {
+    outline: none;
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 4px rgba(63, 189, 2, 0.1);
+  }
+  .modern-textarea::placeholder {
+    color: #adb5bd;
+  }
+  .field-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.5rem;
+  }
+  .field-label .optional {
+    color: #adb5bd;
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin-left: 0.35rem;
+  }
+  .admin-input {
+    max-width: 160px;
+    padding: 0.4rem 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: right;
+    transition: all 0.25s ease;
+  }
+  .admin-input:focus {
+    outline: none;
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(63, 189, 2, 0.1);
+  }
+  .form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0 1.25rem 1.5rem;
+  }
+  .form-actions .btn {
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  .form-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(63, 189, 2, 0.3);
+  }
+  .form-actions .btn-outline-secondary {
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+  }
+  .form-actions .btn-outline-secondary:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+  }
+  .error-alert {
+    background: rgba(235, 99, 59, 0.08);
+    border: 1px solid rgba(235, 99, 59, 0.25);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    margin: 1.25rem 1.25rem 0;
+    color: var(--brand-orange);
+  }
+  .error-alert-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .error-alert ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.85rem;
+  }
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1rem 1.25rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+  .trust-badge i {
+    color: var(--brand-green);
+  }
+
+  /* Tablet and up */
+  @media (min-width: 576px) {
+    .subscription-wrapper {
+      padding: 2rem 1.5rem;
+    }
+    .subscription-header {
+      padding: 2.25rem 2rem 3rem;
+    }
+    .subscription-header h1 {
+      font-size: 1.75rem;
+    }
+    .summary-card {
+      margin: -2rem 1.5rem 0;
+      padding: 1.5rem;
+    }
+    .form-section {
+      padding: 1.75rem;
+    }
+    .form-actions {
+      flex-direction: row-reverse;
+      padding: 0 1.75rem 1.75rem;
+    }
+    .form-actions .btn {
+      flex: 1;
+    }
+  }
+
+  /* Desktop */
+  @media (min-width: 992px) {
+    .subscription-wrapper {
+      padding: 3rem 2rem;
+    }
+  }
+</style>
+
+<div class="subscription-wrapper">
+  <div class="subscription-card">
+    <%= form_with(model: subscription, local: true, html: { class: "m-0" }) do |form| %>
+      <div data-controller="subscriptions">
+
+        <%# -------------------- Header -------------------- %>
+        <div class="subscription-header">
+          <div class="header-icon">
+            <i class="fas fa-crown"></i>
+          </div>
+          <h1>Nueva Suscripción</h1>
+          <p>Estás a un paso de desbloquear tus beneficios</p>
+        </div>
+
+        <%# -------------------- Errors -------------------- %>
+        <% if subscription.errors.any? %>
+          <div class="error-alert">
+            <div class="error-alert-header">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Revisa los siguientes errores</span>
+            </div>
+            <ul>
+              <% subscription.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
         <% end %>
-      </ul>
-    </div>
-  <% end %>
-  <div data-controller="subscriptions">
 
-<%# -------------------- Usuario (solo admin) -------------------- %>
-    <% if current_user.administrador? %>
-
-
-      <div class="mb-3">
-        <%= form.label :user_id, "Usuario", class: "form-label fw-bold" %>
-        <%= form.text :user_id, "Usuario" %>
-
-
-      </div>
-    <% else %>
-      <div class="mb-3">
-        <strong><%= "#{current_user.role.humanize}:" %></strong>
-        <%= form.label :user_name, current_user.name %>
-        <%#= form.hidden_field :user_id, value: current_user.id %>
+        <%# -------------------- Hidden fields -------------------- %>
         <% if current_user.turista? %>
-          <%= form.hidden_field :suscribable_type, value: "User" %>
-          <%= form.hidden_field :suscribable_id, value: current_user.id %>
+          <%= form.hidden_field :subscribable_type, value: "User" %>
+          <%= form.hidden_field :subscribable_id, value: current_user.id %>
+        <% elsif current_user.afiliado? && @establishment %>
+          <%= form.hidden_field :subscribable_type, value: "Establishment" %>
+          <%= form.hidden_field :subscribable_id, value: @establishment.id %>
         <% end %>
+        <%= form.hidden_field :status, value: Subscription.statuses.keys.first %>
 
+        <%# -------------------- Summary Card -------------------- %>
+        <div class="summary-card">
+          <% if current_user.administrador? %>
+            <div class="summary-row">
+              <span class="summary-label">
+                <i class="fas fa-user"></i>
+                Usuario
+              </span>
+              <span class="summary-value">
+                <%= form.text_field :user_id, class: "admin-input", placeholder: "ID usuario" %>
+              </span>
+            </div>
+          <% else %>
+            <div class="summary-row">
+              <span class="summary-label">
+                <i class="fas fa-user"></i>
+                <%= current_user.role.humanize %>
+              </span>
+              <span class="summary-value"><%= current_user.name %></span>
+            </div>
+          <% end %>
 
+          <% if current_user.afiliado? && @establishment %>
+            <div class="summary-row">
+              <span class="summary-label">
+                <i class="fas fa-store"></i>
+                Establecimiento
+              </span>
+              <span class="summary-value"><%= @establishment.name %></span>
+            </div>
+          <% end %>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="fas fa-crown"></i>
+              Plan
+            </span>
+            <span class="summary-value">
+              <%= @plan_price.plan&.name || @plan_price.plan_type.to_s.humanize %>
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="fas fa-clock"></i>
+              Duración
+            </span>
+            <span class="summary-value">
+              <%= @plan_price.display_duration %>
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="fas fa-dollar-sign"></i>
+              Total a pagar
+            </span>
+            <span class="summary-value price">
+              $<%= number_to_currency(@plan_price.price, unit: "", separator: ".", delimiter: ",") %>
+              <span class="summary-value price-period">USD</span>
+            </span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="fas fa-info-circle"></i>
+              Estado
+            </span>
+            <span class="summary-value">
+              <span class="status-pill">
+                <span class="dot"></span>
+                <%= Subscription.statuses.first[0].humanize %>
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <%# -------------------- Payment method -------------------- %>
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-credit-card"></i>
+            Método de pago
+          </div>
+
+          <div class="payment-methods">
+            <% payment_options = {
+              "tarjeta" => { icon: "fa-credit-card", name: "Tarjeta", desc: "Débito o crédito" },
+              "transferencia" => { icon: "fa-university", name: "Transferencia", desc: "Banco nacional" },
+              "efectivo" => { icon: "fa-money-bill-wave", name: "Efectivo", desc: "Pago en oficina" }
+            } %>
+            <% payment_options.each_with_index do |(key, opt), idx| %>
+              <label class="payment-option">
+                <%= form.radio_button :payment_method, key,
+                      checked: (subscription.payment_method == key || (subscription.payment_method.blank? && idx == 0)),
+                      data: { subscriptions_target: "paymentMethod", action: "change->subscriptions#updatePaymentInstructions" } %>
+                <span class="payment-option-label">
+                  <span class="payment-icon">
+                    <i class="fas <%= opt[:icon] %>"></i>
+                  </span>
+                  <span class="payment-info">
+                    <p class="payment-name"><%= opt[:name] %></p>
+                    <p class="payment-desc"><%= opt[:desc] %></p>
+                  </span>
+                  <span class="payment-check">
+                    <i class="fas fa-check"></i>
+                  </span>
+                </span>
+              </label>
+            <% end %>
+          </div>
+
+          <%# -------------------- Payment instructions -------------------- %>
+          <div>
+            <%= form.label :payment_instructions, class: "field-label" do %>
+              Instrucciones de pago
+              <span class="optional">(se completan automáticamente)</span>
+            <% end %>
+            <%= form.text_area :payment_instructions, rows: 4,
+                  class: "modern-textarea",
+                  placeholder: "Selecciona un método de pago para ver las instrucciones...",
+                  data: { subscriptions_target: "paymentInstructions" } %>
+          </div>
+        </div>
       </div>
 
+      <%# -------------------- Actions -------------------- %>
+      <%# NOTA: el flujo de pago está en desarrollo. Por ahora el botón sólo redirige al dashboard. %>
+      <div class="form-actions">
+        <%= link_to turista_dashboard_index_path, class: "btn btn-primary" do %>
+          Confirmar suscripción
+        <% end %>
+        <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-times"></i>
+          Cancelar
+        <% end %>
+      </div>
+
+      <div class="trust-badge">
+        <i class="fas fa-shield-alt"></i>
+        <span>Tu información está protegida y encriptada</span>
+      </div>
     <% end %>
-
-<%# -------------------- Establecimiento -------------------- %>
-    <div class="mb-3">
-
-      <% if current_user.administrador? %>
-
-
-      <% elsif current_user.afiliado? %>
-        <strong>Establecimiento: </strong>
-
-        <%= @establishment.name %>
-        <%#= form.hidden_field :establishment_id, value: @establishment.id %>
-
-        <%= form.hidden_field :suscribable_type, value: "Establishment" %>
-        <%= form.hidden_field :suscribable_id, value: @establishment.id %>
-      <% end %>
-    </div>
-
-    <%# -------------------- Plan -------------------- %>
-    <div class="mb-3">
-      <strong>Plan:</strong>
-      <%= form.label :plan_type, @plan_price.plan_type %>
-    </div>
-    <div class="mb-3">
-
-      <strong>Precio:</strong>
-      $<%= number_to_currency(@plan_price.price, unit: "", separator: ".", delimiter: ",") %> USD/mes
-    </div>
-
-    <%# -------------------- Estado -------------------- %>
-    <div class="mb-3">
-      <%#= form.label :status, "Estado", class: "form-label fw-bold" %>
-      <%#= form.select :status, Subscription.statuses.keys.map { |s| [s.humanize, s] }, { prompt: "Seleccione estado" }, class: "form-select" %>
-      <strong>Estado:</strong>
-      <%= Subscription.statuses.first[0].humanize %>
-      <%= form.hidden_field :status, value: Subscription.statuses.first %>
-
-    </div>
-
-<%# -------------------- Fecha de inicio -------------------- %>
-    <div class="mb-3">
-      <%#= form.label :start_date, "Fecha de inicio", class: "form-label fw-bold" %>
-      <%#= form.date_field :start_date, class: "form-control" %>
-    </div>
-
-<%# -------------------- Fecha de fin -------------------- %>
-    <div class="mb-3">
-      <%#= form.label :end_date, "Fecha de fin", class: "form-label fw-bold" %>
-      <%#= form.date_field :end_date, class: "form-control" %>
-    </div>
-
-    <%# -------------------- Método de pago -------------------- %>
-    <div class="mb-3">
-      <%= form.label :payment_method, "Método de pago", class: "form-label fw-bold" %>
-      <%= form.select :payment_method,
-                      Subscription.payment_methods.keys.map { |p| [p.humanize, p] },
-                      { prompt: "Seleccione método" },
-                      class: "form-select",
-                      data: { subscriptions_target: "paymentMethod", action: "change->subscriptions#updatePaymentInstructions" } %>
-    </div>
-
-    <%# -------------------- Instrucciones de pago -------------------- %>
-    <div class="mb-3">
-      <%= form.label :payment_instructions, "Instrucciones de pago", class: "form-label fw-bold" %>
-      <%= form.text_area :payment_instructions, rows: 4,
-                         class: "form-control",
-                         data: { subscriptions_target: "paymentInstructions" } %>
-    </div>
   </div>
-
-
-  <%# -------------------- Botones -------------------- %>
-  <div class="mb-3 d-flex gap-2">
-    <%= form.submit "Guardar Suscripción", class: "btn btn-primary" %>
-    <%= link_to "Cancelar", subscriptions_path, class: "btn btn-secondary" %>
-  </div>
-<% end %>
-
+</div>

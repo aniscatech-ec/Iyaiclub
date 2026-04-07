@@ -1,12 +1,10 @@
 class PlanPrice < ApplicationRecord
-  # enum :plan_type, basico: 0, vip: 1
-  # enum :duration, uno: 0, seis: 1, doce:2
-  # DURATION_OPTIONS = [["Mensual", 1], ["Anual", 12]].freeze
+  belongs_to :plan, optional: true
 
-  # validates :plan_type, presence: true
-  # validates :duration, presence: true, inclusion: { in: [1, 12] }
-  # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   enum :target_role, afiliado: 0, turista: 1
+
+  validates :price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :duration, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
   def display_name
     if duration == 1

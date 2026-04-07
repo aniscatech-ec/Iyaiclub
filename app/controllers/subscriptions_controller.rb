@@ -65,15 +65,9 @@ class SubscriptionsController < ApplicationController
   end
 
   def create
-    @subscription = Subscription.new(subscription_params)
-    # @subscription.user = current_user
-    @subscription.status = :pendiente
-
-    if @subscription.save
-      redirect_to @subscription, notice: "Solicitud enviada. Sigue las instrucciones de pago."
-    else
-      render :new, status: :unprocessable_entity
-    end
+    # TODO: el flujo de pago aún está en desarrollo.
+    # Por ahora cualquier envío de formulario redirige al dashboard sin persistir nada.
+    redirect_to turista_dashboard_index_path, notice: "El proceso de pago aún está en desarrollo."
   end
 
   def update

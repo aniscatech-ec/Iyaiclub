@@ -30,14 +30,6 @@ class Subscription < ApplicationRecord
   #
   # before_validation :calculate_amount
 
-  validate :only_one_active_subscription, on: :create
-
-  def only_one_active_subscription
-    if establishment.subscriptions.where(status: "activada").exists?
-      errors.add(:base, "Este establecimiento ya tiene una suscripción activa")
-    end
-  end
-
   def affiliate
     establishment.user
   end
@@ -57,17 +49,17 @@ class Subscription < ApplicationRecord
   private
 
   def only_one_active_subscription_for_tourist
-    return unless suscribable_type == "User"
+    return unless subscribable_type == "User"
 
-    if suscribable.subscriptions.where(status: :activada).exists?
+    if subscribable.subscriptions.where(status: :activada).exists?
       errors.add(:base, "El turista ya tiene una suscripción activa")
     end
   end
 
   def only_one_active_subscription_for_establishment
-    return unless suscribable_type == "Establishment"
+    return unless subscribable_type == "Establishment"
 
-    if suscribable.subscriptions.where(status: :activada).exists?
+    if subscribable.subscriptions.where(status: :activada).exists?
       errors.add(:base, "Este establecimiento ya tiene una suscripción activa")
     end
   end

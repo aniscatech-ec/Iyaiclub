@@ -78,9 +78,9 @@
   <h4 class="mb-3 fw-bold">Membresías</h4>
   <div class="row g-4 mb-5">
     <% memb_links = [
-      {title: "Todas", path: "#", icon: "fa-list", color: "danger"},
-      {title: "Activas", path: "#", icon: "fa-circle-check", color: "success"},
-      {title: "Vencidas", path: "#", icon: "fa-circle-xmark", color: "secondary"}
+      {title: "Todas", path: admin_memberships_path, icon: "fa-list", color: "danger"},
+      {title: "Activas", path: admin_memberships_path(status: :activada), icon: "fa-circle-check", color: "success"},
+      {title: "Vencidas", path: admin_memberships_path(status: :vencida), icon: "fa-circle-xmark", color: "secondary"}
     ] %>
 
     <% memb_links.each do |m| %>
@@ -93,5 +93,34 @@
         <% end %>
       </div>
     <% end %>
+  </div>
+
+  <!-- Sección Planes de Membresía -->
+  <h4 class="mb-3 fw-bold">Planes de Membresía</h4>
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <%= link_to admin_plans_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-crown fa-3x text-warning mb-3"></i>
+          <h6 class="card-title fw-bold">Ver Planes</h6>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-4">
+      <%= link_to new_admin_plan_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-plus-circle fa-3x text-success mb-3"></i>
+          <h6 class="card-title fw-bold">Nuevo Plan</h6>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-4">
+      <%= link_to subscriptions_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-file-invoice-dollar fa-3x text-info mb-3"></i>
+          <h6 class="card-title fw-bold">Suscripciones</h6>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

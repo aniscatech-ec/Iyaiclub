@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include MembershipAccess
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -23,6 +25,6 @@ class User < ApplicationRecord
   end
 
   def active_membership
-    subscriptions.where(status: :active).order(end_date: :desc).first
+    subscriptions.where(status: :activada).where("end_date >= ?", Date.current).order(end_date: :desc).first
   end
 end

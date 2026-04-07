@@ -1,0 +1,155 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-crown me-2" style="color: var(--brand-orange);"></i>
+      Plan: <%= @plan.name %>
+      <% if @plan.is_student_plan %>
+        <span class="badge bg-info ms-2">Estudiantil</span>
+      <% end %>
+      <% unless @plan.is_active %>
+        <span class="badge bg-secondary ms-2">Inactivo</span>
+      <% end %>
+    </h3>
+    <div class="d-flex gap-2">
+      <%= link_to edit_admin_plan_path(@plan), class: "btn btn-warning" do %>
+        <i class="fas fa-edit me-1"></i> Editar
+      <% end %>
+      <%= link_to admin_plans_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Plan
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <p><%= @plan.description %></p>
+          
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="border rounded p-3 text-center">
+                <div class="fs-2 fw-bold text-success"><%= @plan.discount_percentage || 0 %>%</div>
+                <small class="text-muted">Descuento Máximo</small>
+                <% if @plan.fixed_discount.to_i > 0 %>
+                  <div class="badge bg-warning mt-1">+<%= @plan.fixed_discount %>% fijo</div>
+                <% end %>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-3 text-center">
+                <div class="fs-2 fw-bold text-warning"><%= @plan.points_earned || 1 %></div>
+                <small class="text-muted">Puntos por $<%= @plan.dollars_per_point || 5 %></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-gift me-2 text-info"></i>
+            Beneficios Incluidos
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <ul class="list-group list-group-flush">
+            <% if @plan.pool_visits_per_year.to_i > 0 %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-swimming-pool text-info me-2"></i> Piscinas</span>
+                <span class="badge bg-info"><%= @plan.pool_visits_per_year %> visitas/año, N<%= @plan.pool_level %>, <%= @plan.max_pool_guests %> personas</span>
+              </li>
+            <% end %>
+            <% if @plan.free_nights.to_i > 0 %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span><i class="fas fa-bed text-primary me-2"></i> Hospedaje Gratis</span>
+                <span class="badge bg-primary"><%= @plan.free_nights %> noches, <%= @plan.free_days %> días, <%= @plan.max_lodging_guests %> huéspedes</span>
+              </li>
+            <% end %>
+            <% if @plan.includes_breakfast %>
+              <li class="list-group-item px-0">
+                <i class="fas fa-check text-success me-2"></i> Incluye Desayuno
+              </li>
+            <% end %>
+            <% if @plan.includes_dinner %>
+              <li class="list-group-item px-0">
+                <i class="fas fa-check text-success me-2"></i> Incluye Cena
+              </li>
+            <% end %>
+            <% if @plan.events_access %>
+              <li class="list-group-item px-0">
+                <i class="fas fa-check text-success me-2"></i> Acceso a Eventos Iyai Club
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-dollar-sign me-2 text-success"></i>
+            Precios por Duración
+          </h5>
+          <%= link_to new_admin_plan_plan_price_path(@plan), class: "btn btn-sm btn-success" do %>
+            <i class="fas fa-plus me-1"></i> Agregar Precio
+          <% end %>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <% if @plan_prices.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Duración</th>
+                    <th>Precio</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @plan_prices.each do |price| %>
+                    <tr>
+                      <td><%= price.display_duration %></td>
+                      <td><strong>$<%= number_with_precision(price.price, precision: 2) %></strong></td>
+                      <td><span class="badge bg-secondary"><%= price.target_role&.humanize %></span></td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <%= link_to edit_plan_price_path(price), class: "btn btn-outline-warning" do %>
+                            <i class="fas fa-edit"></i>
+                          <% end %>
+                          <%= link_to plan_price_path(price), method: :delete,
+                              data: { turbo_method: :delete, turbo_confirm: "¿Eliminar este precio?" },
+                              class: "btn btn-outline-danger" do %>
+                            <i class="fas fa-trash"></i>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+              <p>No hay precios configurados</p>
+              <%= link_to new_admin_plan_plan_price_path(@plan), class: "btn btn-outline-success" do %>
+                <i class="fas fa-plus me-1"></i> Agregar primer precio
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

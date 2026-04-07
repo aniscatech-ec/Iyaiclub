@@ -1,5 +1,8 @@
 class Turista::RewardsController < ApplicationController
+  include MembershipAuthorization
+
   before_action :authenticate_turista!
+  before_action :require_basic_membership!, only: [:redeem]
   layout "dashboard"
 
   def index

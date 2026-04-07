@@ -117,25 +117,24 @@ Rails.application.routes.draw do
   # end
   namespace :admin do
     get "dashboard/index"
-    resources :users do
-      get :establishments, on: :member
-      collection do
-        get :users_by_role
-      end
-    end
-  end
-
-  namespace :admin do
-    get "dashboard/index"
 
     resources :users do
       get :establishments, on: :member
       collection do
         get :users_by_role
       end
-
-      # 👇 Aquí anidamos las suscripciones
       resources :subscriptions, only: [:index, :new, :create]
+    end
+
+    resources :plans do
+      resources :plan_prices, shallow: true, except: [:index, :show]
+    end
+
+    resources :memberships, only: [:index, :show, :update, :destroy] do
+      member do
+        patch :approve
+        patch :cancel
+      end
     end
   end
 

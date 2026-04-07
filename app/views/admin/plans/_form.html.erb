@@ -1,0 +1,232 @@
+<%= form_with(model: [:admin, @plan], local: true, class: "needs-validation") do |form| %>
+  <% if @plan.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% @plan.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información Básica
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="mb-3">
+            <%= form.label :name, "Nombre del Plan", class: "form-label fw-bold" %>
+            <%= form.text_field :name, class: "form-control", placeholder: "Ej: Gold, Platinum, Básico" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :plan_key, "Clave del Plan", class: "form-label fw-bold" %>
+            <%= form.select :plan_key, [
+              ["Free", "free"],
+              ["Básico", "basico"],
+              ["Bronce", "bronce"],
+              ["Gold", "gold"],
+              ["Platinum", "platinum"],
+              ["Gold Estudiantil", "gold_estudiantil"]
+            ], { prompt: "Seleccione..." }, class: "form-select" %>
+            <small class="text-muted">Identifica el nivel del plan para el sistema de permisos</small>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :description, "Descripción", class: "form-label fw-bold" %>
+            <%= form.text_area :description, class: "form-control", rows: 3 %>
+          </div>
+
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <%= form.label :sort_order, "Orden", class: "form-label fw-bold" %>
+                <%= form.number_field :sort_order, class: "form-control", min: 0 %>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3 pt-4">
+                <div class="form-check form-switch">
+                  <%= form.check_box :is_active, class: "form-check-input", role: "switch" %>
+                  <%= form.label :is_active, "Plan Activo", class: "form-check-label" %>
+                </div>
+                <div class="form-check form-switch">
+                  <%= form.check_box :is_student_plan, class: "form-check-input", role: "switch" %>
+                  <%= form.label :is_student_plan, "Plan Estudiantil", class: "form-check-label" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-percentage me-2 text-success"></i>
+            Descuentos
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <%= form.label :discount_percentage, "Descuento Máximo (%)", class: "form-label fw-bold" %>
+                <%= form.number_field :discount_percentage, class: "form-control", min: 0, max: 100 %>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <%= form.label :fixed_discount, "Descuento Fijo (%)", class: "form-label fw-bold" %>
+                <%= form.number_field :fixed_discount, class: "form-control", min: 0, max: 100 %>
+                <small class="text-muted">Adicional al descuento máximo</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-coins me-2 text-warning"></i>
+            Sistema de Puntos
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                <%= form.label :points_earned, "Puntos Ganados", class: "form-label fw-bold" %>
+                <%= form.number_field :points_earned, class: "form-control", min: 1 %>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <%= form.label :dollars_per_point, "Por cada $ USD", class: "form-label fw-bold" %>
+                <%= form.number_field :dollars_per_point, class: "form-control", min: 1 %>
+              </div>
+            </div>
+          </div>
+          <p class="text-muted small mb-0">
+            <i class="fas fa-info-circle me-1"></i>
+            Ejemplo: 2 puntos por cada $3 gastados
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-swimming-pool me-2 text-info"></i>
+            Beneficio Piscinas
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="row">
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :pool_visits_per_year, "Visitas/Año", class: "form-label fw-bold" %>
+                <%= form.number_field :pool_visits_per_year, class: "form-control", min: 0 %>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :pool_level, "Nivel", class: "form-label fw-bold" %>
+                <%= form.select :pool_level, [["-", 0], ["Nivel 1", 1], ["Nivel 2", 2]], {}, class: "form-select" %>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :max_pool_guests, "Máx. Personas", class: "form-label fw-bold" %>
+                <%= form.number_field :max_pool_guests, class: "form-control", min: 0 %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-bed me-2 text-primary"></i>
+            Noches Gratis
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="row">
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :free_nights, "Noches", class: "form-label fw-bold" %>
+                <%= form.number_field :free_nights, class: "form-control", min: 0 %>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :free_days, "Días", class: "form-label fw-bold" %>
+                <%= form.number_field :free_days, class: "form-control", min: 0 %>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <%= form.label :max_lodging_guests, "Máx. Huéspedes", class: "form-label fw-bold" %>
+                <%= form.number_field :max_lodging_guests, class: "form-control", min: 0 %>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <div class="form-check">
+                <%= form.check_box :includes_breakfast, class: "form-check-input" %>
+                <%= form.label :includes_breakfast, "Incluye Desayuno", class: "form-check-label" %>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-check">
+                <%= form.check_box :includes_dinner, class: "form-check-input" %>
+                <%= form.label :includes_dinner, "Incluye Cena", class: "form-check-label" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-calendar-check me-2 text-success"></i>
+            Otros Beneficios
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="form-check form-switch">
+            <%= form.check_box :events_access, class: "form-check-input", role: "switch" %>
+            <%= form.label :events_access, "Acceso gratuito a eventos Iyai Club", class: "form-check-label" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 mb-4">
+    <%= form.submit "Guardar Plan", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", admin_plans_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

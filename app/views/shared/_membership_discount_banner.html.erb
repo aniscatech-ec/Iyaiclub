@@ -1,0 +1,21 @@
+<% if current_user&.can_access_discounts? %>
+  <div class="alert alert-success d-flex align-items-center" role="alert">
+    <i class="fas fa-tag fa-lg me-3"></i>
+    <div>
+      <strong>¡Descuento de miembro!</strong>
+      Tienes hasta <strong><%= current_user.discount_percentage %>%</strong> de descuento en este establecimiento.
+      <% if current_user.has_fixed_discount? %>
+        <br><small class="text-success-emphasis">+ 5% de descuento fijo adicional por ser Gold</small>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="alert alert-info d-flex align-items-center" role="alert">
+    <i class="fas fa-crown fa-lg me-3"></i>
+    <div>
+      <strong>¿Quieres descuentos?</strong>
+      <%= link_to "Hazte miembro", turista_memberships_path, class: "alert-link" %>
+      y obtén hasta <strong>50%</strong> de descuento en hospedajes.
+    </div>
+  </div>
+<% end %>
