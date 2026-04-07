@@ -732,7 +732,15 @@
                       <div class="feature-icon bg-info bg-opacity-10 text-info">
                         <i class="fas fa-swimming-pool"></i>
                       </div>
-                      <span><strong><%= plan.pool_visits_per_year %></strong> visitas piscina/año</span>
+                      <span>
+                        <strong><%= plan.pool_visits_per_year %></strong> visitas piscina/año
+                        <% if plan.max_pool_guests.to_i > 0 %>
+                          <span class="text-muted d-block" style="font-size: 0.75rem;">
+                            <i class="fas fa-user-friends me-1"></i>
+                            Hasta <strong><%= plan.max_pool_guests %></strong> <%= plan.max_pool_guests == 1 ? 'persona' : 'personas' %>
+                          </span>
+                        <% end %>
+                      </span>
                     </div>
                   <% end %>
 
@@ -748,6 +756,12 @@
                         <% end %>
                         <% if plan.includes_dinner %>
                           <i class="fas fa-utensils text-warning ms-1" title="Incluye cena"></i>
+                        <% end %>
+                        <% if plan.max_lodging_guests.to_i > 0 %>
+                          <span class="text-muted d-block" style="font-size: 0.75rem;">
+                            <i class="fas fa-user-friends me-1"></i>
+                            Hasta <strong><%= plan.max_lodging_guests %></strong> <%= plan.max_lodging_guests == 1 ? 'persona' : 'personas' %>
+                          </span>
                         <% end %>
                       </span>
                     </div>

@@ -1,6 +1,9 @@
 class GetawaysController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_establishment, only: [:index, :new, :create]
   before_action :set_getaway, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create_getaway!, only: [:new, :create]
+  before_action :authorize_modify_getaway!, only: [:edit, :update, :destroy]
 
   def index
     if @establishment
@@ -64,6 +67,20 @@ class GetawaysController < ApplicationController
 
   def set_getaway
     @getaway = Getaway.find(params[:id])
+  end
+
+  def authorize_create_getaway!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @establishment&.user_id == current_user.id
+
+    redirect_to getaways_path, alert: "No tienes permisos para crear escapadas."
+  end
+
+  def authorize_modify_getaway!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @getaway.establishment&.user_id == current_user.id
+
+    redirect_to getaways_path, alert: "No tienes permisos para modificar esta escapada."
   end
 
   def getaway_params
