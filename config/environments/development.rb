@@ -46,11 +46,11 @@ Rails.application.configure do
   config.action_mailer.smtp_settings = {
     address: ENV.fetch("SMTP_ADDRESS", "smtp-relay.brevo.com"),
     port: ENV.fetch("SMTP_PORT", 587),
+    domain: ENV.fetch("SMTP_DOMAIN", "iyaiclub.com"),
     user_name: ENV.fetch("SMTP_USERNAME", ""),
     password: ENV.fetch("SMTP_PASSWORD", ""),
-    authentication: "plain",
-    enable_starttls_auto: true,
-    openssl_verify_mode: OpenSSL::SSL::VERIFY_NONE
+    authentication: :login,
+    enable_starttls_auto: true
   }
 
   # Print deprecation notices to the Rails logger.

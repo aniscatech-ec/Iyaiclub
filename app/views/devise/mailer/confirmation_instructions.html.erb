@@ -1,51 +1,95 @@
-<h2>¡Bienvenido a IyaiClub! <span style="color: #ff9500;">¡Tu aventura comienza aquí!</span></h2>
+<% url = confirmation_url(@resource, confirmation_token: @token) %>
 
-<p>¡Hola <%= @resource.name || @email %>! <span style="color: #34c759;">Gracias por unirte a nuestra comunidad de viajeros y exploradores.</span></p>
+<h2 style="margin: 0 0 16px 0; color: #EB633B; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  ¡Hola <%= @resource.name.presence || "viajero" %>!
+</h2>
 
-<p>Estamos muy emocionados de tenerte con nosotros. Para completar tu registro y desbloquear acceso exclusivo a:</p>
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Gracias por unirte a <strong>IyaiClub</strong>. Estamos muy emocionados de tenerte con nosotros.
+</p>
 
-<div class="feature-box">
-  <h3><i class="fas fa-check-circle" style="color: #34c759; margin-right: 8px;"></i>¿Qué te espera?</h3>
-  <ul style="color: #555; line-height: 1.8; padding-left: 20px;">
-    <li><strong>Hoteles y alojamientos únicos</strong> en los mejores destinos</li>
-    <li><strong>Restaurantes exclusivos</strong> con reservas instantáneas</li>
-    <li><strong>Sistema de puntos</strong> que se convierten en recompensas</li>
-    <li><strong>Ofertas personalizadas</strong> basadas en tus preferencias</li>
-    <li><strong>Experiencias únicas</strong> que no encontrarás en otro lugar</li>
-  </ul>
-</div>
+<p style="margin: 0 0 24px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Para completar tu registro y activar tu cuenta, por favor confirma tu dirección de correo haciendo clic en el siguiente botón:
+</p>
 
-<div style="text-align: center; margin: 35px 0;">
-  <%= link_to 'Confirmar mi cuenta', confirmation_url(@resource, confirmation_token: @token), class: 'btn' %>
-  <p style="margin-top: 15px; font-size: 14px; color: #666;">
-    <i class="fas fa-lock" style="color: #c0aa40;"></i> Enlace seguro y personalizado
-  </p>
-</div>
+<!-- Botón bulletproof compatible con Outlook -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<%= url %>" style="height:54px;v-text-anchor:middle;width:260px;" arcsize="15%" strokecolor="#c94a28" fillcolor="#EB633B">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">Confirmar mi cuenta</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <a href="<%= url %>"
+         style="background-color: #EB633B;
+                border: 2px solid #c94a28;
+                border-radius: 8px;
+                color: #ffffff;
+                display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 1;
+                padding: 16px 36px;
+                text-align: center;
+                text-decoration: none;
+                -webkit-text-size-adjust: none;
+                mso-hide: all;">
+        Confirmar mi cuenta
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
 
-<div class="feature-box" style="background: linear-gradient(135deg, #fff5f0, #ffffff); border-left-color: #ff9500;">
-  <h3 style="color: #ff9500;"><i class="fas fa-clock" style="margin-right: 8px;"></i>Importante</h3>
-  <p style="margin-bottom: 0;">Este enlace de confirmación <strong>expirará en 3 días</strong>. Si no confirmas tu cuenta a tiempo, deberás registrarte nuevamente.</p>
-</div>
+<p style="margin: 16px 0 0 0; color: #777777; font-size: 13px; line-height: 1.5; text-align: center;">
+  Enlace seguro y personalizado. Expira en <strong>3 días</strong>.
+</p>
 
-<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
-  <p style="margin-bottom: 10px; font-size: 14px; color: #666;">
-    <i class="fas fa-question-circle" style="color: #c0aa40;"></i> ¿Necesitas ayuda?
-  </p>
-  <p style="margin-bottom: 0;">
-    <a href="mailto:info@iyaiclub.com" style="color: #34c759; font-weight: 500;">info@iyaiclub.com</a> | 
-    <a href="mailto:pauliyai@iyaiclub.com" style="color: #34c759; font-weight: 500;">soporte técnico</a>
-  </p>
-</div>
+<!-- Qué te espera -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 32px 0 24px 0; background-color: #fff8f5; border-left: 4px solid #EB633B; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #EB633B; font-size: 17px; font-weight: bold;">
+        ¿Qué te espera en IyaiClub?
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Hoteles y alojamientos únicos en los mejores destinos
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Restaurantes exclusivos con reservas instantáneas
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Sistema de puntos que se convierten en recompensas
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Ofertas personalizadas y experiencias únicas
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-<div style="text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f0f9f0, #ffffff); border-radius: 8px;">
-  <p style="margin-bottom: 10px; font-size: 18px; color: #34c759; font-weight: 600;">
-    <i class="fas fa-compass" style="margin-right: 8px;"></i>¡Tu próxima aventura te espera!
-  </p>
-  <p style="margin-bottom: 0; font-size: 14px; color: #666;">
-    El equipo de IyaiClub está listo para ayudarte a descubrir experiencias únicas
-  </p>
-</div>
+<!-- Enlace de respaldo -->
+<p style="margin: 24px 0 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+  Si el botón no funciona, copia y pega este enlace en tu navegador:
+</p>
+<p style="margin: 0 0 24px 0; word-break: break-all;">
+  <a href="<%= url %>" style="color: #EB633B; font-size: 13px; text-decoration: underline;"><%= url %></a>
+</p>
 
-<p style="text-align: center; font-size: 12px; color: #999; margin-top: 30px;">
-  Si no te registraste en IyaiClub, puedes ignorar este correo de forma segura.
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Necesitas ayuda? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a>.
 </p>

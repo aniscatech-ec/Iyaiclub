@@ -93,8 +93,13 @@ Rails.application.routes.draw do
     get "dashboard/index"
   end
   devise_for :users, controllers: {
-    confirmations: 'users/confirmations'
+    confirmations: 'users/confirmations',
+    registrations: 'users/registrations'
   }
+
+  # Vista informativa mostrada tras el registro para indicar al usuario
+  # que debe revisar su correo y confirmar la cuenta
+  get 'users/confirmation_pending', to: 'users/registrations#confirmation_pending', as: :users_confirmation_pending
 
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
