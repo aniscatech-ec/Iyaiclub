@@ -1,0 +1,51 @@
+<%= form_with(model: [@establishment, experience].compact, local: true, class: 'card shadow-sm border-warning') do |form| %>
+  <div class="card-body">
+    <% if experience.errors.any? %>
+      <div class="alert alert-danger">
+        <h5 class="alert-heading"><%= pluralize(experience.errors.count, "error") %> impidieron guardar:</h5>
+        <ul class="mb-0">
+          <% experience.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if @establishment %>
+      <%= form.hidden_field :establishment_id, value: @establishment.id %>
+    <% end %>
+
+    <div class="row">
+      <div class="col-md-8 mb-3">
+        <%= form.label :name, "Nombre de la Experiencia", class: "form-label fw-bold" %>
+        <%= form.text_field :name, class: "form-control", placeholder: "Ej. Tour en Cuatrimotos" %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :price, "Precio ($)", class: "form-label fw-bold" %>
+        <%= form.number_field :price, step: 0.01, class: "form-control", placeholder: "Ej. 25.00" %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :description, "Descripción General", class: "form-label fw-bold" %>
+      <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Detalles sobre la experiencia..." %>
+    </div>
+
+    <div class="row bg-light rounded p-2 mb-3 mx-1 border">
+      <div class="col-md-12 mb-2">
+        <%= form.label :duration, "Duración Estimada", class: "form-label fw-bold" %>
+        <%= form.text_field :duration, class: "form-control", placeholder: "Ej. 2 horas, Medio día, etc." %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :requirements, "Requisitos", class: "form-label fw-bold" %>
+      <%= form.text_area :requirements, rows: 3, class: "form-control", placeholder: "Edad mínima, ropa cómoda, experiencia previa..." %>
+    </div>
+
+    <div class="d-grid mt-4">
+      <%= form.submit "Guardar Experiencia", class: "btn btn-warning fw-bold btn-lg" %>
+    </div>
+  </div>
+<% end %>
