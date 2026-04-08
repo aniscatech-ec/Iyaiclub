@@ -7,18 +7,15 @@ class ApplicationMailer < ActionMailer::Base
 
   layout "mailer"
 
-  # Adjuntar logo a todos los emails
-  before_action :attach_logo
+  # Adjuntar logo inline a todos los emails
+  before_action :attach_inline_logo
 
   private
 
-  def attach_logo
+  def attach_inline_logo
     logo_path = Rails.root.join("app/assets/images/logo.jpeg")
     return unless File.exist?(logo_path)
 
-    attachments.inline["logo"] = {
-      data: File.read(logo_path),
-      mime_type: "image/jpeg"
-    }
+    attachments.inline["logo.jpeg"] = File.read(logo_path)
   end
 end
