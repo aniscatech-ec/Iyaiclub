@@ -4,7 +4,8 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :confirmable
 
   enum :role, administrador: 0, afiliado: 1, turista: 2
   has_many :establishments
@@ -26,5 +27,18 @@ class User < ApplicationRecord
 
   def active_membership
     subscriptions.where(status: :activada).where("end_date >= ?", Date.current).order(end_date: :desc).first
+  end
+
+  # Callback para enviar correo de bienvenida después de confirmar cuenta
+  after_commit :send_welcome_email, on: :update, if: :just_confirmed?
+
+  private
+
+  def just_confirmed?
+    saved_change_to_confirmed_at? && confirmed_at.present? && confirmed_at_before_last_save.nil?
+  end
+
+  def send_welcome_email
+    UserMailer.welcome_email(self).deliver_later
   end
 end

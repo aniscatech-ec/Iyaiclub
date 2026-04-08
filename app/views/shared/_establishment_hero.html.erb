@@ -1,0 +1,82 @@
+<%#
+  Partial compartido para renderizar el hero de detalles de establecimiento.
+
+  Parámetros requeridos:
+    - establishment: el objeto Establishment
+    - title: título principal a mostrar
+    - icon: clase FA del icono del tipo (ej: "fa-utensils")
+    - badges: array de hashes con { text:, color:, icon: } para mostrar badges
+%>
+<%
+  all_images = establishment.galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
+  carousel_id = "heroCarousel#{establishment.id}"
+%>
+
+<div class="est-hero position-relative mb-4 rounded-4 overflow-hidden shadow-sm">
+  <% if all_images.any? %>
+    <div id="<%= carousel_id %>" class="carousel slide carousel-fade" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <% all_images.first(8).each_with_index do |gi, idx| %>
+          <div class="carousel-item <%= 'active' if idx == 0 %>">
+            <%= image_tag gi.file.variant(resize_to_limit: [1600, 600]),
+                          class: "est-hero-image w-100",
+                          loading: idx == 0 ? "eager" : "lazy",
+                          alt: establishment.name %>
+          </div>
+        <% end %>
+      </div>
+      <% if all_images.size > 1 %>
+        <button class="carousel-control-prev" type="button" data-bs-target="#<%= carousel_id %>" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#<%= carousel_id %>" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="est-hero-fallback w-100"></div>
+  <% end %>
+
+  <div class="est-hero-overlay"></div>
+
+  <div class="est-hero-content p-3 p-md-5 text-white">
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <% Array(local_assigns[:badges]).each do |badge| %>
+        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: <%= badge[:color] %>; color: <%= badge[:text_color] || 'white' %>;">
+          <% if badge[:icon] %><i class="fas <%= badge[:icon] %> me-1"></i><% end %>
+          <%= badge[:text] %>
+        </span>
+      <% end %>
+      <% if establishment.status == "active" %>
+        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: var(--brand-green, #3FBD02);">
+          <i class="fas fa-check-circle me-1"></i> Activo
+        </span>
+      <% else %>
+        <span class="badge rounded-pill px-3 py-2 fw-semibold bg-secondary">
+          <i class="fas fa-pause-circle me-1"></i> Inactivo
+        </span>
+      <% end %>
+    </div>
+
+    <h1 class="fw-bold display-6 display-md-4 mb-2 text-shadow">
+      <% if local_assigns[:icon].present? %><i class="fas <%= icon %> me-2"></i><% end %>
+      <%= title %>
+    </h1>
+
+    <% if establishment.short_description.present? %>
+      <p class="lead mb-3 text-shadow d-none d-md-block"><%= establishment.short_description %></p>
+    <% end %>
+
+    <div class="d-flex flex-wrap gap-3 small">
+      <% if establishment.city&.name.present? %>
+        <span><i class="fas fa-map-marker-alt me-1"></i>
+          <%= [establishment.city&.name, establishment.province&.name, establishment.country&.name].compact.join(", ") %>
+        </span>
+      <% end %>
+      <% if establishment.phone.present? %>
+        <span><i class="fas fa-phone me-1"></i> <%= establishment.phone %></span>
+      <% end %>
+    </div>
+  </div>
+</div>

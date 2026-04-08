@@ -92,7 +92,9 @@ Rails.application.routes.draw do
   namespace :afiliado do
     get "dashboard/index"
   end
-  devise_for :users
+  devise_for :users, controllers: {
+    confirmations: 'users/confirmations'
+  }
 
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

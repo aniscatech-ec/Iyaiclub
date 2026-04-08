@@ -1,0 +1,112 @@
+<h2>¡Tu cuenta está lista! <span style="color: #ff9500;">¡Bienvenido a la comunidad!</span></h2>
+
+<p>¡Hola <%= @user.name || @user.email %>! <span style="color: #34c759;">¡Felicidades por completar tu registro!</span></p>
+
+<p>Tu cuenta en IyaiClub ha sido verificada exitosamente. Ahora tienes acceso exclusivo a todo nuestro ecosistema de viajes y experiencias únicas.</p>
+
+<% if @membership %>
+<div class="feature-box" style="background: linear-gradient(135deg, #f0fff4, #ffffff); border-left-color: #34c759;">
+  <h3 style="color: #34c759;"><i class="fas fa-crown" style="margin-right: 8px;"></i>Tu Membresía</h3>
+  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
+    <div style="flex: 1; min-width: 150px;">
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Tipo</p>
+      <p style="margin-bottom: 0; font-weight: 600; color: #34c759;"><%= @membership.plan_type&.capitalize || 'Básica' %></p>
+    </div>
+    <div style="flex: 1; min-width: 150px;">
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Estado</p>
+      <p style="margin-bottom: 0; font-weight: 600; color: #34c759;">Activa</p>
+    </div>
+    <% if @membership.end_date %>
+    <div style="flex: 1; min-width: 150px;">
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Válida hasta</p>
+      <p style="margin-bottom: 0; font-weight: 600; color: #34c759;"><%= @membership.end_date.strftime('%d/%m/%Y') %></p>
+    </div>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<div style="text-align: center; margin: 40px 0;">
+  <%= link_to 'Ir a mi panel', turista_dashboard_index_url, class: 'btn' %>
+  <p style="margin-top: 15px; font-size: 14px; color: #666;">
+    <i class="fas fa-rocket" style="color: #ff9500;"></i> Comienza a explorar ahora mismo
+  </p>
+</div>
+
+<div class="feature-box">
+  <h3><i class="fas fa-rocket" style="color: #ff9500; margin-right: 8px;"></i>¿Qué puedes hacer ahora?</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+      <div style="font-size: 24px; color: #34c759; margin-bottom: 10px;">
+        <i class="fas fa-search"></i>
+      </div>
+      <p style="margin-bottom: 0; font-size: 14px; font-weight: 600;">Explorar destinos</p>
+    </div>
+    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+      <div style="font-size: 24px; color: #ff9500; margin-bottom: 10px;">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <p style="margin-bottom: 0; font-size: 14px; font-weight: 600;">Hacer reservas</p>
+    </div>
+    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+      <div style="font-size: 24px; color: #c0aa40; margin-bottom: 10px;">
+        <i class="fas fa-star"></i>
+      </div>
+      <p style="margin-bottom: 0; font-size: 14px; font-weight: 600;">Acumular puntos</p>
+    </div>
+    <div style="text-align: center; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+      <div style="font-size: 24px; color: #ff6b00; margin-bottom: 10px;">
+        <i class="fas fa-gift"></i>
+      </div>
+      <p style="margin-bottom: 0; font-size: 14px; font-weight: 600;">Canjear recompensas</p>
+    </div>
+  </div>
+</div>
+
+<div class="feature-box" style="background: linear-gradient(135deg, #fff5f0, #ffffff); border-left-color: #ff9500;">
+  <h3 style="color: #ff9500;"><i class="fas fa-lightbulb" style="margin-right: 8px;"></i>Consejo rápido</h3>
+  <p style="margin-bottom: 0;">Completa tu perfil con tus preferencias de viaje para recibir recomendaciones personalizadas y ofertas exclusivas adaptadas a ti.</p>
+</div>
+
+<div style="background: linear-gradient(135deg, #f0f9f0, #ffffff); padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
+  <h3 style="color: #34c759; margin-bottom: 15px;">
+    <i class="fas fa-headset" style="margin-right: 8px;"></i>¿Necesitas ayuda?
+  </h3>
+  <p style="margin-bottom: 15px; color: #666;">Nuestro equipo de soporte está disponible para ayudarte</p>
+  <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+    <div>
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Soporte técnico</p>
+      <a href="mailto:pauliyai@iyaiclub.com" style="color: #34c759; font-weight: 500; text-decoration: none;">
+        <i class="fas fa-envelope"></i> pauliyai@iyaiclub.com
+      </a>
+    </div>
+    <div>
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Portal membresías</p>
+      <a href="mailto:portal@iyaiclub.com" style="color: #34c759; font-weight: 500; text-decoration: none;">
+        <i class="fas fa-envelope"></i> portal@iyaiclub.com
+      </a>
+    </div>
+    <div>
+      <p style="margin-bottom: 5px; font-size: 14px; color: #666;">Información general</p>
+      <a href="mailto:info@iyaiclub.com" style="color: #34c759; font-weight: 500; text-decoration: none;">
+        <i class="fas fa-envelope"></i> info@iyaiclub.com
+      </a>
+    </div>
+  </div>
+</div>
+
+<div style="text-align: center; margin: 35px 0; padding: 25px; background: linear-gradient(135deg, #34c759, #c0aa40, #ff9500); border-radius: 8px; color: white;">
+  <h3 style="margin-bottom: 10px;">
+    <i class="fas fa-sparkles" style="margin-right: 8px;"></i>¡Tu aventura comienza ahora!
+  </h3>
+  <p style="margin-bottom: 0; font-size: 16px; opacity: 0.95;">
+    Gracias por unirte a la familia IyaiClub
+  </p>
+</div>
+
+<div style="text-align: center; margin-top: 30px;">
+  <p style="font-size: 14px; color: #666; font-style: italic;">
+    Con cariño,<br>
+    <span style="color: #34c759; font-weight: 600;">El equipo de IyaiClub</span>
+  </p>
+</div>

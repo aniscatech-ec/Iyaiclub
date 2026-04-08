@@ -1,5 +1,51 @@
-<p>Welcome <%= @email %>!</p>
+<h2>¡Bienvenido a IyaiClub! <span style="color: #ff9500;">¡Tu aventura comienza aquí!</span></h2>
 
-<p>You can confirm your account email through the link below:</p>
+<p>¡Hola <%= @resource.name || @email %>! <span style="color: #34c759;">Gracias por unirte a nuestra comunidad de viajeros y exploradores.</span></p>
 
-<p><%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>
+<p>Estamos muy emocionados de tenerte con nosotros. Para completar tu registro y desbloquear acceso exclusivo a:</p>
+
+<div class="feature-box">
+  <h3><i class="fas fa-check-circle" style="color: #34c759; margin-right: 8px;"></i>¿Qué te espera?</h3>
+  <ul style="color: #555; line-height: 1.8; padding-left: 20px;">
+    <li><strong>Hoteles y alojamientos únicos</strong> en los mejores destinos</li>
+    <li><strong>Restaurantes exclusivos</strong> con reservas instantáneas</li>
+    <li><strong>Sistema de puntos</strong> que se convierten en recompensas</li>
+    <li><strong>Ofertas personalizadas</strong> basadas en tus preferencias</li>
+    <li><strong>Experiencias únicas</strong> que no encontrarás en otro lugar</li>
+  </ul>
+</div>
+
+<div style="text-align: center; margin: 35px 0;">
+  <%= link_to 'Confirmar mi cuenta', confirmation_url(@resource, confirmation_token: @token), class: 'btn' %>
+  <p style="margin-top: 15px; font-size: 14px; color: #666;">
+    <i class="fas fa-lock" style="color: #c0aa40;"></i> Enlace seguro y personalizado
+  </p>
+</div>
+
+<div class="feature-box" style="background: linear-gradient(135deg, #fff5f0, #ffffff); border-left-color: #ff9500;">
+  <h3 style="color: #ff9500;"><i class="fas fa-clock" style="margin-right: 8px;"></i>Importante</h3>
+  <p style="margin-bottom: 0;">Este enlace de confirmación <strong>expirará en 3 días</strong>. Si no confirmas tu cuenta a tiempo, deberás registrarte nuevamente.</p>
+</div>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+  <p style="margin-bottom: 10px; font-size: 14px; color: #666;">
+    <i class="fas fa-question-circle" style="color: #c0aa40;"></i> ¿Necesitas ayuda?
+  </p>
+  <p style="margin-bottom: 0;">
+    <a href="mailto:info@iyaiclub.com" style="color: #34c759; font-weight: 500;">info@iyaiclub.com</a> | 
+    <a href="mailto:pauliyai@iyaiclub.com" style="color: #34c759; font-weight: 500;">soporte técnico</a>
+  </p>
+</div>
+
+<div style="text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #f0f9f0, #ffffff); border-radius: 8px;">
+  <p style="margin-bottom: 10px; font-size: 18px; color: #34c759; font-weight: 600;">
+    <i class="fas fa-compass" style="margin-right: 8px;"></i>¡Tu próxima aventura te espera!
+  </p>
+  <p style="margin-bottom: 0; font-size: 14px; color: #666;">
+    El equipo de IyaiClub está listo para ayudarte a descubrir experiencias únicas
+  </p>
+</div>
+
+<p style="text-align: center; font-size: 12px; color: #999; margin-top: 30px;">
+  Si no te registraste en IyaiClub, puedes ignorar este correo de forma segura.
+</p>
