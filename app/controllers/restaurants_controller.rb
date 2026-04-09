@@ -1,6 +1,9 @@
 # app/controllers/restaurants_controller.rb
 class RestaurantsController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_restaurant, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create_restaurant!, only: [:new, :create]
+  before_action :authorize_modify_restaurant!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index
@@ -128,6 +131,20 @@ class RestaurantsController < ApplicationController
 
   def set_restaurant
     @restaurant = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
+  end
+
+  def authorize_create_restaurant!
+    return if current_user.administrador?
+    return if current_user.afiliado?
+
+    redirect_to restaurants_path, alert: "No tienes permisos para crear restaurantes."
+  end
+
+  def authorize_modify_restaurant!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @restaurant.establishment&.user_id == current_user.id
+
+    redirect_to restaurants_path, alert: "No tienes permisos para modificar este restaurante."
   end
 
   def restaurant_params_1

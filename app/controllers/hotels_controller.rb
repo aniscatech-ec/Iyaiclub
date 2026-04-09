@@ -1,5 +1,8 @@
 class HotelsController < ApplicationController
+  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create_hotel!, only: [:new, :create]
+  before_action :authorize_modify_hotel!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index
@@ -159,6 +162,20 @@ class HotelsController < ApplicationController
 
   def set_hotel
     @hotel = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
+  end
+
+  def authorize_create_hotel!
+    return if current_user.administrador?
+    return if current_user.afiliado?
+
+    redirect_to hotels_path, alert: "No tienes permisos para crear hoteles."
+  end
+
+  def authorize_modify_hotel!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @hotel.establishment&.user_id == current_user.id
+
+    redirect_to hotels_path, alert: "No tienes permisos para modificar este hotel."
   end
 
   def hotel_params
