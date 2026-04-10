@@ -102,19 +102,6 @@
                   <small class="text-muted">¿Cuántas de este tipo?</small>
                 </div>
 
-                <div class="col-md-4">
-                  <%= r.label :bed_type, "Tipo de cama", class: "form-label fw-semibold" %>
-                  <%= r.select :bed_type,
-                      options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]]),
-                      { include_blank: "Seleccione" },
-                      class: "form-select" %>
-                </div>
-
-                <div class="col-md-2">
-                  <%= r.label :num_beds, "N° camas", class: "form-label fw-semibold" %>
-                  <%= r.number_field :num_beds, class: "form-control", min: 1, placeholder: "Ej: 2" %>
-                </div>
-
                 <div class="col-md-3">
                   <%= r.label :guest_capacity, "Capacidad", class: "form-label fw-semibold" %>
                   <div class="input-group">
@@ -129,6 +116,33 @@
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                     <%= r.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "0.00" %>
+                  </div>
+                </div>
+
+                <%# ── Camas de esta habitación (sub-nested) ── %>
+                <div class="col-12">
+                  <label class="form-label fw-semibold"><i class="fas fa-bed me-1"></i> Camas en esta habitación</label>
+                  <div class="room-beds-container border rounded p-2" style="background: #ece6f5;" data-controller="nested-form">
+                    <template data-nested-form-target="template">
+                      <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                        <%= r.fields_for :room_beds, RoomBed.new, child_index: 'NEW_BED' do |rb| %>
+                          <%= rb.hidden_field :_destroy %>
+                          <%= rb.select :bed_type,
+                              options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]]),
+                              { include_blank: "Tipo de cama" },
+                              class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                          <span class="text-muted">x</span>
+                          <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, value: 1, style: "max-width: 80px;" %>
+                          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        <% end %>
+                      </div>
+                    </template>
+                    <div data-nested-form-target="target"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-1" data-action="click->nested-form#add">
+                      <i class="fas fa-plus me-1"></i> Agregar cama
+                    </button>
                   </div>
                 </div>
 
@@ -198,19 +212,6 @@
                   <small class="text-muted">¿Cuántas de este tipo?</small>
                 </div>
 
-                <div class="col-md-4">
-                  <%= r.label :bed_type, "Tipo de cama", class: "form-label fw-semibold" %>
-                  <%= r.select :bed_type,
-                      options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]], r.object.bed_type),
-                      { include_blank: "Seleccione" },
-                      class: "form-select" %>
-                </div>
-
-                <div class="col-md-2">
-                  <%= r.label :num_beds, "N° camas", class: "form-label fw-semibold" %>
-                  <%= r.number_field :num_beds, class: "form-control", min: 1, placeholder: "Ej: 2" %>
-                </div>
-
                 <div class="col-md-3">
                   <%= r.label :guest_capacity, "Capacidad", class: "form-label fw-semibold" %>
                   <div class="input-group">
@@ -225,6 +226,48 @@
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
                     <%= r.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "0.00" %>
+                  </div>
+                </div>
+
+                <%# ── Camas de esta habitación (sub-nested) ── %>
+                <div class="col-12">
+                  <label class="form-label fw-semibold"><i class="fas fa-bed me-1"></i> Camas en esta habitación</label>
+                  <div class="room-beds-container border rounded p-2" style="background: #ece6f5;" data-controller="nested-form">
+                    <template data-nested-form-target="template">
+                      <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                        <%= r.fields_for :room_beds, RoomBed.new, child_index: 'NEW_BED' do |rb| %>
+                          <%= rb.hidden_field :_destroy %>
+                          <%= rb.select :bed_type,
+                              options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]]),
+                              { include_blank: "Tipo de cama" },
+                              class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                          <span class="text-muted">x</span>
+                          <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, value: 1, style: "max-width: 80px;" %>
+                          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        <% end %>
+                      </div>
+                    </template>
+                    <div data-nested-form-target="target">
+                      <%= r.fields_for :room_beds do |rb| %>
+                        <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                          <%= rb.hidden_field :_destroy %>
+                          <%= rb.select :bed_type,
+                              options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]], rb.object.bed_type),
+                              { include_blank: "Tipo de cama" },
+                              class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                          <span class="text-muted">x</span>
+                          <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, style: "max-width: 80px;" %>
+                          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </div>
+                      <% end %>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-1" data-action="click->nested-form#add">
+                      <i class="fas fa-plus me-1"></i> Agregar cama
+                    </button>
                   </div>
                 </div>
 

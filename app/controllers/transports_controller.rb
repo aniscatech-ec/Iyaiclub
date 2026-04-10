@@ -1,6 +1,8 @@
 class TransportsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_transport, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create!, only: [:new, :create]
+  before_action :authorize_modify!, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
 
   def index
@@ -13,6 +15,12 @@ class TransportsController < ApplicationController
     elsif params[:sub].present? && Transport::ALL_SUBCATEGORIES.include?(params[:sub])
       transports = transports.where(subcategory: params[:sub])
     end
+
+    # Afiliados solo ven sus propios transportes
+    if current_user.afiliado?
+      transports = transports.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
     @pagy, @transports = pagy(transports)
     @current_type = params[:type] || params[:sub]
   end
@@ -74,17 +82,34 @@ class TransportsController < ApplicationController
   end
 
   def destroy
-    @transport.establishment.destroy
+    @transport.establishment.destroy!
     redirect_to transports_path, notice: "Transporte eliminado correctamente."
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to transports_path, alert: "No se puede eliminar este transporte porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to transports_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
 
   def set_transport
     @transport = Transport.includes(
+      :vehicles,
       establishment: [:legal_info, :user, :country, :city, :province, :amenities,
                        { galleries: { gallery_images: { file_attachment: :blob } } }]
     ).find(params[:id])
+  end
+
+  def authorize_create!
+    return if current_user.administrador?
+    return if current_user.afiliado?
+    redirect_to transports_path, alert: "No tienes permisos para crear transportes."
+  end
+
+  def authorize_modify!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @transport.establishment&.user_id == current_user.id
+    redirect_to transports_path, alert: "No tienes permisos para acceder a este transporte."
   end
 
   def transport_params

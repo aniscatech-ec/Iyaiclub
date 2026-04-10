@@ -1,9 +1,9 @@
 # app/controllers/restaurants_controller.rb
 class RestaurantsController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authenticate_user!
   before_action :set_restaurant, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create_restaurant!, only: [:new, :create]
-  before_action :authorize_modify_restaurant!, only: [:edit, :update, :destroy]
+  before_action :authorize_modify_restaurant!, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
 
   def index
@@ -13,7 +13,12 @@ class RestaurantsController < ApplicationController
     elsif params[:cuisine].present? && Restaurant::CUISINE_TYPES.include?(params[:cuisine])
       restaurants = restaurants.where(cuisine_type: params[:cuisine])
     end
-    @restaurants = restaurants
+    # Afiliados solo ven sus propios restaurantes
+    if current_user.afiliado?
+      restaurants = restaurants.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
+    @pagy, @restaurants = pagy(restaurants)
     @current_type = params[:type] || params[:cuisine]
   end
 
@@ -123,14 +128,23 @@ class RestaurantsController < ApplicationController
   end
 
   def destroy
-    @restaurant.destroy
+    @restaurant.establishment.destroy!
     redirect_to restaurants_path, notice: "Restaurante eliminado."
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to restaurants_path, alert: "No se puede eliminar este restaurante porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to restaurants_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
 
   def set_restaurant
-    @restaurant = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
+    @restaurant = Restaurant.includes(
+      :restaurant_tables,
+      { menus: [:menu_items] },
+      establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    ).find(params[:id])
   end
 
   def authorize_create_restaurant!

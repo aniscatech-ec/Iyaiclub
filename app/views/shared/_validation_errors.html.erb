@@ -2,10 +2,10 @@
   Partial DRY para mostrar errores de validación de forma específica y agrupada.
 
   Uso:
-    <%= render "shared/validation_errors", errors_list: collect_nested_errors(@hotel) %>
+    render "shared/validation_errors", errors_list: collect_nested_errors(@hotel)
 
   o más fácilmente desde un form:
-    <%= render_validation_errors(hotel) %>
+    render_validation_errors(@hotel)
 
   `errors_list` es un array de hashes:
     [{ section:, field:, message:, full: }, ...]

@@ -16,7 +16,7 @@
               <span><%= "⭐" * hotel.stars.to_i %></span><br>
               <small class="text-muted"><%= hotel.hotel_type.present? ? hotel_type_label(hotel.hotel_type) : "Sin categoría" %></small>
             </p>
-            <% min_price = hotel.establishment.units.where(status: :disponible).minimum(:base_price) %>
+            <% min_price = hotel.rooms.map(&:price_per_night).compact.min %>
             <% if min_price.present? %>
               <div class="mb-3">
                 <div class="small text-muted">Desde</div>

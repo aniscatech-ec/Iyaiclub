@@ -222,12 +222,268 @@
     </div>
   </div>
 
-  <!-- ═══════════════ 5. GALERÍAS EXISTENTES ═══════════════ -->
+  <!-- ═══════════════ 5. HABITACIONES ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4" data-controller="nested-form">
+    <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> 5. Tipos de habitaciones <small class="opacity-75">(max. 10)</small></h5>
+      <button type="button" class="btn btn-sm btn-light fw-semibold rounded-pill px-3" data-action="click->nested-form#add">
+        <i class="fas fa-plus me-1"></i> Añadir habitación
+      </button>
+    </div>
+    <div class="card-body p-4">
+
+      <%# ── Template para nueva habitación ── %>
+      <template data-nested-form-target="template">
+        <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #f5f0ff;" data-new-record="true">
+          <%= f.fields_for :rooms, Room.new, child_index: 'NEW_RECORD' do |r| %>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i> Nueva habitación</h6>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
+            </div>
+            <%= r.hidden_field :_destroy %>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= r.label :name, "Nombre de la habitación", class: "form-label fw-semibold required-field" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                  <%= r.text_field :name, class: "form-control", required: true, placeholder: "Ej: Suite Presidencial, Habitación Doble" %>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :room_type, "Tipo", class: "form-label fw-semibold" %>
+                <%= r.select :room_type,
+                    options_for_select([["Individual", "individual"], ["Doble", "doble"], ["Triple", "triple"], ["Cuádruple", "cuadruple"], ["Suite", "suite"], ["Familiar", "familiar"]]),
+                    { include_blank: "Seleccione" },
+                    class: "form-select" %>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :quantity, "Cantidad disponible", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                  <%= r.number_field :quantity, class: "form-control", min: 1, value: 1, placeholder: "Ej: 5" %>
+                </div>
+                <small class="text-muted">¿Cuántas de este tipo?</small>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :guest_capacity, "Capacidad", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-users"></i></span>
+                  <%= r.number_field :guest_capacity, class: "form-control", min: 1, placeholder: "Ej: 2" %>
+                </div>
+                <small class="text-muted">Huéspedes</small>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :price_per_night, "Precio/noche ($)", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                  <%= r.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "0.00" %>
+                </div>
+              </div>
+
+              <%# ── Camas de esta habitación (sub-nested) ── %>
+              <div class="col-12">
+                <label class="form-label fw-semibold"><i class="fas fa-bed me-1"></i> Camas en esta habitación</label>
+                <div class="room-beds-container border rounded p-2" style="background: #ece6f5;" data-controller="nested-form">
+                  <template data-nested-form-target="template">
+                    <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                      <%= r.fields_for :room_beds, RoomBed.new, child_index: 'NEW_BED' do |rb| %>
+                        <%= rb.hidden_field :_destroy %>
+                        <%= rb.select :bed_type,
+                            options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]]),
+                            { include_blank: "Tipo de cama" },
+                            class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                        <span class="text-muted">x</span>
+                        <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, value: 1, style: "max-width: 80px;" %>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      <% end %>
+                    </div>
+                  </template>
+                  <div data-nested-form-target="target"></div>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-1" data-action="click->nested-form#add">
+                    <i class="fas fa-plus me-1"></i> Agregar cama
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <%= r.label :description, "Descripción", class: "form-label fw-semibold" %>
+                <%= r.text_area :description, rows: 2, class: "form-control", placeholder: "Descripción de la habitación, características especiales..." %>
+              </div>
+
+              <div class="col-md-6">
+                <%= r.label :photo, "Foto de la habitación", class: "form-label fw-semibold" %>
+                <%= r.file_field :photo, class: "form-control", accept: "image/jpeg,image/png,image/webp" %>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Comodidades de esta habitación</label>
+                <div class="row g-2">
+                  <% Amenity.order(:name).each do |amenity| %>
+                    <div class="col-6 col-md-4 col-lg-3">
+                      <div class="form-check">
+                        <%= check_box_tag "hotel[rooms_attributes][NEW_RECORD][amenity_ids][]", amenity.id, false, class: "form-check-input", id: "room_NEW_RECORD_amenity_#{amenity.id}" %>
+                        <label class="form-check-label" for="room_NEW_RECORD_amenity_<%= amenity.id %>"><%= amenity.name %></label>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </template>
+
+      <%# ── Habitaciones existentes ── %>
+      <div data-nested-form-target="target">
+        <%= f.fields_for :rooms do |r| %>
+          <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #f5f0ff;" data-new-record="<%= r.object.new_record? %>">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i> <%= r.object.name || "Habitación" %></h6>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
+            </div>
+            <%= r.hidden_field :_destroy %>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= r.label :name, "Nombre de la habitación", class: "form-label fw-semibold required-field" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                  <%= r.text_field :name, class: "form-control", required: true, placeholder: "Ej: Suite Presidencial, Habitación Doble" %>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :room_type, "Tipo", class: "form-label fw-semibold" %>
+                <%= r.select :room_type,
+                    options_for_select([["Individual", "individual"], ["Doble", "doble"], ["Triple", "triple"], ["Cuádruple", "cuadruple"], ["Suite", "suite"], ["Familiar", "familiar"]], r.object.room_type),
+                    { include_blank: "Seleccione" },
+                    class: "form-select" %>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :quantity, "Cantidad disponible", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                  <%= r.number_field :quantity, class: "form-control", min: 1, placeholder: "Ej: 5" %>
+                </div>
+                <small class="text-muted">¿Cuántas de este tipo?</small>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :guest_capacity, "Capacidad", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-users"></i></span>
+                  <%= r.number_field :guest_capacity, class: "form-control", min: 1, placeholder: "Ej: 2" %>
+                </div>
+                <small class="text-muted">Huéspedes</small>
+              </div>
+
+              <div class="col-md-3">
+                <%= r.label :price_per_night, "Precio/noche ($)", class: "form-label fw-semibold" %>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                  <%= r.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "0.00" %>
+                </div>
+              </div>
+
+              <%# ── Camas de esta habitación (sub-nested) ── %>
+              <div class="col-12">
+                <label class="form-label fw-semibold"><i class="fas fa-bed me-1"></i> Camas en esta habitación</label>
+                <div class="room-beds-container border rounded p-2" style="background: #ece6f5;" data-controller="nested-form">
+                  <template data-nested-form-target="template">
+                    <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                      <%= r.fields_for :room_beds, RoomBed.new, child_index: 'NEW_BED' do |rb| %>
+                        <%= rb.hidden_field :_destroy %>
+                        <%= rb.select :bed_type,
+                            options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]]),
+                            { include_blank: "Tipo de cama" },
+                            class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                        <span class="text-muted">x</span>
+                        <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, value: 1, style: "max-width: 80px;" %>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      <% end %>
+                    </div>
+                  </template>
+                  <div data-nested-form-target="target">
+                    <%= r.fields_for :room_beds do |rb| %>
+                      <div class="nested-fields d-flex align-items-center gap-2 mb-2">
+                        <%= rb.hidden_field :_destroy %>
+                        <%= rb.select :bed_type,
+                            options_for_select([["1 Plaza", "1_plaza"], ["Plaza y media", "plaza_y_media"], ["Doble", "doble"], ["Queen", "queen"], ["King", "king"]], rb.object.bed_type),
+                            { include_blank: "Tipo de cama" },
+                            class: "form-select form-select-sm", style: "max-width: 200px;" %>
+                        <span class="text-muted">x</span>
+                        <%= rb.number_field :quantity, class: "form-control form-control-sm", min: 1, style: "max-width: 80px;" %>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    <% end %>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill mt-1" data-action="click->nested-form#add">
+                    <i class="fas fa-plus me-1"></i> Agregar cama
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <%= r.label :description, "Descripción", class: "form-label fw-semibold" %>
+                <%= r.text_area :description, rows: 2, class: "form-control", placeholder: "Descripción de la habitación, características especiales..." %>
+              </div>
+
+              <div class="col-md-6">
+                <%= r.label :photo, "Foto de la habitación", class: "form-label fw-semibold" %>
+                <% if r.object.persisted? && r.object.photo.attached? %>
+                  <div class="mb-2">
+                    <%= image_tag r.object.photo.variant(resize_to_limit: [200, 120]), class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
+                  </div>
+                <% end %>
+                <%= r.file_field :photo, class: "form-control", accept: "image/jpeg,image/png,image/webp" %>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Comodidades de esta habitación</label>
+                <div class="row g-2">
+                  <% Amenity.order(:name).each do |amenity| %>
+                    <div class="col-6 col-md-4 col-lg-3">
+                      <div class="form-check">
+                        <%= r.check_box :amenity_ids, { multiple: true, checked: r.object.amenity_ids.include?(amenity.id), class: "form-check-input", id: "room_#{r.object.id || r.index}_amenity_#{amenity.id}" }, amenity.id, nil %>
+                        <label class="form-check-label" for="room_<%= r.object.id || r.index %>_amenity_<%= amenity.id %>"><%= amenity.name %></label>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <p class="text-muted text-center py-3 mb-0 empty-rooms-message" <%= 'style="display: none;"' unless @hotel.rooms.empty? %>>
+        <i class="fas fa-info-circle me-1"></i> Aún no has agregado tipos de habitaciones. Haz click en "Añadir habitación" para comenzar.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 6. GALERÍAS EXISTENTES ═══════════════ -->
   <%= f.fields_for :establishment do |e| %>
     <% if e.object.galleries.any? %>
       <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-          <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 5. Galerías de imágenes</h5>
+          <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 6. Galerías de imágenes</h5>
         </div>
         <div class="card-body p-4">
           <%= e.fields_for :galleries do |g| %>
@@ -281,10 +537,10 @@
     <% end %>
   <% end %>
 
-  <!-- ═══════════════ 6. NUEVA GALERÍA ═══════════════ -->
+  <!-- ═══════════════ 7. NUEVA GALERÍA ═══════════════ -->
   <div class="card border-0 shadow-sm rounded-3 mb-4">
     <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-      <h5 class="mb-0 fw-bold"><i class="fas fa-folder-plus me-2"></i> 6. Agregar nueva galería</h5>
+      <h5 class="mb-0 fw-bold"><i class="fas fa-folder-plus me-2"></i> 7. Agregar nueva galería</h5>
     </div>
     <div class="card-body p-4">
       <div id="galleries-container" data-gallery-target="container"></div>

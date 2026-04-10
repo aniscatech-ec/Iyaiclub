@@ -119,33 +119,66 @@
         </div>
       </div>
 
-      <!-- UNIDADES -->
-      <% if est.respond_to?(:units) && est.units.any? %>
+      <!-- HABITACIONES -->
+      <% if @temporary_lodging.rooms.any? %>
         <div class="card border-0 shadow-sm rounded-3 mb-4">
-          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green, #3FBD02), #2d8f01); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
             <h5 class="mb-0 fw-bold">
-              <i class="fas fa-door-open me-2"></i> Unidades disponibles
-              <span class="badge bg-light text-dark ms-2"><%= est.units.size %></span>
+              <i class="fas fa-bed me-2"></i> Habitaciones
+              <span class="badge bg-light text-dark ms-2"><%= @temporary_lodging.rooms.size %></span>
             </h5>
           </div>
           <div class="card-body p-4">
             <div class="row g-3">
-              <% est.units.each do |unit| %>
+              <% @temporary_lodging.rooms.each do |room| %>
                 <div class="col-12 col-md-6">
-                  <div class="card unit-card h-100 rounded-3 border">
-                    <div class="card-body p-3">
-                      <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title fw-bold mb-0"><%= unit.name %></h6>
-                        <% if unit.respond_to?(:price) && unit.price.present? %>
-                          <span class="menu-item-price ms-2 text-nowrap">
-                            <%= number_to_currency(unit.price) %>
-                          </span>
-                        <% end %>
-                      </div>
-                      <% if unit.respond_to?(:description) && unit.description.present? %>
-                        <p class="card-text text-muted small mb-0"><%= unit.description %></p>
+                  <div class="border rounded-3 p-3 h-100 d-flex flex-column" style="background: #f5f0ff;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="fw-bold mb-0"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i><%= room.name %></h6>
+                      <% if room.room_type.present? %>
+                        <span class="badge rounded-pill" style="background: #8e44ad;"><%= room.room_type.capitalize %></span>
                       <% end %>
                     </div>
+
+                    <% if room.guest_capacity.present? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-users me-1"></i> Capacidad: <strong><%= room.guest_capacity %> huéspedes</strong>
+                      </div>
+                    <% end %>
+
+                    <% if room.room_beds.any? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-bed me-1"></i>
+                        <%= room.room_beds.map { |b| "#{b.quantity} #{b.bed_type.gsub('_', ' ')}" }.join(", ") %>
+                      </div>
+                    <% end %>
+
+                    <% if room.quantity.present? && room.quantity > 1 %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-hashtag me-1"></i> <%= room.quantity %> disponibles
+                      </div>
+                    <% end %>
+
+                    <% if room.description.present? %>
+                      <p class="small text-muted mb-2"><%= room.description %></p>
+                    <% end %>
+
+                    <% if room.amenities.any? %>
+                      <div class="mb-2">
+                        <% room.amenities.each do |amenity| %>
+                          <span class="badge bg-light text-dark border me-1 mb-1"><%= amenity.name %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <% if room.price_per_night.present? %>
+                      <div class="mt-auto pt-2 border-top">
+                        <div class="small text-muted">Precio por noche</div>
+                        <div class="fw-bold" style="color: var(--brand-orange, #EB633B);">
+                          $<%= number_with_precision(room.price_per_night, precision: 2) %>
+                        </div>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
               <% end %>

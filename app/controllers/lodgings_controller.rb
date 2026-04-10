@@ -1,13 +1,24 @@
 class LodgingsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_establishment, only: [:index, :new, :create]
   before_action :set_lodging, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create!, only: [:new, :create]
+  before_action :authorize_modify!, only: [:show, :edit, :update, :destroy]
+  layout "dashboard"
 
   def index
     if @establishment
-      @lodgings = @establishment.lodgings
+      lodgings = @establishment.lodgings
     else
-      @lodgings = Lodging.all
+      lodgings = Lodging.includes(:establishment)
     end
+
+    # Afiliados solo ven sus propios hospedajes
+    if current_user.afiliado?
+      lodgings = lodgings.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
+    @lodgings = lodgings
   end
 
   def show
@@ -50,8 +61,12 @@ class LodgingsController < ApplicationController
 
   def destroy
     @establishment = @lodging.establishment
-    @lodging.destroy
-    redirect_to establishment_path(@establishment), notice: 'El hospedaje fue eliminado exitosamente.'
+    @lodging.destroy!
+    redirect_to lodgings_path, notice: 'El hospedaje fue eliminado exitosamente.'
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to lodgings_path, alert: "No se puede eliminar este hospedaje porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to lodgings_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
@@ -62,6 +77,18 @@ class LodgingsController < ApplicationController
 
   def set_lodging
     @lodging = Lodging.find(params[:id])
+  end
+
+  def authorize_create!
+    return if current_user.administrador?
+    return if current_user.afiliado?
+    redirect_to lodgings_path, alert: "No tienes permisos para crear hospedajes."
+  end
+
+  def authorize_modify!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @lodging.establishment&.user_id == current_user.id
+    redirect_to lodgings_path, alert: "No tienes permisos para acceder a este hospedaje."
   end
 
   def lodging_params

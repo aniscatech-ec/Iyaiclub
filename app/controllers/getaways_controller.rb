@@ -1,17 +1,25 @@
 class GetawaysController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authenticate_user!
   before_action :set_establishment, only: [:index, :new, :create]
   before_action :set_getaway, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create_getaway!, only: [:new, :create]
-  before_action :authorize_modify_getaway!, only: [:edit, :update, :destroy]
+  before_action :authorize_modify_getaway!, only: [:show, :edit, :update, :destroy]
+  layout "dashboard"
 
   def index
     if @establishment
-      @getaways = @establishment.getaways
+      getaways = @establishment.getaways
     else
-      @getaways = Getaway.includes(:establishment)
-      @getaways = @getaways.where(subcategory: params[:sub]) if params[:sub].present?
+      getaways = Getaway.includes(:establishment)
+      getaways = getaways.where(subcategory: params[:sub]) if params[:sub].present?
     end
+
+    # Afiliados solo ven sus propias escapadas
+    if current_user.afiliado?
+      getaways = getaways.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
+    @getaways = getaways
   end
 
   def show
@@ -57,8 +65,12 @@ class GetawaysController < ApplicationController
 
   def destroy
     @establishment = @getaway.establishment
-    @getaway.destroy
-    redirect_to establishment_path(@establishment), notice: 'La escapada fue eliminada.'
+    @getaway.destroy!
+    redirect_to getaways_path, notice: 'La escapada fue eliminada.'
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to getaways_path, alert: "No se puede eliminar esta escapada porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to getaways_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
@@ -68,7 +80,10 @@ class GetawaysController < ApplicationController
   end
 
   def set_getaway
-    @getaway = Getaway.find(params[:id])
+    @getaway = Getaway.includes(
+      establishment: [:legal_info, :user, :country, :city, :province, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    ).find(params[:id])
   end
 
   def authorize_create_getaway!

@@ -4,8 +4,8 @@
   legal = est.legal_info
   all_images = est.galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
   cover_image = all_images.first
-  available_units = est.units.where(status: :disponible)
-  min_price = available_units.map(&:base_price).compact.min
+  rooms = hotel.rooms
+  min_price = rooms.map(&:price_per_night).compact.min
   whatsapp_phone = est.whatsapp.presence || legal&.contact_phone
 %>
 
@@ -118,39 +118,68 @@
         </div>
       </div>
 
-      <!-- HABITACIONES DISPONIBLES -->
+      <!-- HABITACIONES -->
       <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
           <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> Habitaciones disponibles</h5>
         </div>
         <div class="card-body p-4">
-          <% if available_units.any? %>
+          <% if rooms.any? %>
             <div class="row g-3">
-              <% available_units.each do |unit| %>
+              <% rooms.each do |room| %>
                 <div class="col-12 col-md-6">
-                  <div class="border rounded-3 p-3 h-100 unit-card d-flex flex-column">
+                  <div class="border rounded-3 p-3 h-100 d-flex flex-column" style="background: #f5f0ff;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                      <h6 class="fw-bold mb-0"><%= unit.unit_type.presence || "Habitación" %></h6>
-                      <span class="badge" style="background: var(--brand-green, #3FBD02);">Disponible</span>
+                      <h6 class="fw-bold mb-0"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i><%= room.name %></h6>
+                      <% if room.room_type.present? %>
+                        <span class="badge rounded-pill" style="background: #8e44ad;"><%= room.room_type.capitalize %></span>
+                      <% end %>
                     </div>
-                    <div class="small text-muted mb-2">
-                      <i class="fas fa-users me-1"></i> Capacidad: <strong><%= unit.capacity %> personas</strong>
-                    </div>
-                    <% if unit.bed_configuration.present? %>
+
+                    <% if room.guest_capacity.present? %>
                       <div class="small text-muted mb-2">
-                        <i class="fas fa-bed me-1"></i>
-                        <%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %>
+                        <i class="fas fa-users me-1"></i> Capacidad: <strong><%= room.guest_capacity %> huéspedes</strong>
                       </div>
                     <% end %>
-                    <div class="mt-auto pt-3 border-top">
-                      <div class="mb-3">
-                        <div class="small text-muted">Desde</div>
-                        <%= render_dynamic_price(unit.base_price) %>
-                        <small class="text-muted d-block">/noche</small>
+
+                    <% if room.room_beds.any? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-bed me-1"></i>
+                        <%= room.room_beds.map { |b| "#{b.quantity} #{b.bed_type.gsub('_', ' ')}" }.join(", ") %>
                       </div>
+                    <% end %>
+
+                    <% if room.quantity.present? && room.quantity > 1 %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-hashtag me-1"></i> <%= room.quantity %> disponibles
+                      </div>
+                    <% end %>
+
+                    <% if room.description.present? %>
+                      <p class="small text-muted mb-2"><%= room.description %></p>
+                    <% end %>
+
+                    <% if room.amenities.any? %>
+                      <div class="mb-2">
+                        <% room.amenities.each do |amenity| %>
+                          <span class="badge bg-light text-dark border me-1 mb-1"><%= amenity.name %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <div class="mt-auto pt-3 border-top">
+                      <% if room.price_per_night.present? %>
+                        <div class="mb-3">
+                          <div class="small text-muted">Desde</div>
+                          <div class="fw-bold fs-5" style="color: var(--brand-orange, #EB633B);">
+                            $<%= number_with_precision(room.price_per_night, precision: 2) %>
+                          </div>
+                          <small class="text-muted d-block">/noche</small>
+                        </div>
+                      <% end %>
                       <% if user_signed_in? %>
                         <% if est.autogestion? %>
-                          <%= link_to new_hotel_booking_path(hotel, unit_id: unit.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
+                          <%= link_to new_hotel_booking_path(hotel), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
                             <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
                           <% end %>
                         <% else %>
@@ -270,10 +299,8 @@
             <% if user_signed_in? %>
               <% if est.autogestion? %>
                 <%# Gestión directa: botones de reserva directa + WhatsApp %>
-                <% if available_units.any? %>
-                  <%= link_to new_hotel_booking_path(hotel, unit_id: available_units.first.id), class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
-                    <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
-                  <% end %>
+                <%= link_to new_hotel_booking_path(hotel), class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
+                  <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
                 <% end %>
 
                 <% if whatsapp_phone.present? %>

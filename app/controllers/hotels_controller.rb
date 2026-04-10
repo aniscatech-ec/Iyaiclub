@@ -1,13 +1,19 @@
 class HotelsController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authenticate_user!
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create_hotel!, only: [:new, :create]
-  before_action :authorize_modify_hotel!, only: [:edit, :update, :destroy]
+  before_action :authorize_modify_hotel!, only: [:show, :edit, :update, :destroy]
   layout "dashboard"
 
   def index
-    hotels = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
+    hotels = Hotel.includes(:rooms, establishment: [:legal_info, :user, :country, :city, :province, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }])
     hotels = hotels.where(hotel_type: params[:type]) if params[:type].present? && Hotel.hotel_types.key?(params[:type])
+
+    # Afiliados solo ven sus propios hoteles
+    if current_user.afiliado?
+      hotels = hotels.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
     @pagy, @hotels = pagy(hotels)
     @current_type = params[:type]
   end
@@ -109,11 +115,7 @@ class HotelsController < ApplicationController
   # end
 
   def update
-    Rails.logger.debug "=== UPDATE PARAMS ==="
-    Rails.logger.debug hotel_params.inspect
-    
     if @hotel.update(hotel_params)
-      Rails.logger.debug "=== UPDATE SUCCESS ==="
       # Procesar uploads adicionales por galería (si el formulario envió archivos)
       if params[:gallery_uploads].present?
         params[:gallery_uploads].each do |gallery_id, files|
@@ -131,9 +133,6 @@ class HotelsController < ApplicationController
 
       redirect_to @hotel, notice: "Hotel actualizado correctamente."
     else
-      Rails.logger.debug "=== UPDATE ERRORS ==="
-      Rails.logger.debug @hotel.errors.full_messages
-      Rails.logger.debug @hotel.establishment&.errors&.full_messages
       flash.now[:alert] = helpers.validation_summary_text(@hotel) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
@@ -161,7 +160,11 @@ class HotelsController < ApplicationController
   private
 
   def set_hotel
-    @hotel = Hotel.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
+    @hotel = Hotel.includes(
+      { rooms: [:room_beds, :amenities, { photo_attachment: :blob }] },
+      establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    ).find(params[:id])
   end
 
   def authorize_create_hotel!
@@ -186,10 +189,11 @@ class HotelsController < ApplicationController
       :available_rooms,
       :max_guests,
       rooms_attributes: [
-        :id, :name, :room_type, :bed_type, :num_beds,
+        :id, :name, :room_type,
         :price_per_night, :guest_capacity, :description,
         :quantity, :photo, :_destroy,
-        amenity_ids: []
+        amenity_ids: [],
+        room_beds_attributes: [:id, :bed_type, :quantity, :_destroy]
       ],
       establishment_attributes: [
         :user_id,
