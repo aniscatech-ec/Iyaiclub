@@ -80,7 +80,7 @@ class RestaurantsController < ApplicationController
     if @restaurant.save
       redirect_to @restaurant, notice: "Restaurante creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el restaurante. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar el restaurante. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -117,7 +117,7 @@ class RestaurantsController < ApplicationController
 
       redirect_to @restaurant, notice: "Restaurante actualizado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end
@@ -161,11 +161,22 @@ class RestaurantsController < ApplicationController
           :id, :name, :description, :price, :photo, :_destroy
         ]
       ],
+      restaurant_tables_attributes: [
+        :id, :name, :table_type, :seats, :quantity, :description, :_destroy
+      ],
       establishment_attributes: [
         :user_id,
         :id,
         :name, # Nombre público
+        :short_description,
+        :description,
+        :long_description,
         :address,
+        :phone,
+        :whatsapp,
+        :email,
+        :website,
+        :status,
         :city_id,
         :province_id,
         :country_id,
@@ -178,10 +189,13 @@ class RestaurantsController < ApplicationController
         :refund_policy,
         :check_in_time,
         :check_out_time,
+        :opening_time,
+        :closing_time,
         :video,
         :video_url,
         policies: [],
         amenity_ids: [],
+        images: [],
         legal_info_attributes: [
           :id,
           :business_name, # Razón social

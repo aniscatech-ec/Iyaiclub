@@ -143,17 +143,25 @@
                       </div>
                     <% end %>
                     <div class="mt-auto pt-3 border-top">
-                      <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                          <div class="small text-muted">Desde</div>
-                          <div class="fw-bold fs-4" style="color: var(--brand-orange, #EB633B);">
-                            $<%= number_with_precision(unit.base_price || 0, precision: 2) %>
-                            <small class="text-muted fs-6">/noche</small>
-                          </div>
-                        </div>
+                      <div class="mb-3">
+                        <div class="small text-muted">Desde</div>
+                        <%= render_dynamic_price(unit.base_price) %>
+                        <small class="text-muted d-block">/noche</small>
                       </div>
-                      <%= link_to new_hotel_booking_path(hotel, unit_id: unit.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
-                        <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
+                      <% if user_signed_in? %>
+                        <% if est.autogestion? %>
+                          <%= link_to new_hotel_booking_path(hotel, unit_id: unit.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
+                            <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
+                          <% end %>
+                        <% else %>
+                          <%= link_to new_custom_request_path, class: "btn btn-warning w-100 rounded-pill fw-semibold" do %>
+                            <i class="fas fa-star me-1"></i> Reserva personalizada
+                          <% end %>
+                        <% end %>
+                      <% else %>
+                        <%= link_to new_user_session_path, class: "btn btn-outline-primary w-100 rounded-pill fw-semibold" do %>
+                          <i class="fas fa-sign-in-alt me-1"></i> Inicia sesión para reservar
+                        <% end %>
                       <% end %>
                     </div>
                   </div>
@@ -253,32 +261,51 @@
           <% if min_price.present? %>
             <div class="text-center mb-3 pb-3 border-bottom">
               <div class="small text-muted">Desde</div>
-              <div class="fw-bold display-6" style="color: var(--brand-orange, #EB633B);">
-                $<%= number_with_precision(min_price, precision: 2) %>
-              </div>
+              <%= render_dynamic_price(min_price, size: :lg) %>
               <div class="small text-muted">por noche</div>
             </div>
           <% end %>
 
           <div class="d-grid gap-2">
-            <% if available_units.any? %>
-              <%= link_to new_hotel_booking_path(hotel, unit_id: available_units.first.id), class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
-                <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
+            <% if user_signed_in? %>
+              <% if est.autogestion? %>
+                <%# Gestión directa: botones de reserva directa + WhatsApp %>
+                <% if available_units.any? %>
+                  <%= link_to new_hotel_booking_path(hotel, unit_id: available_units.first.id), class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
+                    <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
+                  <% end %>
+                <% end %>
+
+                <% if whatsapp_phone.present? %>
+                  <a href="https://wa.me/<%= whatsapp_phone.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, estoy interesado en #{est.name}") %>"
+                     target="_blank"
+                     class="btn btn-success rounded-pill fw-semibold">
+                    <i class="fab fa-whatsapp me-1"></i> Contactar por WhatsApp
+                  </a>
+                <% end %>
+
+                <% if est.phone.present? %>
+                  <a href="tel:<%= est.phone %>" class="btn btn-outline-primary rounded-pill fw-semibold">
+                    <i class="fas fa-phone me-1"></i> Llamar al hotel
+                  </a>
+                <% end %>
+              <% else %>
+                <%# Gestión por Iyaiclub: sólo reserva personalizada %>
+                <%= link_to new_custom_request_path, class: "btn btn-warning rounded-pill fw-semibold btn-lg" do %>
+                  <i class="fas fa-star me-1"></i> Reserva personalizada Iyaiclub
+                <% end %>
+                <div class="small text-muted text-center mt-2">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Este establecimiento es gestionado por nuestro equipo Iyaiclub.
+                </div>
               <% end %>
-            <% end %>
-
-            <% if whatsapp_phone.present? %>
-              <a href="https://wa.me/<%= whatsapp_phone.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, estoy interesado en #{est.name}") %>"
-                 target="_blank"
-                 class="btn btn-success rounded-pill fw-semibold">
-                <i class="fab fa-whatsapp me-1"></i> Contactar por WhatsApp
-              </a>
-            <% end %>
-
-            <% if est.phone.present? %>
-              <a href="tel:<%= est.phone %>" class="btn btn-outline-primary rounded-pill fw-semibold">
-                <i class="fas fa-phone me-1"></i> Llamar al hotel
-              </a>
+            <% else %>
+              <%= link_to new_user_session_path, class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
+                <i class="fas fa-sign-in-alt me-1"></i> Inicia sesión para reservar
+              <% end %>
+              <div class="small text-muted text-center mt-2">
+                <%= link_to "¿Aún no tienes cuenta? Regístrate", new_user_registration_path, class: "text-decoration-none" %>
+              </div>
             <% end %>
           </div>
         </div>

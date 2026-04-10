@@ -1,22 +1,5 @@
 <%= form_with(model: getaway.persisted? ? getaway : [@establishment, getaway], local: true, html: { class: "getaway-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
-  <% if getaway.errors.any? %>
-    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
-      <div class="d-flex align-items-center mb-2">
-        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
-        <strong>Se encontraron <%= getaway.errors.count %> error(es):</strong>
-      </div>
-      <ul class="mb-0 ps-3">
-        <% getaway.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-        <% if getaway.establishment&.errors&.any? %>
-          <% getaway.establishment.errors.full_messages.each do |msg| %>
-            <li><%= msg %></li>
-          <% end %>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render_validation_errors(getaway) %>
 
   <%= form.fields_for :establishment do |est| %>
 

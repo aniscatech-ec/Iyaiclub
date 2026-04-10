@@ -1,0 +1,68 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-magic me-2" style="color: var(--brand-orange, #EB633B);"></i>
+      Mis solicitudes personalizadas
+    </h3>
+    <div class="d-flex gap-2">
+      <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+      <%= link_to new_custom_request_path, class: "btn btn-warning btn-sm rounded-pill fw-semibold" do %>
+        <i class="fas fa-plus me-1"></i> Nueva solicitud
+      <% end %>
+    </div>
+  </div>
+
+  <% if @custom_requests.any? %>
+    <div class="row g-3">
+      <% @custom_requests.each do |req| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm rounded-3 h-100">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="fw-bold mb-0">
+                  <i class="fas fa-map-marker-alt me-1" style="color: var(--brand-orange, #EB633B);"></i>
+                  <%= req.destination %>
+                </h5>
+                <%= custom_request_status_badge(req.status) %>
+              </div>
+              <div class="small text-muted mb-2">
+                <i class="fas fa-calendar me-1"></i>
+                <%= l(req.start_date, format: :long) rescue req.start_date %> —
+                <%= l(req.end_date, format: :long)   rescue req.end_date %>
+              </div>
+              <div class="small text-muted mb-2">
+                <i class="fas fa-users me-1"></i> <%= req.guests_count %> personas
+              </div>
+              <div class="small mb-3">
+                <i class="<%= experience_type_icon(req.experience_type) %> me-1"
+                   style="color: <%= experience_type_color(req.experience_type) %>;"></i>
+                <strong>Experiencia <%= experience_type_label(req.experience_type) %></strong>
+              </div>
+              <%= link_to turista_custom_request_path(req),
+                          class: "btn btn-outline-primary btn-sm rounded-pill w-100" do %>
+                <i class="fas fa-eye me-1"></i> Ver detalles
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @pagy && @pagy.pages > 1 %>
+      <nav class="d-flex justify-content-center mt-4">
+        <%== pagy_nav(@pagy) %>
+      </nav>
+    <% end %>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-magic fa-4x text-muted mb-3"></i>
+      <h5 class="text-muted">Aún no tienes solicitudes personalizadas</h5>
+      <p class="text-muted">Diseña la experiencia perfecta con ayuda del equipo Iyaiclub</p>
+      <%= link_to new_custom_request_path, class: "btn btn-warning rounded-pill fw-semibold" do %>
+        <i class="fas fa-star me-1"></i> Crear mi primera solicitud
+      <% end %>
+    </div>
+  <% end %>
+</div>

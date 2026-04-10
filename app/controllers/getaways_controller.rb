@@ -35,6 +35,7 @@ class GetawaysController < ApplicationController
     if @getaway.save
       redirect_to @getaway, notice: 'La escapada ha sido creada correctamente.'
     else
+      flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar la escapada. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -49,6 +50,7 @@ class GetawaysController < ApplicationController
     if @getaway.update(getaway_params)
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
+      flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end

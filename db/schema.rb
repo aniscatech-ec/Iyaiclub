@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_10_000004) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -89,6 +89,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "custom_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "assigned_to_id"
+    t.string "destination", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.integer "guests_count", null: false
+    t.decimal "estimated_budget", precision: 10, scale: 2
+    t.integer "experience_type", default: 0, null: false
+    t.text "interests"
+    t.text "preferences"
+    t.text "comments"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_to_id"], name: "index_custom_requests_on_assigned_to_id"
+    t.index ["experience_type"], name: "index_custom_requests_on_experience_type"
+    t.index ["status"], name: "index_custom_requests_on_status"
+    t.index ["user_id"], name: "index_custom_requests_on_user_id"
+  end
+
   create_table "establishment_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.bigint "amenity_id", null: false
@@ -133,10 +154,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
     t.time "opening_time"
     t.time "closing_time"
     t.integer "status", default: 0, null: false
+    t.integer "tipo_gestion_reserva", default: 0, null: false
     t.index ["category"], name: "index_establishments_on_category"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["country_id"], name: "index_establishments_on_country_id"
     t.index ["status"], name: "index_establishments_on_status"
+    t.index ["tipo_gestion_reserva"], name: "index_establishments_on_tipo_gestion_reserva"
     t.index ["user_id"], name: "index_establishments_on_user_id"
   end
 
@@ -350,6 +373,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
     t.index ["restaurant_id"], name: "index_restaurant_hours_on_restaurant_id"
   end
 
+  create_table "restaurant_tables", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.string "name", null: false
+    t.string "table_type"
+    t.integer "seats", null: false
+    t.integer "quantity", default: 1
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["restaurant_id"], name: "index_restaurant_tables_on_restaurant_id"
+  end
+
   create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "cuisine_type"
@@ -376,6 +411,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
     t.index ["active"], name: "index_rewards_on_active"
     t.index ["category"], name: "index_rewards_on_category"
     t.index ["establishment_id"], name: "index_rewards_on_establishment_id"
+  end
+
+  create_table "room_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "room_id", null: false
+    t.bigint "amenity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["amenity_id"], name: "index_room_amenities_on_amenity_id"
+    t.index ["room_id", "amenity_id"], name: "index_room_amenities_on_room_id_and_amenity_id", unique: true
+    t.index ["room_id"], name: "index_room_amenities_on_room_id"
+  end
+
+  create_table "rooms", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "hotel_id"
+    t.string "name", null: false
+    t.string "room_type"
+    t.string "bed_type"
+    t.integer "num_beds"
+    t.decimal "price_per_night", precision: 10, scale: 2
+    t.integer "guest_capacity"
+    t.text "description"
+    t.integer "quantity", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "temporary_lodging_id"
+    t.index ["hotel_id"], name: "index_rooms_on_hotel_id"
+    t.index ["temporary_lodging_id"], name: "index_rooms_on_temporary_lodging_id"
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -532,6 +594,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
   add_foreign_key "booking_requests", "users"
   add_foreign_key "bookings", "units"
   add_foreign_key "cities", "provinces"
+  add_foreign_key "custom_requests", "users"
+  add_foreign_key "custom_requests", "users", column: "assigned_to_id"
   add_foreign_key "establishment_amenities", "amenities"
   add_foreign_key "establishment_amenities", "establishments"
   add_foreign_key "establishments", "cities"
@@ -555,8 +619,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_160000) do
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"
+  add_foreign_key "restaurant_tables", "restaurants"
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "rewards", "establishments"
+  add_foreign_key "room_amenities", "amenities"
+  add_foreign_key "room_amenities", "rooms"
+  add_foreign_key "rooms", "hotels"
+  add_foreign_key "rooms", "temporary_lodgings"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "transports", "establishments"
   add_foreign_key "unit_availabilities", "units"

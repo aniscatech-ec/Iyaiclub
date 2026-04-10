@@ -31,6 +31,7 @@ class LodgingsController < ApplicationController
     if @lodging.save
       redirect_to @lodging, notice: 'El hospedaje ha sido creado correctamente.'
     else
+      flash.now[:alert] = helpers.validation_summary_text(@lodging) || "No pudimos guardar el hospedaje. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -42,6 +43,7 @@ class LodgingsController < ApplicationController
     if @lodging.update(lodging_params)
       redirect_to @lodging, notice: 'El hospedaje ha sido actualizado correctamente.'
     else
+      flash.now[:alert] = helpers.validation_summary_text(@lodging) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end

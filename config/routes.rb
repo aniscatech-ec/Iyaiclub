@@ -63,6 +63,10 @@ Rails.application.routes.draw do
   resources :amenities
   get "home/home"
 
+  # Solicitudes personalizadas (Reserva Personalizada Iyaiclub)
+  # Rutas públicas: sólo new/create (requieren login en el controller).
+  resources :custom_requests, only: [:new, :create]
+
   resources :establishments do
     collection do
       get :choose_type  # pantalla de tarjetas
@@ -88,6 +92,7 @@ Rails.application.routes.draw do
     end
     resources :redemptions, only: [:index]
     resources :memberships, only: [:index]
+    resources :custom_requests, only: [:index, :show]
   end
   namespace :afiliado do
     get "dashboard/index"
@@ -141,6 +146,13 @@ Rails.application.routes.draw do
       member do
         patch :approve
         patch :cancel
+      end
+    end
+
+    resources :custom_requests, only: [:index, :show, :update, :destroy] do
+      member do
+        patch :assign
+        patch :change_status
       end
     end
   end

@@ -87,7 +87,7 @@ class HotelsController < ApplicationController
     if @hotel.save
       redirect_to @hotel, notice: "Hotel creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el hotel. Errores: #{@hotel.errors.full_messages.join(', ')}"
+      flash.now[:alert] = helpers.validation_summary_text(@hotel) || "No pudimos guardar el hotel. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -134,7 +134,7 @@ class HotelsController < ApplicationController
       Rails.logger.debug "=== UPDATE ERRORS ==="
       Rails.logger.debug @hotel.errors.full_messages
       Rails.logger.debug @hotel.establishment&.errors&.full_messages
-      flash.now[:alert] = "No pudimos guardar los cambios. Errores: #{@hotel.errors.full_messages.join(', ')}"
+      flash.now[:alert] = helpers.validation_summary_text(@hotel) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end
@@ -185,6 +185,12 @@ class HotelsController < ApplicationController
       :total_rooms,
       :available_rooms,
       :max_guests,
+      rooms_attributes: [
+        :id, :name, :room_type, :bed_type, :num_beds,
+        :price_per_night, :guest_capacity, :description,
+        :quantity, :photo, :_destroy,
+        amenity_ids: []
+      ],
       establishment_attributes: [
         :user_id,
         :id,
@@ -209,6 +215,7 @@ class HotelsController < ApplicationController
         :refund_policy,
         :check_in_time,
         :check_out_time,
+        :tipo_gestion_reserva,
         policies: [],
         amenity_ids: [],
         images: [],

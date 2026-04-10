@@ -17,28 +17,7 @@
   <% end %>
 </div>
 
-<% if @hotel.errors.any? %>
-  <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
-    <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>Por favor corrige lo siguiente:</strong>
-    <ul class="mb-0 mt-2">
-      <% @hotel.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      <% if @hotel.establishment&.errors&.any? %>
-        <% @hotel.establishment.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-      <% if @hotel.establishment&.legal_info&.errors&.any? %>
-        <% @hotel.establishment.legal_info.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-    </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-<% end %>
+<%= render_validation_errors(@hotel) %>
 
 <%= form_with(model: @hotel,
               local: true,

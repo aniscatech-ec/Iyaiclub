@@ -1,17 +1,5 @@
 <%= form_with(model: establishment, local: true, html: { class: "establishment-form", data: { controller: "form-validation" } }) do |form| %>
-  <% if establishment.errors.any? %>
-    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
-      <div class="d-flex align-items-center mb-2">
-        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
-        <strong>Se encontraron <%= establishment.errors.count %> error(es):</strong>
-      </div>
-      <ul class="mb-0 ps-3">
-        <% establishment.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render_validation_errors(establishment) %>
 
   <% if current_user.administrador? %>
     <div class="card shadow-sm border-0 rounded-3 mb-4">

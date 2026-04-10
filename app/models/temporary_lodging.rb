@@ -1,5 +1,6 @@
 class TemporaryLodging < ApplicationRecord
   belongs_to :establishment
+  has_many :rooms, dependent: :destroy
 
   LODGING_TYPES = %w[casa departamento quinta habitacion].freeze
 
@@ -22,4 +23,15 @@ class TemporaryLodging < ApplicationRecord
            to: :establishment
 
   accepts_nested_attributes_for :establishment
+  accepts_nested_attributes_for :rooms, allow_destroy: true
+
+  validate :validate_rooms_limit
+
+  private
+
+  def validate_rooms_limit
+    if rooms.reject(&:marked_for_destruction?).length > 10
+      errors.add(:rooms, "Un alojamiento puede tener máximo 10 tipos de habitaciones.")
+    end
+  end
 end

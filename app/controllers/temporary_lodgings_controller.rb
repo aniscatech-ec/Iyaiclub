@@ -57,7 +57,7 @@ class TemporaryLodgingsController < ApplicationController
     if @temporary_lodging.save
       redirect_to @temporary_lodging, notice: "Alojamiento temporal creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el alojamiento. Por favor revisa los campos."
+      flash.now[:alert] = helpers.validation_summary_text(@temporary_lodging) || "No pudimos guardar el alojamiento. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -77,7 +77,7 @@ class TemporaryLodgingsController < ApplicationController
 
       redirect_to @temporary_lodging, notice: "Alojamiento temporal actualizado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos."
+      flash.now[:alert] = helpers.validation_summary_text(@temporary_lodging) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end
@@ -102,6 +102,12 @@ class TemporaryLodgingsController < ApplicationController
       :max_guests,
       :total_rooms,
       :total_bathrooms,
+      rooms_attributes: [
+        :id, :name, :room_type, :bed_type, :num_beds,
+        :price_per_night, :guest_capacity, :description,
+        :quantity, :photo, :_destroy,
+        amenity_ids: []
+      ],
       establishment_attributes: [
         :id,
         :user_id,

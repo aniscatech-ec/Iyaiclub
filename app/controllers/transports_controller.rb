@@ -59,7 +59,7 @@ class TransportsController < ApplicationController
     if @transport.save
       redirect_to @transport, notice: "Transporte creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el transporte. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = helpers.validation_summary_text(@transport) || "No pudimos guardar el transporte. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -68,7 +68,7 @@ class TransportsController < ApplicationController
     if @transport.update(transport_params)
       redirect_to @transport, notice: "Transporte actualizado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos."
+      flash.now[:alert] = helpers.validation_summary_text(@transport) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end

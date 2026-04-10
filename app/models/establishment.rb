@@ -10,6 +10,7 @@ class Establishment < ApplicationRecord
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
   enum :status, { active: 0, inactive: 1 }, default: :active
+  enum :tipo_gestion_reserva, { autogestion: 0, iyaiclub: 1 }, default: :autogestion
 
   # ── Validaciones obligatorias según documento de requerimientos ──
   validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }

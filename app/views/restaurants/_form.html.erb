@@ -1,15 +1,6 @@
 <%= form_with(model: restaurant, local: true, data: { controller: "form-validation gallery", action: "submit->gallery#submitForm",
                                                       model: "restaurant" }) do |f| %>
-  <% if restaurant.errors.any? %>
-    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
-      <i class="fas fa-exclamation-triangle me-2"></i>
-      <strong><%= pluralize(restaurant.errors.count, "error") %> encontrados:</strong>
-      <ul class="mb-0 mt-2">
-        <% restaurant.errors.full_messages.each { |m| concat(content_tag(:li, m)) } %>
-      </ul>
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  <% end %>
+  <%= render_validation_errors(restaurant) %>
 
   <%= f.fields_for :establishment do |e| %>
 
@@ -99,42 +90,129 @@
       </div>
     </div>
 
-    <!-- ═══════════════ 3. CAPACIDAD ═══════════════ -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
-      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-chair me-2"></i> 3. Capacidad</h5>
+    <!-- ═══════════════ 3. TIPOS DE MESAS ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4" data-controller="nested-form">
+      <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-chair me-2"></i> 3. Tipos de mesas <small class="opacity-75">(max. 10)</small></h5>
+        <button type="button" class="btn btn-sm btn-light fw-semibold rounded-pill px-3" data-action="click->nested-form#add">
+          <i class="fas fa-plus me-1"></i> Añadir tipo de mesa
+        </button>
       </div>
       <div class="card-body p-4">
-        <div class="row g-3">
-          <div class="col-md-3">
-            <%= f.label :total_tables, "Total de mesas", class: "form-label fw-semibold" %>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-utensils"></i></span>
-              <%= f.number_field :total_tables, class: "form-control", min: 0, placeholder: "Ej: 15" %>
-            </div>
+
+        <%# ── Template para nueva mesa ── %>
+        <template data-nested-form-target="template">
+          <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #fdf5ff;" data-new-record="true">
+            <%= f.fields_for :restaurant_tables, RestaurantTable.new, child_index: 'NEW_RECORD' do |t| %>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-utensils me-2" style="color: #8e44ad;"></i> Nueva mesa</h6>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                  <i class="fas fa-trash me-1"></i> Eliminar
+                </button>
+              </div>
+              <%= t.hidden_field :_destroy %>
+
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <%= t.label :name, "Nombre/Tipo de mesa", class: "form-label fw-semibold required-field" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                    <%= t.text_field :name, class: "form-control", required: true, placeholder: "Ej: Mesa para 2, Reservado VIP" %>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <%= t.label :table_type, "Tipo", class: "form-label fw-semibold" %>
+                  <%= t.select :table_type,
+                      options_for_select([["Estándar", "standard"], ["VIP", "vip"], ["Exterior", "outdoor"], ["Barra", "bar"], ["Sala privada", "private_room"]]),
+                      { include_blank: "Seleccione" },
+                      class: "form-select" %>
+                </div>
+
+                <div class="col-md-2">
+                  <%= t.label :seats, "Asientos", class: "form-label fw-semibold required-field" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                    <%= t.number_field :seats, class: "form-control", min: 1, required: true, placeholder: "Ej: 4" %>
+                  </div>
+                </div>
+
+                <div class="col-md-2">
+                  <%= t.label :quantity, "Cantidad", class: "form-label fw-semibold" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                    <%= t.number_field :quantity, class: "form-control", min: 1, value: 1, placeholder: "Ej: 5" %>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <%= t.label :description, "Descripción", class: "form-label fw-semibold" %>
+                  <%= t.text_area :description, rows: 2, class: "form-control", placeholder: "Ubicación, características especiales..." %>
+                </div>
+              </div>
+            <% end %>
           </div>
-          <div class="col-md-3">
-            <%= f.label :seats_per_table, "Personas por mesa", class: "form-label fw-semibold" %>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
-              <%= f.number_field :seats_per_table, class: "form-control", min: 0, placeholder: "Ej: 4" %>
+        </template>
+
+        <%# ── Mesas existentes ── %>
+        <div data-nested-form-target="target">
+          <%= f.fields_for :restaurant_tables do |t| %>
+            <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #fdf5ff;" data-new-record="<%= t.object.new_record? %>">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-utensils me-2" style="color: #8e44ad;"></i> <%= t.object.name || "Mesa" %></h6>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                  <i class="fas fa-trash me-1"></i> Eliminar
+                </button>
+              </div>
+              <%= t.hidden_field :_destroy %>
+
+              <div class="row g-3">
+                <div class="col-md-5">
+                  <%= t.label :name, "Nombre/Tipo de mesa", class: "form-label fw-semibold required-field" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                    <%= t.text_field :name, class: "form-control", required: true, placeholder: "Ej: Mesa para 2, Reservado VIP" %>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <%= t.label :table_type, "Tipo", class: "form-label fw-semibold" %>
+                  <%= t.select :table_type,
+                      options_for_select([["Estándar", "standard"], ["VIP", "vip"], ["Exterior", "outdoor"], ["Barra", "bar"], ["Sala privada", "private_room"]], t.object.table_type),
+                      { include_blank: "Seleccione" },
+                      class: "form-select" %>
+                </div>
+
+                <div class="col-md-2">
+                  <%= t.label :seats, "Asientos", class: "form-label fw-semibold required-field" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                    <%= t.number_field :seats, class: "form-control", min: 1, required: true, placeholder: "Ej: 4" %>
+                  </div>
+                </div>
+
+                <div class="col-md-2">
+                  <%= t.label :quantity, "Cantidad", class: "form-label fw-semibold" %>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                    <%= t.number_field :quantity, class: "form-control", min: 1, placeholder: "Ej: 5" %>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <%= t.label :description, "Descripción", class: "form-label fw-semibold" %>
+                  <%= t.text_area :description, rows: 2, class: "form-control", placeholder: "Ubicación, características especiales..." %>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="col-md-3">
-            <%= f.label :available_tables, "Mesas disponibles", class: "form-label fw-semibold" %>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
-              <%= f.number_field :available_tables, class: "form-control", min: 0, placeholder: "Ej: 10" %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <%= f.label :total_capacity, "Aforo total", class: "form-label fw-semibold" %>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-users"></i></span>
-              <%= f.number_field :total_capacity, class: "form-control", min: 0, placeholder: "Ej: 60" %>
-            </div>
-          </div>
+          <% end %>
         </div>
+
+        <% if restaurant.restaurant_tables.empty? %>
+          <p class="text-muted text-center py-3 mb-0">
+            <i class="fas fa-info-circle me-1"></i> Aún no has agregado tipos de mesas. Haz click en "Añadir tipo de mesa" para comenzar.
+          </p>
+        <% end %>
       </div>
     </div>
 
@@ -453,6 +531,52 @@
       <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 8. Galerías de imágenes</h5>
     </div>
     <div class="card-body p-4">
+      <%# Galerías existentes (solo aparecen en edit) %>
+      <%= f.fields_for :establishment do |e| %>
+        <% if e.object.galleries.any? %>
+          <div class="mb-4">
+            <h6 class="fw-bold text-muted mb-3"><i class="fas fa-folder-open me-1"></i> Galerías existentes</h6>
+            <%= e.fields_for :galleries do |g| %>
+              <div class="border rounded-3 p-3 mb-3" style="background: #fafafa;">
+                <%= g.hidden_field :id %>
+                <div class="mb-2">
+                  <%= g.label :name, "Nombre de la galería", class: "form-label fw-semibold" %>
+                  <%= g.text_field :name, class: "form-control" %>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <% g.object.gallery_images.each do |img| %>
+                    <div class="position-relative">
+                      <% if img.persisted? && img.file.attached? %>
+                        <%= image_tag img.file.variant(resize_to_limit: [200, 120]), class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
+                      <% end %>
+                      <%= g.fields_for :gallery_images, img do |gi| %>
+                        <%= gi.hidden_field :id %>
+                        <div class="form-check mt-1">
+                          <%= gi.check_box :_destroy, class: "form-check-input" %>
+                          <%= gi.label :_destroy, "Eliminar imagen", class: "form-check-label small text-danger" %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label fw-semibold small">Agregar imágenes a esta galería</label>
+                  <%= file_field_tag "gallery_uploads[#{g.object.id}][]", multiple: true, accept: "image/*", class: "form-control form-control-sm" %>
+                  <small class="text-muted">No reemplazan las existentes.</small>
+                </div>
+
+                <div class="form-check">
+                  <%= g.check_box :_destroy, class: "form-check-input" %>
+                  <%= g.label :_destroy, "Eliminar galería completa", class: "form-check-label text-danger" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+
       <div id="galleries-container" data-gallery-target="container"></div>
       <div class="border rounded-3 p-3" style="background: #fafafa;">
         <div class="row g-2 align-items-end">

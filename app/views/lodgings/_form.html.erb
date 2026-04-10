@@ -1,15 +1,6 @@
-<%= form_with(model: [@establishment, lodging].compact, local: true, class: 'card shadow-sm border-info') do |form| %>
+<%= form_with(model: [@establishment, lodging].compact, local: true, class: 'card shadow-sm border-info', data: { controller: "form-validation" }) do |form| %>
   <div class="card-body">
-    <% if lodging.errors.any? %>
-      <div class="alert alert-danger">
-        <h5 class="alert-heading"><%= pluralize(lodging.errors.count, "error") %> impidieron guardar:</h5>
-        <ul class="mb-0">
-          <% lodging.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+    <%= render_validation_errors(lodging) %>
 
     <% if @establishment %>
       <%= form.hidden_field :establishment_id, value: @establishment.id %>
@@ -17,13 +8,13 @@
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <%= form.label :lodging_type, "Tipo de Hospedaje", class: "form-label fw-bold" %>
-        <%= form.select :lodging_type, Lodging.lodging_types.keys.map { |s| [s.titleize, s] }, { include_blank: "Seleccione un tipo" }, class: "form-select" %>
+        <%= form.label :lodging_type, "Tipo de Hospedaje", class: "form-label fw-bold required-field" %>
+        <%= form.select :lodging_type, Lodging.lodging_types.keys.map { |s| [s.titleize, s] }, { include_blank: "Seleccione un tipo" }, class: "form-select", required: true %>
       </div>
 
       <div class="col-md-6 mb-3">
-        <%= form.label :price_per_night, "Precio por noche ($)", class: "form-label fw-bold" %>
-        <%= form.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "Ej. 45.00" %>
+        <%= form.label :price_per_night, "Precio por noche ($)", class: "form-label fw-bold required-field" %>
+        <%= form.number_field :price_per_night, step: 0.01, class: "form-control", placeholder: "Ej. 45.00", required: true %>
       </div>
     </div>
 
