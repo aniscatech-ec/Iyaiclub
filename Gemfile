@@ -73,3 +73,5 @@ group :test do
 end
 gem 'wicked'
 gem 'pagy', '~> 9.0'
+gem 'rqrcode', '~> 3.2'
+gem 'prawn', '~> 2.5'

@@ -94,6 +94,21 @@
                      phone: phone,
                      message: wa_message %>
 
+          <%# ---- Botón de pago con PayPhone (solo si está pendiente) ---- %>
+          <% if @booking.pendiente? && @booking.total_price.to_f > 0 %>
+            <hr>
+            <div class="text-center">
+              <%= form_with url: payphone_checkout_path, method: :post, local: true do |pf| %>
+                <%= pf.hidden_field :payable_type, value: "Booking" %>
+                <%= pf.hidden_field :payable_id, value: @booking.id %>
+                <%= pf.submit "Pagar con PayPhone", class: "btn btn-success btn-lg" %>
+              <% end %>
+              <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                <i class="fas fa-lock me-1"></i> Pago seguro con Visa, MasterCard, Diners Club o Discover
+              </p>
+            </div>
+          <% end %>
+
         </div>
       </div>
 

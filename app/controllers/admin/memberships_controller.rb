@@ -27,6 +27,16 @@ class Admin::MembershipsController < ApplicationController
     end
   end
 
+  def update_plan_price
+    @plan_price = PlanPrice.find_by(id: @membership.plan_type)
+    
+    if @plan_price.update(plan_price_params)
+      redirect_to admin_membership_path(@membership), notice: "Precio del plan actualizado correctamente."
+    else
+      redirect_to admin_membership_path(@membership), alert: "Error al actualizar el precio del plan."
+    end
+  end
+
   def destroy
     @membership.destroy
     redirect_to admin_memberships_path, notice: "Membresía eliminada correctamente."
@@ -59,5 +69,9 @@ class Admin::MembershipsController < ApplicationController
 
   def membership_params
     params.require(:subscription).permit(:status, :end_date, :payment_method)
+  end
+
+  def plan_price_params
+    params.require(:plan_price).permit(:price)
   end
 end

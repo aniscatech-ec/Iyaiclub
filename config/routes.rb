@@ -45,6 +45,13 @@ Rails.application.routes.draw do
   end
 
 
+  # PayPhone payment gateway
+  resource :payphone, only: [], controller: 'payphone' do
+    post :checkout
+    get :callback
+    get :cancel
+  end
+
   resources :plan_prices
   resources :subscriptions do
     member do
@@ -146,6 +153,7 @@ Rails.application.routes.draw do
       member do
         patch :approve
         patch :cancel
+        patch :update_plan_price
       end
     end
 
