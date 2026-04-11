@@ -4,6 +4,7 @@ class Room < ApplicationRecord
   has_many :room_beds, dependent: :destroy
   has_many :room_amenities, dependent: :destroy
   has_many :amenities, through: :room_amenities
+  has_many :bookings, dependent: :destroy
   has_one_attached :photo
 
   accepts_nested_attributes_for :room_beds, allow_destroy: true

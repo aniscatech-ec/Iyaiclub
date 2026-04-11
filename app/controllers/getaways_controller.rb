@@ -3,7 +3,7 @@ class GetawaysController < ApplicationController
   before_action :set_establishment, only: [:index, :new, :create]
   before_action :set_getaway, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create_getaway!, only: [:new, :create]
-  before_action :authorize_modify_getaway!, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_modify_getaway!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index

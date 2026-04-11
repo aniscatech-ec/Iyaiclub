@@ -3,7 +3,7 @@ class LodgingsController < ApplicationController
   before_action :set_establishment, only: [:index, :new, :create]
   before_action :set_lodging, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create!, only: [:new, :create]
-  before_action :authorize_modify!, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_modify!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index

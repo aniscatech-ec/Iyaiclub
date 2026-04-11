@@ -3,10 +3,10 @@ class Turista::BookingsController < ApplicationController
   layout "dashboard"
 
   def index
-    @bookings = current_user.bookings.includes(unit: :establishment).order(created_at: :desc)
+    @bookings = current_user.bookings.includes(:room, unit: :establishment).order(created_at: :desc)
   end
 
   def show
-    @booking = current_user.bookings.includes(unit: :establishment).find(params[:id])
+    @booking = current_user.bookings.includes(:room, unit: :establishment).find(params[:id])
   end
 end

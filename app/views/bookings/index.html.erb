@@ -13,7 +13,7 @@
           <tr>
             <th>#</th>
             <th>Huésped</th>
-            <th>Unidad</th>
+            <th>Habitación</th>
             <th>Entrada</th>
             <th>Salida</th>
             <th>Huéspedes</th>
@@ -29,7 +29,7 @@
                 <strong><%= booking.guest_name %></strong>
                 <br><small class="text-muted"><%= booking.guest_email %></small>
               </td>
-              <td><%= booking.unit.unit_type.presence || "Sin tipo" %></td>
+              <td><%= booking.room&.name || booking.unit&.unit_type.presence || "—" %></td>
               <td><%= booking.start_date.strftime("%d/%m/%Y") %></td>
               <td><%= booking.end_date.strftime("%d/%m/%Y") %></td>
               <td class="text-center"><%= booking.guest_count %></td>

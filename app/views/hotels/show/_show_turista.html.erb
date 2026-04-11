@@ -119,7 +119,7 @@
       </div>
 
       <!-- HABITACIONES -->
-      <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div id="habitaciones" class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
           <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> Habitaciones disponibles</h5>
         </div>
@@ -179,7 +179,7 @@
                       <% end %>
                       <% if user_signed_in? %>
                         <% if est.autogestion? %>
-                          <%= link_to new_hotel_booking_path(hotel), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
+                          <%= link_to new_hotel_booking_path(hotel, room_id: room.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
                             <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
                           <% end %>
                         <% else %>
@@ -299,9 +299,9 @@
             <% if user_signed_in? %>
               <% if est.autogestion? %>
                 <%# Gestión directa: botones de reserva directa + WhatsApp %>
-                <%= link_to new_hotel_booking_path(hotel), class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
-                  <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
-                <% end %>
+                <a href="#habitaciones" class="btn btn-primary rounded-pill fw-semibold btn-lg" data-turbo="false">
+                  <i class="fas fa-calendar-plus me-1"></i> Seleccionar habitación
+                </a>
 
                 <% if whatsapp_phone.present? %>
                   <a href="https://wa.me/<%= whatsapp_phone.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, estoy interesado en #{est.name}") %>"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_10_000005) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_10_171300) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -60,7 +60,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_10_000005) do
   end
 
   create_table "bookings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "unit_id", null: false
+    t.bigint "unit_id"
     t.string "guest_name"
     t.string "guest_email"
     t.integer "guest_count"
@@ -70,6 +70,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_10_000005) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "room_id"
+    t.index ["room_id"], name: "index_bookings_on_room_id"
     t.index ["status"], name: "index_bookings_on_status"
     t.index ["unit_id"], name: "index_bookings_on_unit_id"
   end
@@ -601,6 +603,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_10_000005) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "booking_requests", "establishments"
   add_foreign_key "booking_requests", "users"
+  add_foreign_key "bookings", "rooms"
   add_foreign_key "bookings", "units"
   add_foreign_key "cities", "provinces"
   add_foreign_key "custom_requests", "users"

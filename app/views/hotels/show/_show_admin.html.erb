@@ -299,7 +299,7 @@
           <% end %>
         </div>
         <div class="card-body p-0">
-          <% pending_bookings = Booking.joins(unit: :establishment).where(establishments: { id: est.id }, status: "pendiente").limit(5) %>
+          <% pending_bookings = Booking.joins(:room).where(rooms: { hotel_id: hotel.id }, status: "pendiente").limit(5) %>
           <% if pending_bookings.any? %>
             <div class="table-responsive">
               <table class="table table-hover align-middle mb-0">

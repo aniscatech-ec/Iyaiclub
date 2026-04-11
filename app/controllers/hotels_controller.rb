@@ -2,7 +2,7 @@ class HotelsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_hotel, only: [:show, :edit, :update, :destroy]
   before_action :authorize_create_hotel!, only: [:new, :create]
-  before_action :authorize_modify_hotel!, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_modify_hotel!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index

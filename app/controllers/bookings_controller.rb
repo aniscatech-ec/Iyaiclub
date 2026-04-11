@@ -5,22 +5,22 @@ class BookingsController < ApplicationController
 
   def index
     @bookings = if current_user.turista?
-                  Booking.joins(unit: :establishment).where(guest_email: current_user.email, establishments: { id: @hotel.establishment.id })
+                  Booking.joins(:room).where(guest_email: current_user.email, rooms: { hotel_id: @hotel.id })
                 elsif current_user.afiliado? || current_user.administrador?
-                  Booking.joins(unit: :establishment).where(establishments: { id: @hotel.establishment.id })
+                  Booking.joins(:room).where(rooms: { hotel_id: @hotel.id })
                 else
                   Booking.none
                 end
   end
 
   def new
-    @unit = @hotel.establishment.units.find(params[:unit_id])
-    @booking = @unit.bookings.build(status: :pendiente)
+    @room = @hotel.rooms.find(params[:room_id])
+    @booking = @room.bookings.build(status: :pendiente)
   end
 
   def create
-    @unit = @hotel.establishment.units.find(booking_params[:unit_id])
-    @booking = @unit.bookings.build(booking_params.except(:unit_id))
+    @room = @hotel.rooms.find(booking_params[:room_id])
+    @booking = @room.bookings.build(booking_params.except(:room_id))
     @booking.status = :pendiente
 
     if @booking.save
@@ -47,16 +47,14 @@ class BookingsController < ApplicationController
   private
 
   def set_hotel
-    @hotel = Hotel.includes(establishment: [:units, :user]).find(params[:hotel_id])
+    @hotel = Hotel.includes(:rooms, :establishment).find(params[:hotel_id])
   end
 
   def set_booking
-    @booking = Booking.joins(unit: :establishment)
-                      .where(establishments: { id: @hotel.establishment.id })
-                      .find(params[:id])
+    @booking = Booking.joins(:room).where(rooms: { hotel_id: @hotel.id }).find(params[:id])
   end
 
   def booking_params
-    params.require(:booking).permit(:unit_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date)
+    params.require(:booking).permit(:room_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date)
   end
 end
