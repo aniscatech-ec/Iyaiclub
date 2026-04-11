@@ -1,5 +1,6 @@
 class Lodging < ApplicationRecord
   belongs_to :establishment
+  has_many :bookings, as: :bookable, dependent: :destroy
 
   enum :lodging_type, {
     hotel: 0,

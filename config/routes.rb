@@ -2,7 +2,19 @@ Rails.application.routes.draw do
   resources :restaurants
   resources :transports
   resources :temporary_lodgings
-  resources :getaways, only: [:index, :show]
+  resources :getaways, only: [:index, :show] do
+    resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
+  end
+  
+  resources :experiences, only: [] do
+    resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
+  end
+
+  resources :lodgings, only: [] do
+    resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
+  end
+
+  resources :bookings, only: [:index]
 
   # API para ubicaciones dinámicas
   namespace :locations do
@@ -26,7 +38,7 @@ Rails.application.routes.draw do
     member do
       delete :remove_image
     end
-    resources :bookings, only: [:index, :new, :create, :show, :update]
+    resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
   end
 
   resources :countries do

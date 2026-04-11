@@ -6,7 +6,7 @@ class Unit < ApplicationRecord
   # store :seasonal_prices, accessors: [:high, :low], coder: JSON
   has_many :unit_prices, dependent: :destroy
   has_many :unit_availabilities, dependent: :destroy
-  has_many :bookings, dependent: :destroy
+  has_many :bookings, as: :bookable, dependent: :destroy
   # Guardar un JSON de configuración de camas
   # serialize :bed_configuration
 

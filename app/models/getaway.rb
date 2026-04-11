@@ -1,5 +1,6 @@
 class Getaway < ApplicationRecord
   belongs_to :establishment
+  has_many :bookings, as: :bookable, dependent: :destroy
   accepts_nested_attributes_for :establishment
 
   enum :subcategory, {

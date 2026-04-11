@@ -20,9 +20,7 @@ class User < ApplicationRecord
     user_points.sum(:points_earned) - redemptions.sum(:points_used)
   end
 
-  def bookings
-    Booking.where(guest_email: email)
-  end
+  has_many :bookings, dependent: :destroy
 
   def active_membership
     subscriptions.where(status: :activada).where("end_date >= ?", Date.current).order(end_date: :desc).first
