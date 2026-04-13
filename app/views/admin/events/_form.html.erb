@@ -1,0 +1,119 @@
+<%= form_with(model: [:admin, @event], local: true, class: "needs-validation") do |form| %>
+  <% if @event.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% @event.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Evento
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="mb-3">
+            <%= form.label :name, "Nombre del Evento", class: "form-label fw-bold" %>
+            <%= form.text_field :name, class: "form-control", placeholder: "Ej: Expo Quito 2026" %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :description, "Descripción", class: "form-label fw-bold" %>
+            <%= form.text_area :description, class: "form-control", rows: 4, placeholder: "Describe el evento..." %>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :event_date, "Fecha del Evento", class: "form-label fw-bold" %>
+                <%= form.datetime_field :event_date, class: "form-control" %>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :status, "Estado", class: "form-label fw-bold" %>
+                <%= form.select :status, Event.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :location, "Lugar", class: "form-label fw-bold" %>
+                <%= form.text_field :location, class: "form-control", placeholder: "Ej: Centro de Convenciones" %>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="mb-3">
+                <%= form.label :maps_url, "URL Google Maps", class: "form-label fw-bold" %>
+                <%= form.url_field :maps_url, class: "form-control", placeholder: "https://maps.google.com/..." %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-ticket-alt me-2 text-success"></i>
+            Tickets y Precios
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="mb-3">
+            <%= form.label :ticket_price, "Precio por Ticket (USD)", class: "form-label fw-bold" %>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <%= form.number_field :ticket_price, class: "form-control", step: 0.01, min: 0 %>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :total_tickets, "Total de Tickets Disponibles", class: "form-label fw-bold" %>
+            <%= form.number_field :total_tickets, class: "form-control", min: 1 %>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :available_tickets, "Tickets Disponibles", class: "form-label fw-bold" %>
+            <%= form.number_field :available_tickets, class: "form-control", min: 0 %>
+            <small class="text-muted">Se actualiza automáticamente al vender tickets</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-image me-2 text-info"></i>
+            Imagen del Evento
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <%= form.file_field :image, class: "form-control", accept: "image/*" %>
+          <small class="text-muted">Imagen de portada del evento</small>
+          <% if @event.image.attached? %>
+            <div class="mt-2">
+              <%= image_tag @event.image, class: "img-fluid rounded", style: "max-height: 150px;" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-md-row gap-2 mb-4">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to "Cancelar", admin_events_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

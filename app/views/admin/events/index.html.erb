@@ -1,0 +1,111 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-calendar-alt me-2" style="color: var(--brand-orange);"></i>
+      Eventos
+    </h3>
+    <%= link_to new_admin_event_path, class: "btn btn-success" do %>
+      <i class="fas fa-plus me-1"></i> Nuevo Evento
+    <% end %>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body">
+      <%= form_with(url: admin_events_path, method: :get, local: true, class: "row g-3") do |f| %>
+        <div class="col-12 col-md-4">
+          <%= f.select :status,
+              options_for_select([["Todos", ""], ["Borrador", "borrador"], ["Publicado", "publicado"], ["Cancelado", "cancelado"], ["Finalizado", "finalizado"]], params[:status]),
+              { prompt: "Filtrar por estado" },
+              class: "form-select" %>
+        </div>
+        <div class="col-12 col-md-2">
+          <%= f.submit "Filtrar", class: "btn btn-primary w-100" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Lista de eventos -->
+  <% if @events.any? %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Evento</th>
+                <th>Fecha</th>
+                <th>Lugar</th>
+                <th>Precio</th>
+                <th>Tickets</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @events.each do |event| %>
+                <tr>
+                  <td>
+                    <strong><%= event.name %></strong>
+                  </td>
+                  <td>
+                    <% if event.event_date.present? %>
+                      <%= event.event_date.strftime('%d/%m/%Y') %>
+                    <% else %>
+                      <span class="text-muted">Sin fecha</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <small><%= event.location.presence || "-" %></small>
+                  </td>
+                  <td>
+                    <strong>$<%= number_with_precision(event.ticket_price, precision: 2) %></strong>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary"><%= event.tickets.count %> vendidos</span>
+                    <% if event.total_tickets.present? %>
+                      <small class="text-muted">/ <%= event.available_tickets || 0 %> de <%= event.total_tickets %></small>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= event_status_badge(event.status) %>"><%= event.status.humanize %></span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <%= link_to admin_event_path(event), class: "btn btn-outline-info" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                      <%= link_to scanner_admin_event_path(event), class: "btn btn-outline-primary" do %>
+                        <i class="fas fa-qrcode"></i>
+                      <% end %>
+                      <%= link_to edit_admin_event_path(event), class: "btn btn-outline-warning" do %>
+                        <i class="fas fa-edit"></i>
+                      <% end %>
+                      <%= link_to admin_event_path(event), method: :delete,
+                          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar este evento?" },
+                          class: "btn btn-outline-danger" do %>
+                        <i class="fas fa-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+        <h5 class="fw-bold">No hay eventos</h5>
+        <p class="text-muted">Crea el primer evento para comenzar a vender tickets.</p>
+        <%= link_to new_admin_event_path, class: "btn btn-success" do %>
+          <i class="fas fa-plus me-1"></i> Crear evento
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

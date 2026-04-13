@@ -1,0 +1,78 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-success text-white border-0 pt-4 px-4">
+          <h4 class="fw-bold mb-0">
+            <i class="fas fa-ticket-alt me-2"></i>
+            Adquirir Ticket Gratuito
+          </h4>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Evento gratuito:</strong> <%= @event.name %>
+          </div>
+
+          <div class="mb-4">
+            <h6 class="fw-bold text-muted mb-2">Detalles del evento</h6>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-calendar me-2 text-primary"></i>Fecha</span>
+                <strong><%= @event.event_date&.strftime('%d/%m/%Y %H:%M') || 'Por definir' %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-map-marker-alt me-2 text-danger"></i>Lugar</span>
+                <strong><%= @event.location.presence || 'Por definir' %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-tag me-2 text-success"></i>Precio</span>
+                <strong class="text-success">GRATIS</strong>
+              </li>
+            </ul>
+          </div>
+
+          <%= form_with(model: @ticket, url: create_free_turista_event_tickets_path(@event), method: :post, local: true) do |form| %>
+            <% if @ticket.errors.any? %>
+              <div class="alert alert-danger">
+                <ul class="mb-0">
+                  <% @ticket.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= form.label :guest_name, "Nombre del asistente", class: "form-label fw-bold" %>
+              <%= form.text_field :guest_name, class: "form-control", value: current_user.name %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :guest_email, "Email", class: "form-label fw-bold" %>
+              <%= form.email_field :guest_email, class: "form-control", value: current_user.email %>
+            </div>
+
+            <div class="mb-4">
+              <%= form.label :guest_phone, "Teléfono (opcional)", class: "form-label fw-bold" %>
+              <%= form.telephone_field :guest_phone, class: "form-control", value: current_user.phone, placeholder: "0999999999" %>
+            </div>
+
+            <div class="alert alert-warning mb-4">
+              <small>
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Al confirmar, recibirás un ticket único con número de rifa por email. 
+                Este ticket es personal e intransferible.
+              </small>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row gap-2">
+              <%= form.submit "Confirmar Ticket Gratuito", class: "btn btn-success btn-lg" %>
+              <%= link_to "Cancelar", events_path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-calendar-alt me-2" style="color: var(--brand-orange);"></i>
+      Próximos Eventos
+    </h3>
+  </div>
+
+  <% if @events.any? %>
+    <div class="row g-4">
+      <% @events.each do |event| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <% if event.image.attached? %>
+              <%= image_tag event.image, class: "card-img-top", style: "height: 180px; object-fit: cover; border-radius: 16px 16px 0 0;" %>
+            <% else %>
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px; border-radius: 16px 16px 0 0;">
+                <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+              </div>
+            <% end %>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-0"><%= event.name %></h5>
+                <% if event.ticket_price.to_f == 0 %>
+                  <span class="badge bg-success">GRATIS</span>
+                <% else %>
+                  <span class="badge bg-primary">$<%= number_with_precision(event.ticket_price, precision: 2) %></span>
+                <% end %>
+              </div>
+              <p class="text-muted small mb-2">
+                <i class="fas fa-calendar me-1"></i>
+                <%= event.event_date&.strftime('%d/%m/%Y %H:%M') || 'Fecha por definir' %>
+              </p>
+              <p class="text-muted small mb-3">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                <%= event.location.presence || 'Lugar por definir' %>
+              </p>
+              <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                <%= event.description %>
+              </p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
+              <%= link_to event_path(event), class: "btn btn-outline-primary w-100" do %>
+                <i class="fas fa-info-circle me-1"></i> Ver detalles
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+        <h5 class="fw-bold">No hay eventos disponibles</h5>
+        <p class="text-muted">Pronto anunciaremos nuevos eventos. ¡Mantente atento!</p>
+      </div>
+    </div>
+  <% end %>
+</div>

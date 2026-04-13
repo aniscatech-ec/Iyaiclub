@@ -1,0 +1,182 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-calendar-alt me-2" style="color: var(--brand-orange);"></i>
+      <%= @event.name %>
+      <span class="badge <%= event_status_badge(@event.status) %> ms-2"><%= @event.status.humanize %></span>
+    </h3>
+    <div class="d-flex gap-2">
+      <%= link_to scanner_admin_event_path(@event), class: "btn btn-primary" do %>
+        <i class="fas fa-qrcode me-1"></i> Verificar Tickets
+      <% end %>
+      <%= link_to edit_admin_event_path(@event), class: "btn btn-warning" do %>
+        <i class="fas fa-edit me-1"></i> Editar
+      <% end %>
+      <%= link_to admin_events_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Info del evento -->
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Evento
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Fecha</span>
+              <strong><%= @event.event_date&.strftime('%d/%m/%Y %H:%M') || 'Sin fecha' %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Lugar</span>
+              <strong><%= @event.location.presence || '-' %></strong>
+            </li>
+            <% if @event.maps_url.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Mapa</span>
+                <%= link_to "Ver mapa", @event.maps_url, target: "_blank", class: "fw-bold" %>
+              </li>
+            <% end %>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Precio por ticket</span>
+              <strong>$<%= number_with_precision(@event.ticket_price, precision: 2) %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Tickets vendidos</span>
+              <strong><%= @event.tickets.count %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Disponibles / Total</span>
+              <strong><%= @event.available_tickets || 0 %> / <%= @event.total_tickets || '-' %></strong>
+            </li>
+          </ul>
+          <% if @event.description.present? %>
+            <div class="mt-3">
+              <small class="text-muted">Descripción</small>
+              <p class="mb-0"><%= @event.description %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sorteos -->
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-trophy me-2 text-warning"></i>
+            Sorteos
+          </h5>
+          <%= link_to new_admin_event_raffle_path(@event), class: "btn btn-sm btn-success" do %>
+            <i class="fas fa-plus me-1"></i> Nuevo Sorteo
+          <% end %>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <% if @raffles.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Premio</th>
+                    <th>Estado</th>
+                    <th>Ganador</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @raffles.each do |raffle| %>
+                    <tr>
+                      <td><strong><%= raffle.prize %></strong></td>
+                      <td><span class="badge <%= raffle.status == 'realizado' ? 'bg-success' : 'bg-secondary' %>"><%= raffle.status.humanize %></span></td>
+                      <td>
+                        <% if raffle.winner.present? %>
+                          <span class="badge bg-warning text-dark">🎱 <%= raffle.winning_number %></span>
+                          <small><%= raffle.winner.guest_name %></small>
+                        <% else %>
+                          <span class="text-muted">Pendiente</span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <%= link_to admin_event_raffle_path(@event, raffle), class: "btn btn-outline-info" do %>
+                            <i class="fas fa-eye"></i>
+                          <% end %>
+                          <% if raffle.pendiente? %>
+                            <%= link_to draw_winner_admin_event_raffle_path(@event, raffle),
+                                data: { turbo_method: :patch, turbo_confirm: "¿Realizar sorteo ahora?" },
+                                class: "btn btn-outline-warning" do %>
+                              <i class="fas fa-random"></i>
+                            <% end %>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-trophy fa-2x mb-2"></i>
+              <p>No hay sorteos creados</p>
+              <%= link_to new_admin_event_raffle_path(@event), class: "btn btn-outline-success btn-sm" do %>
+                <i class="fas fa-plus me-1"></i> Crear sorteo
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets vendidos -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-ticket-alt me-2 text-primary"></i>
+        Tickets Vendidos (<%= @tickets.count %>)
+      </h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% if @tickets.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Código</th>
+                <th>Asistente</th>
+                <th>N° Rifa</th>
+                <th>Estado</th>
+                <th>Fecha Compra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @tickets.each do |ticket| %>
+                <tr>
+                  <td><strong style="color: #2E7D32;"><%= ticket.ticket_code %></strong></td>
+                  <td><%= ticket.guest_name %></td>
+                  <td><span class="badge bg-warning text-dark"><%= ticket.raffle_number %></span></td>
+                  <td><span class="badge <%= ticket_status_badge_class(ticket.status) %>"><%= ticket.status.humanize %></span></td>
+                  <td><small><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-ticket-alt fa-2x mb-2"></i>
+          <p>No hay tickets vendidos aún</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

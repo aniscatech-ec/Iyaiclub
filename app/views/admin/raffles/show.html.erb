@@ -1,0 +1,92 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-trophy me-2" style="color: var(--brand-orange);"></i>
+      Sorteo: <%= @raffle.prize %>
+    </h3>
+    <div class="d-flex gap-2">
+      <% if @raffle.pendiente? %>
+        <%= link_to draw_winner_admin_event_raffle_path(@event, @raffle),
+            data: { turbo_method: :patch, turbo_confirm: "¿Realizar sorteo ahora? Se seleccionará un ganador aleatorio." },
+            class: "btn btn-warning" do %>
+          <i class="fas fa-random me-1"></i> Realizar Sorteo
+        <% end %>
+      <% end %>
+      <%= link_to admin_event_raffles_path(@event), class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Sorteo
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Evento</span>
+              <strong><%= @event.name %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Premio</span>
+              <strong><%= @raffle.prize %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Estado</span>
+              <span class="badge <%= @raffle.realizado? ? 'bg-success' : 'bg-secondary' %>"><%= @raffle.status.humanize %></span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Fecha programada</span>
+              <strong><%= @raffle.draw_date&.strftime('%d/%m/%Y %H:%M') || 'No definida' %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Tickets participantes</span>
+              <strong><%= @event.tickets.participantes.count %></strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <% if @raffle.realizado? && @winner.present? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #FFF8E1, #FFE082);">
+          <div class="card-body text-center py-4">
+            <i class="fas fa-trophy fa-3x mb-3" style="color: #F57F17;"></i>
+            <h4 class="fw-bold mb-3" style="color: #E65100;">¡Ganador del Sorteo!</h4>
+            <div class="mb-3">
+              <small class="text-muted">Número ganador</small>
+              <div class="fw-bold" style="font-size: 48px; color: #E65100;"><%= @raffle.winning_number %></div>
+            </div>
+            <div class="card border-0 shadow-sm rounded-3 p-3" style="background: white;">
+              <h5 class="fw-bold mb-1"><%= @winner.guest_name %></h5>
+              <small class="text-muted"><%= @winner.guest_email %></small>
+              <div class="mt-2">
+                <span class="badge bg-success"><%= @winner.ticket_code %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% elsif @raffle.pendiente? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body text-center py-5">
+            <i class="fas fa-hourglass-half fa-3x text-muted mb-3"></i>
+            <h5 class="fw-bold">Sorteo Pendiente</h5>
+            <p class="text-muted">Este sorteo aún no ha sido realizado.</p>
+            <%= link_to draw_winner_admin_event_raffle_path(@event, @raffle),
+                data: { turbo_method: :patch, turbo_confirm: "¿Realizar sorteo ahora?" },
+                class: "btn btn-warning btn-lg" do %>
+              <i class="fas fa-random me-1"></i> Realizar Sorteo
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

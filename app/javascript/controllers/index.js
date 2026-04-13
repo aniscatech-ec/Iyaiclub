@@ -8,6 +8,7 @@ import LocationUserController from "./location_user_controller"
 import NestedFormController from "./nested_form_controller"
 import GalleryController from "./gallery_controller"
 import PayphoneController from "./payphone_controller"
+import QrScannerController from "./qr_scanner_controller"
 
 application.register("dropdown-hover", DropdownHoverController)
 application.register("affiliate", AffiliateController)
@@ -17,3 +18,4 @@ application.register("location-user", LocationUserController)
 application.register("nested-form", NestedFormController)
 application.register("gallery", GalleryController)
 application.register("payphone", PayphoneController)
+application.register("qr-scanner", QrScannerController)

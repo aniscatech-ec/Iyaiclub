@@ -1,0 +1,101 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
+      Mis Tickets
+    </h3>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body">
+      <%= form_with(url: turista_tickets_path, method: :get, local: true, class: "row g-3") do |f| %>
+        <div class="col-12 col-md-4">
+          <%= f.label :status, "Estado", class: "form-label" %>
+          <%= f.select :status,
+              options_for_select([["Todos", ""], ["Activos", "activo"], ["Usados", "usado"], ["Cancelados", "cancelado"]], params[:status]),
+              {},
+              class: "form-select" %>
+        </div>
+        <div class="col-12 col-md-4">
+          <%= f.label :event, "Evento", class: "form-label" %>
+          <%= f.text_field :event, value: params[:event], class: "form-control", placeholder: "Nombre del evento" %>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <%= f.submit "Filtrar", class: "btn btn-primary w-100" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Lista de tickets -->
+  <% if @tickets.any? %>
+    <div class="row g-3">
+      <% @tickets.each do |ticket| %>
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 h-100 <%= 'opacity-75' if ticket.usado? %>">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-2">
+                <div class="flex-grow-1">
+                  <h6 class="fw-bold mb-1"><%= ticket.event_name %></h6>
+                  <% if ticket.event_date.present? %>
+                    <small class="text-muted"><%= ticket.event_date.strftime('%d/%m/%Y') %></small>
+                  <% end %>
+                </div>
+                <span class="badge <%= ticket_status_badge_class(ticket.status) %> align-self-start align-self-md-auto">
+                  <%= ticket.status.humanize %>
+                </span>
+              </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+              <div class="mb-3">
+                <small class="text-muted">Código de ticket</small>
+                <div class="fw-bold fs-5" style="color: #2E7D32;"><%= ticket.ticket_code %></div>
+              </div>
+              
+              <div class="mb-3">
+                <small class="text-muted">Número de rifa</small>
+                <div class="fw-bold fs-4" style="color: #F57F17;"><%= ticket.raffle_number %></div>
+                <small class="text-muted">🎱 Participa en el sorteo</small>
+              </div>
+
+              <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3">
+                <div>
+                  <small class="text-muted">Precio</small>
+                  <div class="fw-bold">$<%= number_with_precision(ticket.unit_price, precision: 2) %></div>
+                </div>
+                <div>
+                  <small class="text-muted">Asistente</small>
+                  <div class="fw-bold"><%= ticket.guest_name %></div>
+                </div>
+              </div>
+
+              <% if ticket.used_at.present? %>
+                <small class="text-muted">Usado el: <%= ticket.used_at.strftime('%d/%m/%Y %H:%M') %></small>
+              <% end %>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-4 px-4">
+              <div class="d-grid gap-2">
+                <%= link_to turista_ticket_path(ticket), class: "btn btn-outline-primary" do %>
+                  <i class="fas fa-eye me-1"></i> Ver detalles
+                <% end %>
+                <%= link_to download_turista_ticket_path(ticket), class: "btn btn-primary" do %>
+                  <i class="fas fa-download me-1"></i> Descargar PDF
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body text-center py-5">
+        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+        <h5 class="fw-bold">No tienes tickets</h5>
+        <p class="text-muted">Aún no has comprado tickets para ningún evento.</p>
+        <%= link_to "Explorar eventos", root_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

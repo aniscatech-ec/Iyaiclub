@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :custom_requests, dependent: :destroy
   has_many :assigned_custom_requests, class_name: "CustomRequest",
            foreign_key: :assigned_to_id, dependent: :nullify
+  has_many :tickets, dependent: :destroy
 
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)

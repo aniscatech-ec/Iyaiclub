@@ -30,8 +30,12 @@ class TicketGeneratorService
       tickets << ticket
     end
 
-    # Enviar email con los tickets
-    TicketMailer.ticket_purchased(@user, tickets).deliver_later
+    # Enviar email con los tickets (no bloquear si falla)
+    begin
+      TicketMailer.ticket_purchased(@user, tickets).deliver_now
+    rescue => e
+      Rails.logger.error("Error enviando email de ticket: #{e.message}")
+    end
 
     { success: true, tickets: tickets }
   rescue ActiveRecord::RecordInvalid => e

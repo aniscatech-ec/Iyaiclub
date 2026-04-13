@@ -100,6 +100,20 @@ Rails.application.routes.draw do
     resources :redemptions, only: [:index]
     resources :memberships, only: [:index]
     resources :custom_requests, only: [:index, :show]
+    resources :tickets, only: [:index, :show] do
+      member do
+        get :download
+        patch :mark_as_used
+      end
+    end
+    resources :events, only: [:index, :show] do
+      resources :tickets, only: [] do
+        collection do
+          get :new_free
+          post :create_free
+        end
+      end
+    end
   end
   namespace :afiliado do
     get "dashboard/index"
@@ -107,7 +121,7 @@ Rails.application.routes.draw do
   devise_for :users, controllers: {
     confirmations: 'users/confirmations',
     registrations: 'users/registrations'
-  }
+  }, sign_out_via: [:get, :delete]
 
   # Vista informativa mostrada tras el registro para indicar al usuario
   # que debe revisar su correo y confirmar la cuenta
@@ -127,6 +141,8 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root "home#index"
+
+  resources :events, only: [:index, :show]
   # authenticated :user do
   #   root to: "dashboard#index", as: :authenticated_root
   # end
@@ -161,6 +177,25 @@ Rails.application.routes.draw do
       member do
         patch :assign
         patch :change_status
+      end
+    end
+
+    resources :events do
+      member do
+        get :scanner
+        post :verify_ticket
+      end
+
+      resources :tickets, only: [:index] do
+        member do
+          patch :mark_used, to: "events#mark_ticket_used"
+        end
+      end
+
+      resources :raffles, only: [:index, :show, :new, :create, :destroy] do
+        member do
+          patch :draw_winner
+        end
       end
     end
   end

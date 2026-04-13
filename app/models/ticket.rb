@@ -1,5 +1,6 @@
 class Ticket < ApplicationRecord
   belongs_to :user
+  belongs_to :event, optional: true
   belongs_to :payphone_transaction, optional: true
 
   enum :status, { activo: 0, usado: 1, cancelado: 2 }
@@ -10,7 +11,7 @@ class Ticket < ApplicationRecord
 
   before_validation :generate_ticket_code, on: :create
   before_validation :generate_raffle_number, on: :create
-  before_validation :generate_qr_data, on: :create
+  after_validation :generate_qr_data, on: :create
 
   scope :for_event, ->(name) { where(event_name: name) if name.present? }
   scope :participantes, -> { where(status: :activo) }

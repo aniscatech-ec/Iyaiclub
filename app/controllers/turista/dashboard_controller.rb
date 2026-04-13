@@ -9,5 +9,6 @@ class Turista::DashboardController < ApplicationController
     @recent_visits = current_user.visits.includes(:establishment).recent.limit(4)
     @bookings_count = current_user.bookings.count
     @visits_count = current_user.visits.count
+    @tickets_count = current_user.tickets.count
   end
 end
