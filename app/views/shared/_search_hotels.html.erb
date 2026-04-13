@@ -1,9 +1,9 @@
-<section class="search-hotels bg-white p-3 rounded-3 shadow-sm" data-controller="modal">
+<section class="search-hotels bg-white p-2 rounded-3 shadow-sm" data-controller="modal">
   <form action="/establishments" method="get" class="row g-2 align-items-end">
 
     <!-- Ciudad -->
     <div class="col-md-2" data-controller="autocomplete">
-      <label class="form-label fw-semibold">¿A dónde quieres ir?</label>
+      <label class="form-label fw-semibold small mb-1">¿A dónde quieres ir?</label>
       <input type="text"
              name="city"
              class="form-control"
@@ -16,19 +16,19 @@
 
     <!-- Check-in -->
     <div class="col-md-2">
-      <label class="form-label fw-semibold">Check-in</label>
+      <label class="form-label fw-semibold small mb-1">Check-in</label>
       <input type="date" name="checkin" class="form-control">
     </div>
 
     <!-- Check-out -->
     <div class="col-md-2">
-      <label class="form-label fw-semibold">Check-out</label>
+      <label class="form-label fw-semibold small mb-1">Check-out</label>
       <input type="date" name="checkout" class="form-control">
     </div>
 
     <!-- Huéspedes -->
     <div class="col-md-2">
-      <label class="form-label fw-semibold d-block">Huéspedes</label>
+      <label class="form-label fw-semibold small mb-1 d-block">Huéspedes</label>
       <button id="guestsSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
         <i class="bi bi-people me-2"></i> Seleccionar
       </button>
@@ -36,7 +36,7 @@
 
     <!-- Comodidades -->
     <div class="col-md-2">
-      <label class="form-label fw-semibold d-block">Comodidades</label>
+      <label class="form-label fw-semibold small mb-1 d-block">Comodidades</label>
       <button id="amenitiesSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#amenitiesModal">
         <i class="bi bi-star me-2"></i> Seleccionar
       </button>
@@ -45,13 +45,11 @@
     <div id="selectedAmenities" hidden></div>
     <!-- Botón Buscar -->
     <div class="col-md-2 d-grid">
-      <button type="submit" class="btn btn-primary btn-lg">Buscar</button>
+      <button type="submit" class="btn btn-primary">Buscar</button>
     </div>
 
   </form>
 </section>
-
-<%= render "shared/custom_experience_cta", variant: :compact %>
 
 <!-- Modal Huéspedes -->
 <div class="modal fade" id="guestsModal" tabindex="-1" aria-hidden="true">

@@ -89,15 +89,15 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg py-1">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <%= image_tag("logo.jpeg", size: "112x96") %></a>
+    <a class="navbar-brand py-0" href="/">
+      <%= image_tag("logo.jpeg", size: "80x68") %></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav mb-2 mb-lg-0">
+      <ul class="navbar-nav mb-0">
         <li class="nav-item mx-2">
           <%= link_to "Inicio", root_path, class: "nav-link fw-bold", "aria-current": "page" %>
           <%#= link_to "Inicio", root_path, class: "nav-link"%>
