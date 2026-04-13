@@ -22,8 +22,12 @@ export default class extends Controller {
     }
 
     try {
-      const { Html5Qrcode } = await import("html5-qrcode")
-      this.html5QrCode = new Html5Qrcode("qr-reader")
+      // html5-qrcode se carga como script global desde CDN
+      if (typeof window.Html5Qrcode === "undefined") {
+        console.error("Html5Qrcode not loaded")
+        throw new Error("Html5Qrcode library not loaded")
+      }
+      this.html5QrCode = new window.Html5Qrcode("qr-reader")
 
       this.statusTarget.innerHTML = `
         <div class="d-flex align-items-center gap-2">
@@ -41,10 +45,11 @@ export default class extends Controller {
 
       this.scanning = true
     } catch (err) {
+      console.error("Camera error:", err.name, err.message)
       this.statusTarget.innerHTML = `
         <div class="alert alert-warning mb-0">
           <i class="fas fa-exclamation-triangle me-1"></i>
-          No se pudo acceder a la cámara. Usa la entrada manual.
+          No se pudo acceder a la cámara (${err.name}). Usa la entrada manual.
         </div>
       `
     }
