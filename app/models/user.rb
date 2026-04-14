@@ -7,7 +7,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable,
          :confirmable
 
-  enum :role, administrador: 0, afiliado: 1, turista: 2
+  enum :role, administrador: 0, afiliado: 1, turista: 2, vendedor: 3
   has_many :establishments
   has_many :subscriptions, as: :subscribable, dependent: :destroy
   belongs_to :country
@@ -20,6 +20,11 @@ class User < ApplicationRecord
   has_many :assigned_custom_requests, class_name: "CustomRequest",
            foreign_key: :assigned_to_id, dependent: :nullify
   has_many :tickets, dependent: :destroy
+
+  # Vendedor associations
+  has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
+  has_many :vendedor_events, through: :event_vendedores, source: :event
+  has_many :handled_tickets, class_name: "Ticket", foreign_key: :vendedor_id, dependent: :nullify
 
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)

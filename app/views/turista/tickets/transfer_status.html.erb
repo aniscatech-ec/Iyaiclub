@@ -1,0 +1,79 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div data-controller="transfer-status"
+           data-transfer-status-ticket-id-value="<%= @ticket.id %>"
+           data-transfer-status-check-url-value="<%= check_status_turista_ticket_path(@ticket) %>"
+           data-transfer-status-expires-at-value="<%= (@ticket.reserved_at + 10.minutes).to_i %>"
+           data-transfer-status-tickets-url-value="<%= turista_tickets_path %>">
+
+        <!-- Header -->
+        <div class="text-center mb-4">
+          <div class="display-1 text-warning mb-3">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="fw-bold">Ticket Reservado</h3>
+          <p class="text-muted">Su ticket se acreditará una vez el pago se haya completado</p>
+        </div>
+
+        <!-- Countdown -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 text-center">
+          <div class="card-body p-4">
+            <small class="text-muted d-block mb-2">Tiempo restante</small>
+            <div class="display-3 fw-bold" data-transfer-status-target="timer" style="font-family: monospace;">
+              10:00
+            </div>
+          </div>
+        </div>
+
+        <!-- Status messages -->
+        <div data-transfer-status-target="status"></div>
+
+        <!-- Ticket info -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body p-4">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Código de Ticket</span>
+                <strong style="color: #2E7D32;"><%= @ticket.ticket_code %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Evento</span>
+                <strong><%= @event.name %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Monto a transferir</span>
+                <strong class="text-success">$<%= number_with_precision(@ticket.total_price, precision: 2) %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Vendedor</span>
+                <strong><%= @vendedor.name %></strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- WhatsApp button -->
+        <div class="d-grid mb-3">
+          <a href="<%= @whatsapp_url %>" target="_blank" class="btn btn-success btn-lg">
+            <i class="fab fa-whatsapp me-2"></i> Contactar Vendedor por WhatsApp
+          </a>
+        </div>
+
+        <!-- Loader -->
+        <div class="text-center py-3" data-transfer-status-target="loader">
+          <div class="spinner-border text-warning" role="status">
+            <span class="visually-hidden">Esperando confirmación...</span>
+          </div>
+          <p class="text-muted mt-2">Esperando confirmación del vendedor...</p>
+        </div>
+
+        <div class="text-center mt-3">
+          <%= link_to turista_tickets_path, class: "text-muted" do %>
+            <i class="fas fa-arrow-left me-1"></i> Ir a mis tickets
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

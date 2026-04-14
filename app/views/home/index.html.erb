@@ -82,7 +82,7 @@
     <% @upcoming_events.each_with_index do |event, index| %>
       <div class="carousel-item <%= 'active' if index == 0 %>">
         <%= link_to event_path(event), class: "text-decoration-none" do %>
-          <div class="position-relative" style="height: 120px; overflow: hidden;">
+          <div class="position-relative" style="height: 220px; overflow: hidden;">
             <% if event.image.attached? %>
               <%= image_tag event.image, class: "w-100 h-100", style: "object-fit: cover;" %>
             <% else %>

@@ -104,6 +104,7 @@ Rails.application.routes.draw do
       member do
         get :download
         patch :mark_as_used
+        get :check_status
       end
     end
     resources :events, only: [:index, :show] do
@@ -111,6 +112,20 @@ Rails.application.routes.draw do
         collection do
           get :new_free
           post :create_free
+          get :new_transfer
+          post :create_transfer
+          get :transfer_status
+        end
+      end
+    end
+  end
+  namespace :vendedor do
+    resources :dashboard, only: [:index]
+    resources :events, only: [] do
+      resources :tickets, only: [:index] do
+        member do
+          patch :acreditar
+          patch :rechazar
         end
       end
     end
@@ -195,6 +210,16 @@ Rails.application.routes.draw do
       resources :raffles, only: [:index, :show, :new, :create, :destroy] do
         member do
           patch :draw_winner
+        end
+      end
+
+      resources :vendedores do
+        member do
+          patch :toggle_active
+        end
+        collection do
+          get :new_vendedor
+          post :create_vendedor
         end
       end
     end

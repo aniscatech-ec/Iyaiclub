@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_11_240000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_14_100001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -163,6 +163,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_240000) do
     t.index ["status"], name: "index_establishments_on_status"
     t.index ["tipo_gestion_reserva"], name: "index_establishments_on_tipo_gestion_reserva"
     t.index ["user_id"], name: "index_establishments_on_user_id"
+  end
+
+  create_table "event_vendedores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "user_id"], name: "index_event_vendedores_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_vendedores_on_event_id"
+    t.index ["user_id"], name: "index_event_vendedores_on_user_id"
   end
 
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -550,13 +561,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_240000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "event_id"
+    t.integer "payment_method", default: 0, null: false
+    t.bigint "vendedor_id"
+    t.datetime "reserved_at"
     t.index ["event_id"], name: "index_tickets_on_event_id"
     t.index ["event_name"], name: "index_tickets_on_event_name"
+    t.index ["payment_method"], name: "index_tickets_on_payment_method"
     t.index ["payphone_transaction_id"], name: "index_tickets_on_payphone_transaction_id"
     t.index ["raffle_number"], name: "index_tickets_on_raffle_number", unique: true
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["ticket_code"], name: "index_tickets_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_tickets_on_user_id"
+    t.index ["vendedor_id"], name: "index_tickets_on_vendedor_id"
   end
 
   create_table "transports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -694,6 +710,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_240000) do
   add_foreign_key "establishment_amenities", "establishments"
   add_foreign_key "establishments", "cities"
   add_foreign_key "establishments", "users"
+  add_foreign_key "event_vendedores", "events"
+  add_foreign_key "event_vendedores", "users"
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "getaways", "establishments"
@@ -727,6 +745,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_240000) do
   add_foreign_key "tickets", "events"
   add_foreign_key "tickets", "payphone_transactions"
   add_foreign_key "tickets", "users"
+  add_foreign_key "tickets", "users", column: "vendedor_id"
   add_foreign_key "transports", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"

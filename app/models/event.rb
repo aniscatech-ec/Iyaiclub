@@ -1,6 +1,8 @@
 class Event < ApplicationRecord
   has_many :tickets, dependent: :nullify
   has_many :raffles, dependent: :destroy
+  has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
+  has_many :vendedores, through: :event_vendedores, source: :user
   has_one_attached :image
 
   enum :status, { borrador: 0, publicado: 1, cancelado: 2, finalizado: 3 }
@@ -18,6 +20,10 @@ class Event < ApplicationRecord
 
   def sold_out?
     available_tickets == 0
+  end
+
+  def active_vendedores
+    vendedores.merge(EventVendedor.active)
   end
 
   def upcoming?

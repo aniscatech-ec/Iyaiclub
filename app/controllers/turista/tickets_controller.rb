@@ -1,7 +1,7 @@
 class Turista::TicketsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_ticket, only: [:show, :download, :mark_as_used]
-  before_action :set_event, only: [:new_free, :create_free]
+  before_action :set_ticket, only: [:show, :download, :mark_as_used, :check_status]
+  before_action :set_event, only: [:new_free, :create_free, :new_transfer, :create_transfer, :transfer_status]
   layout "dashboard"
 
   def index
@@ -26,7 +26,7 @@ class Turista::TicketsController < ApplicationController
   end
 
   def mark_as_used
-    if @ticket.activa?
+    if @ticket.activo?
       @ticket.mark_as_used!
       redirect_to turista_ticket_path(@ticket), notice: "Ticket marcado como usado."
     else
@@ -91,6 +91,88 @@ class Turista::TicketsController < ApplicationController
     else
       redirect_to new_free_turista_event_tickets_path(@event), alert: "Error: #{result[:error]}"
     end
+  end
+
+  # --- Flujo de Transferencia ---
+
+  def new_transfer
+    if @event.ticket_price.to_f == 0
+      redirect_to new_free_turista_event_tickets_path(@event), notice: "Este evento es gratuito."
+      return
+    end
+
+    if @event.sold_out?
+      redirect_to events_path, alert: "No hay tickets disponibles para este evento."
+      return
+    end
+
+    @vendedores = @event.active_vendedores
+    if @vendedores.empty?
+      redirect_to event_path(@event), alert: "No hay vendedores disponibles para este evento."
+      return
+    end
+  end
+
+  def create_transfer
+    if @event.sold_out?
+      redirect_to events_path, alert: "No hay tickets disponibles."
+      return
+    end
+
+    vendedor = @event.active_vendedores.find_by(id: params[:vendedor_id])
+    unless vendedor
+      redirect_to new_transfer_turista_event_tickets_path(@event), alert: "Vendedor no válido."
+      return
+    end
+
+    ticket = nil
+    ActiveRecord::Base.transaction do
+      ticket = Ticket.create!(
+        user: current_user,
+        event: @event,
+        vendedor: vendedor,
+        event_name: @event.name,
+        event_date: @event.event_date,
+        event_location: @event.location,
+        unit_price: @event.ticket_price,
+        total_price: @event.ticket_price,
+        guest_name: params[:guest_name].presence || current_user.name,
+        guest_email: params[:guest_email].presence || current_user.email,
+        guest_phone: current_user.phone,
+        status: :reservado,
+        payment_method: :transferencia,
+        reserved_at: Time.current
+      )
+
+      @event.decrement!(:available_tickets) if @event.available_tickets.present?
+    end
+
+    # Programar expiración en 10 minutos
+    ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(ticket.id)
+
+    redirect_to transfer_status_turista_event_tickets_path(@event, ticket_id: ticket.id)
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to new_transfer_turista_event_tickets_path(@event),
+                alert: "Error al crear ticket: #{e.message}"
+  end
+
+  def transfer_status
+    @ticket = current_user.tickets.find(params[:ticket_id])
+    @vendedor = @ticket.vendedor
+
+    message = "Hola, soy #{current_user.name}. " \
+              "Acabo de reservar un ticket para el evento #{@event.name} " \
+              "(Código: #{@ticket.ticket_code}). " \
+              "Precio: $#{@event.ticket_price}. " \
+              "Por favor confirmar el pago por transferencia."
+    @whatsapp_url = helpers.whatsapp_link(@vendedor.phone, message)
+  end
+
+  def check_status
+    render json: {
+      status: @ticket.status,
+      time_remaining: @ticket.time_remaining
+    }
   end
 
   private

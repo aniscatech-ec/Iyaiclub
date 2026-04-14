@@ -1,0 +1,85 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-plus me-2" style="color: var(--brand-orange);"></i>
+      Crear Vendedor - <%= @event.name %>
+    </h3>
+    <%= link_to admin_event_vendedores_path(@event), class: "btn btn-outline-secondary" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+          <% if @user.errors.any? %>
+            <div class="alert alert-danger">
+              <ul class="mb-0">
+                <% @user.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= form_with model: @user, url: create_vendedor_admin_event_vendedores_path(@event), method: :post, class: "needs-validation" do |f| %>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Nombre completo</label>
+              <%= f.text_field :name, class: "form-control", required: true, placeholder: "Nombre del vendedor" %>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">WhatsApp / Teléfono</label>
+              <%= f.text_field :phone, class: "form-control", required: true, placeholder: "0999999999" %>
+              <small class="text-muted">Número al que los compradores contactarán para la transferencia</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <%= f.email_field :email, class: "form-control", required: true, placeholder: "vendedor@email.com" %>
+              <small class="text-muted">Se usará para iniciar sesión en el portal</small>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">Contraseña</label>
+                <%= f.password_field :password, class: "form-control", required: true, minlength: 6 %>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Confirmar</label>
+                <%= f.password_field :password_confirmation, class: "form-control", required: true %>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">País</label>
+                <%= f.collection_select :country_id, Country.all, :id, :name,
+                    { prompt: "Seleccione..." },
+                    class: "form-select", required: true %>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Ciudad</label>
+                <%= f.collection_select :city_id, City.all.limit(50), :id, :name,
+                    { prompt: "Seleccione..." },
+                    class: "form-select", required: true %>
+              </div>
+            </div>
+
+            <div class="form-check mb-4">
+              <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="autoAssign" checked>
+              <label class="form-check-label" for="autoAssign">
+                Asignar automáticamente a este evento
+              </label>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Crear Vendedor", class: "btn btn-success btn-lg" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

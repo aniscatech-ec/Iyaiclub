@@ -112,8 +112,180 @@
     </div>
   </div>
 
+  <% if @event.persisted? %>
+    <!-- Vendedores -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">
+          <i class="fas fa-users me-2 text-info"></i>
+          Vendedores (<%= @event.event_vendedores.count %>)
+        </h5>
+        <div class="d-flex gap-2">
+          <% unassigned_vendedores = User.where(role: :vendedor).where.not(id: @event.vendedores.select(:id)) %>
+          <% if unassigned_vendedores.any? %>
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignVendedorModal">
+              <i class="fas fa-user-plus me-1"></i> Asignar Existente
+            </button>
+          <% end %>
+          <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createVendedorModal" data-turbo="false">
+            <i class="fas fa-plus me-1"></i> Crear Vendedor
+          </button>
+        </div>
+      </div>
+      <div class="card-body px-4 pb-4">
+        <% event_vendedores = @event.event_vendedores.includes(:user).order(created_at: :desc) %>
+        <% if event_vendedores.any? %>
+          <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Nombre</th>
+                  <th>WhatsApp</th>
+                  <th>Email</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% event_vendedores.each do |ev| %>
+                  <tr>
+                    <td><strong><%= ev.user.name %></strong></td>
+                    <td>
+                      <% if ev.user.phone.present? %>
+                        <%= link_to ev.user.phone, whatsapp_link(ev.user.phone), target: "_blank", class: "text-success text-decoration-none" %>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td><small><%= ev.user.email %></small></td>
+                    <td>
+                      <span class="badge <%= ev.active? ? 'bg-success' : 'bg-secondary' %>">
+                        <%= ev.active? ? 'Activo' : 'Inactivo' %>
+                      </span>
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm">
+                        <%= link_to toggle_active_admin_event_vendedor_path(@event, ev),
+                            data: { turbo_method: :patch },
+                            class: "btn btn-outline-#{ev.active? ? 'secondary' : 'success'}" do %>
+                          <i class="fas fa-<%= ev.active? ? 'pause' : 'play' %>"></i>
+                        <% end %>
+                        <%= link_to admin_event_vendedor_path(@event, ev),
+                            data: { turbo_method: :delete, turbo_confirm: "¿Remover a #{ev.user.name} de este evento?" },
+                            class: "btn btn-outline-danger" do %>
+                          <i class="fas fa-trash"></i>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center text-muted py-3">
+            <i class="fas fa-users fa-2x mb-2"></i>
+            <p class="mb-0">No hay vendedores asignados a este evento</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <div class="d-flex flex-column flex-md-row gap-2 mb-4">
     <%= form.submit class: "btn btn-primary" %>
     <%= link_to "Cancelar", admin_events_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
+
+<% if @event.persisted? %>
+  <!-- Modal: Asignar vendedor existente -->
+  <% unassigned_vendedores = User.where(role: :vendedor).where.not(id: @event.vendedores.select(:id)) %>
+  <% if unassigned_vendedores.any? %>
+    <div class="modal fade" id="assignVendedorModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2 text-primary"></i>Asignar Vendedor</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with url: admin_event_vendedores_path(@event), method: :post, local: true do %>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Seleccionar Vendedor</label>
+                <select name="event_vendedor[user_id]" class="form-select" required>
+                  <option value="">Seleccione...</option>
+                  <% unassigned_vendedores.each do |v| %>
+                    <option value="<%= v.id %>"><%= v.name %> - <%= v.phone || 'Sin teléfono' %></option>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer border-0">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Asignar al Evento</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Modal: Crear nuevo vendedor -->
+  <div class="modal fade" id="createVendedorModal" tabindex="-1" aria-labelledby="createVendedorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold" id="createVendedorModalLabel"><i class="fas fa-plus me-2 text-success"></i>Crear Vendedor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <%= form_with url: create_vendedor_admin_event_vendedores_path(@event), method: :post, local: true do %>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Nombre completo</label>
+              <input type="text" name="user[name]" class="form-control" required placeholder="Nombre del vendedor">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">WhatsApp / Teléfono</label>
+              <input type="text" name="user[phone]" class="form-control" required placeholder="0999999999">
+              <small class="text-muted">Los compradores contactarán a este número</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <input type="email" name="user[email]" class="form-control" required placeholder="vendedor@email.com">
+              <small class="text-muted">Se usará para iniciar sesión</small>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">Contraseña</label>
+                <input type="password" name="user[password]" class="form-control" required minlength="6">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Confirmar</label>
+                <input type="password" name="user[password_confirmation]" class="form-control" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">País</label>
+                <%= collection_select(:user, :country_id, Country.all, :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Ciudad</label>
+                <%= collection_select(:user, :city_id, City.all.limit(50), :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
+              </div>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="autoAssignCheck" checked>
+              <label class="form-check-label" for="autoAssignCheck">Asignar automáticamente a este evento</label>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Crear Vendedor</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 <% end %>

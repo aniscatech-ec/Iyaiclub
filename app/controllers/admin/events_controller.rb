@@ -12,6 +12,7 @@ class Admin::EventsController < ApplicationController
   def show
     @tickets = @event.tickets.order(created_at: :desc)
     @raffles = @event.raffles.order(created_at: :desc)
+    @event_vendedores = @event.event_vendedores.includes(:user).order(created_at: :desc)
   end
 
   def new

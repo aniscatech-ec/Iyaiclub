@@ -74,9 +74,17 @@
                   <% end %>
                 <% end %>
               <% else %>
-                <button class="btn btn-primary btn-lg" disabled>
-                  <i class="fas fa-credit-card me-1"></i> Comprar Ticket (Próximamente)
-                </button>
+                <% if @event.sold_out? %>
+                  <button class="btn btn-secondary btn-lg" disabled>
+                    <i class="fas fa-times-circle me-1"></i> Agotado
+                  </button>
+                <% else %>
+                  <% if @event.active_vendedores.any? %>
+                    <%= link_to new_transfer_turista_event_tickets_path(@event), class: "btn btn-success btn-lg" do %>
+                      <i class="fas fa-exchange-alt me-1"></i> Comprar por Transferencia
+                    <% end %>
+                  <% end %>
+                <% end %>
               <% end %>
 
               <% if @ticket_count.to_i > 0 %>

@@ -18,7 +18,18 @@ class TicketMailer < ApplicationMailer
 
     mail(
       to: ticket.guest_email,
-      subject: "🎟️ Tu ticket de entrada - #{@ticket.ticket_code}"
+      subject: "Tu ticket de entrada - #{@ticket.ticket_code}"
+    )
+  end
+
+  def ticket_acreditado(user, ticket)
+    @user = user
+    @ticket = ticket
+    @event_name = ticket.event_name
+
+    mail(
+      to: @user.email,
+      subject: "Ticket confirmado para #{@event_name} - IyaiClub"
     )
   end
 end

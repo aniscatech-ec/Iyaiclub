@@ -2,8 +2,10 @@ class Ticket < ApplicationRecord
   belongs_to :user
   belongs_to :event, optional: true
   belongs_to :payphone_transaction, optional: true
+  belongs_to :vendedor, class_name: "User", optional: true
 
-  enum :status, { activo: 0, usado: 1, cancelado: 2 }
+  enum :status, { activo: 0, usado: 1, cancelado: 2, reservado: 3 }
+  enum :payment_method, { payphone: 0, transferencia: 1, gratis: 2 }, prefix: true
 
   validates :ticket_code, presence: true, uniqueness: true
   validates :raffle_number, presence: true, uniqueness: true
@@ -15,9 +17,32 @@ class Ticket < ApplicationRecord
 
   scope :for_event, ->(name) { where(event_name: name) if name.present? }
   scope :participantes, -> { where(status: :activo) }
+  scope :reservados, -> { where(status: :reservado) }
+  scope :expired_reservations, -> { reservados.where("reserved_at < ?", 10.minutes.ago) }
 
   def mark_as_used!
     update!(status: :usado, used_at: Time.current)
+  end
+
+  def acreditar!
+    update!(status: :activo, reserved_at: nil)
+  end
+
+  def rechazar!
+    ActiveRecord::Base.transaction do
+      update!(status: :cancelado)
+      event&.increment!(:available_tickets) if event&.available_tickets.present?
+    end
+  end
+
+  def reservation_expired?
+    reservado? && reserved_at.present? && reserved_at < 10.minutes.ago
+  end
+
+  def time_remaining
+    return 0 unless reservado? && reserved_at.present?
+    remaining = (reserved_at + 10.minutes - Time.current).to_i
+    [remaining, 0].max
   end
 
   def qr_svg(module_size: 4)

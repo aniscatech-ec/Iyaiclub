@@ -27,6 +27,7 @@ module ApplicationHelper
     when 'activo' then 'bg-success'
     when 'usado' then 'bg-secondary'
     when 'cancelado' then 'bg-danger'
+    when 'reservado' then 'bg-warning text-dark'
     else 'bg-secondary'
     end
   end
