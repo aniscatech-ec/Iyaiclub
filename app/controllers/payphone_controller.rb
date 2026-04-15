@@ -17,6 +17,9 @@ class PayphoneController < ApplicationController
     @client_transaction_id = generate_client_transaction_id
     @reference = build_reference(@payable)
 
+    # Formatear teléfono al formato internacional que requiere PayPhone
+    @formatted_phone = format_phone_for_payphone(current_user.phone)
+
     @transaction = PayphoneTransaction.create!(
       payable: @payable,
       user: current_user,
@@ -24,7 +27,7 @@ class PayphoneController < ApplicationController
       amount_cents: @amount_cents,
       currency: "USD",
       email: current_user.email,
-      phone_number: current_user.phone,
+      phone_number: @formatted_phone,
       status: :pendiente
     )
 
@@ -94,6 +97,22 @@ class PayphoneController < ApplicationController
   end
 
   private
+
+  def format_phone_for_payphone(phone)
+    return nil if phone.blank?
+
+    # Limpiar el número (solo dígitos)
+    digits = phone.to_s.gsub(/\D/, '')
+
+    # Si ya tiene código de país (más de 10 dígitos), retornar como está
+    return digits if digits.length > 10
+
+    # Si empieza con 0, quitarlo (formato local ecuatoriano)
+    digits = digits[1..-1] if digits.start_with?('0')
+
+    # Agregar código de país de Ecuador (593)
+    "593#{digits}"
+  end
 
   def find_payable
     case params[:payable_type]
