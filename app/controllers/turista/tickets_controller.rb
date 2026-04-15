@@ -260,7 +260,7 @@ class Turista::TicketsController < ApplicationController
     end
 
     redirect_to transfer_status_turista_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{number_with_precision(@event.ticket_price * quantity, precision: 2)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.ticket_price * quantity)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to new_purchase_turista_event_tickets_path(@event),
                 alert: "Error al crear tickets: #{e.message}"
