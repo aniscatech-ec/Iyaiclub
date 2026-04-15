@@ -43,6 +43,10 @@ class Subscription < ApplicationRecord
     subscribable_type == "Establishment"
   end
 
+  def plan_name
+    PlanPrice.find_by(id: plan_type)&.plan&.name || "Sin plan"
+  end
+
   validate :only_one_active_subscription_for_tourist, on: :create
   validate :only_one_active_subscription_for_establishment, on: :create
 

@@ -96,7 +96,7 @@
           <div class="d-flex align-items-center justify-content-between">
             <div>
               <p class="mb-0 small opacity-75">Membresía</p>
-              <h5 class="fw-bold mb-0"><%= @active_membership&.plan_type&.capitalize || 'Sin plan' %></h5>
+              <h5 class="fw-bold mb-0"><%= PlanPrice.find_by(id: @active_membership&.plan_type)&.plan&.name || 'Sin plan' %></h5>
             </div>
             <i class="fas fa-crown fa-2x opacity-50"></i>
           </div>

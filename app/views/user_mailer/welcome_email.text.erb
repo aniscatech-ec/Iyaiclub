@@ -5,7 +5,7 @@ Tu cuenta en IyaiClub ha sido verificada exitosamente. Ya tienes acceso a todo n
 <% if @membership %>
 TU MEMBRESÍA
 ------------
-Tipo: <%= @membership.plan_type&.capitalize || "Básica" %>
+Tipo: <%= @membership.plan_name %>
 Estado: Activa
 <% if @membership.end_date %>Válida hasta: <%= @membership.end_date.strftime("%d/%m/%Y") %><% end %>
 
