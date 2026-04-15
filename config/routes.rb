@@ -112,6 +112,8 @@ Rails.application.routes.draw do
         collection do
           get :new_free
           post :create_free
+          get :new_purchase
+          post :create_purchase
           get :new_transfer
           post :create_transfer
           get :transfer_status

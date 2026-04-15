@@ -78,7 +78,11 @@ class PayphoneController < ApplicationController
 
     if client_tx_id.present?
       transaction = PayphoneTransaction.find_by(client_transaction_id: client_tx_id)
-      transaction&.update!(status: :cancelado)
+      if transaction
+        transaction.update!(status: :cancelado)
+        # Si el payable es un ticket reservado, rechazarlo para liberar el cupo
+        transaction.payable.rechazar! if transaction.payable.is_a?(Ticket) && transaction.payable.reservado?
+      end
     end
 
     redirect_to root_path, notice: "El pago fue cancelado. Puedes intentar nuevamente cuando lo desees."
@@ -92,6 +96,8 @@ class PayphoneController < ApplicationController
       build_subscription
     when "Booking"
       Booking.find_by(id: params[:payable_id])
+    when "Ticket"
+      Ticket.find_by(id: params[:ticket_id])
     end
   end
 
@@ -115,6 +121,8 @@ class PayphoneController < ApplicationController
       (plan_price.price * 100).to_i
     when Booking
       ((payable.total_price || 0) * 100).to_i
+    when Ticket
+      ((payable.total_price || 0) * 100).to_i
     else
       0
     end
@@ -131,6 +139,8 @@ class PayphoneController < ApplicationController
       "Suscripción #{plan_price.plan&.name} - #{plan_price.display_duration}"
     when Booking
       "Reserva ##{payable.id} - #{payable.establishment&.name}"
+    when Ticket
+      "Ticket #{payable.ticket_code} - #{payable.event_name}"
     else
       "Pago IyaiClub"
     end
@@ -151,6 +161,13 @@ class PayphoneController < ApplicationController
       payable.update!(status: :activada)
     when Booking
       payable.update!(status: :confirmado)
+    when Ticket
+      payable.acreditar!
+      begin
+        TicketMailer.ticket_purchased(payable.user, [payable]).deliver_later
+      rescue => e
+        Rails.logger.error("Error enviando email de ticket PayPhone: #{e.message}")
+      end
     end
   end
 
@@ -166,6 +183,8 @@ class PayphoneController < ApplicationController
     when Booking
       hotel = payable.room&.hotel
       hotel ? hotel_booking_path(hotel, payable) : root_path
+    when Ticket
+      turista_ticket_path(payable)
     else
       root_path
     end

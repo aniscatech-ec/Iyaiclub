@@ -125,6 +125,14 @@
     </button>
   <% end %>
 </div>
+<script>
+  document.addEventListener("turbo:load", function() {
+    var el = document.getElementById("eventsBanner");
+    if (el && typeof bootstrap !== "undefined") {
+      new bootstrap.Carousel(el, { interval: 5000, ride: "carousel" });
+    }
+  });
+</script>
 <% end %>
 
 <!-- Fragmento dentro del body -->

@@ -82,9 +82,9 @@
                       <%= link_to edit_admin_event_path(event), class: "btn btn-outline-warning" do %>
                         <i class="fas fa-edit"></i>
                       <% end %>
-                      <%= link_to admin_event_path(event), method: :delete,
-                          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar este evento?" },
-                          class: "btn btn-outline-danger" do %>
+                      <%= button_to admin_event_path(event), method: :delete,
+                          form: { data: { turbo_confirm: "¿Eliminar este evento?" }, style: "display:inline" },
+                          class: "btn btn-outline-danger btn-sm" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>
                     </div>
