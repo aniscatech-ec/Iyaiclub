@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_14_100001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -310,8 +310,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_14_100001) do
   end
 
   create_table "payphone_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "payable_type", null: false
-    t.bigint "payable_id", null: false
+    t.string "payable_type"
+    t.bigint "payable_id"
     t.bigint "user_id", null: false
     t.bigint "transaction_id"
     t.string "client_transaction_id", null: false
@@ -327,6 +327,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_14_100001) do
     t.json "response_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "metadata"
     t.index ["client_transaction_id"], name: "index_payphone_transactions_on_client_transaction_id", unique: true
     t.index ["payable_type", "payable_id"], name: "index_payphone_transactions_on_payable"
     t.index ["status"], name: "index_payphone_transactions_on_status"

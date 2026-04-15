@@ -172,40 +172,26 @@ class Turista::TicketsController < ApplicationController
     guest_name = params[:guest_name].presence || current_user.name
     guest_email = params[:guest_email].presence || current_user.email
 
-    # Crear el ticket directamente aquí
-    ticket = Ticket.create!(
-      user: current_user,
-      event: @event,
-      event_name: @event.name,
-      event_date: @event.event_date,
-      event_location: @event.location,
-      unit_price: @event.ticket_price,
-      total_price: @event.ticket_price,
-      guest_name: guest_name,
-      guest_email: guest_email,
-      guest_phone: current_user.phone,
-      status: :reservado,
-      payment_method: :payphone,
-      reserved_at: Time.current
-    )
-
-    @event.decrement!(:available_tickets) if @event.available_tickets.present?
-    ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(ticket.id)
-
-    # Preparar datos para la vista de checkout de PayPhone
-    @amount_cents = ((ticket.total_price || 0) * 100).to_i
+    # NO crear ticket aún — se crea solo cuando PayPhone confirma el pago
+    @amount_cents = ((@event.ticket_price || 0) * 100).to_i
     @client_transaction_id = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
-    @reference = "Ticket #{ticket.ticket_code} - #{ticket.event_name}"
+    @reference = "Ticket evento #{@event.name}"
 
     @transaction = PayphoneTransaction.create!(
-      payable: ticket,
       user: current_user,
       client_transaction_id: @client_transaction_id,
       amount_cents: @amount_cents,
       currency: "USD",
       email: current_user.email,
       phone_number: current_user.phone,
-      status: :pendiente
+      status: :pendiente,
+      metadata: {
+        type: "ticket",
+        event_id: @event.id,
+        guest_name: guest_name,
+        guest_email: guest_email,
+        guest_phone: current_user.phone
+      }
     )
 
     @payphone_token = ENV.fetch("PAYPHONE_TOKEN")

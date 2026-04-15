@@ -58,6 +58,9 @@ class PayphoneController < ApplicationController
       )
 
       if @transaction.aprobado?
+        # Si es una transacción de ticket sin payable, crear el ticket ahora
+        create_ticket_from_metadata(@transaction) if @transaction.payable.nil? && @transaction.metadata&.dig("type") == "ticket"
+
         activate_payable(@transaction.payable)
         redirect_to after_payment_path(@transaction), notice: "Pago realizado exitosamente. #{payment_summary(@transaction)}"
       else
@@ -81,7 +84,9 @@ class PayphoneController < ApplicationController
       if transaction
         transaction.update!(status: :cancelado)
         # Si el payable es un ticket reservado, rechazarlo para liberar el cupo
-        transaction.payable.rechazar! if transaction.payable.is_a?(Ticket) && transaction.payable.reservado?
+        if transaction.payable.is_a?(Ticket) && transaction.payable.reservado?
+          transaction.payable.rechazar!
+        end
       end
     end
 
@@ -154,6 +159,31 @@ class PayphoneController < ApplicationController
     end
   end
 
+  def create_ticket_from_metadata(transaction)
+    meta = transaction.metadata
+    event = Event.find(meta["event_id"])
+
+    ticket = Ticket.create!(
+      user: transaction.user,
+      event: event,
+      event_name: event.name,
+      event_date: event.event_date,
+      event_location: event.location,
+      unit_price: event.ticket_price,
+      total_price: event.ticket_price,
+      guest_name: meta["guest_name"],
+      guest_email: meta["guest_email"],
+      guest_phone: meta["guest_phone"],
+      status: :activo,
+      payment_method: :payphone
+    )
+
+    event.decrement!(:available_tickets) if event.available_tickets.present?
+    transaction.update!(payable: ticket)
+
+    ticket
+  end
+
   def activate_payable(payable)
     case payable
     when Subscription
@@ -162,7 +192,7 @@ class PayphoneController < ApplicationController
     when Booking
       payable.update!(status: :confirmado)
     when Ticket
-      payable.acreditar!
+      payable.acreditar! unless payable.activo?
       begin
         TicketMailer.ticket_purchased(payable.user, [payable]).deliver_later
       rescue => e
@@ -185,6 +215,14 @@ class PayphoneController < ApplicationController
       hotel ? hotel_booking_path(hotel, payable) : root_path
     when Ticket
       turista_ticket_path(payable)
+    when nil
+      # Transacción sin payable (pago rechazado/cancelado para ticket)
+      if transaction.metadata&.dig("type") == "ticket"
+        event_id = transaction.metadata["event_id"]
+        event_path(event_id)
+      else
+        root_path
+      end
     else
       root_path
     end
