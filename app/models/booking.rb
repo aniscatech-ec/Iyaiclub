@@ -10,12 +10,17 @@ class Booking < ApplicationRecord
   }
 
   validates :start_date, :guest_count, :guest_name, :guest_email, presence: true
-  validates :end_date, presence: true, if: -> { bookable_type.in?(%w[Unit Lodging]) }
+  validates :end_date, presence: true, if: -> { bookable_type.in?(%w[Room Unit Lodging]) }
   validate :end_after_start
   validate :bookable_available
 
   def establishment
-    bookable&.establishment
+    case bookable
+    when Room
+      bookable.hotel&.establishment
+    else
+      bookable&.establishment
+    end
   end
 
   def total_nights

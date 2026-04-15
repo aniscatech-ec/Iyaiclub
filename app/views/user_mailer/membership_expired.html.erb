@@ -1,0 +1,87 @@
+<h2 style="margin: 0 0 16px 0; color: #dc3545; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  Tu membresía IyaiClub ha expirado
+</h2>
+
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Hola <strong><%= @user.name.presence || @user.email %></strong>, lamentamos informarte que tu membresía
+  <strong><%= @membership.plan_name %></strong> ha expirado definitivamente.
+</p>
+
+<!-- Estado -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #fff5f5; border-left: 4px solid #dc3545; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 8px 0; color: #721c24; font-size: 16px; font-weight: bold;">
+        ❌ Membresía expirada
+      </h3>
+      <p style="margin: 0; color: #721c24; font-size: 14px; line-height: 1.5;">
+        Ya no tienes acceso a los descuentos y beneficios exclusivos. Pero puedes renovar tu membresía
+        en cualquier momento para recuperarlos.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- Beneficios que pierdes -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f8f9fa; border-radius: 8px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #495057; font-size: 15px; font-weight: bold;">Renueva y vuelve a disfrutar</h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            🏷️ &nbsp;Descuentos exclusivos en hospedaje y restaurantes
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            🪙 &nbsp;Acumulación de puntos con cada compra
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            🏊 &nbsp;Acceso prioritario a piscina y eventos exclusivos
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            🌙 &nbsp;Noches gratis en establecimientos afiliados
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Botón renovar -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 28px 0;">
+  <tr>
+    <td align="center">
+      <a href="<%= turista_memberships_url %>"
+         style="background-color: #EB633B;
+                border: 2px solid #c94a28;
+                border-radius: 8px;
+                color: #ffffff;
+                display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 1;
+                padding: 16px 36px;
+                text-align: center;
+                text-decoration: none;
+                -webkit-text-size-adjust: none;">
+        Renovar mi membresía ahora
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Tienes alguna pregunta o problema con el pago? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a> y te ayudamos.
+</p>
+
+<p style="margin: 16px 0 0 0; color: #555555; font-size: 14px; font-style: italic;">
+  Con cariño,<br/>
+  <strong style="color: #EB633B; font-style: normal;">El equipo de IyaiClub</strong>
+</p>

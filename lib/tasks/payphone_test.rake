@@ -8,10 +8,14 @@
 #   rails payphone:test_booking[BOOKING_ID]
 #   rails payphone:status[CLIENT_TRANSACTION_ID]
 #   rails payphone:cleanup_pending
+#   rails payphone:cancel_subscription[SUBSCRIPTION_ID]
+#   rails payphone:cancel_booking[BOOKING_ID]
 #
 # EJEMPLO:
 #   rails payphone:test_subscription[5,3]
 #   rails payphone:test_booking[12]
+#   rails payphone:cancel_subscription[7]
+#   rails payphone:cancel_booking[4]
 
 namespace :payphone do
   # ─────────────────────────────────────────────────────────────
@@ -323,6 +327,108 @@ namespace :payphone do
       end
     end
     puts "\n#{"="*60}"
+  end
+
+  # ─────────────────────────────────────────────────────────────
+  # CANCELAR / BORRAR SUSCRIPCIÓN
+  # ─────────────────────────────────────────────────────────────
+  desc "Cancela y elimina una suscripción y su transacción asociada. Uso: rails payphone:cancel_subscription[SUBSCRIPTION_ID]"
+  task :cancel_subscription, [:subscription_id] => :environment do |_, args|
+    puts "\n#{"="*60}"
+    puts "  CANCELAR SUSCRIPCIÓN"
+    puts "="*60
+
+    abort "  Uso: rails payphone:cancel_subscription[SUBSCRIPTION_ID]" unless args[:subscription_id].present?
+
+    subscription = Subscription.find_by(id: args[:subscription_id])
+    abort "\n  ERROR: No se encontró suscripción con ID #{args[:subscription_id]}." unless subscription
+
+    subscribable = subscription.subscribable
+    plan_name    = subscription.plan_name
+
+    puts "\nSuscripción ID : #{subscription.id}"
+    puts "Subscribable   : #{subscription.subscribable_type} ##{subscription.subscribable_id} (#{subscribable&.try(:name) || subscribable&.try(:email)})"
+    puts "Plan           : #{plan_name}"
+    puts "Estado         : #{subscription.status}"
+    puts "Inicio         : #{subscription.start_date}"
+    puts "Fin            : #{subscription.end_date}"
+
+    transactions = PayphoneTransaction.where(payable: subscription)
+    puts "Transacciones  : #{transactions.count}"
+    transactions.each do |t|
+      puts "  → [#{t.id}] #{t.client_transaction_id} | #{t.status} | $#{t.amount_dollars}"
+    end
+
+    puts "\n¿Cancelar y eliminar esta suscripción y sus transacciones? (escribe 'si' y presiona Enter)"
+    input = STDIN.gets.chomp
+
+    unless input.downcase == "si"
+      puts "  → Operación cancelada."
+      next
+    end
+
+    transactions.destroy_all
+    puts "\n[1] #{transactions.length} transacción(es) eliminada(s)."
+
+    subscription.destroy!
+    puts "[2] Suscripción ##{args[:subscription_id]} eliminada."
+
+    puts "\n✓ Suscripción cancelada y eliminada correctamente."
+    puts "="*60
+  end
+
+  # ─────────────────────────────────────────────────────────────
+  # CANCELAR / BORRAR RESERVA
+  # ─────────────────────────────────────────────────────────────
+  desc "Cancela y elimina una reserva y su transacción asociada. Uso: rails payphone:cancel_booking[BOOKING_ID]"
+  task :cancel_booking, [:booking_id] => :environment do |_, args|
+    puts "\n#{"="*60}"
+    puts "  CANCELAR RESERVA"
+    puts "="*60
+
+    abort "  Uso: rails payphone:cancel_booking[BOOKING_ID]" unless args[:booking_id].present?
+
+    booking = Booking.includes(bookable: :establishment).find_by(id: args[:booking_id])
+    abort "\n  ERROR: No se encontró reserva con ID #{args[:booking_id]}." unless booking
+
+    establishment = booking.bookable&.establishment
+
+    puts "\nReserva ID     : #{booking.id}"
+    puts "Servicio       : #{booking.bookable_type} ##{booking.bookable_id}"
+    puts "Establecimiento: #{establishment&.name || '(sin establecimiento)'}"
+    puts "Huésped        : #{booking.guest_name} (#{booking.guest_email})"
+    puts "Fechas         : #{booking.start_date} → #{booking.end_date}"
+    puts "Total          : $#{booking.total_price} USD"
+    puts "Estado         : #{booking.status}"
+
+    transactions = PayphoneTransaction.where(payable: booking)
+    puts "Transacciones  : #{transactions.count}"
+    transactions.each do |t|
+      puts "  → [#{t.id}] #{t.client_transaction_id} | #{t.status} | $#{t.amount_dollars}"
+    end
+
+    puts "\nOpciones:"
+    puts "  1) Solo cancelar (status → :cancelado, conservar registro)"
+    puts "  2) Cancelar y eliminar todo (booking + transacciones)"
+    puts "  0) Salir sin cambios"
+    print "Elige (1/2/0): "
+    input = STDIN.gets.chomp
+
+    case input
+    when "1"
+      booking.update!(status: :cancelado)
+      puts "\n✓ Reserva ##{booking.id} marcada como cancelada."
+    when "2"
+      transactions.destroy_all
+      puts "\n[1] #{transactions.length} transacción(es) eliminada(s)."
+      booking.destroy!
+      puts "[2] Reserva ##{args[:booking_id]} eliminada."
+      puts "\n✓ Reserva eliminada correctamente."
+    else
+      puts "  → Operación cancelada."
+    end
+
+    puts "="*60
   end
 
   # ─────────────────────────────────────────────────────────────

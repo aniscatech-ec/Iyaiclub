@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -543,6 +543,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
     t.datetime "updated_at", null: false
     t.string "subscribable_type", null: false
     t.bigint "subscribable_id", null: false
+    t.datetime "cancelled_at"
+    t.integer "cancellation_type", default: 0
+    t.date "grace_period_until"
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
   end
 

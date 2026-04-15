@@ -4,7 +4,7 @@ class Room < ApplicationRecord
   has_many :room_beds, dependent: :destroy
   has_many :room_amenities, dependent: :destroy
   has_many :amenities, through: :room_amenities
-  has_many :bookings, dependent: :destroy
+  has_many :bookings, as: :bookable, dependent: :destroy
   has_one_attached :photo
 
   accepts_nested_attributes_for :room_beds, allow_destroy: true
@@ -21,7 +21,9 @@ class Room < ApplicationRecord
   private
 
   def must_belong_to_one_parent
-    if hotel_id.blank? && temporary_lodging_id.blank? && hotel.blank? && temporary_lodging.blank?
+    has_hotel = hotel_id.present? || hotel.present?
+    has_lodging = temporary_lodging_id.present? || temporary_lodging.present?
+    unless has_hotel || has_lodging
       errors.add(:base, "La habitación debe pertenecer a un hotel o alojamiento temporal")
     end
   end

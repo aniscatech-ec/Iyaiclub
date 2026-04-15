@@ -178,14 +178,8 @@
                         </div>
                       <% end %>
                       <% if user_signed_in? %>
-                        <% if est.autogestion? %>
-                          <%= link_to new_hotel_booking_path(hotel, room_id: room.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
-                            <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
-                          <% end %>
-                        <% else %>
-                          <%= link_to new_custom_request_path, class: "btn btn-warning w-100 rounded-pill fw-semibold" do %>
-                            <i class="fas fa-star me-1"></i> Reserva personalizada
-                          <% end %>
+                        <%= link_to new_hotel_booking_path(hotel, room_id: room.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
+                          <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
                         <% end %>
                       <% else %>
                         <%= link_to new_user_session_path, class: "btn btn-outline-primary w-100 rounded-pill fw-semibold" do %>
@@ -297,12 +291,13 @@
 
           <div class="d-grid gap-2">
             <% if user_signed_in? %>
-              <% if est.autogestion? %>
-                <%# Gestión directa: botones de reserva directa + WhatsApp %>
-                <a href="#habitaciones" class="btn btn-primary rounded-pill fw-semibold btn-lg" data-turbo="false">
-                  <i class="fas fa-calendar-plus me-1"></i> Seleccionar habitación
-                </a>
+              <%# Siempre: botón de seleccionar habitación %>
+              <a href="#habitaciones" class="btn btn-primary rounded-pill fw-semibold btn-lg" data-turbo="false">
+                <i class="fas fa-calendar-plus me-1"></i> Seleccionar habitación
+              </a>
 
+              <% if est.autogestion? %>
+                <%# Autogestión: también mostrar WhatsApp y teléfono %>
                 <% if whatsapp_phone.present? %>
                   <a href="https://wa.me/<%= whatsapp_phone.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, estoy interesado en #{est.name}") %>"
                      target="_blank"
@@ -316,15 +311,6 @@
                     <i class="fas fa-phone me-1"></i> Llamar al hotel
                   </a>
                 <% end %>
-              <% else %>
-                <%# Gestión por Iyaiclub: sólo reserva personalizada %>
-                <%= link_to new_custom_request_path, class: "btn btn-warning rounded-pill fw-semibold btn-lg" do %>
-                  <i class="fas fa-star me-1"></i> Reserva personalizada Iyaiclub
-                <% end %>
-                <div class="small text-muted text-center mt-2">
-                  <i class="fas fa-info-circle me-1"></i>
-                  Este establecimiento es gestionado por nuestro equipo Iyaiclub.
-                </div>
               <% end %>
             <% else %>
               <%= link_to new_user_session_path, class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>

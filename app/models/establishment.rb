@@ -51,7 +51,8 @@ class Establishment < ApplicationRecord
   accepts_nested_attributes_for :units
   accepts_nested_attributes_for :payment_methods
   # accepts_nested_attributes_for :galleries
-  accepts_nested_attributes_for :galleries, allow_destroy: true
+  accepts_nested_attributes_for :galleries, allow_destroy: true,
+                                            reject_if: ->(attrs) { attrs["name"].blank? && attrs["id"].blank? }
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
 

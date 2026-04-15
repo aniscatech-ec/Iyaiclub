@@ -28,21 +28,76 @@ class UserMailer < ApplicationMailer
     @user = user
     @action = action
     @membership = membership
-    
+
     subject = case action
               when :activada
                 '¡Tu membresía IyaiClub está activa!'
               when :renovada
                 'Membresía renovada exitosamente'
               when :cancelada
-                'Cancelación de membresía'
+                'Has cancelado tu membresía IyaiClub'
               else
                 'Notificación de membresía'
               end
-    
+
     mail(
       to: @user.email,
       subject: subject,
+      from: email_from(:portal)
+    )
+  end
+
+  # Alerta de membresía próxima a vencer (7 días o 3 días antes)
+  def membership_expiry_warning(user, membership, days_left:)
+    @user = user
+    @membership = membership
+    @days_left = days_left
+
+    mail(
+      to: @user.email,
+      subject: "Tu membresía IyaiClub vence en #{days_left} días",
+      from: email_from(:portal)
+    )
+  end
+
+  # Notificación de inicio de prórroga por impago (5 días extra)
+  def membership_grace_period_started(user, membership)
+    @user = user
+    @membership = membership
+    @grace_until = membership.grace_period_until
+
+    mail(
+      to: @user.email,
+      subject: "Prórroga de 5 días activada en tu membresía IyaiClub",
+      from: email_from(:portal)
+    )
+  end
+
+  # Notificación al admin cuando un cliente no renueva (o cuando expira la prórroga)
+  def membership_unpaid_admin_notification(user, membership, grace_ended: false)
+    @user = user
+    @membership = membership
+    @grace_ended = grace_ended
+
+    subject = grace_ended \
+      ? "⚠️ Membresía expirada sin pago: #{user.email}"
+      : "⚠️ Cliente sin renovación: #{user.email} – prórroga iniciada"
+
+    mail(
+      to: "pauliyai@iyaiclub.com",
+      subject: subject,
+      from: email_from(:portal)
+    )
+  end
+
+  # Notificación al usuario cuando su prórroga termina y la membresía expira
+  def membership_expired(user, membership)
+    @user = user
+    @membership = membership
+
+    mail(
+      to: @user.email,
+      subject: "Tu membresía IyaiClub ha expirado",
       from: email_from(:portal)
     )
   end

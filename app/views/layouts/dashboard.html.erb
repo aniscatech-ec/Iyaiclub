@@ -180,7 +180,6 @@
                 <% end %>
               </li>
 
-
               <li>
                 <%= link_to plan_prices_path, class: "nav-link" do %>
                   <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
@@ -189,8 +188,8 @@
                   Planes de pago
                 <% end %>
               </li>
-
             <% end %>
+
             <% if current_user.afiliado? %>
               <li>
                 <%= link_to afiliado_dashboard_index_path, class: "nav-link" do %>
@@ -200,8 +199,8 @@
                   Dashboard
                 <% end %>
               </li>
-
             <% end %>
+
             <% if current_user.turista? %>
               <li>
                 <%= link_to turista_dashboard_index_path, class: "nav-link" do %>
@@ -211,7 +210,6 @@
                   Dashboard
                 <% end %>
               </li>
-
             <% end %>
             <% if current_user.vendedor? %>
               <li>
@@ -226,40 +224,42 @@
 
           <% end %>
 
-          <li>
-            <%= link_to subscriptions_path, class: "nav-link" do %>
-              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
-                <use xlink:href="#card"></use>
-              </svg>
-              Suscripciones
-            <% end %>
-          </li>
+          <% if user_signed_in? && !current_user.turista? %>
+            <li>
+              <%= link_to subscriptions_path, class: "nav-link" do %>
+                <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                  <use xlink:href="#card"></use>
+                </svg>
+                Suscripciones
+              <% end %>
+            </li>
 
-          <li>
-            <%= link_to countries_path, class: "nav-link" do %>
-              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
-                <use xlink:href="#province"></use>
-              </svg>
-              Paises
-            <% end %>
-          </li>
+            <li>
+              <%= link_to countries_path, class: "nav-link" do %>
+                <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                  <use xlink:href="#province"></use>
+                </svg>
+                Paises
+              <% end %>
+            </li>
 
-          <li>
-            <%= link_to provinces_path, class: "nav-link" do %>
-              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
-                <use xlink:href="#province"></use>
-              </svg>
-              Provincias
-            <% end %>
-          </li>
-          <li>
-            <%= link_to cities_path, class: "nav-link" do %>
-              <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
-                <use xlink:href="#city"></use>
-              </svg>
-              Ciudades
-            <% end %>
-          </li>
+            <li>
+              <%= link_to provinces_path, class: "nav-link" do %>
+                <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                  <use xlink:href="#province"></use>
+                </svg>
+                Provincias
+              <% end %>
+            </li>
+            <li>
+              <%= link_to cities_path, class: "nav-link" do %>
+                <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                  <use xlink:href="#city"></use>
+                </svg>
+                Ciudades
+              <% end %>
+            </li>
+          <% end %>
 
           <li>
             <%= link_to edit_user_registration_path, class: "nav-link" do %>

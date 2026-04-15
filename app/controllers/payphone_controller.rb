@@ -196,7 +196,7 @@ class PayphoneController < ApplicationController
       plan_price = PlanPrice.find(payable.plan_type)
       "Suscripción #{plan_price.plan&.name} - #{plan_price.display_duration}"
     when Booking
-      establishment_name = payable.bookable&.establishment&.name || "Establecimiento"
+      establishment_name = payable.establishment&.name || "Establecimiento"
       "Reserva ##{payable.id} - #{establishment_name}"
     when Ticket
       "Ticket #{payable.ticket_code} - #{payable.event_name}"
@@ -304,6 +304,8 @@ class PayphoneController < ApplicationController
   def booking_redirect_path(booking)
     bookable = booking.bookable
     case bookable
+    when Room
+      hotel_booking_path(bookable.hotel, booking)
     when Unit
       hotel = bookable.establishment&.hotel
       hotel ? hotel_booking_path(hotel, booking) : root_path

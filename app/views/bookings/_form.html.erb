@@ -9,7 +9,9 @@
   </div>
 <% end %>
 
-<% if unit.present? %>
+<% if local_assigns[:room]&.present? %>
+  <%= f.hidden_field :room_id, value: room.id %>
+<% elsif local_assigns[:unit]&.present? %>
   <%= f.hidden_field :unit_id, value: unit.id %>
 <% end %>
 
@@ -27,17 +29,17 @@
 
 <div class="mb-3">
   <%= f.label :guest_count, "Número de huéspedes / personas", class: "form-label" %>
-  <%= f.number_field :guest_count, class: "form-control", min: 1 %>
+  <%= f.number_field :guest_count, class: "form-control", min: 1, value: (booking.guest_count.presence || 1), required: true %>
 </div>
 
 <div class="row">
   <div class="col-md-6 mb-3">
     <%= f.label :start_date, "Fecha de entrada / inicio", class: "form-label" %>
-    <%= f.date_field :start_date, class: "form-control", min: Date.today %>
+    <%= f.date_field :start_date, class: "form-control", min: Date.today, required: true %>
   </div>
   <div class="col-md-6 mb-3">
     <%= f.label :end_date, "Fecha de salida / fin", class: "form-label" %>
-    <%= f.date_field :end_date, class: "form-control", min: Date.tomorrow %>
+    <%= f.date_field :end_date, class: "form-control", min: Date.tomorrow, required: true %>
   </div>
 </div>
 

@@ -1,0 +1,13 @@
+Tu membresía IyaiClub ha expirado
+
+Hola <%= @user.name.presence || @user.email %>,
+
+Tu membresía <%= @membership.plan_name %> ha expirado definitivamente.
+
+Ya no tienes acceso a los descuentos y beneficios exclusivos. Pero puedes renovar en cualquier momento para recuperarlos.
+
+Renueva tu membresía aquí: <%= turista_memberships_url %>
+
+¿Tienes preguntas? Escríbenos a info@iyaiclub.com
+
+El equipo de IyaiClub

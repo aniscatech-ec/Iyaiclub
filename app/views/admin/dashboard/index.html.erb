@@ -48,10 +48,13 @@
   <h4 class="mb-3 fw-bold">Establecimientos</h4>
   <div class="row g-4 mb-5">
     <div class="col-md-2">
-      <%= link_to establishments_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
-        <div class="card-body">
-          <i class="fa-solid fa-building fa-2x text-success mb-3"></i>
-          <h6 class="card-title fw-bold">Todos</h6>
+      <%= link_to establishments_path, class: "text-decoration-none" do %>
+        <div class="card border-0 shadow-sm d-flex flex-row align-items-center p-2 rounded-3" style="min-height: 45px;">
+          <div class="d-flex align-items-center justify-content-center rounded-2 me-2 flex-shrink-0"
+               style="width: 32px; height: 32px; background: #28a74515;">
+            <i class="fa-solid fa-building" style="color: #28a745; font-size: 0.9rem;"></i>
+          </div>
+          <span class="fw-semibold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Todos</span>
         </div>
       <% end %>
     </div>
@@ -65,10 +68,13 @@
     <% end %>
 
     <div class="col-md-2">
-      <%= link_to amenities_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
-        <div class="card-body">
-          <i class="fa-solid fa-star fa-2x text-secondary mb-3"></i>
-          <h6 class="card-title fw-bold">Comodidades</h6>
+      <%= link_to amenities_path, class: "text-decoration-none" do %>
+        <div class="card border-0 shadow-sm d-flex flex-row align-items-center p-2 rounded-3" style="min-height: 45px;">
+          <div class="d-flex align-items-center justify-content-center rounded-2 me-2 flex-shrink-0"
+               style="width: 32px; height: 32px; background: #6c757d15;">
+            <i class="fa-solid fa-star" style="color: #6c757d; font-size: 0.9rem;"></i>
+          </div>
+          <span class="fw-semibold text-dark" style="font-size: 0.75rem; line-height: 1.2;">Comodidades</span>
         </div>
       <% end %>
     </div>

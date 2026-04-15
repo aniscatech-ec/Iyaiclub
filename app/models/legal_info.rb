@@ -23,20 +23,20 @@ class LegalInfo < ApplicationRecord
   def validate_document_number_format
     return if document_number.blank? || document_type.blank?
 
-    case document_type
-    when "RUC"
+    case document_type.downcase
+    when "ruc"
       unless document_number.match?(/\A[0-9]{13}\z/)
         errors.add(:document_number, "El RUC debe tener 13 dígitos. Ejemplo: 0901234567001")
       end
-    when "Cédula"
+    when "cedula", "cédula"
       unless document_number.match?(/\A[0-9]{10}\z/)
         errors.add(:document_number, "La cédula debe tener 10 dígitos. Ejemplo: 0901234567")
       end
-    when "DNI"
+    when "dni"
       unless document_number.match?(/\A[0-9]{8,12}\z/)
         errors.add(:document_number, "El DNI debe tener entre 8 y 12 dígitos. Ejemplo: 12345678")
       end
-    when "Pasaporte"
+    when "pasaporte"
       unless document_number.match?(/\A[A-Za-z0-9]{6,15}\z/)
         errors.add(:document_number, "El pasaporte debe tener entre 6 y 15 caracteres. Ejemplo: AB1234567")
       end

@@ -1,18 +1,20 @@
 <%
   bookable = @booking.bookable
-  establishment = bookable&.establishment
+  establishment = @booking.establishment
   establishment_name = establishment&.name || @hotel&.establishment&.name || "Establecimiento"
 
   bookable_name = case bookable
-                  when Unit then bookable.name.presence || bookable.unit_type.to_s.humanize
+                  when Room    then bookable.name.presence || bookable.room_type.to_s.humanize
+                  when Unit    then bookable.name.presence || bookable.unit_type.to_s.humanize
                   when Lodging then bookable.name.presence || "Alojamiento"
                   when Experience then bookable.name
-                  when Getaway then bookable.name
+                  when Getaway    then bookable.name
                   else "—"
                   end
 
   price_per_night = case bookable
-                    when Unit then bookable.base_price
+                    when Room    then bookable.price_per_night
+                    when Unit    then bookable.base_price
                     when Lodging then bookable.price_per_night
                     else nil
                     end

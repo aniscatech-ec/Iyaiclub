@@ -613,33 +613,22 @@
 <script>
     // Intentar múltiples eventos para asegurar que el script se ejecute
     function initLocationScript() {
-        console.log("Inicializando script de ubicación para restaurante");
-        
         // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
         const countrySelect = document.getElementById('establishment_country_id');
         const provinceSelect = document.getElementById('establishment_province_id');
         const citySelect = document.getElementById('establishment_city_id');
 
-        console.log('Elementos encontrados:', { countrySelect, provinceSelect, citySelect });
-
         // Función para cargar provincias
         function loadProvinces(countryId) {
-            console.log('Cargando provincias para país:', countryId);
-            
             if (!countryId) {
-                console.log('No hay país seleccionado');
                 provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                 return;
             }
 
             fetch(`/locations/provinces/${countryId}`)
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Provincias recibidas:', data);
                     provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                     data.forEach(province => {
                         provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
@@ -654,20 +643,14 @@
 
         // Función para cargar ciudades
         function loadCities(provinceId) {
-            console.log('Cargando ciudades para provincia:', provinceId);
-            
             if (!provinceId) {
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                 return;
             }
 
             fetch(`/locations/cities/${provinceId}`)
-                .then(response => {
-                    console.log('Cities response status:', response.status);
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Ciudades recibidas:', data);
                     citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                     data.forEach(city => {
                         citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
@@ -681,29 +664,20 @@
 
         // Event listeners
         if (countrySelect) {
-            console.log('Country select encontrado:', countrySelect);
             countrySelect.addEventListener('change', function() {
-                console.log('Cambio en país seleccionado:', this.value);
                 loadProvinces(this.value);
             });
 
             // Cargar provincias si hay un país preseleccionado
             if (countrySelect.value) {
-                console.log('País preseleccionado:', countrySelect.value);
                 loadProvinces(countrySelect.value);
             }
-        } else {
-            console.log('No se encontró el select de país');
         }
 
         if (provinceSelect) {
-            console.log('Province select encontrado:', provinceSelect);
             provinceSelect.addEventListener('change', function() {
-                console.log('Cambio en provincia seleccionada:', this.value);
                 loadCities(this.value);
             });
-        } else {
-            console.log('No se encontró el select de provincia');
         }
     }
 

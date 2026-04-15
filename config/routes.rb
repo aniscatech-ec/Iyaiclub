@@ -111,7 +111,12 @@ Rails.application.routes.draw do
       end
     end
     resources :redemptions, only: [:index]
-    resources :memberships, only: [:index]
+    resources :memberships, only: [:index] do
+      member do
+        patch :cancel
+        patch :reactivate
+      end
+    end
     resources :custom_requests, only: [:index, :show]
     resources :tickets, only: [:index, :show] do
       member do
