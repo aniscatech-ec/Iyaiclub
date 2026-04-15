@@ -31,13 +31,28 @@
   <!-- Lista de tickets -->
   <% if @tickets.any? %>
     <div class="row g-3">
-      <% @tickets.each do |ticket| %>
-        <div class="col-12 col-md-6 col-lg-4">
+      <% @tickets.each_with_index do |ticket, index| %>
+        <%# Contar tickets del mismo evento comprados en la misma transacción %>
+        <% same_purchase_count = 1 %>
+        <% if index > 0 %>
+          <% prev_ticket = @tickets[index - 1] %>
+          <% if ticket.event_name == prev_ticket.event_name && (ticket.created_at - prev_ticket.created_at).abs < 5.seconds %>
+            <% next %>
+          <% end %>
+        <% end %>
+        <% same_purchase_count = @tickets[index..-1].take_while { |t| t.event_name == ticket.event_name && (t.created_at - ticket.created_at).abs < 5.seconds }.count %>
+
+        <div class="col-12 <%= same_purchase_count > 1 ? 'col-md-12' : 'col-md-6 col-lg-4' %>">
           <div class="card border-0 shadow-sm rounded-4 h-100 <%= 'opacity-75' if ticket.usado? %>">
             <div class="card-header bg-transparent border-0 pt-4 px-4">
               <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-2">
                 <div class="flex-grow-1">
-                  <h6 class="fw-bold mb-1"><%= ticket.event_name %></h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <h6 class="fw-bold mb-1"><%= ticket.event_name %></h6>
+                    <% if same_purchase_count > 1 %>
+                      <span class="badge bg-info" title="Comprados juntos"><%= same_purchase_count %> tickets</span>
+                    <% end %>
+                  </div>
                   <% if ticket.event_date.present? %>
                     <small class="text-muted"><%= ticket.event_date.strftime('%d/%m/%Y') %></small>
                   <% end %>
@@ -48,42 +63,84 @@
               </div>
             </div>
             <div class="card-body px-4 pb-4">
-              <div class="mb-3">
-                <small class="text-muted">Código de ticket</small>
-                <div class="fw-bold fs-5" style="color: #2E7D32;"><%= ticket.ticket_code %></div>
-              </div>
-              
-              <div class="mb-3">
-                <small class="text-muted">Número de rifa</small>
-                <div class="fw-bold fs-4" style="color: #F57F17;"><%= ticket.raffle_number %></div>
-                <small class="text-muted">🎱 Participa en el sorteo</small>
-              </div>
-
-              <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3">
-                <div>
-                  <small class="text-muted">Precio</small>
-                  <div class="fw-bold">$<%= number_with_precision(ticket.unit_price, precision: 2) %></div>
+              <% if same_purchase_count > 1 %>
+                <% tickets_grupo = @tickets[index, same_purchase_count] %>
+                <div class="table-responsive">
+                  <table class="table table-sm table-borderless">
+                    <thead>
+                      <tr>
+                        <th>Código</th>
+                        <th>N° Rifa</th>
+                        <th>Estado</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% tickets_grupo.each do |t| %>
+                        <tr>
+                          <td><span class="fw-bold" style="color: #2E7D32;"><%= t.ticket_code %></span></td>
+                          <td><span class="fw-bold" style="color: #F57F17;"><%= t.raffle_number %></span></td>
+                          <td><span class="badge <%= ticket_status_badge_class(t.status) %>"><%= t.status.humanize %></span></td>
+                          <td>
+                            <%= link_to turista_ticket_path(t), class: "btn btn-sm btn-outline-primary" do %>
+                              <i class="fas fa-eye"></i>
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
                 </div>
-                <div>
-                  <small class="text-muted">Asistente</small>
-                  <div class="fw-bold"><%= ticket.guest_name %></div>
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-2">
+                  <div>
+                    <small class="text-muted">Asistente</small>
+                    <div class="fw-bold"><%= ticket.guest_name %></div>
+                  </div>
+                  <div class="text-end">
+                    <small class="text-muted">Total pagado</small>
+                    <div class="fw-bold fs-5 text-success">$<%= number_with_precision(ticket.total_price, precision: 2) %></div>
+                  </div>
                 </div>
-              </div>
+              <% else %>
+                <div class="mb-3">
+                  <small class="text-muted">Código de ticket</small>
+                  <div class="fw-bold fs-5" style="color: #2E7D32;"><%= ticket.ticket_code %></div>
+                </div>
 
-              <% if ticket.used_at.present? %>
-                <small class="text-muted">Usado el: <%= ticket.used_at.strftime('%d/%m/%Y %H:%M') %></small>
+                <div class="mb-3">
+                  <small class="text-muted">Número de rifa</small>
+                  <div class="fw-bold fs-4" style="color: #F57F17;"><%= ticket.raffle_number %></div>
+                  <small class="text-muted">🎱 Participa en el sorteo</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3">
+                  <div>
+                    <small class="text-muted">Precio</small>
+                    <div class="fw-bold">$<%= number_with_precision(ticket.unit_price, precision: 2) %></div>
+                  </div>
+                  <div>
+                    <small class="text-muted">Asistente</small>
+                    <div class="fw-bold"><%= ticket.guest_name %></div>
+                  </div>
+                </div>
+
+                <% if ticket.used_at.present? %>
+                  <small class="text-muted">Usado el: <%= ticket.used_at.strftime('%d/%m/%Y %H:%M') %></small>
+                <% end %>
               <% end %>
             </div>
-            <div class="card-footer bg-transparent border-0 pb-4 px-4">
-              <div class="d-grid gap-2">
-                <%= link_to turista_ticket_path(ticket), class: "btn btn-outline-primary" do %>
-                  <i class="fas fa-eye me-1"></i> Ver detalles
-                <% end %>
-                <%= link_to download_turista_ticket_path(ticket), class: "btn btn-primary" do %>
-                  <i class="fas fa-download me-1"></i> Descargar PDF
-                <% end %>
+            <% if same_purchase_count == 1 %>
+              <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                <div class="d-grid gap-2">
+                  <%= link_to turista_ticket_path(ticket), class: "btn btn-outline-primary" do %>
+                    <i class="fas fa-eye me-1"></i> Ver detalles
+                  <% end %>
+                  <%= link_to download_turista_ticket_path(ticket), class: "btn btn-primary" do %>
+                    <i class="fas fa-download me-1"></i> Descargar PDF
+                  <% end %>
+                </div>
               </div>
-            </div>
+            <% end %>
           </div>
         </div>
       <% end %>

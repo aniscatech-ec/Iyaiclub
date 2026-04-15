@@ -181,26 +181,35 @@ class PayphoneController < ApplicationController
   def create_ticket_from_metadata(transaction)
     meta = transaction.metadata
     event = Event.find(meta["event_id"])
+    quantity = meta["quantity"] || 1
 
-    ticket = Ticket.create!(
-      user: transaction.user,
-      event: event,
-      event_name: event.name,
-      event_date: event.event_date,
-      event_location: event.location,
-      unit_price: event.ticket_price,
-      total_price: event.ticket_price,
-      guest_name: meta["guest_name"],
-      guest_email: meta["guest_email"],
-      guest_phone: meta["guest_phone"],
-      status: :activo,
-      payment_method: :payphone
-    )
+    tickets = []
+    ActiveRecord::Base.transaction do
+      quantity.times do
+        ticket = Ticket.create!(
+          user: transaction.user,
+          event: event,
+          event_name: event.name,
+          event_date: event.event_date,
+          event_location: event.location,
+          unit_price: event.ticket_price,
+          total_price: event.ticket_price * quantity,
+          guest_name: meta["guest_name"],
+          guest_email: meta["guest_email"],
+          guest_phone: meta["guest_phone"],
+          status: :activo,
+          payment_method: :payphone
+        )
+        tickets << ticket
+      end
 
-    event.decrement!(:available_tickets) if event.available_tickets.present?
-    transaction.update!(payable: ticket)
+      event.decrement!(:available_tickets, quantity) if event.available_tickets.present?
+    end
 
-    ticket
+    # Asociar el primer ticket como payable principal
+    transaction.update!(payable: tickets.first)
+
+    tickets
   end
 
   def activate_payable(payable)
