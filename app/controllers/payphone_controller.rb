@@ -61,8 +61,12 @@ class PayphoneController < ApplicationController
       )
 
       if @transaction.aprobado?
-        # Si es una transacción de ticket sin payable, crear el ticket ahora
-        create_ticket_from_metadata(@transaction) if @transaction.payable.nil? && @transaction.metadata&.dig("type") == "ticket"
+        # Crear tickets desde metadata ANTES de activate_payable
+        # (el payable queda nil hasta que se crean los tickets)
+        if @transaction.payable.nil? && @transaction.metadata&.dig("type") == "ticket"
+          create_ticket_from_metadata(@transaction)
+          @transaction.reload  # recargar para obtener el payable recién asignado
+        end
 
         activate_payable(@transaction.payable)
         redirect_to after_payment_path(@transaction), notice: "Pago realizado exitosamente. #{payment_summary(@transaction)}"
@@ -75,6 +79,9 @@ class PayphoneController < ApplicationController
     end
   rescue ActiveRecord::RecordNotFound
     redirect_to root_path, alert: "Transacción no encontrada."
+  rescue => e
+    Rails.logger.error("[PayPhone callback] Error inesperado: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
+    redirect_to root_path, alert: "Ocurrió un error procesando el pago. Contacta al soporte si el cobro fue realizado."
   end
 
   # GET /payphone/cancel?clientTransactionId=YY
@@ -86,9 +93,14 @@ class PayphoneController < ApplicationController
       transaction = PayphoneTransaction.find_by(client_transaction_id: client_tx_id)
       if transaction
         transaction.update!(status: :cancelado)
-        # Si el payable es un ticket reservado, rechazarlo para liberar el cupo
-        if transaction.payable.is_a?(Ticket) && transaction.payable.reservado?
-          transaction.payable.rechazar!
+
+        case transaction.payable
+        when Ticket
+          # Liberar cupo si el ticket estaba reservado
+          transaction.payable.rechazar! if transaction.payable.reservado?
+        when Subscription
+          # Cancelar la suscripción pendiente para no dejar basura
+          transaction.payable.update!(status: :cancelada)
         end
       end
     end
@@ -202,25 +214,25 @@ class PayphoneController < ApplicationController
   end
 
   def create_ticket_from_metadata(transaction)
-    meta = transaction.metadata
-    event = Event.find(meta["event_id"])
-    quantity = meta["quantity"] || 1
+    meta     = transaction.metadata
+    event    = Event.find(meta["event_id"])
+    quantity = (meta["quantity"] || 1).to_i
 
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
         ticket = Ticket.create!(
-          user: transaction.user,
-          event: event,
-          event_name: event.name,
-          event_date: event.event_date,
+          user:           transaction.user,
+          event:          event,
+          event_name:     event.name,
+          event_date:     event.event_date,
           event_location: event.location,
-          unit_price: event.ticket_price,
-          total_price: event.ticket_price * quantity,
-          guest_name: meta["guest_name"],
-          guest_email: meta["guest_email"],
-          guest_phone: meta["guest_phone"],
-          status: :activo,
+          unit_price:     event.ticket_price,
+          total_price:    event.ticket_price,   # precio por ticket individual
+          guest_name:     meta["guest_name"],
+          guest_email:    meta["guest_email"],
+          guest_phone:    meta["guest_phone"],
+          status:         :activo,
           payment_method: :payphone
         )
         tickets << ticket
@@ -235,7 +247,7 @@ class PayphoneController < ApplicationController
     tickets
   end
 
-  def activate_payable(payable)
+  def activate_payable(payable, transaction = @transaction)
     case payable
     when Subscription
       payable.set_dates
@@ -245,10 +257,22 @@ class PayphoneController < ApplicationController
     when Ticket
       payable.acreditar! unless payable.activo?
       begin
-        TicketMailer.ticket_purchased(payable.user, [payable]).deliver_later
+        # Enviar todos los tickets de la transacción (compra múltiple)
+        all_tickets = if transaction&.metadata&.dig("quantity").to_i > 1
+                        Ticket.where(
+                          user: payable.user,
+                          event: payable.event,
+                          status: :activo
+                        ).order(:id).last(transaction.metadata["quantity"].to_i)
+                      else
+                        [payable]
+                      end
+        TicketMailer.ticket_purchased(payable.user, all_tickets).deliver_later
       rescue => e
         Rails.logger.error("Error enviando email de ticket PayPhone: #{e.message}")
       end
+    when nil
+      Rails.logger.warn("[PayPhone] activate_payable llamado con payable nil")
     end
   end
 

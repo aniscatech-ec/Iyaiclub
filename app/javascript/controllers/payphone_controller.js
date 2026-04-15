@@ -7,8 +7,7 @@ export default class extends Controller {
     amount: Number,
     clientTransactionId: String,
     reference: String,
-    email: String,
-    phone: String
+    email: String
   }
 
   connect() {
@@ -78,7 +77,6 @@ export default class extends Controller {
     }
 
     if (this.emailValue && this.emailValue.trim() !== "") config.email = this.emailValue
-    if (this.phoneValue && this.phoneValue.trim() !== "") config.phoneNumber = this.phoneValue
 
     new PPaymentButtonBox(config).render("pp-button")
   }

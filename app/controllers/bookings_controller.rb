@@ -57,17 +57,14 @@ class BookingsController < ApplicationController
 
     if @booking.save
       establishment = @booking.bookable&.establishment
+      show_path = @hotel ? hotel_booking_path(@hotel, @booking) : polymorphic_path([@parent, @booking])
 
-      # Si IyaiClub gestiona la reserva → cobrar por PayPhone
       if establishment&.iyaiclub?
-        redirect_to payphone_checkout_path(
-          payable_type: "Booking",
-          payable_id: @booking.id
-        ), notice: "Reserva creada. Completa el pago para confirmarla."
+        # IyaiClub gestiona: ir al show donde está el botón de pago PayPhone
+        redirect_to show_path, notice: "Reserva creada. Completa el pago con PayPhone para confirmarla."
       else
-        # Autogestion: reserva queda pendiente, el afiliado la confirma
-        redirect_path = @hotel ? hotel_booking_path(@hotel, @booking) : polymorphic_path([@parent, @booking])
-        redirect_to redirect_path, notice: "Reserva creada. Pendiente de confirmación por el establecimiento."
+        # Autogestion: reserva pendiente, el afiliado la confirma manualmente
+        redirect_to show_path, notice: "Reserva creada. Pendiente de confirmación por el establecimiento."
       end
     else
       render :new, status: :unprocessable_entity
@@ -147,17 +144,26 @@ class BookingsController < ApplicationController
   end
 
   def calculate_booking_price(booking)
-    return 0 if booking.start_date.blank? || booking.end_date.blank?
-    nights = (booking.end_date - booking.start_date).to_i
-    return 0 if nights <= 0
-
     bookable = booking.bookable
-    price_per_night = case bookable
-                      when Unit then bookable.base_price
-                      when Lodging then bookable.price_per_night
-                      else 0
-                      end
+    return 0 unless bookable
 
-    nights * (price_per_night || 0)
+    case bookable
+    when Unit
+      return 0 if booking.start_date.blank? || booking.end_date.blank?
+      nights = (booking.end_date - booking.start_date).to_i
+      nights > 0 ? nights * (bookable.base_price || 0) : 0
+    when Lodging
+      return 0 if booking.start_date.blank? || booking.end_date.blank?
+      nights = (booking.end_date - booking.start_date).to_i
+      nights > 0 ? nights * (bookable.price_per_night || 0) : 0
+    when Experience
+      # Precio por persona × número de personas
+      (bookable.price || 0) * (booking.guest_count || 1)
+    when Getaway
+      # Precio de entrada × número de personas
+      (bookable.entry_price || 0) * (booking.guest_count || 1)
+    else
+      0
+    end
   end
 end

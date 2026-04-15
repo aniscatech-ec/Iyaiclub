@@ -1,3 +1,32 @@
+<%
+  bookable      = @booking.bookable
+  establishment = bookable&.establishment
+  iyaiclub      = establishment&.iyaiclub?
+
+  bookable_name = case bookable
+                  when Unit       then bookable.name.presence || bookable.unit_type.to_s.humanize
+                  when Lodging    then bookable.name.presence || "Alojamiento"
+                  when Experience then bookable.name
+                  when Getaway    then bookable.name
+                  else "—"
+                  end
+
+  price_label = case bookable
+                when Unit, Lodging    then "Precio por noche"
+                when Experience       then "Precio por persona"
+                when Getaway          then "Precio de entrada"
+                else nil
+                end
+
+  unit_price = case bookable
+               when Unit       then bookable.base_price
+               when Lodging    then bookable.price_per_night
+               when Experience then bookable.price
+               when Getaway    then bookable.entry_price
+               else nil
+               end
+%>
+
 <div class="container-fluid px-3 px-md-4 py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="fw-bold mb-0">
@@ -19,47 +48,63 @@
               <i class="fas fa-hotel fa-lg" style="color: <%= status_color(@booking.status) %>;"></i>
             </div>
             <div>
-              <h4 class="fw-bold mb-1"><%= @booking.establishment&.name %></h4>
+              <h4 class="fw-bold mb-1"><%= establishment&.name || "—" %></h4>
               <p class="text-muted mb-0">
                 <i class="fas fa-map-marker-alt me-1"></i>
-                <%= @booking.establishment&.address %>
+                <%= establishment&.address %>
               </p>
             </div>
           </div>
         </div>
+
         <div class="card-body p-4">
+          <%# Badge estado + gestionado por IyaiClub %>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-<%= status_badge_class(@booking.status) %> fs-6">
+              <%= @booking.status&.capitalize %>
+            </span>
+            <% if iyaiclub %>
+              <span class="badge" style="background: rgba(52,199,89,0.15); color: #36a30c;">
+                <i class="bi bi-shield-check me-1"></i> Gestionado por IyaiClub
+              </span>
+            <% end %>
+          </div>
+
           <div class="row g-3">
             <div class="col-6 col-md-3">
-              <p class="text-muted small mb-1">Check-in</p>
-              <p class="fw-bold mb-0"><%= @booking.start_date&.strftime("%d/%m/%Y") %></p>
+              <p class="text-muted small mb-1">Entrada / inicio</p>
+              <p class="fw-bold mb-0"><%= @booking.start_date&.strftime("%d/%m/%Y") || "—" %></p>
             </div>
             <div class="col-6 col-md-3">
-              <p class="text-muted small mb-1">Check-out</p>
-              <p class="fw-bold mb-0"><%= @booking.end_date&.strftime("%d/%m/%Y") %></p>
+              <p class="text-muted small mb-1">Salida / fin</p>
+              <p class="fw-bold mb-0"><%= @booking.end_date&.strftime("%d/%m/%Y") || "—" %></p>
             </div>
             <div class="col-6 col-md-3">
-              <p class="text-muted small mb-1">Noches</p>
+              <p class="text-muted small mb-1">Noches / días</p>
               <p class="fw-bold mb-0"><%= @booking.total_nights %></p>
             </div>
             <div class="col-6 col-md-3">
-              <p class="text-muted small mb-1">Huéspedes</p>
+              <p class="text-muted small mb-1">Personas</p>
               <p class="fw-bold mb-0"><%= @booking.guest_count %></p>
             </div>
           </div>
+
           <hr class="my-4">
+
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <p class="text-muted small mb-1">Habitación</p>
-              <p class="fw-bold mb-0"><%= @booking.room&.name || @booking.unit&.unit_type || "—" %></p>
+              <p class="text-muted small mb-1">Servicio</p>
+              <p class="fw-bold mb-0"><%= bookable_name %></p>
             </div>
-            <div class="col-12 col-md-6">
-              <p class="text-muted small mb-1">Estado</p>
-              <span class="badge bg-<%= status_badge_class(@booking.status) %> fs-6">
-                <%= @booking.status&.capitalize %>
-              </span>
-            </div>
+            <% if price_label && unit_price.present? %>
+              <div class="col-12 col-md-6">
+                <p class="text-muted small mb-1"><%= price_label %></p>
+                <p class="fw-bold mb-0">$<%= number_with_precision(unit_price, precision: 2) %></p>
+              </div>
+            <% end %>
           </div>
-          <% if @booking.total_price.present? %>
+
+          <% if @booking.total_price.present? && @booking.total_price > 0 %>
             <hr class="my-4">
             <div class="d-flex justify-content-between align-items-center">
               <span class="text-muted">Total</span>
@@ -68,62 +113,76 @@
               </span>
             </div>
           <% end %>
+
+          <%# Botón de pago PayPhone — solo para reservas iyaiclub pendientes con precio %>
+          <% if iyaiclub && @booking.pendiente? && @booking.total_price.to_f > 0 %>
+            <hr class="my-4">
+            <div class="text-center">
+              <%= form_with url: payphone_checkout_path, method: :post, local: true, data: { turbo: false } do |f| %>
+                <%= f.hidden_field :payable_type, value: "Booking" %>
+                <%= f.hidden_field :payable_id,   value: @booking.id %>
+                <%= f.submit "Pagar con PayPhone", class: "btn btn-success btn-lg w-100" %>
+              <% end %>
+              <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                <i class="fas fa-lock me-1"></i> Pago seguro — Visa, MasterCard, Diners Club o Discover
+              </p>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-4">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-transparent border-0 p-4 pb-0">
-          <h5 class="fw-bold mb-0">
-            <i class="fas fa-phone-alt me-2" style="color: var(--brand-orange);"></i>
-            Contacto
-          </h5>
-        </div>
-        <div class="card-body p-4">
-          <% if @booking.establishment&.whatsapp.present? %>
-            <%
-              room_name = @booking.room&.name || @booking.unit&.unit_type || "—"
-              room_type = @booking.room&.room_type&.capitalize
-              price_per_night = @booking.room&.price_per_night || @booking.unit&.base_price || 0
-              wa_message = [
-                "Hola, me comunico desde *Iyaiclub* respecto a mi reserva.",
-                "",
-                "*Reserva ##{@booking.id}*",
-                "*Establecimiento:* #{@booking.establishment.name}",
-                "*Habitación:* #{room_name}#{room_type.present? ? " (#{room_type})" : ""}",
-                "*Precio por noche:* $#{number_with_precision(price_per_night, precision: 2)}",
-                "",
-                "*Huésped:* #{@booking.guest_name}",
-                "*Email:* #{@booking.guest_email}",
-                "*Huéspedes:* #{@booking.guest_count}",
-                "",
-                "*Check-in:* #{@booking.start_date&.strftime("%d/%m/%Y")}",
-                "*Check-out:* #{@booking.end_date&.strftime("%d/%m/%Y")}",
-                "*Noches:* #{@booking.total_nights}",
-                "*Total:* $#{number_with_precision(@booking.total_price || 0, precision: 2)}",
-                "",
-                "Quedo atento a su confirmación. Gracias."
-              ].join("\n")
-            %>
-            <a href="https://wa.me/<%= @booking.establishment.whatsapp.gsub(/\D/, '') %>?text=<%= CGI.escape(wa_message) %>"
-               target="_blank"
-               class="btn btn-success w-100 mb-3">
-              <i class="fab fa-whatsapp me-2"></i> Contactar por WhatsApp
-            </a>
-          <% end %>
-          <% if @booking.establishment&.phone.present? %>
-            <a href="tel:<%= @booking.establishment.phone %>" class="btn btn-outline-secondary w-100 mb-3">
-              <i class="fas fa-phone me-2"></i> <%= @booking.establishment.phone %>
-            </a>
-          <% end %>
-          <% if @booking.establishment&.email.present? %>
-            <a href="mailto:<%= @booking.establishment.email %>" class="btn btn-outline-secondary w-100">
-              <i class="fas fa-envelope me-2"></i> Enviar correo
-            </a>
-          <% end %>
+    <%# Contacto — solo autogestionados %>
+    <% unless iyaiclub %>
+      <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-header bg-transparent border-0 p-4 pb-0">
+            <h5 class="fw-bold mb-0">
+              <i class="fas fa-phone-alt me-2" style="color: var(--brand-orange);"></i>
+              Contacto
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <% if establishment&.whatsapp.present? %>
+              <%
+                wa_message = [
+                  "Hola, me comunico desde *Iyaiclub* respecto a mi reserva.",
+                  "",
+                  "*Reserva ##{@booking.id}*",
+                  "*Establecimiento:* #{establishment.name}",
+                  "*Servicio:* #{bookable_name}",
+                  unit_price ? "*#{price_label}:* $#{number_with_precision(unit_price, precision: 2)}" : nil,
+                  "",
+                  "*Huésped:* #{@booking.guest_name}",
+                  "*Email:* #{@booking.guest_email}",
+                  "*Personas:* #{@booking.guest_count}",
+                  "",
+                  "*Inicio:* #{@booking.start_date&.strftime("%d/%m/%Y")}",
+                  "*Fin:* #{@booking.end_date&.strftime("%d/%m/%Y")}",
+                  "*Total:* $#{number_with_precision(@booking.total_price || 0, precision: 2)}",
+                  "",
+                  "Quedo atento a su confirmación. Gracias."
+                ].compact.join("\n")
+              %>
+              <a href="https://wa.me/<%= establishment.whatsapp.gsub(/\D/, '') %>?text=<%= CGI.escape(wa_message) %>"
+                 target="_blank"
+                 class="btn btn-success w-100 mb-3">
+                <i class="fab fa-whatsapp me-2"></i> Contactar por WhatsApp
+              </a>
+            <% end %>
+            <% if establishment&.phone.present? %>
+              <a href="tel:<%= establishment.phone %>" class="btn btn-outline-secondary w-100 mb-3">
+                <i class="fas fa-phone me-2"></i> <%= establishment.phone %>
+              </a>
+            <% end %>
+            <% if establishment&.email.present? %>
+              <a href="mailto:<%= establishment.email %>" class="btn btn-outline-secondary w-100">
+                <i class="fas fa-envelope me-2"></i> Enviar correo
+              </a>
+            <% end %>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>

@@ -66,8 +66,7 @@
            data-payphone-amount-value="<%= @amount_cents %>"
            data-payphone-client-transaction-id-value="<%= @client_transaction_id %>"
            data-payphone-reference-value="<%= @reference %>"
-           data-payphone-email-value="<%= current_user.email %>"
-           <%= @formatted_phone.present? ? "data-payphone-phone-value=\"#{@formatted_phone}\"" : "" %>>
+           data-payphone-email-value="<%= current_user.email %>">
 
         <div id="pp-button"></div>
 

@@ -8,7 +8,9 @@
       "WebFetch(domain:docs.livepayphone.com)",
       "WebFetch(domain:www.payphone.app)",
       "Bash(wsl:*)",
-      "Bash(rails routes *)"
+      "Bash(rails routes *)",
+      "Bash(find app/views/turista -name \"_booking_card*\")",
+      "Bash(find app/views -name \"_booking_card*\")"
     ]
   }
 }
