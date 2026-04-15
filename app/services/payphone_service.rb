@@ -1,3 +1,6 @@
+require 'net/http'
+require 'json'
+
 class PayphoneService
   BASE_URL = "https://pay.payphonetodoesposible.com/api".freeze
 
