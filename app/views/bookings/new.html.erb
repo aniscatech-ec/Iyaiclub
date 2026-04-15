@@ -10,12 +10,15 @@
 
           <div class="alert alert-info">
             <strong><%= @hotel.establishment.name %></strong> —
-            Unidad: <strong><%= @unit.unit_type.presence || "Sin tipo" %></strong>
-            (Capacidad: <%= @unit.capacity %> personas)
+            Habitación: <strong><%= @room.name %></strong>
+            <% if @room.room_type.present? %>
+              (<%= @room.room_type.capitalize %>)
+            <% end %>
+            (Capacidad: <%= @room.guest_capacity || 1 %> huéspedes)
             <br>
-            Precio base: <strong>$<%= number_with_precision(@unit.base_price, precision: 2) %></strong> / noche
-            <% if @unit.respond_to?(:price_per_person) && @unit.price_per_person.present? %>
-              | Precio por persona: <strong>$<%= number_with_precision(@unit.price_per_person, precision: 2) %></strong>
+            Precio por noche: <strong>$<%= number_with_precision(@room.price_per_night, precision: 2) %></strong>
+            <% if @room.quantity.present? && @room.quantity > 1 %>
+              | Disponibles: <strong><%= @room.quantity %></strong>
             <% end %>
           </div>
 
@@ -31,7 +34,7 @@
               </div>
             <% end %>
 
-            <%= f.hidden_field :unit_id, value: @unit.id %>
+            <%= f.hidden_field :room_id, value: @room.id %>
 
             <div class="mb-3">
               <%= f.label :guest_name, "Nombre completo", class: "form-label" %>
@@ -45,7 +48,7 @@
 
             <div class="mb-3">
               <%= f.label :guest_count, "Número de huéspedes", class: "form-label" %>
-              <%= f.number_field :guest_count, class: "form-control", min: 1, max: @unit.capacity || 10 %>
+              <%= f.number_field :guest_count, class: "form-control", min: 1, max: @room.guest_capacity || 10 %>
             </div>
 
             <div class="row">

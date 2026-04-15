@@ -5,11 +5,12 @@ class Establishment < ApplicationRecord
   # has_many :amenities, through: :establishment_amenities #error por eliminacion
   has_many :establishment_amenities, dependent: :destroy
   has_many :amenities, through: :establishment_amenities
-  # has_many :subscriptions, as: :suscribable, dependent: :destroy
+  has_many :subscriptions, as: :subscribable, dependent: :destroy
 
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
   enum :status, { active: 0, inactive: 1 }, default: :active
+  enum :tipo_gestion_reserva, { autogestion: 0, iyaiclub: 1 }, default: :autogestion
 
   # ── Validaciones obligatorias según documento de requerimientos ──
   validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }
@@ -40,6 +41,10 @@ class Establishment < ApplicationRecord
   has_many :units, dependent: :destroy
   has_many :payment_methods, dependent: :destroy
   has_many :galleries, dependent: :destroy
+  has_many :booking_requests, dependent: :destroy
+  has_many :rewards, dependent: :destroy
+  has_many :user_points, dependent: :destroy
+  has_many :visits, dependent: :destroy
 
   accepts_nested_attributes_for :legal_info
   accepts_nested_attributes_for :verification

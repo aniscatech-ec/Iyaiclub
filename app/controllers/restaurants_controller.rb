@@ -1,6 +1,9 @@
 # app/controllers/restaurants_controller.rb
 class RestaurantsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_restaurant, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_create_restaurant!, only: [:new, :create]
+  before_action :authorize_modify_restaurant!, only: [:edit, :update, :destroy]
   layout "dashboard"
 
   def index
@@ -10,7 +13,12 @@ class RestaurantsController < ApplicationController
     elsif params[:cuisine].present? && Restaurant::CUISINE_TYPES.include?(params[:cuisine])
       restaurants = restaurants.where(cuisine_type: params[:cuisine])
     end
-    @restaurants = restaurants
+    # Afiliados solo ven sus propios restaurantes
+    if current_user.afiliado?
+      restaurants = restaurants.joins(:establishment).where(establishments: { user_id: current_user.id })
+    end
+
+    @pagy, @restaurants = pagy(restaurants)
     @current_type = params[:type] || params[:cuisine]
   end
 
@@ -77,7 +85,7 @@ class RestaurantsController < ApplicationController
     if @restaurant.save
       redirect_to @restaurant, notice: "Restaurante creado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar el restaurante. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar el restaurante. Revisa los campos marcados en rojo."
       render :new, status: :unprocessable_entity
     end
   end
@@ -114,20 +122,43 @@ class RestaurantsController < ApplicationController
 
       redirect_to @restaurant, notice: "Restaurante actualizado correctamente."
     else
-      flash.now[:alert] = "No pudimos guardar los cambios. Por favor revisa los campos marcados en rojo."
+      flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @restaurant.destroy
+    @restaurant.establishment.destroy!
     redirect_to restaurants_path, notice: "Restaurante eliminado."
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to restaurants_path, alert: "No se puede eliminar este restaurante porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to restaurants_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
 
   def set_restaurant
-    @restaurant = Restaurant.includes(establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } }]).find(params[:id])
+    @restaurant = Restaurant.includes(
+      :restaurant_tables,
+      { menus: [:menu_items] },
+      establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities,
+                       { galleries: { gallery_images: { file_attachment: :blob } } }]
+    ).find(params[:id])
+  end
+
+  def authorize_create_restaurant!
+    return if current_user.administrador?
+    return if current_user.afiliado?
+
+    redirect_to restaurants_path, alert: "No tienes permisos para crear restaurantes."
+  end
+
+  def authorize_modify_restaurant!
+    return if current_user.administrador?
+    return if current_user.afiliado? && @restaurant.establishment&.user_id == current_user.id
+
+    redirect_to restaurants_path, alert: "No tienes permisos para modificar este restaurante."
   end
 
   def restaurant_params_1
@@ -144,11 +175,22 @@ class RestaurantsController < ApplicationController
           :id, :name, :description, :price, :photo, :_destroy
         ]
       ],
+      restaurant_tables_attributes: [
+        :id, :name, :table_type, :seats, :quantity, :description, :_destroy
+      ],
       establishment_attributes: [
         :user_id,
         :id,
         :name, # Nombre público
+        :short_description,
+        :description,
+        :long_description,
         :address,
+        :phone,
+        :whatsapp,
+        :email,
+        :website,
+        :status,
         :city_id,
         :province_id,
         :country_id,
@@ -161,10 +203,13 @@ class RestaurantsController < ApplicationController
         :refund_policy,
         :check_in_time,
         :check_out_time,
+        :opening_time,
+        :closing_time,
         :video,
         :video_url,
         policies: [],
         amenity_ids: [],
+        images: [],
         legal_info_attributes: [
           :id,
           :business_name, # Razón social

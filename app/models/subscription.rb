@@ -1,6 +1,7 @@
 class Subscription < ApplicationRecord
   # belongs_to :establishment
   belongs_to :subscribable, polymorphic: true
+  has_many :payment_receipts, dependent: :destroy
 
   # enum :plan_type, basico: 0, vip: 1
   # enum :duration,  mensual: 0, anual: 2

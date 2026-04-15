@@ -43,6 +43,7 @@ gem 'bootstrap', '~> 5.3.3'
 gem 'sassc-rails'
 gem 'jquery-rails'
 gem "devise"
+gem "rails-i18n", "~> 8.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -62,6 +63,7 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem "faker"
+  gem "letter_opener"  # Visualizar emails en desarrollo
 end
 
 group :test do
@@ -71,3 +73,5 @@ group :test do
 end
 gem 'wicked'
 gem 'pagy', '~> 9.0'
+gem 'rqrcode', '~> 3.2'
+gem 'prawn', '~> 2.5'

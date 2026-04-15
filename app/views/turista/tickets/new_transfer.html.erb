@@ -1,0 +1,95 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="mb-4">
+        <h3 class="fw-bold">
+          <i class="fas fa-exchange-alt me-2" style="color: var(--brand-orange);"></i>
+          Comprar por Transferencia
+        </h3>
+      </div>
+
+      <!-- Resumen del evento -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><%= @event.name %></h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-calendar me-1"></i> Fecha</span>
+              <strong><%= @event.event_date&.strftime('%d/%m/%Y %H:%M') %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-map-marker-alt me-1"></i> Lugar</span>
+              <strong><%= @event.location %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-tag me-1"></i> Precio</span>
+              <strong class="text-success fs-5">$<%= number_with_precision(@event.ticket_price, precision: 2) %></strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <%= form_with url: create_transfer_turista_event_tickets_path(@event), method: :post, local: true do |f| %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0">Datos del asistente</h6>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" name="guest_name" class="form-control" value="<%= current_user.name %>" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" name="guest_email" class="form-control" value="<%= current_user.email %>" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0">Seleccionar vendedor</h6>
+            <small class="text-muted">Selecciona al vendedor con quien realizarás la transferencia</small>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <% @vendedores.each do |vendedor| %>
+              <div class="form-check border rounded-3 p-3 mb-2">
+                <input type="radio" name="vendedor_id" value="<%= vendedor.id %>"
+                       class="form-check-input" id="vendedor_<%= vendedor.id %>" required
+                       <%= 'checked' if @vendedores.first == vendedor %>>
+                <label class="form-check-label w-100 ms-2" for="vendedor_<%= vendedor.id %>">
+                  <strong><%= vendedor.name %></strong>
+                  <% if vendedor.phone.present? %>
+                    <br>
+                    <small class="text-success">
+                      <i class="fab fa-whatsapp me-1"></i> <%= vendedor.phone %>
+                    </small>
+                  <% end %>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Importante:</strong> Una vez reservado, tienes <strong>10 minutos</strong> para completar la transferencia
+          con el vendedor seleccionado. Si no se confirma el pago en ese tiempo, la reserva se cancelará automáticamente.
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success btn-lg">
+            <i class="fas fa-exchange-alt me-1"></i> Reservar y Contactar Vendedor
+          </button>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-3">
+        <%= link_to event_path(@event), class: "text-muted" do %>
+          <i class="fas fa-arrow-left me-1"></i> Volver al evento
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

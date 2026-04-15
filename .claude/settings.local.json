@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell:*)",
+      "WebFetch(domain:docs.payphone.app)",
+      "WebFetch(domain:docs.livepayphone.com)",
+      "WebFetch(domain:www.payphone.app)",
+      "Bash(wsl:*)"
+    ]
+  }
+}

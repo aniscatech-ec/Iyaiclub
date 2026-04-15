@@ -123,4 +123,41 @@
       <% end %>
     </div>
   </div>
+
+  <!-- Sección Eventos y Tickets -->
+  <h4 class="mb-3 fw-bold">Eventos y Tickets</h4>
+  <div class="row g-4 mb-5">
+    <div class="col-6 col-md-3">
+      <%= link_to admin_events_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-calendar-alt fa-3x text-primary mb-3"></i>
+          <h6 class="card-title fw-bold">Eventos</h6>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-6 col-md-3">
+      <%= link_to new_admin_event_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-plus-circle fa-3x text-success mb-3"></i>
+          <h6 class="card-title fw-bold">Nuevo Evento</h6>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-6 col-md-3">
+      <%= link_to admin_events_path(status: "publicado"), class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-ticket-alt fa-3x text-warning mb-3"></i>
+          <h6 class="card-title fw-bold">Publicados</h6>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-6 col-md-3">
+      <%= link_to admin_custom_requests_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
+        <div class="card-body">
+          <i class="fa-solid fa-headset fa-3x text-danger mb-3"></i>
+          <h6 class="card-title fw-bold">Solicitudes</h6>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

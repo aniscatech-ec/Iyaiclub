@@ -1,145 +1,673 @@
-<div class="container my-5">
+<%
+  @hotel = hotel
+  est = hotel.establishment
+  legal = est.legal_info
+  cover_image = est.galleries.joins(:gallery_images).first&.gallery_images&.find { |gi| gi.file.attached? }
+%>
 
-  <!-- Encabezado principal -->
-  <div class="text-center mb-5">
-    <h1 class="fw-bold text-primary"><i class="fas fa-hotel me-2"></i><%= hotel.establishment.name %></h1>
-    <p class="text-muted">Detalles completos del hotel</p>
+<div class="hotel-show-page">
+
+  <!-- ═══════════════ HERO HEADER ═══════════════ -->
+  <div class="hotel-hero position-relative mb-4 rounded-4 overflow-hidden shadow-sm">
+    <% if cover_image && cover_image.file.attached? %>
+      <%= image_tag cover_image.file.variant(resize_to_limit: [1600, 600]),
+                    class: "hotel-hero-image w-100",
+                    loading: "eager",
+                    alt: est.name %>
+    <% else %>
+      <div class="hotel-hero-fallback w-100"></div>
+    <% end %>
+
+    <div class="hotel-hero-overlay"></div>
+
+    <div class="hotel-hero-content p-3 p-md-5 text-white">
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: var(--brand-orange, #EB633B);">
+          <i class="fas fa-hotel me-1"></i> <%= hotel_type_label(hotel.hotel_type) %>
+        </span>
+        <% if hotel.stars.present? && hotel.stars.to_i > 0 %>
+          <span class="badge rounded-pill px-3 py-2 fw-semibold bg-warning text-dark">
+            <%= "★" * hotel.stars.to_i %>
+            <small class="ms-1"><%= hotel.stars %> estrellas</small>
+          </span>
+        <% end %>
+        <% if est.status == "active" %>
+          <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: var(--brand-green, #3FBD02);">
+            <i class="fas fa-check-circle me-1"></i> Activo
+          </span>
+        <% else %>
+          <span class="badge rounded-pill px-3 py-2 fw-semibold bg-secondary">
+            <i class="fas fa-pause-circle me-1"></i> Inactivo
+          </span>
+        <% end %>
+      </div>
+
+      <h1 class="fw-bold display-6 display-md-4 mb-2 text-shadow"><%= est.name %></h1>
+
+      <% if est.short_description.present? %>
+        <p class="lead mb-3 text-shadow d-none d-md-block"><%= est.short_description %></p>
+      <% end %>
+
+      <div class="d-flex flex-wrap gap-3 small">
+        <% if est.city&.name.present? %>
+          <span><i class="fas fa-map-marker-alt me-1"></i>
+            <%= [est.city&.name, est.province&.name, est.country&.name].compact.join(", ") %>
+          </span>
+        <% end %>
+        <% if est.phone.present? %>
+          <span><i class="fas fa-phone me-1"></i> <%= est.phone %></span>
+        <% end %>
+      </div>
+    </div>
   </div>
 
-  <!-- Datos legales -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-primary text-white fw-bold">
-      <i class="fas fa-file-contract me-2"></i> Datos legales y contacto
+  <!-- ═══════════════ QUICK STATS ═══════════════ -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
+        <div class="text-primary mb-1"><i class="fas fa-door-open fa-2x"></i></div>
+        <div class="fw-bold fs-4"><%= hotel.total_rooms || 0 %></div>
+        <div class="small text-muted">Habitaciones</div>
+      </div>
     </div>
-    <div class="card-body">
-      <p><i class="fas fa-building me-2 text-secondary"></i><strong>Razón social:</strong> <%= hotel.establishment.legal_info.business_name %></p>
-      <p><i class="fas fa-id-card me-2 text-secondary"></i><strong>RUC / identificación fiscal:</strong> <%= hotel.establishment.legal_info.document_number %></p>
-      <p><i class="fas fa-user-tie me-2 text-secondary"></i><strong>Responsable:</strong> <%= hotel.establishment.legal_info.legal_representative %></p>
-      <p><i class="fas fa-envelope me-2 text-secondary"></i><strong>Email:</strong> <%= hotel.establishment.legal_info.contact_email %></p>
-      <p><i class="fas fa-phone me-2 text-secondary"></i><strong>Teléfono:</strong> <%= hotel.establishment.legal_info.contact_phone %></p>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
+        <div class="mb-1" style="color: var(--brand-green, #3FBD02);"><i class="fas fa-door-closed fa-2x"></i></div>
+        <div class="fw-bold fs-4"><%= hotel.available_rooms || 0 %></div>
+        <div class="small text-muted">Disponibles</div>
+      </div>
     </div>
-  </div>
-
-  <!-- Perfil del hotel -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-success text-white fw-bold">
-      <i class="fas fa-info-circle me-2"></i> Perfil del hotel
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
+        <div class="mb-1" style="color: var(--brand-orange, #EB633B);"><i class="fas fa-users fa-2x"></i></div>
+        <div class="fw-bold fs-4"><%= hotel.max_guests || 0 %></div>
+        <div class="small text-muted">Huéspedes</div>
+      </div>
     </div>
-    <div class="card-body">
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Nombre público:</strong> <%= hotel.establishment.name %></p>
-      <p><i class="fas fa-tag me-2 text-secondary"></i><strong>Tipo de hotel:</strong>
-        <span class="badge bg-info text-dark"><%= hotel_type_label(hotel.hotel_type) %></span>
-      </p>
-      <p><i class="fas fa-star text-warning me-2"></i><strong>Categoría:</strong>
-        <span class="fs-5 text-warning"><%= "⭐" * hotel.stars.to_i %></span>
-      </p>
-    </div>
-  </div>
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-warning text-white fw-bold">
-      <i class="fas fa-info-circle me-2"></i> Ubicación
-    </div>
-    <div class="card-body">
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>País:</strong> <%= hotel.establishment.country.name if hotel.establishment.country %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Provincia:</strong> <%= hotel.establishment.province.name if hotel.establishment.province %></p>
-      <p><i class="fas fa-signature me-2 text-secondary"></i><strong>Ciudad:</strong> <%= hotel.establishment.city.name if hotel.establishment.city %></p>
-
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
+        <div class="mb-1" style="color: var(--brand-cofee, #88682B);"><i class="fas fa-concierge-bell fa-2x"></i></div>
+        <div class="fw-bold fs-4"><%= est.amenities.count %></div>
+        <div class="small text-muted">Servicios</div>
+      </div>
     </div>
   </div>
 
-  <!-- Galería -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-dark text-white fw-bold">
-      <i class="fas fa-images me-2"></i> Galería
-    </div>
-    <div class="card-body">
-      <% if hotel.establishment.galleries.any? %>
-        <% hotel.establishment.galleries.each do |gallery| %>
-          <h5 class="fw-bold mt-3"><i class="fas fa-folder-open me-2 text-primary"></i><%= gallery.name %></h5>
-          <div class="d-flex flex-wrap">
-            <% gallery.gallery_images.each do |gi| %>
-              <% if gi.file.attached? %>
-                <div class="m-2">
-                  <%= image_tag gi.file.variant(resize_to_limit: [200, 200]),
-                                class: "img-thumbnail shadow-sm rounded", loading: "lazy" %>
+  <div class="row g-4">
+    <!-- ═══════════════ COLUMNA PRINCIPAL ═══════════════ -->
+    <div class="col-12 col-lg-8">
+
+      <!-- PERFIL / DESCRIPCIÓN -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange, #EB633B), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-hotel me-2"></i> Perfil del hotel</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <div class="info-item">
+                <div class="info-label"><i class="fas fa-tag me-1"></i> Nombre público</div>
+                <div class="info-value"><%= est.name %></div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-item">
+                <div class="info-label"><i class="fas fa-building me-1"></i> Tipo de hospedaje</div>
+                <div class="info-value"><%= hotel_type_label(hotel.hotel_type) %></div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-item">
+                <div class="info-label"><i class="fas fa-star me-1"></i> Categoría</div>
+                <div class="info-value">
+                  <% if hotel.stars.present? && hotel.stars.to_i > 0 %>
+                    <span class="text-warning fs-5"><%= "★" * hotel.stars.to_i %></span>
+                    <small class="text-muted ms-1">(<%= hotel.stars %>)</small>
+                  <% else %>
+                    <span class="text-muted fst-italic">Sin categoría</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-item">
+                <div class="info-label"><i class="fas fa-toggle-on me-1"></i> Estado</div>
+                <div class="info-value">
+                  <% if est.status == "active" %>
+                    <span class="badge" style="background: var(--brand-green, #3FBD02);">Activo</span>
+                  <% else %>
+                    <span class="badge bg-secondary">Inactivo</span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <% if est.short_description.present? %>
+            <div class="mt-3">
+              <div class="info-label"><i class="fas fa-align-left me-1"></i> Descripción corta</div>
+              <p class="mb-0"><%= est.short_description %></p>
+            </div>
+          <% end %>
+
+          <% if est.long_description.present? %>
+            <div class="mt-3 pt-3 border-top">
+              <div class="info-label"><i class="fas fa-file-alt me-1"></i> Descripción detallada</div>
+              <p class="mb-0"><%= simple_format(est.long_description) %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- GALERÍA -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee-black, #7F5935), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> Galería de imágenes</h5>
+        </div>
+        <div class="card-body p-4">
+          <% if est.galleries.any? %>
+            <% est.galleries.each_with_index do |gallery, idx| %>
+              <% if idx > 0 %><hr class="my-4"><% end %>
+              <h6 class="fw-bold mb-3" style="color: var(--brand-cofee, #88682B);">
+                <i class="fas fa-folder-open me-2"></i><%= gallery.name.presence || "Galería #{idx + 1}" %>
+              </h6>
+              <% attached_images = gallery.gallery_images.select { |gi| gi.file.attached? } %>
+              <% if attached_images.any? %>
+                <div class="row g-2 g-md-3">
+                  <% attached_images.each do |gi| %>
+                    <div class="col-6 col-md-4 col-lg-3">
+                      <a href="<%= url_for(gi.file) %>" target="_blank" class="d-block gallery-item">
+                        <%= image_tag gi.file.variant(resize_to_limit: [400, 300]),
+                                      class: "img-fluid rounded-3 shadow-sm w-100",
+                                      style: "aspect-ratio: 4/3; object-fit: cover;",
+                                      loading: "lazy" %>
+                      </a>
+                    </div>
+                  <% end %>
                 </div>
               <% else %>
-                <p class="text-muted fst-italic">Sin imágenes</p>
+                <p class="text-muted fst-italic mb-0">Sin imágenes en esta galería</p>
               <% end %>
             <% end %>
-          </div>
-        <% end %>
-      <% else %>
-        <p class="text-muted fst-italic">No hay imágenes registradas en la galería.</p>
-      <% end %>
-    </div>
-  </div>
-
-
-
-  <!-- Reservas pendientes -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-info text-white fw-bold d-flex justify-content-between align-items-center">
-      <span><i class="fas fa-calendar-check me-2"></i> Reservas recientes</span>
-      <%= link_to hotel_bookings_path(hotel), class: "btn btn-sm btn-light" do %>
-        Ver todas <i class="fas fa-arrow-right ms-1"></i>
-      <% end %>
-    </div>
-    <div class="card-body">
-      <% pending_bookings = Booking.joins(unit: :establishment).where(establishments: { id: hotel.establishment.id }, status: "pendiente").limit(5) %>
-      <% if pending_bookings.any? %>
-        <div class="table-responsive">
-          <table class="table table-sm table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th>Huésped</th>
-                <th>Fechas</th>
-                <th>Estado</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% pending_bookings.each do |booking| %>
-                <tr>
-                  <td><%= booking.id %></td>
-                  <td><%= booking.guest_name %></td>
-                  <td><%= booking.start_date.strftime("%d/%m") %> - <%= booking.end_date.strftime("%d/%m/%Y") %></td>
-                  <td><span class="badge bg-warning text-dark"><%= booking.status.capitalize %></span></td>
-                  <td>
-                    <%= link_to hotel_booking_path(hotel, booking), class: "btn btn-sm btn-info" do %>
-                      <i class="fas fa-eye"></i>
-                    <% end %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-images fa-3x text-muted mb-2"></i>
+              <p class="text-muted fst-italic mb-0">No hay imágenes registradas en la galería</p>
+            </div>
+          <% end %>
         </div>
-      <% else %>
-        <p class="text-muted fst-italic mb-0">No hay reservas pendientes.</p>
+      </div>
+
+      <!-- HABITACIONES -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> Habitaciones</h5>
+        </div>
+        <div class="card-body p-4">
+          <% if hotel.rooms.any? %>
+            <div class="row g-3">
+              <% hotel.rooms.each do |room| %>
+                <div class="col-12 col-md-6">
+                  <div class="border rounded-3 p-3 h-100" style="background: #f5f0ff;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="fw-bold mb-0"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i><%= room.name %></h6>
+                      <% if room.room_type.present? %>
+                        <span class="badge rounded-pill" style="background: #8e44ad;"><%= room.room_type.capitalize %></span>
+                      <% end %>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                      <% if room.guest_capacity.present? %>
+                        <div class="col-auto">
+                          <span class="small text-muted"><i class="fas fa-users me-1"></i> <%= room.guest_capacity %> huéspedes</span>
+                        </div>
+                      <% end %>
+                      <% if room.quantity.present? && room.quantity > 1 %>
+                        <div class="col-auto">
+                          <span class="small text-muted"><i class="fas fa-hashtag me-1"></i> <%= room.quantity %> disponibles</span>
+                        </div>
+                      <% end %>
+                    </div>
+
+                    <% if room.room_beds.any? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-bed me-1"></i>
+                        <%= room.room_beds.map { |b| "#{b.quantity} #{b.bed_type.gsub('_', ' ')}" }.join(", ") %>
+                      </div>
+                    <% end %>
+
+                    <% if room.description.present? %>
+                      <p class="small text-muted mb-2"><%= room.description %></p>
+                    <% end %>
+
+                    <% if room.amenities.any? %>
+                      <div class="mb-2">
+                        <% room.amenities.each do |amenity| %>
+                          <span class="badge bg-light text-dark border me-1 mb-1"><%= amenity.name %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <% if room.price_per_night.present? %>
+                      <div class="mt-2 pt-2 border-top">
+                        <div class="fw-bold fs-5" style="color: var(--brand-orange, #EB633B);">
+                          $<%= number_with_precision(room.price_per_night, precision: 2) %>
+                          <small class="text-muted fs-6">/noche</small>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-bed fa-3x text-muted mb-2"></i>
+              <p class="text-muted fst-italic mb-0">No hay habitaciones registradas</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- COMODIDADES -->
+      <% if est.amenities.any? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> Comodidades y servicios</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-2">
+              <% est.amenities.each do |amenity| %>
+                <div class="col-6 col-md-4">
+                  <div class="amenity-pill d-flex align-items-center p-2 rounded-3">
+                    <i class="fas fa-check-circle me-2" style="color: var(--brand-green, #3FBD02);"></i>
+                    <span class="small"><%= amenity.name %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
       <% end %>
+
+      <!-- RESERVAS RECIENTES -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-check me-2"></i> Reservas pendientes</h5>
+          <%= link_to hotel_bookings_path(hotel), class: "btn btn-sm btn-light rounded-pill fw-semibold" do %>
+            Ver todas <i class="fas fa-arrow-right ms-1"></i>
+          <% end %>
+        </div>
+        <div class="card-body p-0">
+          <% pending_bookings = Booking.joins(:room).where(rooms: { hotel_id: hotel.id }, status: "pendiente").limit(5) %>
+          <% if pending_bookings.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">#</th>
+                    <th>Huésped</th>
+                    <th class="d-none d-md-table-cell">Fechas</th>
+                    <th>Estado</th>
+                    <th class="text-end pe-4"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% pending_bookings.each do |booking| %>
+                    <tr>
+                      <td class="ps-4 fw-semibold">#<%= booking.id %></td>
+                      <td><%= booking.guest_name %></td>
+                      <td class="d-none d-md-table-cell small text-muted">
+                        <%= booking.start_date.strftime("%d/%m") %> - <%= booking.end_date.strftime("%d/%m/%Y") %>
+                      </td>
+                      <td><span class="badge bg-warning text-dark"><%= booking.status.capitalize %></span></td>
+                      <td class="text-end pe-4">
+                        <%= link_to hotel_booking_path(hotel, booking), class: "btn btn-sm btn-outline-primary rounded-pill" do %>
+                          <i class="fas fa-eye"></i>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-calendar-times fa-3x text-muted mb-2"></i>
+              <p class="text-muted fst-italic mb-0">No hay reservas pendientes</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ COLUMNA LATERAL ═══════════════ -->
+    <div class="col-12 col-lg-4">
+
+      <!-- ACCIONES RÁPIDAS -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4 sticky-top-actions">
+        <div class="card-body p-3">
+          <div class="d-grid gap-2">
+            <%= link_to edit_hotel_path(hotel), class: "btn btn-primary rounded-pill fw-semibold" do %>
+              <i class="fas fa-edit me-1"></i> Editar hotel
+            <% end %>
+            <%= link_to hotel_bookings_path(hotel), class: "btn btn-outline-primary rounded-pill fw-semibold" do %>
+              <i class="fas fa-calendar-check me-1"></i> Ver reservas
+            <% end %>
+            <%= link_to hotels_path, class: "btn btn-outline-secondary rounded-pill fw-semibold" do %>
+              <i class="fas fa-arrow-left me-1"></i> Volver al listado
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS LEGALES -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green, #3FBD02), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> Datos legales</h6>
+        </div>
+        <div class="card-body p-3">
+          <% if legal.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-building me-1"></i> Razón social</div>
+              <div class="info-value small"><%= legal.business_name %></div>
+            </div>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-id-card me-1"></i> <%= legal.document_type.presence || "Documento" %></div>
+              <div class="info-value small"><%= legal.document_number %></div>
+            </div>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-user-tie me-1"></i> Representante</div>
+              <div class="info-value small"><%= legal.legal_representative %></div>
+            </div>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-envelope me-1"></i> Email</div>
+              <div class="info-value small">
+                <a href="mailto:<%= legal.contact_email %>" class="text-decoration-none">
+                  <%= legal.contact_email %>
+                </a>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label"><i class="fas fa-phone me-1"></i> Teléfono</div>
+              <div class="info-value small">
+                <a href="tel:<%= legal.contact_phone %>" class="text-decoration-none">
+                  <%= legal.contact_phone %>
+                </a>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-muted fst-italic small mb-0">Sin datos legales registrados</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- CONTACTO PÚBLICO -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee, #88682B), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> Contacto público</h6>
+        </div>
+        <div class="card-body p-3">
+          <% if est.phone.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-phone me-1"></i> Teléfono</div>
+              <div class="info-value small">
+                <a href="tel:<%= est.phone %>" class="text-decoration-none"><%= est.phone %></a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.whatsapp.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fab fa-whatsapp me-1 text-success"></i> WhatsApp</div>
+              <div class="info-value small">
+                <a href="https://wa.me/<%= est.whatsapp %>" target="_blank" class="text-decoration-none">
+                  <%= est.whatsapp %>
+                </a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.email.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-envelope me-1"></i> Email</div>
+              <div class="info-value small">
+                <a href="mailto:<%= est.email %>" class="text-decoration-none"><%= est.email %></a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.website.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-globe me-1"></i> Sitio web</div>
+              <div class="info-value small">
+                <a href="<%= est.website %>" target="_blank" class="text-decoration-none text-truncate d-inline-block" style="max-width: 100%;">
+                  <%= est.website %>
+                </a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.video_url.present? %>
+            <div class="info-item">
+              <div class="info-label"><i class="fab fa-youtube me-1 text-danger"></i> Video</div>
+              <div class="info-value small">
+                <a href="<%= est.video_url %>" target="_blank" class="text-decoration-none">Ver video promocional</a>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- UBICACIÓN -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> Ubicación</h6>
+        </div>
+        <div class="card-body p-3">
+          <% if est.address.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-map-marker-alt me-1"></i> Dirección</div>
+              <div class="info-value small"><%= est.address %></div>
+            </div>
+          <% end %>
+          <div class="info-item mb-2">
+            <div class="info-label"><i class="fas fa-flag me-1"></i> País</div>
+            <div class="info-value small"><%= est.country&.name || "—" %></div>
+          </div>
+          <div class="info-item mb-2">
+            <div class="info-label"><i class="fas fa-map me-1"></i> Provincia</div>
+            <div class="info-value small"><%= est.province&.name || "—" %></div>
+          </div>
+          <div class="info-item mb-2">
+            <div class="info-label"><i class="fas fa-city me-1"></i> Ciudad</div>
+            <div class="info-value small"><%= est.city&.name || "—" %></div>
+          </div>
+          <% if est.arrival_instructions.present? %>
+            <div class="info-item mb-3">
+              <div class="info-label"><i class="fas fa-route me-1"></i> Instrucciones de llegada</div>
+              <div class="info-value small"><%= est.arrival_instructions %></div>
+            </div>
+          <% end %>
+          <% if est.latitude.present? && est.longitude.present? %>
+            <div class="rounded-3 overflow-hidden">
+              <%= render "shared/map_display",
+                         latitude: est.latitude,
+                         longitude: est.longitude,
+                         name: est.name %>
+            </div>
+            <div class="mt-2 text-center">
+              <a href="https://www.google.com/maps?q=<%= est.latitude %>,<%= est.longitude %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                <i class="fas fa-external-link-alt me-1"></i> Abrir en Google Maps
+              </a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- HORARIOS -->
+      <% if est.check_in_time.present? || est.check_out_time.present? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> Horarios</h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-2 text-center">
+              <div class="col-6">
+                <div class="p-2 rounded-3" style="background: #f8f9fa;">
+                  <div class="small text-muted"><i class="fas fa-sign-in-alt me-1" style="color: var(--brand-green, #3FBD02);"></i> Check-in</div>
+                  <div class="fw-bold"><%= est.check_in_time&.strftime("%H:%M") || "—" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 rounded-3" style="background: #f8f9fa;">
+                  <div class="small text-muted"><i class="fas fa-sign-out-alt me-1" style="color: var(--brand-orange, #EB633B);"></i> Check-out</div>
+                  <div class="fw-bold"><%= est.check_out_time&.strftime("%H:%M") || "—" %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
     </div>
   </div>
-
-  <!-- Mapa -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-header bg-info text-white fw-bold">
-      <i class="fas fa-map-marked-alt me-2"></i> Ubicación
-    </div>
-    <div class="card-body p-0">
-      <%= render "shared/map_display",
-                 latitude: hotel.establishment.latitude,
-                 longitude: hotel.establishment.longitude,
-                 name: hotel.establishment.name %>
-    </div>
-  </div>
-
-  <!-- Botones -->
-  <div class="text-center mt-4">
-    <%= link_to "Editar", edit_hotel_path(hotel), class: "btn btn-primary me-2 px-4" %>
-    <%= link_to "Reservas", hotel_bookings_path(hotel), class: "btn btn-info me-2 px-4" %>
-    <%= link_to "Volver", hotels_path, class: "btn btn-outline-secondary px-4" %>
-  </div>
-
 </div>
+
+<style>
+  .hotel-show-page {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-show-page {
+      padding: 1.5rem;
+    }
+  }
+
+  /* HERO */
+  .hotel-hero {
+    min-height: 280px;
+    background: #2c3e50;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero {
+      min-height: 380px;
+    }
+  }
+
+  .hotel-hero-image {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero-image {
+      min-height: 380px;
+    }
+  }
+
+  .hotel-hero-fallback {
+    min-height: 280px;
+    background: linear-gradient(135deg, var(--brand-orange, #EB633B), var(--brand-cofee, #88682B));
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero-fallback {
+      min-height: 380px;
+    }
+  }
+
+  .hotel-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%);
+  }
+
+  .hotel-hero-content {
+    position: relative;
+    z-index: 2;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero-content {
+      min-height: 380px;
+    }
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  /* INFO ITEMS */
+  .info-item {
+    margin-bottom: 0.25rem;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .info-value {
+    font-weight: 500;
+    color: #212529;
+    word-wrap: break-word;
+  }
+
+  /* UNIT CARDS */
+  .unit-card {
+    transition: all 0.2s ease;
+    background: #fafafa;
+  }
+
+  .unit-card:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* AMENITY PILLS */
+  .amenity-pill {
+    background: #f8f9fa;
+    transition: background 0.2s ease;
+  }
+
+  .amenity-pill:hover {
+    background: #e9f7e1;
+  }
+
+  /* GALLERY ITEMS */
+  .gallery-item img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+  }
+
+  /* STICKY ACTIONS SIDEBAR */
+  @media (min-width: 992px) {
+    .sticky-top-actions {
+      position: sticky;
+      top: 1rem;
+      z-index: 10;
+    }
+  }
+</style>

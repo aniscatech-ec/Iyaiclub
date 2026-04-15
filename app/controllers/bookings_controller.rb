@@ -4,6 +4,7 @@ class BookingsController < ApplicationController
   before_action :set_booking, only: [:show, :update, :destroy]
 
   def index
+<<<<<<< HEAD
     @bookings = if params[:hotel_id]
                   @hotel = Hotel.find(params[:hotel_id])
                   if current_user.turista?
@@ -20,6 +21,12 @@ class BookingsController < ApplicationController
                 elsif params[:getaway_id]
                   @parent = Getaway.find(params[:getaway_id])
                   @parent.bookings
+=======
+    @bookings = if current_user.turista?
+                  Booking.joins(:room).where(guest_email: current_user.email, rooms: { hotel_id: @hotel.id })
+                elsif current_user.afiliado? || current_user.administrador?
+                  Booking.joins(:room).where(rooms: { hotel_id: @hotel.id })
+>>>>>>> main
                 else
                   current_user.bookings
                 end
@@ -31,6 +38,7 @@ class BookingsController < ApplicationController
   end
 
   def new
+<<<<<<< HEAD
     if @hotel
       @unit = @hotel.establishment.units.find(params[:unit_id])
       @booking = @unit.bookings.build(status: :pendiente)
@@ -48,6 +56,15 @@ class BookingsController < ApplicationController
     end
 
     @booking.user = current_user
+=======
+    @room = @hotel.rooms.find(params[:room_id])
+    @booking = @room.bookings.build(status: :pendiente)
+  end
+
+  def create
+    @room = @hotel.rooms.find(booking_params[:room_id])
+    @booking = @room.bookings.build(booking_params.except(:room_id))
+>>>>>>> main
     @booking.status = :pendiente
 
     respond_to do |format|
@@ -104,6 +121,7 @@ class BookingsController < ApplicationController
 
   private
 
+<<<<<<< HEAD
   def set_parent
     if params[:hotel_id]
       @hotel = Hotel.includes(establishment: [:units, :user]).find(params[:hotel_id])
@@ -132,5 +150,17 @@ class BookingsController < ApplicationController
       :unit_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date, :status,
       :date, :guests # aliases
     )
+=======
+  def set_hotel
+    @hotel = Hotel.includes(:rooms, :establishment).find(params[:hotel_id])
+  end
+
+  def set_booking
+    @booking = Booking.joins(:room).where(rooms: { hotel_id: @hotel.id }).find(params[:id])
+  end
+
+  def booking_params
+    params.require(:booking).permit(:room_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date)
+>>>>>>> main
   end
 end

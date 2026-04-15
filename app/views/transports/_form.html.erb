@@ -1,17 +1,5 @@
 <%= form_with(model: transport, local: true, html: { class: "transport-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
-  <% if transport.errors.any? %>
-    <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
-      <div class="d-flex align-items-center mb-2">
-        <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
-        <strong>Se encontraron <%= transport.errors.count %> error(es):</strong>
-      </div>
-      <ul class="mb-0 ps-3">
-        <% transport.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render_validation_errors(transport) %>
 
   <%= form.fields_for :establishment do |est| %>
 
@@ -60,6 +48,7 @@
                 ),
                 { prompt: "Seleccione subcategoría" },
                 class: "form-select",
+                required: true,
                 id: "subcategory_select" %>
           </div>
 

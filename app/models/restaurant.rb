@@ -14,9 +14,13 @@ class Restaurant < ApplicationRecord
   validates :total_capacity, numericality: { only_integer: true, greater_than_or_equal_to: 0, message: "Debe ser un numero entero positivo" }, allow_nil: true
 
   has_many :menus, dependent: :destroy
+  has_many :restaurant_tables, dependent: :destroy
+
   accepts_nested_attributes_for :menus, allow_destroy: true
+  accepts_nested_attributes_for :restaurant_tables, allow_destroy: true
 
   validate :validate_menus_limit
+  validate :validate_tables_limit
 
   delegate :user,
            :images,
@@ -37,6 +41,12 @@ class Restaurant < ApplicationRecord
   def validate_menus_limit
     if menus.reject(&:marked_for_destruction?).length > 5
       errors.add(:menus, "Un restaurante puede tener máximo 5 menús.")
+    end
+  end
+
+  def validate_tables_limit
+    if restaurant_tables.reject(&:marked_for_destruction?).length > 10
+      errors.add(:restaurant_tables, "Un restaurante puede tener máximo 10 tipos de mesas.")
     end
   end
 end

@@ -30,6 +30,14 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 
+# SSL configuration for development (QR camera access requires HTTPS)
+if ENV["RAILS_ENV"] == "development" && File.exist?("localhost-key.pem") && File.exist?("localhost.pem")
+  ssl_bind "127.0.0.1", "3001", {
+    key: "localhost-key.pem",
+    cert: "localhost.pem"
+  }
+end
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 

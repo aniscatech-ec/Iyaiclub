@@ -1,0 +1,36 @@
+<%#
+  Partial compartido para renderizar la galería de imágenes de un establecimiento.
+
+  Parámetros:
+    - establishment: el objeto Establishment
+%>
+<% if establishment.galleries.any? { |g| g.gallery_images.any? { |gi| gi.file.attached? } } %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee-black, #7F5935), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> Galería de imágenes</h5>
+    </div>
+    <div class="card-body p-4">
+      <% establishment.galleries.each_with_index do |gallery, idx| %>
+        <% attached_images = gallery.gallery_images.select { |gi| gi.file.attached? } %>
+        <% next if attached_images.empty? %>
+        <% if idx > 0 %><hr class="my-4"><% end %>
+        <h6 class="fw-bold mb-3" style="color: var(--brand-cofee, #88682B);">
+          <i class="fas fa-folder-open me-2"></i><%= gallery.name.presence || "Galería #{idx + 1}" %>
+          <span class="badge bg-light text-dark ms-1"><%= attached_images.size %></span>
+        </h6>
+        <div class="row g-2 g-md-3">
+          <% attached_images.each do |gi| %>
+            <div class="col-6 col-md-4 col-lg-3">
+              <a href="<%= url_for(gi.file) %>" target="_blank" class="d-block gallery-item">
+                <%= image_tag gi.file.variant(resize_to_limit: [500, 375]),
+                              class: "img-fluid rounded-3 shadow-sm w-100",
+                              style: "aspect-ratio: 4/3; object-fit: cover;",
+                              loading: "lazy" %>
+              </a>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

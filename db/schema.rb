@@ -60,7 +60,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
   end
 
   create_table "bookings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+<<<<<<< HEAD
     t.bigint "bookable_id"
+=======
+    t.bigint "unit_id"
+>>>>>>> main
     t.string "guest_name"
     t.string "guest_email"
     t.integer "guest_count"
@@ -71,9 +75,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "room_id"
+<<<<<<< HEAD
     t.string "bookable_type", null: false
     t.bigint "user_id"
     t.index ["bookable_type", "bookable_id"], name: "index_bookings_on_bookable_type_and_bookable_id"
+=======
+>>>>>>> main
     t.index ["room_id"], name: "index_bookings_on_room_id"
     t.index ["status"], name: "index_bookings_on_status"
     t.index ["user_id"], name: "index_bookings_on_user_id"
@@ -196,6 +203,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
     t.index ["status"], name: "index_events_on_status"
   end
 
+<<<<<<< HEAD
   create_table "experiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -208,6 +216,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
     t.index ["establishment_id"], name: "index_experiences_on_establishment_id"
   end
 
+=======
+>>>>>>> main
   create_table "galleries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.bigint "establishment_id", null: false
@@ -718,7 +728,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
   add_foreign_key "booking_requests", "establishments"
   add_foreign_key "booking_requests", "users"
   add_foreign_key "bookings", "rooms"
+<<<<<<< HEAD
   add_foreign_key "bookings", "users"
+=======
+  add_foreign_key "bookings", "units"
+>>>>>>> main
   add_foreign_key "cities", "provinces"
   add_foreign_key "custom_requests", "users"
   add_foreign_key "custom_requests", "users", column: "assigned_to_id"
@@ -728,7 +742,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
   add_foreign_key "establishments", "users"
   add_foreign_key "event_vendedores", "events"
   add_foreign_key "event_vendedores", "users"
+<<<<<<< HEAD
   add_foreign_key "experiences", "establishments"
+=======
+>>>>>>> main
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "getaways", "establishments"

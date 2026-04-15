@@ -1,148 +1,607 @@
-<% @hotel=hotel%>
-<div class="container my-5">
-  <!-- Encabezado principal -->
-  <div class="text-center mb-5">
-    <h1 class="fw-bold"><%= @hotel.establishment.name %></h1>
-    <p class="text-muted mb-2">
-      <%= @hotel.hotel_type.present? ? @hotel.hotel_type.humanize : "Tipo no especificado" %>
-    </p>
-    <div class="text-warning fs-4">
-      <%= "⭐" * (@hotel.stars || 0) %>
-    </div>
-  </div>
+<%
+  @hotel = hotel
+  est = hotel.establishment
+  legal = est.legal_info
+  all_images = est.galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
+  cover_image = all_images.first
+  rooms = hotel.rooms
+  min_price = rooms.map(&:price_per_night).compact.min
+  whatsapp_phone = est.whatsapp.presence || legal&.contact_phone
+%>
 
-    <!-- Perfil y datos legales -->
-    <div class="col mt-5">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white fw-bold">
-          <i class="bi bi-building"></i> Datos legales
-        </div>
-        <div class="card-body">
-          <% if @hotel.establishment.legal_info.present? %>
-            <p><strong>Razón social:</strong> <%= @hotel.establishment.legal_info.business_name %></p>
-            <p><strong>RUC / ID fiscal:</strong> <%= @hotel.establishment.legal_info.document_number %></p>
-            <p><strong>Responsable:</strong> <%= @hotel.establishment.legal_info.legal_representative %></p>
-            <p><strong>Email:</strong> <%= @hotel.establishment.legal_info.contact_email %></p>
-            <p><strong>Teléfono:</strong> <%= @hotel.establishment.legal_info.contact_phone %></p>
-          <% else %>
-            <p class="text-muted fst-italic">No hay datos legales registrados.</p>
+<div class="hotel-show-page">
+
+  <!-- ═══════════════ HERO CON CARRUSEL ═══════════════ -->
+  <div class="hotel-hero position-relative mb-4 rounded-4 overflow-hidden shadow-sm">
+    <% if all_images.any? %>
+      <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <% all_images.first(8).each_with_index do |gi, idx| %>
+            <div class="carousel-item <%= 'active' if idx == 0 %>">
+              <%= image_tag gi.file.variant(resize_to_limit: [1600, 700]),
+                            class: "hotel-hero-image w-100",
+                            loading: idx == 0 ? "eager" : "lazy",
+                            alt: est.name %>
+            </div>
           <% end %>
         </div>
+        <% if all_images.size > 1 %>
+          <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        <% end %>
       </div>
-    </div>
+    <% else %>
+      <div class="hotel-hero-fallback w-100"></div>
+    <% end %>
 
-    <!-- Perfil del hotel -->
-    <div class="col mt-5">
-      <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white fw-bold">
-          <i class="bi bi-info-circle"></i> Perfil del hotel
-        </div>
-        <div class="card-body">
-          <p><strong>Nombre público:</strong> <%= @hotel.establishment.name %></p>
-          <p><strong>Tipo:</strong> <%= @hotel.hotel_type %></p>
-          <p><strong>Categoría:</strong> <%= @hotel.stars %> estrellas</p>
+    <div class="hotel-hero-overlay"></div>
 
-
-        </div>
+    <div class="hotel-hero-content p-3 p-md-5 text-white">
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background: var(--brand-orange, #EB633B);">
+          <i class="fas fa-hotel me-1"></i> <%= hotel_type_label(hotel.hotel_type) %>
+        </span>
+        <% if hotel.stars.present? && hotel.stars.to_i > 0 %>
+          <span class="badge rounded-pill px-3 py-2 fw-semibold bg-warning text-dark">
+            <%= "★" * hotel.stars.to_i %>
+          </span>
+        <% end %>
       </div>
-    </div>
-  <div class="col mt-5">
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-primary text-white fw-bold">
-        <i class="bi bi-building"></i> Ubicación
-      </div>
-      <div class="card-body">
-          <p><strong>País:</strong> <%= @hotel.establishment.country.name if hotel.establishment.country %></p>
-          <p><strong>Provincia:</strong><%= @hotel.establishment.province.name if hotel.establishment.province %></p>
-          <p><strong>Ciudad:</strong> <%= @hotel.establishment.city.name if hotel.establishment.city %></p>
+
+      <h1 class="fw-bold display-6 display-md-4 mb-2 text-shadow"><%= est.name %></h1>
+
+      <% if est.short_description.present? %>
+        <p class="lead mb-3 text-shadow d-none d-md-block"><%= est.short_description %></p>
+      <% end %>
+
+      <div class="d-flex flex-wrap gap-3 small">
+        <% if est.city&.name.present? %>
+          <span><i class="fas fa-map-marker-alt me-1"></i>
+            <%= [est.city&.name, est.province&.name, est.country&.name].compact.join(", ") %>
+          </span>
+        <% end %>
       </div>
     </div>
   </div>
 
-  <!-- Galerías -->
-  <div class="card shadow-sm border-0 mt-5">
-    <div class="card-header bg-primary text-white fw-bold">
-      <i class="bi bi-images"></i> Galerías del hotel
-    </div>
-    <div class="card-body">
-      <% if @hotel.establishment.galleries.any? %>
-        <div class="row g-3">
-          <% @hotel.establishment.galleries.each do |gallery| %>
-            <div class="col-md-6 col-lg-4">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title fw-bold text-primary"><%= gallery.name %></h5>
-                  <div class="d-flex flex-wrap gap-2">
-                    <% gallery.gallery_images.each do |img| %>
-                      <% if img.file.attached? %>
-                        <%= image_tag img.file.variant(resize_to_limit: [250, 160]),
-                                      class: "img-fluid rounded border", loading: "lazy" %>
+  <div class="row g-4">
+    <!-- ═══════════════ COLUMNA PRINCIPAL ═══════════════ -->
+    <div class="col-12 col-lg-8">
+
+      <!-- SOBRE EL HOTEL -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange, #EB633B), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i> Sobre este hotel</h5>
+        </div>
+        <div class="card-body p-4">
+          <% if est.short_description.present? %>
+            <p class="fs-6 mb-3"><%= est.short_description %></p>
+          <% end %>
+          <% if est.long_description.present? %>
+            <div class="long-desc">
+              <%= simple_format(est.long_description) %>
+            </div>
+          <% end %>
+
+          <div class="row g-3 mt-3 pt-3 border-top">
+            <div class="col-6 col-md-3 text-center">
+              <div style="color: var(--brand-orange, #EB633B);"><i class="fas fa-hotel fa-2x"></i></div>
+              <div class="small text-muted mt-1">Tipo</div>
+              <div class="fw-semibold small"><%= hotel_type_label(hotel.hotel_type) %></div>
+            </div>
+            <% if hotel.stars.present? && hotel.stars.to_i > 0 %>
+              <div class="col-6 col-md-3 text-center">
+                <div class="text-warning"><i class="fas fa-star fa-2x"></i></div>
+                <div class="small text-muted mt-1">Categoría</div>
+                <div class="fw-semibold small"><%= hotel.stars %> estrellas</div>
+              </div>
+            <% end %>
+            <% if hotel.max_guests.present? && hotel.max_guests.to_i > 0 %>
+              <div class="col-6 col-md-3 text-center">
+                <div style="color: var(--brand-green, #3FBD02);"><i class="fas fa-users fa-2x"></i></div>
+                <div class="small text-muted mt-1">Capacidad</div>
+                <div class="fw-semibold small">Hasta <%= hotel.max_guests %></div>
+              </div>
+            <% end %>
+            <% if hotel.total_rooms.present? && hotel.total_rooms.to_i > 0 %>
+              <div class="col-6 col-md-3 text-center">
+                <div style="color: var(--brand-cofee, #88682B);"><i class="fas fa-door-open fa-2x"></i></div>
+                <div class="small text-muted mt-1">Habitaciones</div>
+                <div class="fw-semibold small"><%= hotel.total_rooms %></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- HABITACIONES -->
+      <div id="habitaciones" class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-bed me-2"></i> Habitaciones disponibles</h5>
+        </div>
+        <div class="card-body p-4">
+          <% if rooms.any? %>
+            <div class="row g-3">
+              <% rooms.each do |room| %>
+                <div class="col-12 col-md-6">
+                  <div class="border rounded-3 p-3 h-100 d-flex flex-column" style="background: #f5f0ff;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="fw-bold mb-0"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i><%= room.name %></h6>
+                      <% if room.room_type.present? %>
+                        <span class="badge rounded-pill" style="background: #8e44ad;"><%= room.room_type.capitalize %></span>
                       <% end %>
+                    </div>
+
+                    <% if room.guest_capacity.present? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-users me-1"></i> Capacidad: <strong><%= room.guest_capacity %> huéspedes</strong>
+                      </div>
                     <% end %>
+
+                    <% if room.room_beds.any? %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-bed me-1"></i>
+                        <%= room.room_beds.map { |b| "#{b.quantity} #{b.bed_type.gsub('_', ' ')}" }.join(", ") %>
+                      </div>
+                    <% end %>
+
+                    <% if room.quantity.present? && room.quantity > 1 %>
+                      <div class="small text-muted mb-2">
+                        <i class="fas fa-hashtag me-1"></i> <%= room.quantity %> disponibles
+                      </div>
+                    <% end %>
+
+                    <% if room.description.present? %>
+                      <p class="small text-muted mb-2"><%= room.description %></p>
+                    <% end %>
+
+                    <% if room.amenities.any? %>
+                      <div class="mb-2">
+                        <% room.amenities.each do |amenity| %>
+                          <span class="badge bg-light text-dark border me-1 mb-1"><%= amenity.name %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+
+                    <div class="mt-auto pt-3 border-top">
+                      <% if room.price_per_night.present? %>
+                        <div class="mb-3">
+                          <div class="small text-muted">Desde</div>
+                          <div class="fw-bold fs-5" style="color: var(--brand-orange, #EB633B);">
+                            $<%= number_with_precision(room.price_per_night, precision: 2) %>
+                          </div>
+                          <small class="text-muted d-block">/noche</small>
+                        </div>
+                      <% end %>
+                      <% if user_signed_in? %>
+                        <% if est.autogestion? %>
+                          <%= link_to new_hotel_booking_path(hotel, room_id: room.id), class: "btn btn-primary w-100 rounded-pill fw-semibold" do %>
+                            <i class="fas fa-calendar-plus me-1"></i> Reservar ahora
+                          <% end %>
+                        <% else %>
+                          <%= link_to new_custom_request_path, class: "btn btn-warning w-100 rounded-pill fw-semibold" do %>
+                            <i class="fas fa-star me-1"></i> Reserva personalizada
+                          <% end %>
+                        <% end %>
+                      <% else %>
+                        <%= link_to new_user_session_path, class: "btn btn-outline-primary w-100 rounded-pill fw-semibold" do %>
+                          <i class="fas fa-sign-in-alt me-1"></i> Inicia sesión para reservar
+                        <% end %>
+                      <% end %>
+                    </div>
                   </div>
                 </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-bed fa-3x text-muted mb-2"></i>
+              <p class="text-muted fst-italic mb-0">No hay habitaciones disponibles en este momento</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- GALERÍA -->
+      <% if est.galleries.any? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee-black, #7F5935), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> Galería de imágenes</h5>
+          </div>
+          <div class="card-body p-4">
+            <% est.galleries.each_with_index do |gallery, idx| %>
+              <% attached_images = gallery.gallery_images.select { |gi| gi.file.attached? } %>
+              <% next if attached_images.empty? %>
+              <% if idx > 0 %><hr class="my-4"><% end %>
+              <h6 class="fw-bold mb-3" style="color: var(--brand-cofee, #88682B);">
+                <i class="fas fa-folder-open me-2"></i><%= gallery.name.presence || "Galería #{idx + 1}" %>
+              </h6>
+              <div class="row g-2 g-md-3">
+                <% attached_images.each do |gi| %>
+                  <div class="col-6 col-md-4">
+                    <a href="<%= url_for(gi.file) %>" target="_blank" class="d-block gallery-item">
+                      <%= image_tag gi.file.variant(resize_to_limit: [500, 375]),
+                                    class: "img-fluid rounded-3 shadow-sm w-100",
+                                    style: "aspect-ratio: 4/3; object-fit: cover;",
+                                    loading: "lazy" %>
+                    </a>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- COMODIDADES -->
+      <% if est.amenities.any? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> Lo que ofrece este hotel</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-2">
+              <% est.amenities.each do |amenity| %>
+                <div class="col-6 col-md-4">
+                  <div class="amenity-pill d-flex align-items-center p-2 rounded-3">
+                    <i class="fas fa-check-circle me-2" style="color: var(--brand-green, #3FBD02);"></i>
+                    <span class="small"><%= amenity.name %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- VIDEO PROMOCIONAL -->
+      <% if est.video_url.present? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fab fa-youtube me-2"></i> Video promocional</h5>
+          </div>
+          <div class="card-body p-3">
+            <div class="ratio ratio-16x9 rounded-3 overflow-hidden">
+              <% video_id = est.video_url[/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=))([^&\n?#]+)/, 1] %>
+              <% if video_id %>
+                <iframe src="https://www.youtube.com/embed/<%= video_id %>" allowfullscreen></iframe>
+              <% else %>
+                <a href="<%= est.video_url %>" target="_blank" class="btn btn-outline-danger rounded-pill">
+                  <i class="fas fa-external-link-alt me-1"></i> Ver video
+                </a>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+    <!-- ═══════════════ COLUMNA LATERAL ═══════════════ -->
+    <div class="col-12 col-lg-4">
+
+      <!-- PRECIO & RESERVA -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4 sticky-top-actions">
+        <div class="card-body p-4">
+          <% if min_price.present? %>
+            <div class="text-center mb-3 pb-3 border-bottom">
+              <div class="small text-muted">Desde</div>
+              <%= render_dynamic_price(min_price, size: :lg) %>
+              <div class="small text-muted">por noche</div>
+            </div>
+          <% end %>
+
+          <div class="d-grid gap-2">
+            <% if user_signed_in? %>
+              <% if est.autogestion? %>
+                <%# Gestión directa: botones de reserva directa + WhatsApp %>
+                <a href="#habitaciones" class="btn btn-primary rounded-pill fw-semibold btn-lg" data-turbo="false">
+                  <i class="fas fa-calendar-plus me-1"></i> Seleccionar habitación
+                </a>
+
+                <% if whatsapp_phone.present? %>
+                  <a href="https://wa.me/<%= whatsapp_phone.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, estoy interesado en #{est.name}") %>"
+                     target="_blank"
+                     class="btn btn-success rounded-pill fw-semibold">
+                    <i class="fab fa-whatsapp me-1"></i> Contactar por WhatsApp
+                  </a>
+                <% end %>
+
+                <% if est.phone.present? %>
+                  <a href="tel:<%= est.phone %>" class="btn btn-outline-primary rounded-pill fw-semibold">
+                    <i class="fas fa-phone me-1"></i> Llamar al hotel
+                  </a>
+                <% end %>
+              <% else %>
+                <%# Gestión por Iyaiclub: sólo reserva personalizada %>
+                <%= link_to new_custom_request_path, class: "btn btn-warning rounded-pill fw-semibold btn-lg" do %>
+                  <i class="fas fa-star me-1"></i> Reserva personalizada Iyaiclub
+                <% end %>
+                <div class="small text-muted text-center mt-2">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Este establecimiento es gestionado por nuestro equipo Iyaiclub.
+                </div>
+              <% end %>
+            <% else %>
+              <%= link_to new_user_session_path, class: "btn btn-primary rounded-pill fw-semibold btn-lg" do %>
+                <i class="fas fa-sign-in-alt me-1"></i> Inicia sesión para reservar
+              <% end %>
+              <div class="small text-muted text-center mt-2">
+                <%= link_to "¿Aún no tienes cuenta? Regístrate", new_user_registration_path, class: "text-decoration-none" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACTO -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee, #88682B), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> Contacto</h6>
+        </div>
+        <div class="card-body p-3">
+          <% if est.phone.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-phone me-1"></i> Teléfono</div>
+              <div class="info-value small">
+                <a href="tel:<%= est.phone %>" class="text-decoration-none"><%= est.phone %></a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.whatsapp.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fab fa-whatsapp me-1 text-success"></i> WhatsApp</div>
+              <div class="info-value small">
+                <a href="https://wa.me/<%= est.whatsapp.gsub(/\D/, '') %>" target="_blank" class="text-decoration-none">
+                  <%= est.whatsapp %>
+                </a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.email.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-envelope me-1"></i> Email</div>
+              <div class="info-value small">
+                <a href="mailto:<%= est.email %>" class="text-decoration-none"><%= est.email %></a>
+              </div>
+            </div>
+          <% end %>
+          <% if est.website.present? %>
+            <div class="info-item">
+              <div class="info-label"><i class="fas fa-globe me-1"></i> Sitio web</div>
+              <div class="info-value small">
+                <a href="<%= est.website %>" target="_blank" class="text-decoration-none text-truncate d-inline-block" style="max-width: 100%;">
+                  <%= est.website %>
+                </a>
               </div>
             </div>
           <% end %>
         </div>
-      <% else %>
-        <p class="text-muted fst-italic">No hay galerías registradas.</p>
-      <% end %>
-    </div>
-  </div>
+      </div>
 
-  <!-- Unidades disponibles -->
-  <div class="card shadow-sm border-0 mt-5">
-    <div class="card-header bg-success text-white fw-bold">
-      <i class="bi bi-door-open me-2"></i> Habitaciones disponibles
-    </div>
-    <div class="card-body">
-      <% available_units = @hotel.establishment.units.where(status: :disponible) %>
-      <% if available_units.any? %>
-        <div class="row g-3">
-          <% available_units.each do |unit| %>
-            <div class="col-md-6 col-lg-4">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title fw-bold"><%= unit.unit_type.presence || "Habitación" %></h5>
-                  <p class="mb-1"><i class="bi bi-people me-1"></i> Capacidad: <%= unit.capacity %> personas</p>
-                  <p class="mb-1"><i class="bi bi-cash me-1"></i> Desde <strong>$<%= number_with_precision(unit.base_price, precision: 2) %></strong> / noche</p>
-                  <% if unit.price_per_person.present? %>
-                    <p class="mb-1"><i class="bi bi-person me-1"></i> $<%= number_with_precision(unit.price_per_person, precision: 2) %> / persona</p>
-                  <% end %>
-                  <% if unit.bed_configuration.present? %>
-                    <p class="mb-1"><i class="bi bi-lamp me-1"></i> <%= unit.bed_configuration.map { |k, v| "#{v} #{k}" }.join(", ") %></p>
-                  <% end %>
-                  <%= link_to new_hotel_booking_path(@hotel, unit_id: unit.id), class: "btn btn-primary w-100 mt-2" do %>
-                    <i class="bi bi-calendar-plus me-1"></i> Reservar
-                  <% end %>
+      <!-- UBICACIÓN -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> Ubicación</h6>
+        </div>
+        <div class="card-body p-3">
+          <% if est.address.present? %>
+            <div class="info-item mb-2">
+              <div class="info-label"><i class="fas fa-map-marker-alt me-1"></i> Dirección</div>
+              <div class="info-value small"><%= est.address %></div>
+            </div>
+          <% end %>
+          <div class="info-item mb-2">
+            <div class="info-label"><i class="fas fa-flag me-1"></i> País</div>
+            <div class="info-value small"><%= est.country&.name || "—" %></div>
+          </div>
+          <div class="info-item mb-2">
+            <div class="info-label"><i class="fas fa-map me-1"></i> Provincia</div>
+            <div class="info-value small"><%= est.province&.name || "—" %></div>
+          </div>
+          <div class="info-item mb-3">
+            <div class="info-label"><i class="fas fa-city me-1"></i> Ciudad</div>
+            <div class="info-value small"><%= est.city&.name || "—" %></div>
+          </div>
+
+          <% if est.arrival_instructions.present? %>
+            <div class="info-item mb-3 p-2 rounded-3" style="background: #fff8e1;">
+              <div class="info-label"><i class="fas fa-route me-1"></i> Cómo llegar</div>
+              <div class="info-value small"><%= est.arrival_instructions %></div>
+            </div>
+          <% end %>
+
+          <% if est.latitude.present? && est.longitude.present? %>
+            <div class="rounded-3 overflow-hidden">
+              <%= render "shared/map_display",
+                         latitude: est.latitude,
+                         longitude: est.longitude,
+                         name: est.name %>
+            </div>
+            <div class="mt-2 text-center">
+              <a href="https://www.google.com/maps?q=<%= est.latitude %>,<%= est.longitude %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                <i class="fas fa-external-link-alt me-1"></i> Abrir en Google Maps
+              </a>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- HORARIOS -->
+      <% if est.check_in_time.present? || est.check_out_time.present? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> Horarios</h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="row g-2 text-center">
+              <div class="col-6">
+                <div class="p-2 rounded-3" style="background: #f8f9fa;">
+                  <div class="small text-muted"><i class="fas fa-sign-in-alt me-1" style="color: var(--brand-green, #3FBD02);"></i> Check-in</div>
+                  <div class="fw-bold"><%= est.check_in_time&.strftime("%H:%M") || "—" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 rounded-3" style="background: #f8f9fa;">
+                  <div class="small text-muted"><i class="fas fa-sign-out-alt me-1" style="color: var(--brand-orange, #EB633B);"></i> Check-out</div>
+                  <div class="fw-bold"><%= est.check_out_time&.strftime("%H:%M") || "—" %></div>
                 </div>
               </div>
             </div>
-          <% end %>
+          </div>
         </div>
-      <% else %>
-        <p class="text-muted fst-italic">No hay habitaciones disponibles en este momento.</p>
       <% end %>
+
+      <!-- VOLVER -->
+      <div class="text-center">
+        <%= link_to hotels_path, class: "btn btn-outline-secondary rounded-pill fw-semibold" do %>
+          <i class="fas fa-arrow-left me-1"></i> Volver al listado
+        <% end %>
+      </div>
+
     </div>
   </div>
-
-  <!-- WhatsApp -->
-  <div class="mt-4 text-center">
-    <% phone = @hotel.establishment.whatsapp.presence || @hotel.establishment.legal_info&.contact_phone %>
-    <%= render "shared/whatsapp_button",
-               phone: phone,
-               message: "Hola, estoy interesado en #{@hotel.establishment.name}" %>
-  </div>
-
-  <!-- Mapa -->
-  <%= render "shared/map_display",
-             latitude: @hotel.establishment.latitude,
-             longitude: @hotel.establishment.longitude,
-             name: @hotel.establishment.name %>
-
-  <!-- Botones de acción -->
-  <div class="mt-4 text-center">
-    <%= link_to "Volver al listado", hotels_path, class: "btn btn-secondary" %>
-  </div>
 </div>
+
+<style>
+  .hotel-show-page {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-show-page {
+      padding: 1.5rem;
+    }
+  }
+
+  /* HERO */
+  .hotel-hero {
+    min-height: 320px;
+    background: #2c3e50;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero {
+      min-height: 450px;
+    }
+  }
+
+  .hotel-hero-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero-image {
+      height: 450px;
+    }
+  }
+
+  .hotel-hero-fallback {
+    min-height: 320px;
+    background: linear-gradient(135deg, var(--brand-orange, #EB633B), var(--brand-cofee, #88682B));
+  }
+
+  @media (min-width: 768px) {
+    .hotel-hero-fallback {
+      min-height: 450px;
+    }
+  }
+
+  .hotel-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%);
+    pointer-events: none;
+  }
+
+  .hotel-hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+  }
+
+  .hotel-hero .carousel-control-prev,
+  .hotel-hero .carousel-control-next {
+    z-index: 4;
+    width: 10%;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  /* INFO ITEMS */
+  .info-item {
+    margin-bottom: 0.25rem;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .info-value {
+    font-weight: 500;
+    color: #212529;
+    word-wrap: break-word;
+  }
+
+  /* UNIT CARDS */
+  .unit-card {
+    transition: all 0.2s ease;
+    background: #fafafa;
+  }
+
+  .unit-card:hover {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* AMENITY PILLS */
+  .amenity-pill {
+    background: #f8f9fa;
+    transition: background 0.2s ease;
+  }
+
+  .amenity-pill:hover {
+    background: #e9f7e1;
+  }
+
+  /* GALLERY ITEMS */
+  .gallery-item img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+  }
+
+  /* STICKY ACTIONS SIDEBAR */
+  @media (min-width: 992px) {
+    .sticky-top-actions {
+      position: sticky;
+      top: 1rem;
+      z-index: 10;
+    }
+  }
+
+  .long-desc {
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+</style>

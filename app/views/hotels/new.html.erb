@@ -1,25 +1,3 @@
 <h1>Nuevo hotel</h1>
 
-<% if @hotel.errors.any? %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Por favor corrige lo siguiente para poder guardar:</strong>
-    <ul class="mb-0 mt-1">
-      <% @hotel.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      <% if @hotel.establishment&.errors&.any? %>
-        <% @hotel.establishment.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-      <% if @hotel.establishment&.legal_info&.errors&.any? %>
-        <% @hotel.establishment.legal_info.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-    </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-  </div>
-<% end %>
-
 <%= render "form", hotel: @hotel %>

@@ -1,5 +1,95 @@
-<p>Welcome <%= @email %>!</p>
+<% url = confirmation_url(@resource, confirmation_token: @token) %>
 
-<p>You can confirm your account email through the link below:</p>
+<h2 style="margin: 0 0 16px 0; color: #EB633B; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  ¡Hola <%= @resource.name.presence || "viajero" %>!
+</h2>
 
-<p><%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Gracias por unirte a <strong>IyaiClub</strong>. Estamos muy emocionados de tenerte con nosotros.
+</p>
+
+<p style="margin: 0 0 24px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Para completar tu registro y activar tu cuenta, por favor confirma tu dirección de correo haciendo clic en el siguiente botón:
+</p>
+
+<!-- Botón bulletproof compatible con Outlook -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<%= url %>" style="height:54px;v-text-anchor:middle;width:260px;" arcsize="15%" strokecolor="#c94a28" fillcolor="#EB633B">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">Confirmar mi cuenta</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <a href="<%= url %>"
+         style="background-color: #EB633B;
+                border: 2px solid #c94a28;
+                border-radius: 8px;
+                color: #ffffff;
+                display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 1;
+                padding: 16px 36px;
+                text-align: center;
+                text-decoration: none;
+                -webkit-text-size-adjust: none;
+                mso-hide: all;">
+        Confirmar mi cuenta
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 16px 0 0 0; color: #777777; font-size: 13px; line-height: 1.5; text-align: center;">
+  Enlace seguro y personalizado. Expira en <strong>3 días</strong>.
+</p>
+
+<!-- Qué te espera -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 32px 0 24px 0; background-color: #fff8f5; border-left: 4px solid #EB633B; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #EB633B; font-size: 17px; font-weight: bold;">
+        ¿Qué te espera en IyaiClub?
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Hoteles y alojamientos únicos en los mejores destinos
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Restaurantes exclusivos con reservas instantáneas
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Sistema de puntos que se convierten en recompensas
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Ofertas personalizadas y experiencias únicas
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Enlace de respaldo -->
+<p style="margin: 24px 0 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+  Si el botón no funciona, copia y pega este enlace en tu navegador:
+</p>
+<p style="margin: 0 0 24px 0; word-break: break-all;">
+  <a href="<%= url %>" style="color: #EB633B; font-size: 13px; text-decoration: underline;"><%= url %></a>
+</p>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Necesitas ayuda? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a>.
+</p>

@@ -14,60 +14,23 @@
     <% end %>
   </div>
 
-  <%= link_to new_restaurant_path, class: "btn btn-primary btn-lg" do %>
-    <%#= link_to new_establishment_path, class: "btn btn-success" do %>
-    <i class="fa-solid fa-plus"></i> Nuevo
+  <% if current_user&.administrador? %>
+    <%= link_to select_affiliate_establishments_path, class: "btn btn-primary btn-lg" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
+  <% end %>
+
+  <% if current_user&.afiliado? %>
+    <%= link_to new_restaurant_path, class: "btn btn-primary btn-lg" do %>
+      <i class="fa-solid fa-plus"></i> Nuevo
+    <% end %>
   <% end %>
 </div>
 
-
-<table class="table table-hover align-middle shadow-sm">
-
-  <thead class="table-light">
-  <tr>
-    <th class="text-center">ID-establishment</th>
-    <th class="text-center">ID-restaurant</th>
-    <th class="text-center">Nombre</th>
-    <th class="text-center">Razón social</th>
-    <th class="text-center">Representante</th>
-    <th class="text-center">Tipo de comida</th>
-<!--    <th>Capacidad</th>-->
-<!--    <th>Horario</th>-->
-    <th class="text-center">Acciones</th>
-  </tr>
-  </thead>
-  <tbody>
-  <% @restaurants.each do |restaurant| %>
-    <tr>
-      <td class="text-center"><%= restaurant.establishment.id %></td>
-      <td class="text-center"><%= restaurant.id %></td>
-      <td class="text-center"><%= restaurant.establishment.name %></td>
-      <td class="text-center"><%= restaurant.establishment.legal_info&.business_name %></td>
-      <td class="text-center"><%= restaurant.establishment.legal_info&.legal_representative %></td>
-      <td class="text-center"><%= restaurant.cuisine_type %></td>
-<!--      <td><%#= restaurant.capacity %></td>-->
-<!--      <td><%#= restaurant.opening_hours %></td>-->
-      <td>
-        <%#= link_to "Ver", restaurant_path(restaurant), class: "btn btn-sm btn-primary" %>
-        <%#= link_to "Editar", edit_restaurant_path(restaurant), class: "btn btn-sm btn-warning" %>
-
-
-
-        <div class="d-flex justify-content-center gap-2">
-          <%= link_to restaurant, class: "btn btn-info btn-sm" do %>
-            <i class="fa-solid fa-eye"></i>
-          <% end %>
-          <%= link_to edit_restaurant_path(restaurant), class: "btn btn-warning btn-sm" do %>
-            <i class="fa-solid fa-pen-to-square"></i>
-          <% end %>
-          <%= link_to restaurant_path(restaurant), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este restaurante?" }, class: "btn btn-danger btn-sm" do %>
-            <i class="fa-solid fa-trash-can"></i>
-          <% end %>
-        </div>
-
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
-
+<% if current_user&.administrador? %>
+  <%= render "table_view", restaurants: @restaurants %>
+<% elsif current_user&.afiliado? %>
+  <%= render "card_view", restaurants: @restaurants %>
+<% else %>
+  <%= render "catalog_view", restaurants: @restaurants %>
+<% end %>

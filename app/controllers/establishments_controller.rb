@@ -1,7 +1,7 @@
 class EstablishmentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_establishment, only: %i[show edit update destroy dashboard]
-  before_action :authorize_admin_or_owner!, only: %i[edit update destroy]
+  before_action :authorize_admin_or_owner!, only: %i[show edit update destroy dashboard]
   layout "dashboard"
 
   # def index
@@ -165,8 +165,12 @@ class EstablishmentsController < ApplicationController
   end
 
   def destroy
-    @establishment.destroy
+    @establishment.destroy!
     redirect_to establishments_path, notice: 'Establecimiento eliminado con éxito.'
+  rescue ActiveRecord::InvalidForeignKey => e
+    redirect_to establishments_path, alert: 'No se puede eliminar este establecimiento porque tiene registros asociados (reservas, visitas, etc.).'
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to establishments_path, alert: "No se pudo eliminar el establecimiento: #{e.record.errors.full_messages.join(', ')}"
   end
 
   def dashboard

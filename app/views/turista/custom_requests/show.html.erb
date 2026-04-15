@@ -1,0 +1,126 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-magic me-2" style="color: var(--brand-orange, #EB633B);"></i>
+        Solicitud #<%= @custom_request.id %>
+      </h3>
+      <%= custom_request_status_badge(@custom_request.status) %>
+    </div>
+    <%= link_to turista_custom_requests_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <div class="row g-4">
+    <!-- ═══════════════ RESUMEN DEL VIAJE ═══════════════ -->
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, var(--brand-orange, #EB633B), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-plane-departure me-2"></i> Datos del viaje</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Destino</div>
+              <div class="fw-semibold"><i class="fas fa-map-marker-alt me-1"></i> <%= @custom_request.destination %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Fecha inicio</div>
+              <div class="fw-semibold"><%= l(@custom_request.start_date, format: :long) rescue @custom_request.start_date %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Fecha fin</div>
+              <div class="fw-semibold"><%= l(@custom_request.end_date, format: :long) rescue @custom_request.end_date %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Personas</div>
+              <div class="fw-semibold"><i class="fas fa-users me-1"></i> <%= @custom_request.guests_count %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Presupuesto</div>
+              <div class="fw-semibold">
+                <% if @custom_request.estimated_budget.present? %>
+                  $<%= number_with_precision(@custom_request.estimated_budget, precision: 2) %>
+                <% else %>
+                  —
+                <% end %>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Tipo de experiencia</div>
+              <div class="fw-semibold">
+                <i class="<%= experience_type_icon(@custom_request.experience_type) %> me-1"
+                   style="color: <%= experience_type_color(@custom_request.experience_type) %>;"></i>
+                <%= experience_type_label(@custom_request.experience_type) %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERESES Y PREFERENCIAS -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-heart me-2"></i> Intereses y preferencias</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <div class="small text-muted fw-semibold mb-2">Intereses</div>
+            <% if @custom_request.interests.present? %>
+              <% @custom_request.interests.reject(&:blank?).each do |i| %>
+                <span class="badge rounded-pill bg-success me-1 mb-1">
+                  <i class="<%= interest_icon(i) %> me-1"></i><%= interest_label(i) %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="text-muted small">No especificados</span>
+            <% end %>
+          </div>
+          <div>
+            <div class="small text-muted fw-semibold mb-2">Preferencias</div>
+            <% if @custom_request.preferences.present? %>
+              <% @custom_request.preferences.reject(&:blank?).each do |p| %>
+                <span class="badge rounded-pill bg-primary me-1 mb-1">
+                  <i class="<%= preference_icon(p) %> me-1"></i><%= preference_label(p) %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="text-muted small">No especificadas</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if @custom_request.comments.present? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3"
+               style="background: linear-gradient(135deg, var(--brand-cofee-black, #7F5935), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-comment-dots me-2"></i> Comentarios</h5>
+          </div>
+          <div class="card-body p-4">
+            <%= simple_format(@custom_request.comments) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ═══════════════ SEGUIMIENTO ═══════════════ -->
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4 text-center">
+          <i class="fas fa-clock fa-2x mb-2" style="color: var(--brand-orange, #EB633B);"></i>
+          <h6 class="fw-bold mb-2">Estado actual</h6>
+          <%= custom_request_status_badge(@custom_request.status) %>
+          <hr>
+          <div class="small text-muted">
+            Enviada el <%= l(@custom_request.created_at, format: :long) rescue @custom_request.created_at %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

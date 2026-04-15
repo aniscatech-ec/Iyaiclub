@@ -1,0 +1,110 @@
+<h2 style="margin: 0 0 16px 0; color: #EB633B; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  ¡Bienvenido, <%= @user.name.presence || "viajero" %>!
+</h2>
+
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Tu cuenta en <strong>IyaiClub</strong> ha sido verificada exitosamente. Ya tienes acceso a todo nuestro ecosistema de viajes y experiencias únicas.
+</p>
+
+<% if @membership %>
+  <!-- Membresía activa -->
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f0fff4; border-left: 4px solid #3FBD02; border-radius: 6px;">
+    <tr>
+      <td style="padding: 20px 24px;">
+        <h3 style="margin: 0 0 12px 0; color: #3FBD02; font-size: 17px; font-weight: bold;">Tu membresía</h3>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+              <strong>Tipo:</strong> <%= @membership.plan_type&.capitalize || "Básica" %>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+              <strong>Estado:</strong> Activa
+            </td>
+          </tr>
+          <% if @membership.end_date %>
+            <tr>
+              <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+                <strong>Válida hasta:</strong> <%= @membership.end_date.strftime("%d/%m/%Y") %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+      </td>
+    </tr>
+  </table>
+<% end %>
+
+<!-- Botón principal -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 28px 0;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<%= turista_dashboard_index_url %>" style="height:54px;v-text-anchor:middle;width:240px;" arcsize="15%" strokecolor="#c94a28" fillcolor="#EB633B">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">Ir a mi panel</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <a href="<%= turista_dashboard_index_url %>"
+         style="background-color: #EB633B;
+                border: 2px solid #c94a28;
+                border-radius: 8px;
+                color: #ffffff;
+                display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 1;
+                padding: 16px 36px;
+                text-align: center;
+                text-decoration: none;
+                -webkit-text-size-adjust: none;
+                mso-hide: all;">
+        Ir a mi panel
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+<!-- Qué puedes hacer -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 32px 0 16px 0; background-color: #fff8f5; border-left: 4px solid #EB633B; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #EB633B; font-size: 17px; font-weight: bold;">¿Qué puedes hacer ahora?</h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Explorar destinos exclusivos
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Hacer reservas en hoteles y restaurantes
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Acumular puntos con cada experiencia
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+            <strong style="color: #EB633B;">&#10003;</strong> &nbsp; Canjear recompensas y disfrutar beneficios
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Necesitas ayuda? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a>.
+</p>
+
+<p style="margin: 16px 0 0 0; color: #555555; font-size: 14px; font-style: italic;">
+  Con cariño,<br/>
+  <strong style="color: #EB633B; font-style: normal;">El equipo de IyaiClub</strong>
+</p>

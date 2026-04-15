@@ -16,7 +16,9 @@
     <% end %>
   </div>
 
-  <% if @establishment %>
+  <% can_create_getaway = @establishment && (current_user&.administrador? ||
+                          (current_user&.afiliado? && @establishment.user_id == current_user.id)) %>
+  <% if can_create_getaway %>
     <div class="d-flex justify-content-end mb-3">
       <%= link_to new_establishment_getaway_path(@establishment), class: 'btn btn-primary' do %>
         <i class="fas fa-plus me-1"></i> Nueva Escapada
@@ -55,8 +57,12 @@
               <%= link_to getaway_path(getaway), class: 'btn btn-outline-primary btn-sm flex-grow-1' do %>
                 <i class="fas fa-eye me-1"></i> Ver
               <% end %>
-              <%= link_to edit_getaway_path(getaway), class: 'btn btn-outline-secondary btn-sm' do %>
-                <i class="fas fa-edit"></i>
+              <% can_edit_getaway = current_user&.administrador? ||
+                                    (current_user&.afiliado? && getaway.establishment&.user_id == current_user.id) %>
+              <% if can_edit_getaway %>
+                <%= link_to edit_getaway_path(getaway), class: 'btn btn-outline-secondary btn-sm' do %>
+                  <i class="fas fa-edit"></i>
+                <% end %>
               <% end %>
             </div>
           </div>

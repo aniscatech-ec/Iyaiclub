@@ -54,8 +54,8 @@
               <p class="fw-bold"><%= @booking.total_nights %></p>
             </div>
             <div class="col-md-4 mb-3">
-              <p class="text-muted mb-1">Unidad</p>
-              <p class="fw-bold"><%= @booking.unit.unit_type.presence || "Sin tipo" %></p>
+              <p class="text-muted mb-1">Habitación</p>
+              <p class="fw-bold"><%= @booking.room&.name || @booking.unit&.unit_type.presence || "—" %></p>
             </div>
             <div class="col-md-4 mb-3">
               <p class="text-muted mb-1">Total</p>
@@ -65,10 +65,49 @@
             </div>
           </div>
 
-          <% phone = @booking.establishment&.whatsapp.presence || @booking.establishment&.legal_info&.contact_phone %>
+          <%
+            phone = @booking.establishment&.whatsapp.presence || @booking.establishment&.legal_info&.contact_phone
+            room_name = @booking.room&.name || @booking.unit&.unit_type || "—"
+            room_type = @booking.room&.room_type&.capitalize
+            price_per_night = @booking.room&.price_per_night || @booking.unit&.base_price || 0
+            wa_message = [
+              "Hola, me comunico desde *Iyaiclub* respecto a mi reserva.",
+              "",
+              "*Reserva ##{@booking.id}*",
+              "*Establecimiento:* #{@hotel.establishment.name}",
+              "*Habitación:* #{room_name}#{room_type.present? ? " (#{room_type})" : ""}",
+              "*Precio por noche:* $#{number_with_precision(price_per_night, precision: 2)}",
+              "",
+              "*Huésped:* #{@booking.guest_name}",
+              "*Email:* #{@booking.guest_email}",
+              "*Huéspedes:* #{@booking.guest_count}",
+              "",
+              "*Check-in:* #{@booking.start_date&.strftime("%d/%m/%Y")}",
+              "*Check-out:* #{@booking.end_date&.strftime("%d/%m/%Y")}",
+              "*Noches:* #{@booking.total_nights}",
+              "*Total:* $#{number_with_precision(@booking.total_price || 0, precision: 2)}",
+              "",
+              "Quedo atento a su confirmación. Gracias."
+            ].join("\n")
+          %>
           <%= render "shared/whatsapp_button",
                      phone: phone,
-                     message: "Hola, tengo una consulta sobre mi reserva ##{@booking.id} en #{@hotel.establishment.name}" %>
+                     message: wa_message %>
+
+          <%# ---- Botón de pago con PayPhone (solo si está pendiente) ---- %>
+          <% if @booking.pendiente? && @booking.total_price.to_f > 0 %>
+            <hr>
+            <div class="text-center">
+              <%= form_with url: payphone_checkout_path, method: :post, local: true do |pf| %>
+                <%= pf.hidden_field :payable_type, value: "Booking" %>
+                <%= pf.hidden_field :payable_id, value: @booking.id %>
+                <%= pf.submit "Pagar con PayPhone", class: "btn btn-success btn-lg" %>
+              <% end %>
+              <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                <i class="fas fa-lock me-1"></i> Pago seguro con Visa, MasterCard, Diners Club o Discover
+              </p>
+            </div>
+          <% end %>
 
         </div>
       </div>

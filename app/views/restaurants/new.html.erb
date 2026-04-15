@@ -1,25 +1,3 @@
 <h2>Nuevo Restaurante</h2>
 
-<% if @restaurant.errors.any? %>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <strong>Por favor corrige lo siguiente para poder guardar:</strong>
-    <ul class="mb-0 mt-1">
-      <% @restaurant.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      <% if @restaurant.establishment&.errors&.any? %>
-        <% @restaurant.establishment.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-      <% if @restaurant.establishment&.legal_info&.errors&.any? %>
-        <% @restaurant.establishment.legal_info.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      <% end %>
-    </ul>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-  </div>
-<% end %>
-
 <%= render "form", restaurant: @restaurant %>
