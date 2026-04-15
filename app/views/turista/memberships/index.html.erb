@@ -430,7 +430,9 @@
   
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('.price-label[data-period="monthly"]').classList.add('active');
+    document.querySelector('.price-label[data-period="annual"]').classList.add('active');
+    document.getElementById('pricingToggle').checked = true;
+    togglePricing();
     initCarousel();
   });
   
@@ -578,7 +580,7 @@
       <div class="price-toggle-wrapper d-inline-flex align-items-center gap-3 bg-light rounded-pill p-2 shadow-sm">
         <span class="price-label" data-period="monthly">Mensual</span>
         <label class="price-switch">
-          <input type="checkbox" id="pricingToggle" onchange="togglePricing()">
+          <input type="checkbox" id="pricingToggle" onchange="togglePricing()" checked>
           <span class="price-slider"></span>
         </label>
         <span class="price-label" data-period="annual">

@@ -1,0 +1,47 @@
+<% if booking.errors.any? %>
+  <div class="alert alert-danger">
+    <h6><%= pluralize(booking.errors.count, "error") %> encontrados:</h6>
+    <ul class="mb-0">
+      <% booking.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<% if unit.present? %>
+  <%= f.hidden_field :unit_id, value: unit.id %>
+<% end %>
+
+<div class="mb-3">
+  <%= f.label :guest_name, "Nombre completo", class: "form-label" %>
+  <%= f.text_field :guest_name, class: "form-control", placeholder: "Tu nombre completo",
+                   value: booking.guest_name.presence || current_user.name %>
+</div>
+
+<div class="mb-3">
+  <%= f.label :guest_email, "Correo electrónico", class: "form-label" %>
+  <%= f.email_field :guest_email, class: "form-control", placeholder: "tu@email.com",
+                    value: booking.guest_email.presence || current_user.email %>
+</div>
+
+<div class="mb-3">
+  <%= f.label :guest_count, "Número de huéspedes / personas", class: "form-label" %>
+  <%= f.number_field :guest_count, class: "form-control", min: 1 %>
+</div>
+
+<div class="row">
+  <div class="col-md-6 mb-3">
+    <%= f.label :start_date, "Fecha de entrada / inicio", class: "form-label" %>
+    <%= f.date_field :start_date, class: "form-control", min: Date.today %>
+  </div>
+  <div class="col-md-6 mb-3">
+    <%= f.label :end_date, "Fecha de salida / fin", class: "form-label" %>
+    <%= f.date_field :end_date, class: "form-control", min: Date.tomorrow %>
+  </div>
+</div>
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-between mt-3">
+  <%= link_to "Cancelar", :back, class: "btn btn-outline-secondary" %>
+  <%= f.submit "Solicitar reserva", class: "btn btn-primary" %>
+</div>

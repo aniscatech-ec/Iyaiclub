@@ -58,10 +58,10 @@ Rails.application.routes.draw do
 
 
   # PayPhone payment gateway
-  resource :payphone, only: [], controller: 'payphone' do
-    post :checkout
-    get :callback
-    get :cancel
+  scope :payphone, controller: 'payphone', as: :payphone do
+    post :checkout, action: :checkout
+    get  :callback, action: :callback
+    get  :cancel,   action: :cancel
   end
 
   resources :plan_prices

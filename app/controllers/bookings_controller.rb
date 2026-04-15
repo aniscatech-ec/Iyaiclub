@@ -4,13 +4,14 @@ class BookingsController < ApplicationController
   before_action :set_booking, only: [:show, :update, :destroy]
 
   def index
-<<<<<<< HEAD
     @bookings = if params[:hotel_id]
                   @hotel = Hotel.find(params[:hotel_id])
                   if current_user.turista?
-                    Booking.joins(:unit).where(guest_email: current_user.email, units: { establishment_id: @hotel.establishment.id })
+                    Booking.joins("INNER JOIN units ON bookings.bookable_id = units.id AND bookings.bookable_type = 'Unit'")
+                           .where(guest_email: current_user.email, units: { establishment_id: @hotel.establishment.id })
                   else
-                    Booking.joins(:unit).where(units: { establishment_id: @hotel.establishment.id })
+                    Booking.joins("INNER JOIN units ON bookings.bookable_id = units.id AND bookings.bookable_type = 'Unit'")
+                           .where(units: { establishment_id: @hotel.establishment.id })
                   end
                 elsif params[:experience_id]
                   @parent = Experience.find(params[:experience_id])
@@ -21,12 +22,6 @@ class BookingsController < ApplicationController
                 elsif params[:getaway_id]
                   @parent = Getaway.find(params[:getaway_id])
                   @parent.bookings
-=======
-    @bookings = if current_user.turista?
-                  Booking.joins(:room).where(guest_email: current_user.email, rooms: { hotel_id: @hotel.id })
-                elsif current_user.afiliado? || current_user.administrador?
-                  Booking.joins(:room).where(rooms: { hotel_id: @hotel.id })
->>>>>>> main
                 else
                   current_user.bookings
                 end
@@ -38,7 +33,6 @@ class BookingsController < ApplicationController
   end
 
   def new
-<<<<<<< HEAD
     if @hotel
       @unit = @hotel.establishment.units.find(params[:unit_id])
       @booking = @unit.bookings.build(status: :pendiente)
@@ -56,28 +50,27 @@ class BookingsController < ApplicationController
     end
 
     @booking.user = current_user
-=======
-    @room = @hotel.rooms.find(params[:room_id])
-    @booking = @room.bookings.build(status: :pendiente)
-  end
-
-  def create
-    @room = @hotel.rooms.find(booking_params[:room_id])
-    @booking = @room.bookings.build(booking_params.except(:room_id))
->>>>>>> main
     @booking.status = :pendiente
 
-    respond_to do |format|
-      if @booking.save
-        format.html do
-          redirect_path = @hotel ? hotel_booking_path(@hotel, @booking) : polymorphic_path([@parent, @booking])
-          redirect_to redirect_path, notice: "Reserva creada exitosamente. Pendiente de confirmación."
-        end
-        format.json { render json: @booking, status: :created }
+    # Calcular precio total
+    @booking.total_price = calculate_booking_price(@booking)
+
+    if @booking.save
+      establishment = @booking.bookable&.establishment
+
+      # Si IyaiClub gestiona la reserva → cobrar por PayPhone
+      if establishment&.iyaiclub?
+        redirect_to payphone_checkout_path(
+          payable_type: "Booking",
+          payable_id: @booking.id
+        ), notice: "Reserva creada. Completa el pago para confirmarla."
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @booking.errors, status: :unprocessable_entity }
+        # Autogestion: reserva queda pendiente, el afiliado la confirma
+        redirect_path = @hotel ? hotel_booking_path(@hotel, @booking) : polymorphic_path([@parent, @booking])
+        redirect_to redirect_path, notice: "Reserva creada. Pendiente de confirmación por el establecimiento."
       end
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -121,7 +114,6 @@ class BookingsController < ApplicationController
 
   private
 
-<<<<<<< HEAD
   def set_parent
     if params[:hotel_id]
       @hotel = Hotel.includes(establishment: [:units, :user]).find(params[:hotel_id])
@@ -137,7 +129,9 @@ class BookingsController < ApplicationController
 
   def set_booking
     @booking = if @hotel
-                 Booking.joins(:unit).where(units: { establishment_id: @hotel.establishment.id }).find(params[:id])
+                 Booking.joins("INNER JOIN units ON bookings.bookable_id = units.id AND bookings.bookable_type = 'Unit'")
+                        .where(units: { establishment_id: @hotel.establishment.id })
+                        .find(params[:id])
                elsif @parent
                  @parent.bookings.find(params[:id])
                else
@@ -150,17 +144,20 @@ class BookingsController < ApplicationController
       :unit_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date, :status,
       :date, :guests # aliases
     )
-=======
-  def set_hotel
-    @hotel = Hotel.includes(:rooms, :establishment).find(params[:hotel_id])
   end
 
-  def set_booking
-    @booking = Booking.joins(:room).where(rooms: { hotel_id: @hotel.id }).find(params[:id])
-  end
+  def calculate_booking_price(booking)
+    return 0 if booking.start_date.blank? || booking.end_date.blank?
+    nights = (booking.end_date - booking.start_date).to_i
+    return 0 if nights <= 0
 
-  def booking_params
-    params.require(:booking).permit(:room_id, :guest_name, :guest_email, :guest_count, :start_date, :end_date)
->>>>>>> main
+    bookable = booking.bookable
+    price_per_night = case bookable
+                      when Unit then bookable.base_price
+                      when Lodging then bookable.price_per_night
+                      else 0
+                      end
+
+    nights * (price_per_night || 0)
   end
 end

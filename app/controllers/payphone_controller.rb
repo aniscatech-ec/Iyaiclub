@@ -101,17 +101,22 @@ class PayphoneController < ApplicationController
   def format_phone_for_payphone(phone)
     return nil if phone.blank?
 
-    # Limpiar el número (solo dígitos)
+    # Solo dígitos
     digits = phone.to_s.gsub(/\D/, '')
+    return nil if digits.blank?
 
-    # Si ya tiene código de país (más de 10 dígitos), retornar como está
-    return digits if digits.length > 10
+    # Ya tiene código de país Ecuador: 593 + 9 dígitos = 12 dígitos
+    return digits if digits.start_with?('593') && digits.length == 12
 
-    # Si empieza con 0, quitarlo (formato local ecuatoriano)
-    digits = digits[1..-1] if digits.start_with?('0')
+    # Quitar 0 inicial (formato local: 09XXXXXXXX → 9XXXXXXXX)
+    digits = digits.delete_prefix('0')
 
-    # Agregar código de país de Ecuador (593)
+    # Número móvil Ecuador: 9 dígitos (ej: 987654321)
+    return nil unless digits.length == 9
+
     "593#{digits}"
+  rescue
+    nil
   end
 
   def find_payable
@@ -129,13 +134,30 @@ class PayphoneController < ApplicationController
     plan_price = PlanPrice.find_by(id: params[:plan_price_id])
     return nil unless plan_price
 
-    Subscription.new(
-      subscribable_type: params[:subscribable_type],
-      subscribable_id: params[:subscribable_id],
-      plan_type: plan_price.id,
-      payment_method: :tarjeta,
+    subscribable_type = params[:subscribable_type]
+    subscribable_id   = params[:subscribable_id]
+    return nil if subscribable_type.blank? || subscribable_id.blank?
+
+    # Cancelar suscripción pendiente anterior para evitar duplicados
+    Subscription.where(
+      subscribable_type: subscribable_type,
+      subscribable_id: subscribable_id,
       status: :pendiente
-    ).tap(&:save!)
+    ).destroy_all
+
+    subscription = Subscription.new(
+      subscribable_type: subscribable_type,
+      subscribable_id:   subscribable_id,
+      plan_type:         plan_price.id,
+      payment_method:    :tarjeta,
+      status:            :pendiente
+    )
+
+    subscription.save!
+    subscription
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error("Error creando suscripción pendiente: #{e.message}")
+    nil
   end
 
   def calculate_amount_cents(payable)
@@ -162,7 +184,8 @@ class PayphoneController < ApplicationController
       plan_price = PlanPrice.find(payable.plan_type)
       "Suscripción #{plan_price.plan&.name} - #{plan_price.display_duration}"
     when Booking
-      "Reserva ##{payable.id} - #{payable.establishment&.name}"
+      establishment_name = payable.bookable&.establishment&.name || "Establecimiento"
+      "Reserva ##{payable.id} - #{establishment_name}"
     when Ticket
       "Ticket #{payable.ticket_code} - #{payable.event_name}"
     else
@@ -239,18 +262,33 @@ class PayphoneController < ApplicationController
         afiliado_dashboard_index_path
       end
     when Booking
-      hotel = payable.room&.hotel
-      hotel ? hotel_booking_path(hotel, payable) : root_path
+      booking_redirect_path(payable)
     when Ticket
       turista_ticket_path(payable)
     when nil
       # Transacción sin payable (pago rechazado/cancelado para ticket)
       if transaction.metadata&.dig("type") == "ticket"
-        event_id = transaction.metadata["event_id"]
-        event_path(event_id)
+        event_path(transaction.metadata["event_id"])
       else
         root_path
       end
+    else
+      root_path
+    end
+  end
+
+  def booking_redirect_path(booking)
+    bookable = booking.bookable
+    case bookable
+    when Unit
+      hotel = bookable.establishment&.hotel
+      hotel ? hotel_booking_path(hotel, booking) : root_path
+    when Experience
+      experience_booking_path(bookable, booking)
+    when Lodging
+      lodging_booking_path(bookable, booking)
+    when Getaway
+      getaway_booking_path(bookable, booking)
     else
       root_path
     end

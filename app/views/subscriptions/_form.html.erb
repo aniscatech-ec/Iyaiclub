@@ -406,151 +406,113 @@
   }
 </style>
 
+<% subscribable_type = current_user.turista? ? "User" : "Establishment" %>
+<% subscribable_id   = current_user.turista? ? current_user.id : @establishment&.id %>
+<% cancel_path       = current_user.turista? ? turista_dashboard_index_path : afiliado_dashboard_index_path %>
+
 <div class="subscription-wrapper">
   <div class="subscription-card">
-    <%= form_with(model: subscription, local: true, html: { class: "m-0" }) do |form| %>
-      <div data-controller="subscriptions">
+    <%= form_with url: payphone_checkout_path, method: :post, local: true, data: { turbo: false }, html: { class: "m-0" } do |form| %>
 
-        <%# -------------------- Header -------------------- %>
-        <div class="subscription-header">
-          <div class="header-icon">
+      <%# -------------------- Header -------------------- %>
+      <div class="subscription-header">
+        <div class="header-icon">
+          <i class="fas fa-crown"></i>
+        </div>
+        <h1>Nueva Suscripción</h1>
+        <p>Estás a un paso de desbloquear tus beneficios</p>
+      </div>
+
+      <%# -------------------- Hidden fields para PayPhone checkout -------------------- %>
+      <%= form.hidden_field :payable_type, value: "Subscription" %>
+      <%= form.hidden_field :plan_price_id, value: @plan_price.id %>
+      <%= form.hidden_field :subscribable_type, value: subscribable_type %>
+      <%= form.hidden_field :subscribable_id, value: subscribable_id %>
+
+      <%# -------------------- Summary Card -------------------- %>
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="fas fa-user"></i>
+            <%= current_user.role.humanize %>
+          </span>
+          <span class="summary-value"><%= current_user.name %></span>
+        </div>
+
+        <% if current_user.afiliado? && @establishment %>
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="fas fa-store"></i>
+              Establecimiento
+            </span>
+            <span class="summary-value"><%= @establishment.name %></span>
+          </div>
+        <% end %>
+
+        <div class="summary-row">
+          <span class="summary-label">
             <i class="fas fa-crown"></i>
-          </div>
-          <h1>Nueva Suscripción</h1>
-          <p>Estás a un paso de desbloquear tus beneficios</p>
+            Plan
+          </span>
+          <span class="summary-value">
+            <%= @plan_price.plan&.name || @plan_price.plan_type.to_s.humanize %>
+          </span>
         </div>
 
-        <%# -------------------- Errors -------------------- %>
-        <% if subscription.errors.any? %>
-          <div class="error-alert">
-            <div class="error-alert-header">
-              <i class="fas fa-exclamation-circle"></i>
-              <span>Revisa los siguientes errores</span>
-            </div>
-            <ul>
-              <% subscription.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-
-        <%# -------------------- Hidden fields -------------------- %>
-        <% if current_user.turista? %>
-          <%= form.hidden_field :subscribable_type, value: "User" %>
-          <%= form.hidden_field :subscribable_id, value: current_user.id %>
-        <% elsif current_user.afiliado? && @establishment %>
-          <%= form.hidden_field :subscribable_type, value: "Establishment" %>
-          <%= form.hidden_field :subscribable_id, value: @establishment.id %>
-        <% end %>
-        <%= form.hidden_field :status, value: Subscription.statuses.keys.first %>
-
-        <%# -------------------- Summary Card -------------------- %>
-        <div class="summary-card">
-          <% if current_user.administrador? %>
-            <div class="summary-row">
-              <span class="summary-label">
-                <i class="fas fa-user"></i>
-                Usuario
-              </span>
-              <span class="summary-value">
-                <%= form.text_field :user_id, class: "admin-input", placeholder: "ID usuario" %>
-              </span>
-            </div>
-          <% else %>
-            <div class="summary-row">
-              <span class="summary-label">
-                <i class="fas fa-user"></i>
-                <%= current_user.role.humanize %>
-              </span>
-              <span class="summary-value"><%= current_user.name %></span>
-            </div>
-          <% end %>
-
-          <% if current_user.afiliado? && @establishment %>
-            <div class="summary-row">
-              <span class="summary-label">
-                <i class="fas fa-store"></i>
-                Establecimiento
-              </span>
-              <span class="summary-value"><%= @establishment.name %></span>
-            </div>
-          <% end %>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="fas fa-crown"></i>
-              Plan
-            </span>
-            <span class="summary-value">
-              <%= @plan_price.plan&.name || @plan_price.plan_type.to_s.humanize %>
-            </span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="fas fa-clock"></i>
-              Duración
-            </span>
-            <span class="summary-value">
-              <%= @plan_price.display_duration %>
-            </span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="fas fa-dollar-sign"></i>
-              Total a pagar
-            </span>
-            <span class="summary-value price">
-              $<%= number_to_currency(@plan_price.price, unit: "", separator: ".", delimiter: ",") %>
-              <span class="summary-value price-period">USD</span>
-            </span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="fas fa-info-circle"></i>
-              Estado
-            </span>
-            <span class="summary-value">
-              <span class="status-pill">
-                <span class="dot"></span>
-                <%= Subscription.statuses.first[0].humanize %>
-              </span>
-            </span>
-          </div>
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="fas fa-clock"></i>
+            Duración
+          </span>
+          <span class="summary-value">
+            <%= @plan_price.display_duration %>
+          </span>
         </div>
 
-        <%# -------------------- Payment method -------------------- %>
-        <div class="form-section">
-          <div class="section-title">
-            <i class="fas fa-credit-card"></i>
-            Método de pago
-          </div>
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="fas fa-dollar-sign"></i>
+            Total a pagar
+          </span>
+          <span class="summary-value price">
+            $<%= number_to_currency(@plan_price.price, unit: "", separator: ".", delimiter: ",") %>
+            <span class="summary-value price-period">USD</span>
+          </span>
+        </div>
 
-          <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3" style="background: rgba(52, 199, 89, 0.06); border: 1px solid rgba(52, 199, 89, 0.15);">
-            <i class="fas fa-shield-alt text-success fs-4"></i>
-            <div>
-              <p class="fw-bold mb-0" style="font-size: 0.95rem;">Pago seguro con PayPhone</p>
-              <p class="text-muted mb-0" style="font-size: 0.8rem;">Visa, MasterCard, Diners Club, Discover o saldo PayPhone</p>
-            </div>
+        <div class="summary-row">
+          <span class="summary-label">
+            <i class="fas fa-info-circle"></i>
+            Estado
+          </span>
+          <span class="summary-value">
+            <span class="status-pill">
+              <span class="dot"></span>
+              Pendiente
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <%# -------------------- Payment method -------------------- %>
+      <div class="form-section">
+        <div class="section-title">
+          <i class="fas fa-credit-card"></i>
+          Método de pago
+        </div>
+
+        <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3" style="background: rgba(52, 199, 89, 0.06); border: 1px solid rgba(52, 199, 89, 0.15);">
+          <i class="fas fa-shield-alt text-success fs-4"></i>
+          <div>
+            <p class="fw-bold mb-0" style="font-size: 0.95rem;">Pago seguro con PayPhone</p>
+            <p class="text-muted mb-0" style="font-size: 0.8rem;">Visa, MasterCard, Diners Club, Discover o saldo PayPhone</p>
           </div>
         </div>
       </div>
 
       <%# -------------------- Actions -------------------- %>
       <div class="form-actions">
-        <% subscribable_type = current_user.turista? ? "User" : "Establishment" %>
-        <% subscribable_id = current_user.turista? ? current_user.id : @establishment&.id %>
-        <%= form_with url: payphone_checkout_path, method: :post, local: true, class: "d-contents" do |pf| %>
-          <%= pf.hidden_field :payable_type, value: "Subscription" %>
-          <%= pf.hidden_field :plan_price_id, value: @plan_price.id %>
-          <%= pf.hidden_field :subscribable_type, value: subscribable_type %>
-          <%= pf.hidden_field :subscribable_id, value: subscribable_id %>
-          <%= pf.submit "Pagar con PayPhone", class: "btn btn-primary" %>
-        <% end %>
-        <% cancel_path = current_user.turista? ? turista_dashboard_index_path : afiliado_dashboard_index_path %>
+        <%= form.submit "Pagar con PayPhone", class: "btn btn-primary" %>
         <%= link_to cancel_path, class: "btn btn-outline-secondary" do %>
           <i class="fas fa-times"></i>
           Cancelar

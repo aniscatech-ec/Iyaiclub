@@ -12,16 +12,59 @@ export default class extends Controller {
   }
 
   connect() {
-    this.initPaymentBox()
-  }
-
-  initPaymentBox() {
-    // Esperar a que el SDK de PayPhone esté disponible
-    if (typeof PPaymentButtonBox === "undefined") {
-      setTimeout(() => this.initPaymentBox(), 100)
+    // Si el SDK ya está cargado, inicializar directo
+    if (typeof PPaymentButtonBox !== "undefined") {
+      this.initPaymentBox()
       return
     }
 
+    // Buscar el script tag del SDK en el documento
+    const existingScript = document.querySelector(
+      'script[src*="payphonetodoesposible.com"]'
+    )
+
+    if (existingScript) {
+      // El script ya está en el DOM — esperar a que cargue
+      existingScript.addEventListener("load", () => this.initPaymentBox())
+      // Si ya cargó pero PPaymentButtonBox aún no está, hacer polling breve
+      if (existingScript.readyState === "complete") {
+        this.pollForSDK()
+      }
+    } else {
+      // Inyectar el script dinámicamente y esperar
+      this.loadSDK()
+    }
+  }
+
+  disconnect() {
+    if (this._pollTimer) clearTimeout(this._pollTimer)
+  }
+
+  loadSDK() {
+    const link = document.createElement("link")
+    link.rel = "stylesheet"
+    link.href = "https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css"
+    document.head.appendChild(link)
+
+    const script = document.createElement("script")
+    script.src = "https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"
+    script.onload = () => this.initPaymentBox()
+    document.head.appendChild(script)
+  }
+
+  pollForSDK(attempts = 0) {
+    if (typeof PPaymentButtonBox !== "undefined") {
+      this.initPaymentBox()
+      return
+    }
+    if (attempts > 50) {
+      console.error("PayPhone SDK no cargó después de 5 segundos")
+      return
+    }
+    this._pollTimer = setTimeout(() => this.pollForSDK(attempts + 1), 100)
+  }
+
+  initPaymentBox() {
     const config = {
       token: this.tokenValue,
       clientTransactionId: this.clientTransactionIdValue,
@@ -34,8 +77,8 @@ export default class extends Controller {
       defaultMethod: "card"
     }
 
-    if (this.emailValue) config.email = this.emailValue
-    if (this.phoneValue) config.phoneNumber = this.phoneValue
+    if (this.emailValue && this.emailValue.trim() !== "") config.email = this.emailValue
+    if (this.phoneValue && this.phoneValue.trim() !== "") config.phoneNumber = this.phoneValue
 
     new PPaymentButtonBox(config).render("pp-button")
   }
