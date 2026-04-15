@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_15_013122) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -60,7 +60,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
   end
 
   create_table "bookings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "unit_id", null: false
+    t.bigint "bookable_id"
     t.string "guest_name"
     t.string "guest_email"
     t.integer "guest_count"
@@ -70,8 +70,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "room_id"
+    t.string "bookable_type", null: false
+    t.bigint "user_id"
+    t.index ["bookable_type", "bookable_id"], name: "index_bookings_on_bookable_type_and_bookable_id"
+    t.index ["room_id"], name: "index_bookings_on_room_id"
     t.index ["status"], name: "index_bookings_on_status"
-    t.index ["unit_id"], name: "index_bookings_on_unit_id"
+    t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
   create_table "cities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -87,6 +92,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.string "code"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "custom_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "assigned_to_id"
+    t.string "destination", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.integer "guests_count", null: false
+    t.decimal "estimated_budget", precision: 10, scale: 2
+    t.integer "experience_type", default: 0, null: false
+    t.text "interests"
+    t.text "preferences"
+    t.text "comments"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_to_id"], name: "index_custom_requests_on_assigned_to_id"
+    t.index ["experience_type"], name: "index_custom_requests_on_experience_type"
+    t.index ["status"], name: "index_custom_requests_on_status"
+    t.index ["user_id"], name: "index_custom_requests_on_user_id"
   end
 
   create_table "establishment_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -133,11 +159,53 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.time "opening_time"
     t.time "closing_time"
     t.integer "status", default: 0, null: false
+    t.integer "tipo_gestion_reserva", default: 0, null: false
     t.index ["category"], name: "index_establishments_on_category"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["country_id"], name: "index_establishments_on_country_id"
     t.index ["status"], name: "index_establishments_on_status"
+    t.index ["tipo_gestion_reserva"], name: "index_establishments_on_tipo_gestion_reserva"
     t.index ["user_id"], name: "index_establishments_on_user_id"
+  end
+
+  create_table "event_vendedores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "user_id"], name: "index_event_vendedores_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_vendedores_on_event_id"
+    t.index ["user_id"], name: "index_event_vendedores_on_user_id"
+  end
+
+  create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "event_date"
+    t.string "location"
+    t.string "maps_url"
+    t.decimal "ticket_price", precision: 10, scale: 2
+    t.integer "total_tickets"
+    t.integer "available_tickets"
+    t.string "image"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_date"], name: "index_events_on_event_date"
+    t.index ["status"], name: "index_events_on_status"
+  end
+
+  create_table "experiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "duration"
+    t.decimal "price", precision: 10, scale: 2, null: false
+    t.text "requirements"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_experiences_on_establishment_id"
   end
 
   create_table "galleries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -256,6 +324,32 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.index ["user_id"], name: "index_payment_receipts_on_user_id"
   end
 
+  create_table "payphone_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "payable_type"
+    t.bigint "payable_id"
+    t.bigint "user_id", null: false
+    t.bigint "transaction_id"
+    t.string "client_transaction_id", null: false
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "USD"
+    t.integer "status", default: 0, null: false
+    t.integer "status_code"
+    t.string "authorization_code"
+    t.string "card_brand"
+    t.string "card_last_digits"
+    t.string "phone_number"
+    t.string "email"
+    t.json "response_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.json "metadata"
+    t.index ["client_transaction_id"], name: "index_payphone_transactions_on_client_transaction_id", unique: true
+    t.index ["payable_type", "payable_id"], name: "index_payphone_transactions_on_payable"
+    t.index ["status"], name: "index_payphone_transactions_on_status"
+    t.index ["transaction_id"], name: "index_payphone_transactions_on_transaction_id"
+    t.index ["user_id"], name: "index_payphone_transactions_on_user_id"
+  end
+
   create_table "plan_prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "plan_type"
     t.integer "duration", default: 0
@@ -314,6 +408,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.index ["country_id"], name: "index_provinces_on_country_id"
   end
 
+  create_table "raffles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.integer "winning_number"
+    t.string "prize"
+    t.datetime "draw_date"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_raffles_on_event_id"
+    t.index ["status"], name: "index_raffles_on_status"
+  end
+
   create_table "redemptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "reward_id", null: false
@@ -350,6 +456,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.index ["restaurant_id"], name: "index_restaurant_hours_on_restaurant_id"
   end
 
+  create_table "restaurant_tables", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "restaurant_id", null: false
+    t.string "name", null: false
+    t.string "table_type"
+    t.integer "seats", null: false
+    t.integer "quantity", default: 1
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["restaurant_id"], name: "index_restaurant_tables_on_restaurant_id"
+  end
+
   create_table "restaurants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "cuisine_type"
@@ -378,6 +496,42 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.index ["establishment_id"], name: "index_rewards_on_establishment_id"
   end
 
+  create_table "room_amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "room_id", null: false
+    t.bigint "amenity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["amenity_id"], name: "index_room_amenities_on_amenity_id"
+    t.index ["room_id", "amenity_id"], name: "index_room_amenities_on_room_id_and_amenity_id", unique: true
+    t.index ["room_id"], name: "index_room_amenities_on_room_id"
+  end
+
+  create_table "room_beds", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "room_id", null: false
+    t.string "bed_type", null: false
+    t.integer "quantity", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["room_id"], name: "index_room_beds_on_room_id"
+  end
+
+  create_table "rooms", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "hotel_id"
+    t.string "name", null: false
+    t.string "room_type"
+    t.string "bed_type"
+    t.integer "num_beds"
+    t.decimal "price_per_night", precision: 10, scale: 2
+    t.integer "guest_capacity"
+    t.text "description"
+    t.integer "quantity", default: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "temporary_lodging_id"
+    t.index ["hotel_id"], name: "index_rooms_on_hotel_id"
+    t.index ["temporary_lodging_id"], name: "index_rooms_on_temporary_lodging_id"
+  end
+
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "plan_type"
     t.integer "status", default: 0
@@ -402,6 +556,39 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.integer "total_bathrooms"
     t.index ["establishment_id"], name: "index_temporary_lodgings_on_establishment_id"
     t.index ["lodging_type"], name: "index_temporary_lodgings_on_lodging_type"
+  end
+
+  create_table "tickets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "payphone_transaction_id"
+    t.string "ticket_code", null: false
+    t.integer "raffle_number", null: false
+    t.string "guest_name", null: false
+    t.string "guest_email"
+    t.string "guest_phone"
+    t.string "event_name", null: false
+    t.date "event_date"
+    t.string "event_location"
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.decimal "total_price", precision: 10, scale: 2
+    t.integer "status", default: 0, null: false
+    t.datetime "used_at"
+    t.text "qr_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "event_id"
+    t.integer "payment_method", default: 0, null: false
+    t.bigint "vendedor_id"
+    t.datetime "reserved_at"
+    t.index ["event_id"], name: "index_tickets_on_event_id"
+    t.index ["event_name"], name: "index_tickets_on_event_name"
+    t.index ["payment_method"], name: "index_tickets_on_payment_method"
+    t.index ["payphone_transaction_id"], name: "index_tickets_on_payphone_transaction_id"
+    t.index ["raffle_number"], name: "index_tickets_on_raffle_number", unique: true
+    t.index ["status"], name: "index_tickets_on_status"
+    t.index ["ticket_code"], name: "index_tickets_on_ticket_code", unique: true
+    t.index ["user_id"], name: "index_tickets_on_user_id"
+    t.index ["vendedor_id"], name: "index_tickets_on_vendedor_id"
   end
 
   create_table "transports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -484,7 +671,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
     t.date "birth_date"
     t.boolean "terms_accepted"
     t.boolean "marketing_consent"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
     t.index ["city_id"], name: "index_users_on_city_id"
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -525,12 +717,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "booking_requests", "establishments"
   add_foreign_key "booking_requests", "users"
-  add_foreign_key "bookings", "units"
+  add_foreign_key "bookings", "rooms"
+  add_foreign_key "bookings", "users"
   add_foreign_key "cities", "provinces"
+  add_foreign_key "custom_requests", "users"
+  add_foreign_key "custom_requests", "users", column: "assigned_to_id"
   add_foreign_key "establishment_amenities", "amenities"
   add_foreign_key "establishment_amenities", "establishments"
   add_foreign_key "establishments", "cities"
   add_foreign_key "establishments", "users"
+  add_foreign_key "event_vendedores", "events"
+  add_foreign_key "event_vendedores", "users"
+  add_foreign_key "experiences", "establishments"
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "getaways", "establishments"
@@ -542,17 +740,29 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_07_134900) do
   add_foreign_key "payment_methods", "establishments"
   add_foreign_key "payment_receipts", "subscriptions"
   add_foreign_key "payment_receipts", "users"
+  add_foreign_key "payphone_transactions", "users"
   add_foreign_key "plan_prices", "plans"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
+  add_foreign_key "raffles", "events"
   add_foreign_key "redemptions", "rewards"
   add_foreign_key "redemptions", "users"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"
+  add_foreign_key "restaurant_tables", "restaurants"
   add_foreign_key "restaurants", "establishments"
   add_foreign_key "rewards", "establishments"
+  add_foreign_key "room_amenities", "amenities"
+  add_foreign_key "room_amenities", "rooms"
+  add_foreign_key "room_beds", "rooms"
+  add_foreign_key "rooms", "hotels"
+  add_foreign_key "rooms", "temporary_lodgings"
   add_foreign_key "temporary_lodgings", "establishments"
+  add_foreign_key "tickets", "events"
+  add_foreign_key "tickets", "payphone_transactions"
+  add_foreign_key "tickets", "users"
+  add_foreign_key "tickets", "users", column: "vendedor_id"
   add_foreign_key "transports", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
