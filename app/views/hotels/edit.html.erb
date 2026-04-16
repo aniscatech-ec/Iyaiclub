@@ -22,7 +22,7 @@
 <%= form_with(model: @hotel,
               local: true,
               html: { multipart: true },
-              data: { controller: "form-validation gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
+              data: { controller: "form-validation gallery", model: "hotel" }) do |f| %>
 
   <%= f.fields_for :establishment do |e| %>
 

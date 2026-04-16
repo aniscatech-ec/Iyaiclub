@@ -35,7 +35,7 @@ class RestaurantsController < ApplicationController
     @restaurant = Restaurant.new
     @restaurant.build_establishment
     @restaurant.establishment.build_legal_info
-    @restaurant.establishment.galleries.build.gallery_images.build
+    # No pre-construir galerías — se agregan dinámicamente desde el formulario
 
     # Asignar categoría automáticamente para restaurantes
     @restaurant.establishment.category = :restaurante

@@ -36,7 +36,6 @@ class HotelsController < ApplicationController
     @hotel = Hotel.new
     @hotel.build_establishment
     @hotel.establishment.build_legal_info
-    @hotel.establishment.galleries.build
 
     # Asignar categoría automáticamente para hoteles
     @hotel.establishment.category = :hotel

@@ -52,7 +52,15 @@ class Establishment < ApplicationRecord
   accepts_nested_attributes_for :payment_methods
   # accepts_nested_attributes_for :galleries
   accepts_nested_attributes_for :galleries, allow_destroy: true,
-                                            reject_if: ->(attrs) { attrs["name"].blank? && attrs["id"].blank? }
+                                            reject_if: :reject_gallery_without_images?
+
+  def reject_gallery_without_images?(attrs)
+    return true if attrs["id"].blank? && attrs["name"].blank? &&
+                   (attrs["gallery_images_attributes"].blank? ||
+                    attrs["gallery_images_attributes"].values.all? { |ia| ia["file"].blank? && ia["id"].blank? })
+    attrs["name"] = "Galería" if attrs["name"].blank?
+    false
+  end
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
 

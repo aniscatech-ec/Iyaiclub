@@ -571,7 +571,7 @@
                       </div>
 
                       <div class="flex-grow-1">
-                        <%= gi.file_field :file, direct_upload: true, class: "form-control form-control-sm" %>
+                        <%= gi.file_field :file, class: "form-control form-control-sm" %>
                         <div class="form-check form-check-inline mt-1">
                           <%= gi.check_box :_destroy, {}, "1", "0" %>
                           <%= gi.label :_destroy, "Eliminar", class: "form-check-label ms-1 text-danger small" %>
@@ -759,7 +759,7 @@
                     <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][id]" id="">
                     <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][_destroy]" value="false" class="gallery-image-mark-destroy">
                     <div class="flex-grow-1">
-                        <input type="file" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][file]" direct_upload="true" class="form-control form-control-sm">
+                        <input type="file" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][file]" class="form-control form-control-sm">
                     </div>
                     <div class="ms-2">
                         <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger rounded-pill"><i class="fas fa-times"></i></a>

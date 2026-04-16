@@ -2,7 +2,7 @@
   @hotel = hotel
   est = hotel.establishment
   legal = est.legal_info
-  cover_image = est.galleries.joins(:gallery_images).first&.gallery_images&.find { |gi| gi.file.attached? }
+  cover_image = est.galleries.flat_map(&:gallery_images).find { |gi| gi.file.attached? }
 %>
 
 <div class="hotel-show-page">
