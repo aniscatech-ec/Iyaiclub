@@ -7,11 +7,14 @@ class Vendedor::TicketsController < ApplicationController
   layout "dashboard"
 
   def index
-    @tickets = @event.tickets
-                     .where(vendedor: current_user)
-                     .order(created_at: :desc)
+    @all_tickets = @event.tickets.where(vendedor: current_user)
+    @buyers      = @all_tickets.distinct.order(:guest_name).pluck(:guest_name).compact.reject(&:blank?)
+    @codes       = @all_tickets.order(:ticket_code).pluck(:ticket_code).compact
 
-    @tickets = @tickets.where(status: params[:status]) if params[:status].present?
+    @tickets = @all_tickets.order(created_at: :desc)
+    @tickets = @tickets.where(status: params[:status])         if params[:status].present?
+    @tickets = @tickets.where(guest_name: params[:buyer])      if params[:buyer].present?
+    @tickets = @tickets.where(ticket_code: params[:code])      if params[:code].present?
   end
 
   def acreditar

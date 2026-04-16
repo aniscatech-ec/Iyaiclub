@@ -4,8 +4,9 @@ class Turista::MembershipsController < ApplicationController
   layout "dashboard"
 
   def index
-    @active_membership = current_user.active_membership
-    @available_plans = PlanPrice.where(target_role: :turista).includes(:plan)
+    @active_membership  = current_user.active_membership
+    @available_plans    = PlanPrice.where(target_role: :turista).includes(:plan)
+    @pending_membership = current_user.subscriptions.where(status: :reservada).order(created_at: :desc).first
   end
 
   # POST /turista/memberships/:id/cancel

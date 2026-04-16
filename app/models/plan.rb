@@ -1,5 +1,7 @@
 class Plan < ApplicationRecord
   has_many :plan_prices, dependent: :destroy
+  has_many :plan_vendedores, dependent: :destroy
+  has_many :vendedores, through: :plan_vendedores, source: :vendedor
 
   validates :name, presence: true
 

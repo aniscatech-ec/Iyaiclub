@@ -10,5 +10,7 @@ class Vendedor::DashboardController < ApplicationController
     @pending_count = Ticket.reservados
                            .where(vendedor: current_user)
                            .count
+    @pending_memberships_count = Subscription.where(vendedor: current_user, status: :reservada).count
+    @memberships = Subscription.where(vendedor: current_user).includes(:subscribable)
   end
 end

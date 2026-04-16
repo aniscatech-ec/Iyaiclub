@@ -1,14 +1,17 @@
 class Subscription < ApplicationRecord
   # belongs_to :establishment
   belongs_to :subscribable, polymorphic: true
+  belongs_to :vendedor, class_name: "User", optional: true
 
   # enum :plan_type, basico: 0, vip: 1
   # enum :duration,  mensual: 0, anual: 2
-  enum :status, pendiente: 0, activada: 1, vencida: 2, cancelada: 3
+  enum :status, pendiente: 0, activada: 1, vencida: 2, cancelada: 3, reservada: 4, suspendida: 5
   enum :payment_method, transferencia: 0, tarjeta: 1, efectivo: 2
   # cancellation_type: 0 = por_usuario (cancela pero mantiene beneficios hasta end_date),
   #                    1 = por_admin, 2 = por_impago (se activa prórroga de 5 días)
   enum :cancellation_type, por_usuario: 0, por_admin: 1, por_impago: 2
+
+  RESERVATION_TIMEOUT = nil
 
   GRACE_PERIOD_DAYS = 5
 
@@ -80,6 +83,46 @@ class Subscription < ApplicationRecord
   # Expira la membresía definitivamente (fin de prórroga o fin normal)
   def expire!
     update!(status: :vencida)
+  end
+
+  # Flujo de vendedor: membresía reservada por transferencia pendiente de cobro
+  def acreditar!
+    set_dates
+    update!(status: :activada)
+  end
+
+  def rechazar!
+    update!(status: :cancelada)
+  end
+
+  # Vendedor suspende temporalmente: los beneficios se desactivan
+  def suspender!
+    update!(status: :suspendida, suspended_at: Time.current)
+  end
+
+  # Vendedor reactiva una membresía suspendida
+  def reactivar!
+    update!(status: :activada, suspended_at: nil)
+  end
+
+  def reservation_expired?
+    false
+  end
+
+  def time_remaining
+    nil
+  end
+
+  def subscriber_name
+    subscribable&.name || "Usuario eliminado"
+  end
+
+  def subscriber_email
+    subscribable&.email
+  end
+
+  def subscriber_phone
+    subscribable&.try(:phone) || subscribable&.try(:whatsapp)
   end
 
   validate :only_one_active_subscription_for_tourist, on: :create

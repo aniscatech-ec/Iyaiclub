@@ -1,0 +1,293 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-id-card me-2" style="color: var(--brand-orange);"></i>
+      Membresías por Transferencia
+    </h3>
+    <%= link_to vendedor_dashboard_index_path, class: "btn btn-outline-secondary" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <!-- Filtros de estado + búsqueda -->
+  <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+    <div class="btn-group btn-group-sm">
+      <%= link_to "Todas", vendedor_memberships_path(subscriber: params[:subscriber], plan: params[:plan]),
+          class: "btn #{params[:status].blank? ? 'btn-primary' : 'btn-outline-primary'}" %>
+      <%= link_to "Pendientes", vendedor_memberships_path(status: :reservada, subscriber: params[:subscriber], plan: params[:plan]),
+          class: "btn #{params[:status] == 'reservada' ? 'btn-warning' : 'btn-outline-warning'}" %>
+      <%= link_to "Acreditadas", vendedor_memberships_path(status: :activada, subscriber: params[:subscriber], plan: params[:plan]),
+          class: "btn #{params[:status] == 'activada' ? 'btn-success' : 'btn-outline-success'}" %>
+      <%= link_to "Suspendidas", vendedor_memberships_path(status: :suspendida, subscriber: params[:subscriber], plan: params[:plan]),
+          class: "btn #{params[:status] == 'suspendida' ? 'btn-secondary' : 'btn-outline-secondary'}" %>
+      <%= link_to "Rechazadas", vendedor_memberships_path(status: :cancelada, subscriber: params[:subscriber], plan: params[:plan]),
+          class: "btn #{params[:status] == 'cancelada' ? 'btn-danger' : 'btn-outline-danger'}" %>
+    </div>
+
+    <%= form_with url: vendedor_memberships_path, method: :get, class: "d-flex flex-wrap gap-2 ms-auto align-items-center" do |f| %>
+      <%= hidden_field_tag :status, params[:status] if params[:status].present? %>
+
+      <datalist id="subscribers-list">
+        <% @subscribers.each do |name| %>
+          <option value="<%= name %>">
+        <% end %>
+      </datalist>
+
+      <datalist id="plans-list">
+        <% @plans.each do |plan| %>
+          <option value="<%= plan %>">
+        <% end %>
+      </datalist>
+
+      <div class="input-group input-group-sm" style="min-width: 180px;">
+        <span class="input-group-text"><i class="fas fa-user"></i></span>
+        <%= select_tag :subscriber,
+              options_for_select([["Todos los suscriptores", ""]] + @subscribers.map { |n| [n, n] }, params[:subscriber]),
+              class: "form-select form-select-sm", style: "min-width: 180px;" %>
+      </div>
+
+      <div class="input-group input-group-sm" style="min-width: 150px;">
+        <span class="input-group-text"><i class="fas fa-crown"></i></span>
+        <%= select_tag :plan,
+              options_for_select([["Todos los planes", ""]] + @plans, params[:plan]),
+              class: "form-select form-select-sm", style: "min-width: 150px;" %>
+      </div>
+
+      <%= f.submit "Filtrar", class: "btn btn-sm btn-outline-secondary" %>
+      <% if params[:subscriber].present? || params[:plan].present? %>
+        <%= link_to "✕", vendedor_memberships_path(status: params[:status]),
+            class: "btn btn-sm btn-outline-danger", title: "Limpiar filtros" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body px-4 pb-4">
+      <% if @memberships.any? %>
+        <%= form_with url: bulk_acreditar_vendedor_memberships_path, method: :patch, id: "bulk-memberships-form" do |f| %>
+
+          <!-- Barra de acciones masivas -->
+          <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
+            <span class="fw-semibold me-2">
+              <span id="selected-count">0</span> membresía(s) seleccionada(s)
+            </span>
+            <button type="submit" id="btn-bulk-acreditar"
+                    class="btn btn-success btn-sm"
+                    data-turbo-confirm="¿Acreditar las membresías seleccionadas? Esto activa su plan.">
+              <i class="fas fa-check me-1"></i> Acreditar seleccionadas
+            </button>
+            <button type="submit" id="btn-bulk-rechazar"
+                    class="btn btn-danger btn-sm"
+                    formaction="<%= bulk_rechazar_vendedor_memberships_path %>"
+                    data-turbo-confirm="¿Rechazar las membresías seleccionadas?">
+              <i class="fas fa-times me-1"></i> Rechazar seleccionadas
+            </button>
+            <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
+              <i class="fas fa-square me-1"></i> Deseleccionar todo
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 36px;">
+                    <input type="checkbox" id="select-all" class="form-check-input" title="Seleccionar todas las pendientes">
+                  </th>
+                  <th>Suscriptor</th>
+                  <th>Plan</th>
+                  <th>Monto</th>
+                  <th>Estado</th>
+                  <th>Tiempo</th>
+                  <th>Contacto</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @memberships.each do |membership| %>
+                  <% plan_price = PlanPrice.find_by(id: membership.plan_type) %>
+                  <tr class="<%= 'table-warning' if membership.reservada? %>">
+                    <td>
+                      <% if membership.reservada? %>
+                        <input type="checkbox" name="membership_ids[]" value="<%= membership.id %>"
+                               class="form-check-input membership-checkbox">
+                      <% end %>
+                    </td>
+                    <td>
+                      <strong><%= membership.subscriber_name %></strong>
+                      <% if membership.subscriber_email.present? %>
+                        <br><small class="text-muted"><%= membership.subscriber_email %></small>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if plan_price %>
+                        <span class="badge bg-info text-dark"><%= plan_price.plan_type&.humanize %></span>
+                        <br><small class="text-muted"><%= plan_price.display_duration %></small>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if plan_price %>
+                        <strong>$<%= number_with_precision(plan_price.price, precision: 2) %></strong>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% case membership.status %>
+                      <% when "reservada" %>
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                      <% when "activada" %>
+                        <span class="badge bg-success">Acreditada</span>
+                      <% when "suspendida" %>
+                        <span class="badge bg-secondary"><i class="fas fa-pause me-1"></i>Suspendida</span>
+                      <% when "cancelada" %>
+                        <span class="badge bg-danger">Rechazada</span>
+                      <% when "pendiente" %>
+                        <span class="badge bg-secondary">Pendiente admin</span>
+                      <% else %>
+                        <span class="badge bg-secondary"><%= membership.status&.humanize %></span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if membership.reservada? %>
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+                      <% else %>
+                        <small class="text-muted"><%= membership.created_at.strftime('%d/%m/%Y %H:%M') %></small>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% phone = membership.subscriber_phone %>
+                      <% if phone.present? %>
+                        <%= link_to whatsapp_link(phone), target: "_blank", class: "text-success" do %>
+                          <i class="fab fa-whatsapp me-1"></i><%= phone %>
+                        <% end %>
+                      <% else %>
+                        <span class="text-muted small">Sin teléfono</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if membership.reservada? %>
+                        <div class="d-flex gap-1 flex-wrap">
+                          <%= link_to acreditar_vendedor_membership_path(membership),
+                              data: { turbo_method: :patch, turbo_confirm: "¿Acreditar membresía de #{membership.subscriber_name}? Esto activa su plan." },
+                              class: "btn btn-success btn-sm" do %>
+                            <i class="fas fa-check me-1"></i> Acreditar
+                          <% end %>
+                          <%= link_to rechazar_vendedor_membership_path(membership),
+                              data: { turbo_method: :patch, turbo_confirm: "¿Rechazar membresía de #{membership.subscriber_name}?" },
+                              class: "btn btn-danger btn-sm" do %>
+                            <i class="fas fa-times me-1"></i> Rechazar
+                          <% end %>
+                        </div>
+                      <% elsif membership.activada? %>
+                        <div class="d-flex gap-1 flex-wrap">
+                          <%= link_to suspender_vendedor_membership_path(membership),
+                              data: { turbo_method: :patch, turbo_confirm: "¿Suspender membresía de #{membership.subscriber_name}? El usuario perderá los beneficios temporalmente." },
+                              class: "btn btn-warning btn-sm" do %>
+                            <i class="fas fa-pause me-1"></i> Suspender
+                          <% end %>
+                          <%= link_to vendedor_membership_path(membership),
+                              data: { turbo_method: :delete, turbo_confirm: "¿Eliminar membresía de #{membership.subscriber_name}? Esta acción es permanente e irreversible." },
+                              class: "btn btn-outline-danger btn-sm" do %>
+                            <i class="fas fa-trash me-1"></i> Eliminar
+                          <% end %>
+                        </div>
+                      <% elsif membership.suspendida? %>
+                        <div class="d-flex gap-1 flex-wrap">
+                          <%= link_to reactivar_vendedor_membership_path(membership),
+                              data: { turbo_method: :patch, turbo_confirm: "¿Reactivar membresía de #{membership.subscriber_name}? El usuario recuperará sus beneficios." },
+                              class: "btn btn-success btn-sm" do %>
+                            <i class="fas fa-play me-1"></i> Reactivar
+                          <% end %>
+                          <%= link_to vendedor_membership_path(membership),
+                              data: { turbo_method: :delete, turbo_confirm: "¿Eliminar membresía de #{membership.subscriber_name}? Esta acción es permanente e irreversible." },
+                              class: "btn btn-outline-danger btn-sm" do %>
+                            <i class="fas fa-trash me-1"></i> Eliminar
+                          <% end %>
+                        </div>
+                      <% elsif membership.cancelada? %>
+                        <div class="d-flex gap-1 flex-wrap">
+                          <span class="text-danger small"><i class="fas fa-times-circle"></i> Rechazada</span>
+                          <%= link_to vendedor_membership_path(membership),
+                              data: { turbo_method: :delete, turbo_confirm: "¿Eliminar membresía de #{membership.subscriber_name}? Esta acción es permanente e irreversible." },
+                              class: "btn btn-outline-danger btn-sm" do %>
+                            <i class="fas fa-trash me-1"></i> Eliminar
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+        <% end %>
+      <% else %>
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-id-card fa-3x mb-3"></i>
+          <p>No hay membresías asignadas con este filtro</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const selectAll    = document.getElementById('select-all');
+  const toolbar      = document.getElementById('bulk-toolbar');
+  const selectedCount = document.getElementById('selected-count');
+  const form         = document.getElementById('bulk-memberships-form');
+
+  function getChecked() {
+    return document.querySelectorAll('.membership-checkbox:checked');
+  }
+
+  function updateToolbar() {
+    const n = getChecked().length;
+    if (selectedCount) selectedCount.textContent = n;
+    if (!toolbar) return;
+    if (n > 0) {
+      toolbar.classList.remove('d-none');
+      toolbar.classList.add('d-flex');
+    } else {
+      toolbar.classList.add('d-none');
+      toolbar.classList.remove('d-flex');
+    }
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      document.querySelectorAll('.membership-checkbox').forEach(cb => cb.checked = this.checked);
+      updateToolbar();
+    });
+  }
+
+  document.querySelectorAll('.membership-checkbox').forEach(cb => {
+    cb.addEventListener('change', function () {
+      const all     = document.querySelectorAll('.membership-checkbox');
+      const checked = document.querySelectorAll('.membership-checkbox:checked');
+      if (selectAll) selectAll.checked = all.length === checked.length && all.length > 0;
+      updateToolbar();
+    });
+  });
+
+  document.getElementById('btn-deselect-all')?.addEventListener('click', function () {
+    document.querySelectorAll('.membership-checkbox').forEach(cb => cb.checked = false);
+    if (selectAll) selectAll.checked = false;
+    updateToolbar();
+  });
+
+  ['btn-bulk-acreditar', 'btn-bulk-rechazar'].forEach(function(id) {
+    document.getElementById(id)?.addEventListener('click', function(e) {
+      if (getChecked().length === 0) {
+        e.preventDefault();
+        alert('Selecciona al menos una membresía.');
+      }
+    });
+  });
+})();
+</script>

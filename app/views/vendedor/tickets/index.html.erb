@@ -10,39 +10,58 @@
   </div>
 
   <!-- Filtros -->
-  <div class="mb-3">
+  <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
     <div class="btn-group btn-group-sm">
-      <%= link_to "Todos", vendedor_event_tickets_path(@event),
+      <%= link_to "Todos", vendedor_event_tickets_path(@event, q: params[:q]),
           class: "btn #{params[:status].blank? ? 'btn-primary' : 'btn-outline-primary'}" %>
-      <%= link_to "Pendientes", vendedor_event_tickets_path(@event, status: :reservado),
+      <%= link_to "Pendientes", vendedor_event_tickets_path(@event, status: :reservado, q: params[:q]),
           class: "btn #{params[:status] == 'reservado' ? 'btn-warning' : 'btn-outline-warning'}" %>
-      <%= link_to "Acreditados", vendedor_event_tickets_path(@event, status: :activo),
+      <%= link_to "Acreditados", vendedor_event_tickets_path(@event, status: :activo, q: params[:q]),
           class: "btn #{params[:status] == 'activo' ? 'btn-success' : 'btn-outline-success'}" %>
-      <%= link_to "Rechazados", vendedor_event_tickets_path(@event, status: :cancelado),
+      <%= link_to "Rechazados", vendedor_event_tickets_path(@event, status: :cancelado, q: params[:q]),
           class: "btn #{params[:status] == 'cancelado' ? 'btn-danger' : 'btn-outline-danger'}" %>
     </div>
+
+    <%= form_with url: vendedor_event_tickets_path(@event), method: :get, class: "d-flex flex-wrap gap-2 ms-auto align-items-center" do |f| %>
+      <%= hidden_field_tag :status, params[:status] if params[:status].present? %>
+
+      <%= select_tag :buyer,
+            options_for_select([["Todos los compradores", ""]] + @buyers.map { |b| [b, b] }, params[:buyer]),
+            class: "form-select form-select-sm", style: "min-width: 180px;" %>
+
+      <%= select_tag :code,
+            options_for_select([["Todos los códigos", ""]] + @codes.map { |c| [c, c] }, params[:code]),
+            class: "form-select form-select-sm", style: "min-width: 160px;" %>
+
+      <%= f.submit "Filtrar", class: "btn btn-sm btn-outline-secondary" %>
+      <% if params[:buyer].present? || params[:code].present? %>
+        <%= link_to "✕", vendedor_event_tickets_path(@event, status: params[:status]),
+            class: "btn btn-sm btn-outline-danger", title: "Limpiar filtros" %>
+      <% end %>
+    <% end %>
   </div>
 
   <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body px-4 pb-4">
       <% if @tickets.any? %>
-        <%= form_with url: "#", method: :patch, id: "bulk-tickets-form", data: { turbo: false } do |f| %>
+        <%= form_with url: bulk_acreditar_vendedor_event_tickets_path(@event), method: :patch, id: "bulk-tickets-form" do |f| %>
+          <%= hidden_field_tag :_bulk_action, "acreditar" %>
 
           <!-- Barra de acciones masivas -->
           <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
             <span class="fw-semibold me-2">
               <span id="selected-count">0</span> ticket(s) seleccionado(s)
             </span>
-            <button type="button" id="btn-bulk-acreditar"
+            <button type="submit" id="btn-bulk-acreditar"
                     class="btn btn-success btn-sm"
                     data-url="<%= bulk_acreditar_vendedor_event_tickets_path(@event) %>"
-                    data-confirm-msg="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
+                    data-turbo-confirm="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
               <i class="fas fa-check me-1"></i> Acreditar seleccionados
             </button>
-            <button type="button" id="btn-bulk-rechazar"
+            <button type="submit" id="btn-bulk-rechazar"
                     class="btn btn-danger btn-sm"
-                    data-url="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
-                    data-confirm-msg="¿Rechazar los tickets seleccionados?">
+                    formaction="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
+                    data-turbo-confirm="¿Rechazar los tickets seleccionados?">
               <i class="fas fa-times me-1"></i> Rechazar seleccionados
             </button>
             <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
@@ -97,14 +116,7 @@
                     </td>
                     <td>
                       <% if ticket.reservado? %>
-                        <% remaining = ticket.time_remaining %>
-                        <% if remaining > 0 %>
-                          <span class="badge bg-dark">
-                            <%= remaining / 60 %>:<%= format('%02d', remaining % 60) %>
-                          </span>
-                        <% else %>
-                          <span class="badge bg-danger">Expirado</span>
-                        <% end %>
+                        <span class="badge bg-warning text-dark">Pendiente</span>
                       <% else %>
                         <small class="text-muted"><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small>
                       <% end %>
@@ -196,33 +208,14 @@
     updateToolbar();
   });
 
-  function submitBulk(btn) {
-    const checked = getChecked();
-    if (checked.length === 0) return;
-    if (!confirm(btn.dataset.confirmMsg)) return;
-
-    form.action = btn.dataset.url;
-    form.method = 'post';
-
-    // Añadir _method=patch
-    let methodInput = form.querySelector('input[name="_method"]');
-    if (!methodInput) {
-      methodInput = document.createElement('input');
-      methodInput.type = 'hidden';
-      methodInput.name = '_method';
-      form.appendChild(methodInput);
-    }
-    methodInput.value = 'patch';
-
-    form.submit();
-  }
-
-  document.getElementById('btn-bulk-acreditar')?.addEventListener('click', function () {
-    submitBulk(this);
-  });
-
-  document.getElementById('btn-bulk-rechazar')?.addEventListener('click', function () {
-    submitBulk(this);
+  // Validar que haya al menos un ticket seleccionado antes de hacer submit
+  ['btn-bulk-acreditar', 'btn-bulk-rechazar'].forEach(function(id) {
+    document.getElementById(id)?.addEventListener('click', function(e) {
+      if (getChecked().length === 0) {
+        e.preventDefault();
+        alert('Selecciona al menos un ticket.');
+      }
+    });
   });
 })();
 </script>

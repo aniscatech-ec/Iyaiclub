@@ -211,20 +211,9 @@
                 <% end %>
               </li>
             <% end %>
-            <% if current_user.vendedor? %>
-              <li>
-                <%= link_to vendedor_dashboard_index_path, class: "nav-link" do %>
-                  <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
-                    <use xlink:href="#speedometer2"></use>
-                  </svg>
-                  Dashboard
-                <% end %>
-              </li>
-            <% end %>
-
           <% end %>
 
-          <% if user_signed_in? && !current_user.turista? %>
+          <% if user_signed_in? && !current_user.turista? && !current_user.vendedor? %>
             <li>
               <%= link_to subscriptions_path, class: "nav-link" do %>
                 <svg class="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">

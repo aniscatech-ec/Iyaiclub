@@ -71,11 +71,12 @@ Rails.application.routes.draw do
       patch :cancel
     end
     collection do
-      get :establishments_for_user
-      get :selector
-      get :index_establishments # Para afiliados → mostrar sus establecimientos
-      get :establishment_plans
-      get :tourist_plans
+      get  :establishments_for_user
+      get  :selector
+      get  :index_establishments
+      get  :establishment_plans
+      get  :tourist_plans
+      post :reservar_transferencia
     end
   end
 
@@ -153,6 +154,18 @@ Rails.application.routes.draw do
         end
       end
     end
+    resources :memberships, only: [:index, :destroy] do
+      member do
+        patch :acreditar
+        patch :rechazar
+        patch :suspender
+        patch :reactivar
+      end
+      collection do
+        patch :bulk_acreditar
+        patch :bulk_rechazar
+      end
+    end
   end
   namespace :afiliado do
     get "dashboard/index"
@@ -202,6 +215,11 @@ Rails.application.routes.draw do
 
     resources :plans do
       resources :plan_prices, shallow: true, except: [:index, :show]
+      resources :plan_vendedores, only: [:create, :destroy], shallow: true do
+        member do
+          patch :toggle_active
+        end
+      end
     end
 
     resources :memberships, only: [:index, :show, :update, :destroy] do
