@@ -90,6 +90,7 @@ class HotelsController < ApplicationController
     end
 
     if @hotel.save
+      process_new_gallery_uploads(@hotel.establishment)
       redirect_to @hotel, notice: "Hotel creado correctamente."
     else
       flash.now[:alert] = helpers.validation_summary_text(@hotel) || "No pudimos guardar el hotel. Revisa los campos marcados en rojo."
@@ -115,21 +116,8 @@ class HotelsController < ApplicationController
 
   def update
     if @hotel.update(hotel_params)
-      # Procesar uploads adicionales por galería (si el formulario envió archivos)
-      if params[:gallery_uploads].present?
-        params[:gallery_uploads].each do |gallery_id, files|
-          next if files.blank?
-
-          gallery = Gallery.find_by(id: gallery_id.to_i)
-          next unless gallery
-
-          files.each do |uploaded_file|
-            # crea un GalleryImage por cada archivo (ajusta según tu modelo)
-            gallery.gallery_images.create(file: uploaded_file)
-          end
-        end
-      end
-
+      process_existing_gallery_uploads(@hotel.establishment)
+      process_new_gallery_uploads(@hotel.establishment)
       redirect_to @hotel, notice: "Hotel actualizado correctamente."
     else
       flash.now[:alert] = helpers.validation_summary_text(@hotel) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
@@ -164,6 +152,29 @@ class HotelsController < ApplicationController
       establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities,
                        { galleries: { gallery_images: { file_attachment: :blob } } }]
     ).find(params[:id])
+  end
+
+  # Procesa galerías existentes: agrega imágenes extra vía gallery_uploads[id][]=file
+  def process_existing_gallery_uploads(establishment)
+    return unless params[:gallery_uploads].present?
+    params[:gallery_uploads].each do |gallery_id, files|
+      next if files.blank?
+      gallery = establishment.galleries.find_by(id: gallery_id.to_i)
+      next unless gallery
+      Array(files).each { |f| gallery.gallery_images.create(file: f) if f.respond_to?(:read) }
+    end
+  end
+
+  # Procesa galerías nuevas enviadas por gallery_controller.js:
+  # new_gallery_uploads[KEY][name] y new_gallery_uploads[KEY][files][]
+  def process_new_gallery_uploads(establishment)
+    return unless params[:new_gallery_uploads].present?
+    params[:new_gallery_uploads].each do |_key, data|
+      files = Array(data[:files]).select { |f| f.respond_to?(:read) }
+      next if files.empty?
+      gallery = establishment.galleries.create(name: data[:name].presence || "Galería")
+      files.each { |file| gallery.gallery_images.create(file: file) }
+    end
   end
 
   def authorize_create_hotel!

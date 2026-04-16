@@ -83,6 +83,7 @@ class RestaurantsController < ApplicationController
     end
 
     if @restaurant.save
+      process_new_gallery_uploads(@restaurant.establishment)
       redirect_to @restaurant, notice: "Restaurante creado correctamente."
     else
       flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar el restaurante. Revisa los campos marcados en rojo."
@@ -105,21 +106,8 @@ class RestaurantsController < ApplicationController
 
   def update
     if @restaurant.update(restaurant_params)
-      # Procesar uploads adicionales por galería (si el formulario envió archivos)
-      if params[:gallery_uploads].present?
-        params[:gallery_uploads].each do |gallery_id, files|
-          next if files.blank?
-
-          gallery = Gallery.find_by(id: gallery_id.to_i)
-          next unless gallery
-
-          files.each do |uploaded_file|
-            # crea un GalleryImage por cada archivo (ajusta según tu modelo)
-            gallery.gallery_images.create(file: uploaded_file)
-          end
-        end
-      end
-
+      process_existing_gallery_uploads(@restaurant.establishment)
+      process_new_gallery_uploads(@restaurant.establishment)
       redirect_to @restaurant, notice: "Restaurante actualizado correctamente."
     else
       flash.now[:alert] = helpers.validation_summary_text(@restaurant) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
@@ -145,6 +133,26 @@ class RestaurantsController < ApplicationController
       establishment: [:legal_info, :user, :country, :city, :province, :units, :amenities,
                        { galleries: { gallery_images: { file_attachment: :blob } } }]
     ).find(params[:id])
+  end
+
+  def process_existing_gallery_uploads(establishment)
+    return unless params[:gallery_uploads].present?
+    params[:gallery_uploads].each do |gallery_id, files|
+      next if files.blank?
+      gallery = establishment.galleries.find_by(id: gallery_id.to_i)
+      next unless gallery
+      Array(files).each { |f| gallery.gallery_images.create(file: f) if f.respond_to?(:read) }
+    end
+  end
+
+  def process_new_gallery_uploads(establishment)
+    return unless params[:new_gallery_uploads].present?
+    params[:new_gallery_uploads].each do |_key, data|
+      files = Array(data[:files]).select { |f| f.respond_to?(:read) }
+      next if files.empty?
+      gallery = establishment.galleries.create(name: data[:name].presence || "Galería")
+      files.each { |file| gallery.gallery_images.create(file: file) }
+    end
   end
 
   def authorize_create_restaurant!
