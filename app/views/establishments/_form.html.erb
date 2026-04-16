@@ -31,15 +31,15 @@
         </div>
 
         <div class="col-md-6">
-          <%= form.label :category, "Categoría", class: "form-label fw-semibold" %>
+          <%= form.label :category, "Categoría", class: "form-label fw-semibold required-field" %>
           <%= form.select :category, Establishment.categories.keys.map { |s| [s.titleize, s] },
-              { prompt: "Seleccione categoría" }, class: "form-select" %>
+              { prompt: "Seleccione categoría" }, class: "form-select", required: true %>
         </div>
 
         <div class="col-md-6">
-          <%= form.label :status, "Estado", class: "form-label fw-semibold" %>
+          <%= form.label :status, "Estado", class: "form-label fw-semibold required-field" %>
           <%= form.select :status, Establishment.statuses.keys.map { |s| [s.humanize.capitalize, s] },
-              { prompt: "Seleccione estado" }, class: "form-select" %>
+              { prompt: "Seleccione estado" }, class: "form-select", required: true %>
         </div>
 
         <div class="col-12">
@@ -87,7 +87,7 @@
           <%= form.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
           <div class="input-group">
             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-            <%= form.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+            <%= form.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true, pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
           </div>
         </div>
 

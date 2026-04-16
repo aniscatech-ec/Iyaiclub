@@ -33,8 +33,27 @@ export default class extends Controller {
       if (input.closest("template")) return
 
       const value = input.value ? input.value.trim() : ""
+      let invalid = false
+      let errorMsg = null
+
       if (!value) {
-        missingFields.push(this.getFieldLabel(input))
+        invalid = true
+      } else if (input.type === "email") {
+        const emailPattern = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/
+        if (!emailPattern.test(value)) {
+          invalid = true
+          errorMsg = `${this.getFieldLabel(input)} (formato inválido)`
+        }
+      } else if (input.pattern) {
+        const pattern = new RegExp(`^(?:${input.pattern})$`)
+        if (!pattern.test(value)) {
+          invalid = true
+          errorMsg = `${this.getFieldLabel(input)} (formato inválido)`
+        }
+      }
+
+      if (invalid) {
+        missingFields.push(errorMsg || this.getFieldLabel(input))
         input.classList.add("is-invalid")
         input.addEventListener("input", () => input.classList.remove("is-invalid"), { once: true })
         input.addEventListener("change", () => input.classList.remove("is-invalid"), { once: true })

@@ -147,6 +147,10 @@ Rails.application.routes.draw do
           patch :acreditar
           patch :rechazar
         end
+        collection do
+          patch :bulk_acreditar
+          patch :bulk_rechazar
+        end
       end
     end
   end

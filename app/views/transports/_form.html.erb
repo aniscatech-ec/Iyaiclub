@@ -139,7 +139,8 @@
             <%= est.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-phone"></i></span>
-              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true,
+                  pattern: "[0-9]{7,15}" %>
             </div>
           </div>
 
@@ -147,7 +148,8 @@
             <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true,
+                  pattern: "[0-9]{10,15}" %>
             </div>
             <small class="text-muted">Con código de país, sin + ni espacios</small>
           </div>
@@ -156,7 +158,8 @@
             <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true,
+                  pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
             </div>
           </div>
 
@@ -282,15 +285,15 @@
 
             <div class="col-md-6">
               <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
-              <%= li.select :document_type, [["RUC", "RUC"], ["Cédula", "Cedula"], ["Pasaporte", "Pasaporte"]],
-                  { prompt: "Seleccione" }, class: "form-select", required: true %>
+              <%= li.select :document_type, [["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]],
+                  { prompt: "Seleccione" }, class: "form-select", required: true, id: "transport_document_type_select" %>
             </div>
 
             <div class="col-md-6">
               <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true %>
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true, id: "transport_document_number_input" %>
               </div>
             </div>
 
@@ -298,7 +301,8 @@
               <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true %>
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true,
+                    pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
               </div>
             </div>
 
@@ -306,7 +310,8 @@
               <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "072123456", required: true %>
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "072123456", required: true,
+                    pattern: "[0-9]{7,15}" %>
               </div>
             </div>
           </div>
@@ -480,87 +485,92 @@
 <% end %>
 
 <script>
-    // Intentar múltiples eventos para asegurar que el script se ejecute
     function initLocationScript() {
-        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
         const countrySelect = document.getElementById('establishment_country_id');
         const provinceSelect = document.getElementById('establishment_province_id');
         const citySelect = document.getElementById('establishment_city_id');
 
-        // Función para cargar provincias
-        function loadProvinces(countryId) {
+        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
+        const selectedCityId = citySelect ? citySelect.value : null;
+
+        function loadProvinces(countryId, restoreProvinceId) {
             if (!countryId) {
                 provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                 return;
             }
-
             fetch(`/locations/provinces/${countryId}`)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
                     provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                     data.forEach(province => {
-                        provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
+                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
                     });
                     citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
                 })
-                .catch(error => {
-                    console.error('Error loading provinces:', error);
-                    provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>';
-                });
+                .catch(() => { provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>'; });
         }
 
-        // Función para cargar ciudades
-        function loadCities(provinceId) {
+        function loadCities(provinceId, restoreCityId) {
             if (!provinceId) {
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                 return;
             }
-
             fetch(`/locations/cities/${provinceId}`)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
                     citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                     data.forEach(city => {
-                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
+                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
                     });
                 })
-                .catch(error => {
-                    console.error('Error loading cities:', error);
-                    citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
-                });
+                .catch(() => { citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>'; });
         }
 
-        // Event listeners
         if (countrySelect) {
             countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value);
+                loadProvinces(this.value, null);
             });
-
-            // Cargar provincias si hay un país preseleccionado
             if (countrySelect.value) {
-                loadProvinces(countrySelect.value);
+                loadProvinces(countrySelect.value, selectedProvinceId);
             }
         }
 
         if (provinceSelect) {
             provinceSelect.addEventListener('change', function() {
-                loadCities(this.value);
+                loadCities(this.value, null);
             });
         }
     }
 
-    // Múltiples intentos para asegurar que el script se ejecute
-    
-    // Intentar inmediatamente
     initLocationScript();
-    
-    // Intentar con DOMContentLoaded
     document.addEventListener('DOMContentLoaded', initLocationScript);
-    
-    // Intentar con turbo:load
     document.addEventListener('turbo:load', initLocationScript);
-    
-    // Intentar después de un pequeño delay
     setTimeout(initLocationScript, 500);
+
+    (function() {
+        const typeSelect = document.getElementById('transport_document_type_select');
+        const numberInput = document.getElementById('transport_document_number_input');
+        function updateDocumentPattern() {
+            if (!typeSelect || !numberInput) return;
+            switch (typeSelect.value) {
+                case 'ruc':       numberInput.pattern = '[0-9]{13}';      numberInput.maxLength = 13; break;
+                case 'cedula':    numberInput.pattern = '[0-9]{10}';      numberInput.maxLength = 10; break;
+                case 'pasaporte': numberInput.pattern = '[A-Za-z0-9]{6,15}'; numberInput.maxLength = 15; break;
+                default:          numberInput.removeAttribute('pattern');  numberInput.removeAttribute('maxlength'); break;
+            }
+        }
+        function init() {
+            if (typeSelect) {
+                typeSelect.addEventListener('change', updateDocumentPattern);
+                updateDocumentPattern();
+            }
+        }
+        init();
+        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('turbo:load', init);
+    })();
 </script>
