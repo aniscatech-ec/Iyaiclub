@@ -84,7 +84,7 @@
         <%= link_to event_path(event), class: "text-decoration-none" do %>
           <div class="position-relative" style="height: 220px; overflow: hidden;">
             <% if event.image.attached? %>
-              <%= image_tag event.image, class: "position-absolute top-0 start-0 w-100 h-100", style: "object-fit: cover; object-position: center top;" %>
+              <%= image_tag event.image, class: "position-absolute top-0 start-0 w-100 h-100", style: "object-fit: fill;" %>
             <% end %>
             <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center px-4" style="background: linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.1) 100%);">
               <div class="text-white">
