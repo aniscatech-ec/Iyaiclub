@@ -1,0 +1,281 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <%# ── Hero de perfil ── %>
+  <div class="card border-0 rounded-4 mb-4 overflow-hidden shadow-sm">
+    <div style="background: linear-gradient(135deg, var(--brand-orange, #EB633B) 0%, #c94a28 100%); min-height: 120px;"></div>
+    <div class="card-body px-4 pb-4 pt-0">
+      <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -40px;">
+        <%# Avatar con iniciales %>
+        <div class="d-flex align-items-center justify-content-center rounded-circle border border-4 border-white shadow flex-shrink-0"
+             style="width: 80px; height: 80px; background: var(--brand-cofee, #88682B); color: white; font-size: 1.8rem; font-weight: 700;">
+          <%= @user.name&.first&.upcase || "?" %>
+        </div>
+        <div class="flex-grow-1 pb-1">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <h4 class="fw-bold mb-0"><%= @user.name %></h4>
+            <span class="badge <%= @user.membership_badge_class %> rounded-pill">
+              <i class="fas fa-crown me-1"></i><%= @user.membership_display_name %>
+            </span>
+          </div>
+          <p class="text-muted mb-0 small"><%= @user.email %></p>
+        </div>
+        <%= link_to edit_turista_profile_path, class: "btn btn-outline-secondary btn-sm rounded-pill align-self-end" do %>
+          <i class="fas fa-pen me-1"></i> Editar perfil
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Stats rápidas ── %>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1" style="color: var(--brand-orange); font-size: 1.6rem; font-weight: 800;">
+          <%= number_with_delimiter(@total_points) %>
+        </div>
+        <small class="text-muted fw-semibold">Puntos disponibles</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1 text-success" style="font-size: 1.6rem; font-weight: 800;">
+          <%= @bookings_count %>
+        </div>
+        <small class="text-muted fw-semibold">Reservas confirmadas</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1" style="color: var(--brand-cofee); font-size: 1.6rem; font-weight: 800;">
+          <%= @user.user_points.count %>
+        </div>
+        <small class="text-muted fw-semibold">Movimientos de puntos</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <% if @pending_claims > 0 %>
+          <div class="mb-1 text-warning" style="font-size: 1.6rem; font-weight: 800;">
+            <%= @pending_claims %>
+          </div>
+          <small class="text-muted fw-semibold">Facturas en revisión</small>
+        <% else %>
+          <div class="mb-1 text-secondary" style="font-size: 1.6rem; font-weight: 800;">—</div>
+          <small class="text-muted fw-semibold">Sin facturas pendientes</small>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <%# ── Columna izquierda: info personal + membresía ── %>
+    <div class="col-12 col-lg-4">
+
+      <%# Info personal %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-user me-2" style="color: var(--brand-orange);"></i>
+            Información Personal
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <ul class="list-unstyled mb-0">
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-envelope text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Correo</small>
+                <span class="fw-semibold"><%= @user.email %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-phone text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Teléfono</small>
+                <span class="fw-semibold"><%= @user.phone.presence || "—" %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-birthday-cake text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Fecha de nacimiento</small>
+                <span class="fw-semibold">
+                  <%= @user.birth_date&.strftime("%d/%m/%Y") || "—" %>
+                </span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2">
+              <i class="fas fa-map-marker-alt text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Ubicación</small>
+                <span class="fw-semibold">
+                  <%= [@user.city&.name, @user.country&.name].compact.join(", ").presence || "—" %>
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <%# Membresía activa %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-crown me-2" style="color: #f0c040;"></i>
+            Mi Membresía
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @active_membership %>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span class="badge <%= @user.membership_badge_class %> fs-6 px-3 py-2 rounded-pill">
+                <%= @user.membership_display_name %>
+              </span>
+            </div>
+            <ul class="list-unstyled mb-3 small">
+              <li class="py-1 border-bottom d-flex justify-content-between">
+                <span class="text-muted">Válida hasta</span>
+                <strong><%= @active_membership.end_date&.strftime("%d/%m/%Y") %></strong>
+              </li>
+              <li class="py-1 border-bottom d-flex justify-content-between">
+                <span class="text-muted">Puntos por $1</span>
+                <strong><%= number_with_precision(@user.points_per_dollar, precision: 2) %> pts</strong>
+              </li>
+              <li class="py-1 border-bottom d-flex justify-content-between">
+                <span class="text-muted">Descuento</span>
+                <strong><%= @user.discount_percentage %>%</strong>
+              </li>
+              <li class="py-1 d-flex justify-content-between">
+                <span class="text-muted">Noches gratuitas</span>
+                <strong><%= @user.remaining_free_nights %> restantes</strong>
+              </li>
+            </ul>
+          <% else %>
+            <div class="text-center py-3">
+              <i class="fas fa-star fa-2x text-muted mb-2"></i>
+              <p class="text-muted small mb-3">No tienes membresía activa</p>
+              <%= link_to subscriptions_path, class: "btn btn-sm btn-warning rounded-pill fw-semibold" do %>
+                <i class="fas fa-crown me-1"></i> Ver planes
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Accesos rápidos %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-bolt me-2" style="color: var(--brand-green);"></i>
+            Accesos Rápidos
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <div class="d-grid gap-2">
+            <%= link_to turista_points_path, class: "btn btn-outline-warning rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-star me-2"></i> Mis Puntos
+            <% end %>
+            <%= link_to turista_invoice_claims_path, class: "btn btn-outline-primary rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-file-invoice me-2"></i> Mis Facturas
+            <% end %>
+            <%= link_to turista_rewards_path, class: "btn btn-outline-success rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-gift me-2"></i> Canjear Puntos
+            <% end %>
+            <%= link_to turista_bookings_path, class: "btn btn-outline-secondary rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-calendar me-2"></i> Mis Reservas
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <%# ── Columna derecha: puntos recientes ── %>
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-history me-2" style="color: var(--brand-green);"></i>
+            Últimos Movimientos de Puntos
+          </h6>
+          <%= link_to turista_points_path, class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+            Ver todos
+          <% end %>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @recent_points.any? %>
+            <% @recent_points.each do |point| %>
+              <div class="d-flex align-items-center py-3 border-bottom">
+                <div class="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
+                     style="width: 42px; height: 42px; background: #fff3ed;">
+                  <i class="fas <%= point.source_icon %>" style="color: var(--brand-orange);"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small"><%= point.description %></div>
+                  <small class="text-muted">
+                    <%= point.source_label %>
+                    <% if point.establishment %>
+                      &bull; <%= point.establishment.name %>
+                    <% end %>
+                    &bull; <%= point.created_at.strftime("%d/%m/%Y") %>
+                  </small>
+                </div>
+                <span class="badge bg-success rounded-pill fw-bold fs-6 ms-3">
+                  +<%= point.points_earned %>
+                </span>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-coins fa-2x text-muted mb-2"></i>
+              <p class="text-muted mb-0 small">Aún no tienes movimientos de puntos</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Ratio de puntos por membresía %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar me-2" style="color: var(--brand-cofee);"></i>
+            Cómo ganas puntos
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <div class="text-center p-3 rounded-3" style="background: #e8f5e9;">
+                <div class="fw-bold text-success mb-1">500 pts</div>
+                <small class="text-muted">Al registrarte</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="text-center p-3 rounded-3" style="background: #fff3e0;">
+                <div class="fw-bold text-warning mb-1">1,000 pts</div>
+                <small class="text-muted">Al comprar membresía</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="text-center p-3 rounded-3" style="background: #e3f2fd;">
+                <div class="fw-bold text-primary mb-1">
+                  <%= number_with_precision(@user.points_per_dollar, precision: 2) %> pts/$
+                </div>
+                <small class="text-muted">Por cada dólar gastado</small>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="text-center p-3 rounded-3" style="background: #fce4ec;">
+                <div class="fw-bold" style="color: #c2185b; margin-bottom: 4px;">
+                  <i class="fas fa-file-invoice"></i>
+                </div>
+                <small class="text-muted">Sube facturas de consumo</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

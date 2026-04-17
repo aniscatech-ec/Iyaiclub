@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :user_points, dependent: :destroy
   has_many :redemptions, dependent: :destroy
   has_many :visits, dependent: :destroy
+  has_many :invoice_claims, dependent: :destroy
   has_many :custom_requests, dependent: :destroy
   has_many :assigned_custom_requests, class_name: "CustomRequest",
            foreign_key: :assigned_to_id, dependent: :nullify
@@ -36,8 +37,8 @@ class User < ApplicationRecord
     subscriptions.where(status: :activada).where("end_date >= ?", Date.current).order(end_date: :desc).first
   end
 
-  # Callback para enviar correo de bienvenida después de confirmar cuenta
-  after_commit :send_welcome_email, on: :update, if: :just_confirmed?
+  # Callback para enviar correo de bienvenida y acreditar puntos al confirmar cuenta
+  after_commit :on_account_confirmed, on: :update, if: :just_confirmed?
 
   private
 
@@ -45,7 +46,17 @@ class User < ApplicationRecord
     saved_change_to_confirmed_at? && confirmed_at.present? && confirmed_at_before_last_save.nil?
   end
 
-  def send_welcome_email
+  def on_account_confirmed
     UserMailer.welcome_email(self).deliver_later
+    grant_welcome_points
+  end
+
+  def grant_welcome_points
+    PointsCalculator.grant(
+      self,
+      points: 500,
+      source: :welcome,
+      description: "Puntos de bienvenida por confirmar tu cuenta"
+    )
   end
 end

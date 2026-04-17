@@ -89,6 +89,7 @@ class Subscription < ApplicationRecord
   def acreditar!
     set_dates
     update!(status: :activada)
+    grant_membership_points
   end
 
   def rechazar!
@@ -128,7 +129,40 @@ class Subscription < ApplicationRecord
   validate :only_one_active_subscription_for_tourist, on: :create
   validate :only_one_active_subscription_for_establishment, on: :create
 
+  # Acreditar 1000 puntos cuando el admin activa directamente (no via acreditar!)
+  after_update :grant_membership_points_on_activation, if: :just_activated?
+
   private
+
+  def just_activated?
+    saved_change_to_status? && status == "activada" && status_before_last_save == "pendiente"
+  end
+
+  def grant_membership_points_on_activation
+    grant_membership_points
+  end
+
+  def grant_membership_points
+    return unless for_tourist?
+    user = subscribable
+    return unless user.is_a?(User)
+
+    # Solo acreditar una vez: si ya tiene puntos de membresía relacionados con esta subscripción, no repetir
+    already_granted = user.user_points.exists?(source: :membership,
+                                               metadata: "subscription_id:#{id}")
+    return if already_granted
+
+    PointsCalculator.grant(
+      user,
+      points: 1000,
+      source: :membership,
+      description: "Puntos por adquirir membresía #{plan_name}"
+    ).tap do |result|
+      if result[:success]
+        result[:user_point].update_column(:metadata, "subscription_id:#{id}")
+      end
+    end
+  end
 
   def only_one_active_subscription_for_tourist
     return unless subscribable_type == "User"

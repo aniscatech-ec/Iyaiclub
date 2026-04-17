@@ -36,6 +36,6 @@ class Users::ConfirmationsController < Devise::ConfirmationsController
 
   # The path used after resending confirmation instructions.
   def after_resending_confirmation_instructions_path_for(resource_name)
-    new_session_path(resource_name) if signed_in?(resource_name)
+    users_confirmation_pending_path(email: resource.unconfirmed_email || resource.email)
   end
 end

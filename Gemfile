@@ -63,7 +63,7 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem "faker"
-  gem "letter_opener"  # Visualizar emails en desarrollo
+  gem "letter_opener_web"  # Visualizar emails en desarrollo en http://localhost:3000/letter_opener
 end
 
 group :test do

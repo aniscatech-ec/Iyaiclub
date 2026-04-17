@@ -1,0 +1,61 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to turista_profile_path, class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="fas fa-arrow-left"></i>
+    <% end %>
+    <h3 class="fw-bold mb-0">Editar Perfil</h3>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <%= form_with model: @user, url: turista_profile_path, method: :patch, local: true do |f| %>
+            <% if @user.errors.any? %>
+              <div class="alert alert-danger rounded-3 mb-4">
+                <ul class="mb-0">
+                  <% @user.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-4">
+              <%= f.label :name, "Nombre completo", class: "form-label fw-semibold" %>
+              <%= f.text_field :name, class: "form-control rounded-3", placeholder: "Tu nombre completo" %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :phone, "Teléfono", class: "form-label fw-semibold" %>
+              <%= f.text_field :phone, class: "form-control rounded-3", placeholder: "+593..." %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :birth_date, "Fecha de nacimiento", class: "form-label fw-semibold" %>
+              <%= f.date_field :birth_date, class: "form-control rounded-3" %>
+            </div>
+
+            <div class="mb-4">
+              <div class="form-check">
+                <%= f.check_box :marketing_consent, class: "form-check-input" %>
+                <%= f.label :marketing_consent, "Deseo recibir ofertas y novedades de IyaiClub", class: "form-check-label" %>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Guardar cambios", class: "btn btn-primary rounded-pill fw-bold" %>
+            </div>
+          <% end %>
+
+          <hr class="my-4">
+          <div class="text-center">
+            <%= link_to edit_user_registration_path, class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+              <i class="fas fa-lock me-1"></i> Cambiar contraseña o correo
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

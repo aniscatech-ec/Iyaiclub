@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
+  skip_before_action :require_no_authentication, only: [:confirmation_pending]
+
   # GET /users/confirmation_pending
   # Vista que se muestra después del registro informando al usuario
   # que debe revisar su correo para confirmar la cuenta

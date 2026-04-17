@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
   resources :restaurants
   resources :transports
   resources :temporary_lodgings
@@ -103,7 +105,9 @@ Rails.application.routes.draw do
   end
   namespace :turista do
     resources :dashboard, only: [:index]
+    resource  :profile, only: [:show, :edit, :update]
     resources :bookings, only: [:index, :show]
+    resources :invoice_claims, only: [:index, :new, :create]
     resources :getaways, only: [] do
       resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
     end
@@ -186,7 +190,9 @@ Rails.application.routes.draw do
 
   # Vista informativa mostrada tras el registro para indicar al usuario
   # que debe revisar su correo y confirmar la cuenta
-  get 'users/confirmation_pending', to: 'users/registrations#confirmation_pending', as: :users_confirmation_pending
+  devise_scope :user do
+    get 'users/confirmation_pending', to: 'users/registrations#confirmation_pending', as: :users_confirmation_pending
+  end
 
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -213,6 +219,12 @@ Rails.application.routes.draw do
   # end
   namespace :admin do
     get "dashboard/index"
+    resources :invoice_claims, only: [:index, :show] do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
 
     resources :users do
       get :establishments, on: :member

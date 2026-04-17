@@ -21,6 +21,8 @@ class Booking < ApplicationRecord
 
   BENEFIT_TYPES = { lodging: "lodging", pool: "pool" }.freeze
 
+  after_update :grant_booking_points, if: :just_confirmed?
+
   def activar_beneficio!
     update!(status: "confirmado")
   end
@@ -50,6 +52,24 @@ class Booking < ApplicationRecord
   end
 
   private
+
+  def just_confirmed?
+    saved_change_to_status? && status == "confirmado" && !benefit_request?
+  end
+
+  def grant_booking_points
+    return unless user.present? && total_price.to_f > 0
+    est = establishment
+    return unless est.present?
+
+    PointsCalculator.call(
+      user,
+      amount: total_price.to_f,
+      source: :booking,
+      establishment: est,
+      description: "Puntos por reserva confirmada (##{id})"
+    )
+  end
 
   def end_after_start
     return if start_date.blank? || end_date.blank?

@@ -1,0 +1,63 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex align-items-center mb-4">
+    <%= link_to turista_invoice_claims_path, class: "btn btn-outline-secondary btn-sm me-3" do %>
+      <i class="fas fa-arrow-left"></i>
+    <% end %>
+    <div>
+      <h3 class="fw-bold mb-0">Subir Factura</h3>
+      <p class="text-muted mb-0 small">Adjunta una factura para acreditar puntos</p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4 p-md-5">
+          <%= form_with model: [:turista, @claim], local: true do |f| %>
+            <% if @claim.errors.any? %>
+              <div class="alert alert-danger rounded-3 mb-4">
+                <ul class="mb-0">
+                  <% @claim.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-4">
+              <%= f.label :invoice_number, "N° de Factura (opcional)", class: "form-label fw-semibold" %>
+              <%= f.text_field :invoice_number, class: "form-control rounded-3",
+                    placeholder: "Ej: 001-001-000012345" %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :amount, "Monto total de la factura ($)", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                <%= f.number_field :amount, step: 0.01, min: 0.01, class: "form-control rounded-end-3",
+                      placeholder: "0.00" %>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :description, "Descripción del gasto", class: "form-label fw-semibold" %>
+              <%= f.text_area :description, rows: 3, class: "form-control rounded-3",
+                    placeholder: "Ej: Consumo en restaurante, servicio de spa, etc." %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :invoice_file, "Adjuntar factura (foto o PDF)", class: "form-label fw-semibold" %>
+              <%= f.file_field :invoice_file, class: "form-control rounded-3",
+                    accept: "image/*,application/pdf" %>
+              <small class="text-muted">Formatos aceptados: JPG, PNG, PDF. Máx. 10MB.</small>
+            </div>
+
+            <div class="d-grid mt-4">
+              <%= f.submit "Enviar Factura", class: "btn btn-primary btn-lg rounded-pill fw-bold" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_17_100000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -258,6 +258,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
     t.integer "available_rooms"
     t.integer "max_guests"
     t.index ["establishment_id"], name: "index_hotels_on_establishment_id"
+  end
+
+  create_table "invoice_claims", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "establishment_id"
+    t.string "invoice_number"
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.text "description"
+    t.string "invoice_file"
+    t.integer "status", default: 0, null: false
+    t.integer "points_granted"
+    t.text "admin_notes"
+    t.bigint "reviewed_by_id"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_invoice_claims_on_establishment_id"
+    t.index ["reviewed_by_id"], name: "index_invoice_claims_on_reviewed_by_id"
+    t.index ["status"], name: "index_invoice_claims_on_status"
+    t.index ["user_id"], name: "index_invoice_claims_on_user_id"
   end
 
   create_table "legal_infos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -668,12 +688,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
 
   create_table "user_points", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "establishment_id", null: false
+    t.bigint "establishment_id"
     t.integer "points_earned", default: 0, null: false
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "source", default: 0, null: false
+    t.text "metadata"
     t.index ["establishment_id"], name: "index_user_points_on_establishment_id"
+    t.index ["source"], name: "index_user_points_on_source"
     t.index ["user_id", "created_at"], name: "index_user_points_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_user_points_on_user_id"
   end
@@ -756,6 +779,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
   add_foreign_key "gallery_images", "galleries"
   add_foreign_key "getaways", "establishments"
   add_foreign_key "hotels", "establishments"
+  add_foreign_key "invoice_claims", "establishments"
+  add_foreign_key "invoice_claims", "users"
+  add_foreign_key "invoice_claims", "users", column: "reviewed_by_id"
   add_foreign_key "legal_infos", "establishments"
   add_foreign_key "lodgings", "establishments"
   add_foreign_key "menu_items", "menus"

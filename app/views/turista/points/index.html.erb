@@ -4,79 +4,137 @@
       <i class="fas fa-star me-2" style="color: var(--brand-orange);"></i>
       Mis Puntos
     </h3>
-    <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+    <%= link_to turista_dashboard_index_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
       <i class="fas fa-arrow-left me-1"></i> Volver
     <% end %>
   </div>
 
-  <div class="row g-4">
-    <div class="col-12 col-lg-4">
-      <%= render "turista/shared/points_summary", total_points: @total_points %>
-      
-      <div class="card border-0 shadow-sm rounded-4 mt-4">
-        <div class="card-header bg-transparent border-0 p-4 pb-0">
-          <h5 class="fw-bold mb-0">
-            <i class="fas fa-info-circle me-2" style="color: var(--brand-cofee);"></i>
-            Reglas de acumulación
-          </h5>
-        </div>
+  <%# ── Resumen de puntos ── %>
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-white overflow-hidden"
+           style="background: linear-gradient(135deg, var(--brand-orange, #EB633B), #c94a28);">
         <div class="card-body p-4">
-          <ul class="list-unstyled mb-0">
-            <li class="mb-2">
-              <i class="fas fa-check-circle text-success me-2"></i>
-              1 punto por cada $1 gastado
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <small class="fw-semibold opacity-75">PUNTOS DISPONIBLES</small>
+            <i class="fas fa-star fa-lg opacity-50"></i>
+          </div>
+          <div class="display-6 fw-black"><%= number_with_delimiter(@total_points) %></div>
+          <small class="opacity-75">puntos acumulados</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <small class="text-muted fw-semibold">GANADOS</small>
+            <i class="fas fa-arrow-up text-success"></i>
+          </div>
+          <div class="fs-3 fw-bold text-success"><%= number_with_delimiter(@points_earned) %></div>
+          <small class="text-muted">puntos totales ganados</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <small class="text-muted fw-semibold">CANJEADOS</small>
+            <i class="fas fa-arrow-down text-danger"></i>
+          </div>
+          <div class="fs-3 fw-bold text-danger"><%= number_with_delimiter(@points_redeemed) %></div>
+          <small class="text-muted">puntos usados</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <%# ── Columna izquierda: reglas + acción ── %>
+    <div class="col-12 col-lg-4">
+
+      <%# Ratio según membresía %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2" style="color: var(--brand-cofee);"></i>
+            Tu ratio de acumulación
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% ratio = current_user.points_ratio %>
+          <div class="text-center py-2 mb-3 rounded-3" style="background: #fff3ed;">
+            <div class="fw-bold fs-4" style="color: var(--brand-orange);">
+              <%= ratio[:points] %> pts / $<%= ratio[:per_dollars] %>
+            </div>
+            <small class="text-muted">Plan <%= current_user.membership_display_name %></small>
+          </div>
+          <ul class="list-unstyled mb-0 small">
+            <li class="d-flex align-items-center mb-2">
+              <i class="fas fa-gift text-success me-2"></i>
+              <span><strong>500 pts</strong> al registrarte</span>
             </li>
-            <li class="mb-2">
-              <i class="fas fa-check-circle text-success me-2"></i>
-              Puntos extra en fechas especiales
-            </li>
-            <li class="mb-0">
+            <li class="d-flex align-items-center mb-2">
               <i class="fas fa-crown text-warning me-2"></i>
-              Multiplicador según membresía
+              <span><strong>1,000 pts</strong> al comprar membresía</span>
+            </li>
+            <li class="d-flex align-items-center mb-2">
+              <i class="fas fa-calendar-check text-primary me-2"></i>
+              <span>Puntos por reservas confirmadas</span>
+            </li>
+            <li class="d-flex align-items-center">
+              <i class="fas fa-file-invoice text-secondary me-2"></i>
+              <span>Sube facturas para más puntos</span>
             </li>
           </ul>
         </div>
       </div>
 
-      <%= link_to turista_rewards_path, class: "btn btn-warning w-100 mt-4" do %>
-        <i class="fas fa-gift me-2"></i> Canjear puntos
-      <% end %>
+      <div class="d-grid gap-2">
+        <%= link_to turista_rewards_path, class: "btn btn-warning rounded-pill fw-semibold" do %>
+          <i class="fas fa-gift me-2"></i> Canjear puntos
+        <% end %>
+        <%= link_to new_turista_invoice_claim_path, class: "btn btn-outline-primary rounded-pill fw-semibold" do %>
+          <i class="fas fa-file-invoice me-2"></i> Subir factura
+        <% end %>
+      </div>
     </div>
 
+    <%# ── Columna derecha: historial ── %>
     <div class="col-12 col-lg-8">
-      <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-transparent border-0 p-4 pb-0">
-          <h5 class="fw-bold mb-0">
-            <i class="fas fa-history me-2" style="color: var(--brand-green);"></i>
-            Historial de puntos
-          </h5>
+
+      <%# Historial de puntos ganados %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-arrow-up text-success me-2"></i>
+            Puntos Ganados
+          </h6>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 pt-2">
           <% if @points_history.any? %>
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Establecimiento</th>
-                    <th>Descripción</th>
-                    <th class="text-end">Puntos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @points_history.each do |point| %>
-                    <tr>
-                      <td><%= point.created_at.strftime("%d/%m/%Y") %></td>
-                      <td><%= point.establishment.name %></td>
-                      <td><%= point.description %></td>
-                      <td class="text-end">
-                        <span class="badge bg-success">+<%= point.points_earned %></span>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
+            <% @points_history.each do |point| %>
+              <div class="d-flex align-items-center py-3 border-bottom">
+                <div class="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
+                     style="width: 40px; height: 40px; background: #f0faf0;">
+                  <i class="fas <%= point.source_icon %> text-success"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small"><%= point.description %></div>
+                  <small class="text-muted">
+                    <span class="badge bg-light text-dark border me-1"><%= point.source_label %></span>
+                    <% if point.establishment %>
+                      <%= point.establishment.name %> &bull;
+                    <% end %>
+                    <%= point.created_at.strftime("%d/%m/%Y") %>
+                  </small>
+                </div>
+                <span class="badge bg-success rounded-pill fw-bold px-3 py-2 ms-2">
+                  +<%= number_with_delimiter(point.points_earned) %>
+                </span>
+              </div>
+            <% end %>
           <% else %>
             <div class="text-center py-4">
               <i class="fas fa-coins fa-3x text-muted mb-3"></i>
@@ -85,6 +143,46 @@
           <% end %>
         </div>
       </div>
+
+      <%# Historial de canjes %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-arrow-down text-danger me-2"></i>
+            Puntos Canjeados
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @redemptions.any? %>
+            <% @redemptions.each do |r| %>
+              <div class="d-flex align-items-center py-3 border-bottom">
+                <div class="d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0"
+                     style="width: 40px; height: 40px; background: #fff0f0;">
+                  <i class="fas fa-gift text-danger"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small"><%= r.reward.name %></div>
+                  <small class="text-muted">
+                    <span class="badge bg-<%= r.aprobado? ? 'success' : r.rechazado? ? 'danger' : 'warning text-dark' %> me-1">
+                      <%= r.status.humanize %>
+                    </span>
+                    <%= r.created_at.strftime("%d/%m/%Y") %>
+                  </small>
+                </div>
+                <span class="badge bg-danger rounded-pill fw-bold px-3 py-2 ms-2">
+                  -<%= number_with_delimiter(r.points_used) %>
+                </span>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-gift fa-3x text-muted mb-3"></i>
+              <p class="text-muted mb-0">Aún no has canjeado puntos</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
