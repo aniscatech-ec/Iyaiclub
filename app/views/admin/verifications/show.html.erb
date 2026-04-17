@@ -1,0 +1,29 @@
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Review Verification - <%= @verification.establishment.name %></h6>
+      </div>
+      <div class="card-body">
+        <h5>Establishment Details</h5>
+        <p><strong>Name:</strong> <%= @verification.establishment.name %></p>
+        <p><strong>Owner:</strong> <%= @verification.establishment.user.name %></p>
+        <p><strong>Status:</strong> <span class="badge bg-warning text-dark"><%= @verification.status %></span></p>
+
+        <hr>
+
+        <%= link_to 'Approve', approve_admin_verification_path(@verification), data: { "turbo-method": :patch }, class: 'btn btn-success' %>
+
+        <hr>
+        
+        <%= form_with url: reject_admin_verification_path(@verification), method: :patch, local: true do |f| %>
+          <div class="mb-3">
+            <%= f.label :reviewer_notes, "Rejection Notes (Sent to owner)", class: "form-label" %>
+            <%= f.text_area :reviewer_notes, class: "form-control", rows: 3, required: true %>
+          </div>
+          <%= f.submit 'Reject', class: 'btn btn-danger' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

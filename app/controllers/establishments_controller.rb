@@ -88,6 +88,8 @@ class EstablishmentsController < ApplicationController
 
     if current_user.afiliado?
       @establishments = current_user.establishments.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, { galleries: { gallery_images: { file_attachment: :blob } } })
+    else
+      @establishments = @establishments.joins(:verification).where(verifications: { status: :approved })
     end
 
     @pagy, @establishments = pagy(@establishments)

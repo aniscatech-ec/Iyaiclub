@@ -131,6 +131,13 @@ Rails.application.routes.draw do
   namespace :admin do
     get "dashboard/index"
 
+    resources :verifications, only: [:index, :show] do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
+
     resources :users do
       get :establishments, on: :member
       collection do

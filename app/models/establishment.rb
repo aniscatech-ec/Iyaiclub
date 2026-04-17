@@ -5,6 +5,8 @@ class Establishment < ApplicationRecord
   # has_many :amenities, through: :establishment_amenities #error por eliminacion
   has_many :establishment_amenities, dependent: :destroy
   has_many :amenities, through: :establishment_amenities
+  
+  after_create :create_verification_record
   # has_many :subscriptions, as: :suscribable, dependent: :destroy
 
   # enum :category, hotel: 0, restaurante: 1
@@ -62,5 +64,10 @@ class Establishment < ApplicationRecord
 
 
 
+  private
+
+  def create_verification_record
+    create_verification(status: :pending)
+  end
 
 end
