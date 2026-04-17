@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -73,6 +73,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
     t.bigint "room_id"
     t.string "bookable_type", null: false
     t.bigint "user_id"
+    t.boolean "benefit_request", default: false, null: false
+    t.string "benefit_type"
+    t.text "benefit_notes"
+    t.text "admin_notes"
+    t.index ["benefit_request"], name: "index_bookings_on_benefit_request"
     t.index ["bookable_type", "bookable_id"], name: "index_bookings_on_bookable_type_and_bookable_id"
     t.index ["room_id"], name: "index_bookings_on_room_id"
     t.index ["status"], name: "index_bookings_on_status"
@@ -362,6 +367,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
     t.index ["plan_id"], name: "index_plan_prices_on_plan_id"
   end
 
+  create_table "plan_vendedores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "plan_id", null: false
+    t.bigint "vendedor_id", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plan_id", "vendedor_id"], name: "index_plan_vendedores_on_plan_id_and_vendedor_id", unique: true
+    t.index ["plan_id"], name: "index_plan_vendedores_on_plan_id"
+    t.index ["vendedor_id"], name: "index_plan_vendedores_on_vendedor_id"
+  end
+
   create_table "plans", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -546,7 +562,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
     t.datetime "cancelled_at"
     t.integer "cancellation_type", default: 0
     t.date "grace_period_until"
+    t.bigint "vendedor_id"
+    t.datetime "reserved_at"
+    t.datetime "suspended_at"
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
+    t.index ["vendedor_id"], name: "index_subscriptions_on_vendedor_id"
   end
 
   create_table "temporary_lodgings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -745,6 +765,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
   add_foreign_key "payment_receipts", "users"
   add_foreign_key "payphone_transactions", "users"
   add_foreign_key "plan_prices", "plans"
+  add_foreign_key "plan_vendedores", "plans"
+  add_foreign_key "plan_vendedores", "users", column: "vendedor_id"
   add_foreign_key "pricing_policies", "establishments"
   add_foreign_key "provinces", "countries"
   add_foreign_key "raffles", "events"
@@ -761,6 +783,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_100000) do
   add_foreign_key "room_beds", "rooms"
   add_foreign_key "rooms", "hotels"
   add_foreign_key "rooms", "temporary_lodgings"
+  add_foreign_key "subscriptions", "users", column: "vendedor_id"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "tickets", "events"
   add_foreign_key "tickets", "payphone_transactions"

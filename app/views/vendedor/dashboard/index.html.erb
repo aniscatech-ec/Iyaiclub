@@ -16,10 +16,69 @@
       </div>
     </div>
     <div class="col-6 col-md-4 col-lg-3">
+      <%= link_to vendedor_memberships_path, class: "text-decoration-none" do %>
+        <div class="card border-0 shadow-sm rounded-4 text-center p-3 h-100 <%= @pending_memberships_count > 0 ? 'border-warning border' : '' %>">
+          <div class="display-4 fw-bold text-info"><%= @pending_memberships_count %></div>
+          <small class="text-muted">Membresías Pendientes</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
       <div class="card border-0 shadow-sm rounded-4 text-center p-3">
         <div class="display-4 fw-bold text-primary"><%= @events.count %></div>
         <small class="text-muted">Eventos Asignados</small>
       </div>
+    </div>
+  </div>
+
+  <!-- Membresías -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-id-card me-2" style="color: var(--brand-orange);"></i>
+        Mis Membresías
+      </h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% memberships_by_plan = @memberships.group_by(&:plan_type) %>
+      <% if memberships_by_plan.any? %>
+        <div class="row g-3">
+          <% memberships_by_plan.each do |plan_type_id, group| %>
+            <% plan_price = PlanPrice.find_by(id: plan_type_id) %>
+            <% pending = group.count { |m| m.reservada? } %>
+            <% acreditadas = group.count { |m| m.activada? } %>
+            <div class="col-12 col-md-6 col-lg-4">
+              <div class="card border rounded-3 h-100">
+                <div class="card-body">
+                  <h6 class="fw-bold mb-2">
+                    <%= plan_price ? plan_price.plan_type&.humanize : "Plan desconocido" %>
+                  </h6>
+                  <% if plan_price %>
+                    <p class="text-muted small mb-2">
+                      <i class="fas fa-clock me-1"></i> <%= plan_price.display_duration %>
+                    </p>
+                    <p class="text-muted small mb-3">
+                      <i class="fas fa-dollar-sign me-1"></i> $<%= number_with_precision(plan_price.price, precision: 2) %>
+                    </p>
+                  <% end %>
+                  <div class="d-flex gap-3 mb-3">
+                    <span class="badge bg-warning text-dark"><%= pending %> pendientes</span>
+                    <span class="badge bg-success"><%= acreditadas %> acreditadas</span>
+                  </div>
+                  <%= link_to vendedor_memberships_path(plan: plan_price&.id), class: "btn btn-primary btn-sm w-100" do %>
+                    <i class="fas fa-id-card me-1"></i> Ver Membresías
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-id-card fa-3x mb-3"></i>
+          <p>No tienes membresías asignadas actualmente</p>
+        </div>
+      <% end %>
     </div>
   </div>
 

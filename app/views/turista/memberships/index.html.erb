@@ -586,6 +586,30 @@
     </div>
   </div>
 
+  <!-- Membresía reservada pendiente de acreditación -->
+  <% if @pending_membership %>
+    <div class="alert border-0 rounded-3 shadow-sm d-flex gap-3 align-items-start mb-4" role="alert"
+         style="background: rgba(255,193,7,0.1); border-left: 4px solid #ffc107 !important;">
+      <div class="fs-4 mt-1">⏳</div>
+      <div class="flex-grow-1">
+        <h6 class="fw-bold mb-1">Membresía pendiente de acreditación</h6>
+        <p class="mb-1 small">
+          Tu solicitud de <strong><%= @pending_membership.plan_name %></strong> por transferencia está siendo procesada
+          por <strong><%= @pending_membership.vendedor&.name || "tu asesor" %></strong>.
+          Una vez que confirmen tu pago, tu membresía se activará automáticamente.
+        </p>
+        <% if @pending_membership.vendedor&.try(:whatsapp).present? || @pending_membership.vendedor&.try(:phone).present? %>
+          <% phone = @pending_membership.vendedor.try(:whatsapp) || @pending_membership.vendedor.try(:phone) %>
+          <% plan_price = PlanPrice.find_by(id: @pending_membership.plan_type) %>
+          <% wa_message = "Hola #{@pending_membership.vendedor.name}, soy #{current_user.name} y acabo de solicitar una membresía #{@pending_membership.plan_name}#{plan_price ? " (#{plan_price.display_duration} - $#{plan_price.price})" : ""} por transferencia bancaria a través de IyaiClub. Quedo pendiente de sus instrucciones para realizar el pago. Gracias." %>
+          <%= link_to whatsapp_link(phone, wa_message), target: "_blank", class: "btn btn-sm btn-success mt-1" do %>
+            <i class="fab fa-whatsapp me-1"></i> Contactar a <%= @pending_membership.vendedor.name %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Panel de gestión de membresía activa -->
   <% if @active_membership %>
     <div class="mb-4">

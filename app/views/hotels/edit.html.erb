@@ -22,7 +22,7 @@
 <%= form_with(model: @hotel,
               local: true,
               html: { multipart: true },
-              data: { controller: "form-validation gallery", action: "submit->gallery#submitForm", model: "hotel" }) do |f| %>
+              data: { controller: "form-validation gallery", model: "hotel" }) do |f| %>
 
   <%= f.fields_for :establishment do |e| %>
 
@@ -124,13 +124,7 @@
         </div>
         <div class="col-md-3">
           <%= f.label :hotel_type, "Tipo de hotel", class: "form-label fw-semibold required-field" %>
-          <%= f.select :hotel_type, options_for_select([
-                                                         ['Hotel convencional', 'conventional'],
-                                                         ['Hotel boutique', 'boutique'],
-                                                         ['Hotel de cadena', 'chain'],
-                                                         ['Resort', 'resort'],
-                                                         ['Ecohotel / Ecolodge', 'ecohotel']
-                                                       ], @hotel.hotel_type), { include_blank: 'Selecciona un tipo' }, class: "form-select", required: true %>
+          <%= f.select :hotel_type, hotel_type_options, { include_blank: 'Selecciona un tipo', selected: @hotel.hotel_type }, class: "form-select", required: true %>
         </div>
         <div class="col-md-3">
           <%= f.label :stars, "Categoría (estrellas)", class: "form-label fw-semibold" %>

@@ -1,0 +1,5 @@
+class AddSuspendedToSubscriptions < ActiveRecord::Migration[8.0]
+  def change
+    add_column :subscriptions, :suspended_at, :datetime
+  end
+end

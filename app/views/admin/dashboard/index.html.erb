@@ -90,7 +90,7 @@
     ] %>
 
     <% memb_links.each do |m| %>
-      <div class="col-md-4">
+      <div class="col-md-3">
         <%= link_to m[:path], class: "card shadow-sm h-100 text-center text-decoration-none border-0" do %>
           <div class="card-body">
             <i class="fa-solid <%= m[:icon] %> fa-3x text-<%= m[:color] %> mb-3"></i>
@@ -99,6 +99,21 @@
         <% end %>
       </div>
     <% end %>
+
+    <div class="col-md-3">
+      <%= link_to benefit_requests_admin_memberships_path, class: "card shadow-sm h-100 text-center text-decoration-none border-0 position-relative" do %>
+        <% pending_count = Booking.pending_benefits.count %>
+        <% if pending_count > 0 %>
+          <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">
+            <%= pending_count %>
+          </span>
+        <% end %>
+        <div class="card-body">
+          <i class="fa-solid fa-crown fa-3x text-warning mb-3"></i>
+          <h6 class="card-title fw-bold">Beneficios Exclusivos</h6>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <!-- Sección Planes de Membresía -->

@@ -71,11 +71,12 @@ Rails.application.routes.draw do
       patch :cancel
     end
     collection do
-      get :establishments_for_user
-      get :selector
-      get :index_establishments # Para afiliados → mostrar sus establecimientos
-      get :establishment_plans
-      get :tourist_plans
+      get  :establishments_for_user
+      get  :selector
+      get  :index_establishments
+      get  :establishment_plans
+      get  :tourist_plans
+      post :reservar_transferencia
     end
   end
 
@@ -103,6 +104,15 @@ Rails.application.routes.draw do
   namespace :turista do
     resources :dashboard, only: [:index]
     resources :bookings, only: [:index, :show]
+    resources :getaways, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
+    resources :hotels, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
+    resources :lodgings, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
     resources :visits, only: [:index]
     resources :points, only: [:index]
     resources :rewards, only: [:index] do
@@ -147,6 +157,22 @@ Rails.application.routes.draw do
           patch :acreditar
           patch :rechazar
         end
+        collection do
+          patch :bulk_acreditar
+          patch :bulk_rechazar
+        end
+      end
+    end
+    resources :memberships, only: [:index, :destroy] do
+      member do
+        patch :acreditar
+        patch :rechazar
+        patch :suspender
+        patch :reactivar
+      end
+      collection do
+        patch :bulk_acreditar
+        patch :bulk_rechazar
       end
     end
   end
@@ -205,6 +231,11 @@ Rails.application.routes.draw do
 
     resources :plans do
       resources :plan_prices, shallow: true, except: [:index, :show]
+      resources :plan_vendedores, only: [:create, :destroy], shallow: true do
+        member do
+          patch :toggle_active
+        end
+      end
     end
 
     resources :memberships, only: [:index, :show, :update, :destroy] do
@@ -212,6 +243,16 @@ Rails.application.routes.draw do
         patch :approve
         patch :cancel
         patch :update_plan_price
+      end
+      collection do
+        get  :benefit_requests
+      end
+    end
+
+    resources :benefit_bookings, only: [], controller: "memberships" do
+      member do
+        patch :activate_benefit
+        patch :reject_benefit
       end
     end
 

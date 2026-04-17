@@ -501,18 +501,78 @@
           Método de pago
         </div>
 
-        <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3" style="background: rgba(52, 199, 89, 0.06); border: 1px solid rgba(52, 199, 89, 0.15);">
-          <i class="fas fa-shield-alt text-success fs-4"></i>
-          <div>
-            <p class="fw-bold mb-0" style="font-size: 0.95rem;">Pago seguro con PayPhone</p>
-            <p class="text-muted mb-0" style="font-size: 0.8rem;">Visa, MasterCard, Diners Club, Discover o saldo PayPhone</p>
-          </div>
+        <div class="payment-methods">
+          <!-- Opción PayPhone -->
+          <label class="payment-option">
+            <input type="radio" name="payment_method" value="payphone" id="pay_payphone" checked>
+            <div class="payment-option-label">
+              <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+              <div class="payment-info">
+                <p class="payment-name">Tarjeta de Crédito/Débito</p>
+                <p class="payment-desc">Visa, MasterCard, Diners Club, Discover o saldo PayPhone</p>
+              </div>
+              <div class="payment-check"><i class="fas fa-check"></i></div>
+            </div>
+          </label>
+
+          <!-- Opción Transferencia vía Vendedor -->
+          <label class="payment-option">
+            <input type="radio" name="payment_method" value="transferencia" id="pay_transfer">
+            <div class="payment-option-label">
+              <div class="payment-icon"><i class="fas fa-university"></i></div>
+              <div class="payment-info">
+                <p class="payment-name">Transferencia bancaria</p>
+                <p class="payment-desc">Paga por transferencia y un asesor confirmará tu membresía</p>
+              </div>
+              <div class="payment-check"><i class="fas fa-check"></i></div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Panel transferencia: selector de vendedor -->
+        <div id="transfer-panel" style="display:none;">
+          <% vendedores = @plan_vendedores.presence || [] %>
+          <% if vendedores.any? %>
+            <div class="mb-3">
+              <label class="field-label">
+                <i class="fas fa-user-tie me-1 text-success"></i>
+                Selecciona tu asesor de ventas
+              </label>
+              <select name="vendedor_id" id="vendedor_select" class="form-select rounded-3 border-2">
+                <option value="">-- Elige un asesor --</option>
+                <% vendedores.each do |v| %>
+                  <option value="<%= v.id %>"><%= v.name %></option>
+                <% end %>
+              </select>
+              <small class="text-muted mt-1 d-block">
+                <i class="fas fa-info-circle me-1"></i>
+                Tu asesor recibirá la solicitud y acreditará la membresía al recibir el pago.
+              </small>
+            </div>
+          <% else %>
+            <div class="alert alert-warning small rounded-3">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              No hay asesores disponibles para este plan. Usa una tarjeta de crédito/débito para pagar en línea.
+            </div>
+          <% end %>
         </div>
       </div>
 
       <%# -------------------- Actions -------------------- %>
       <div class="form-actions">
-        <%= form.submit "Pagar con PayPhone", class: "btn btn-primary" %>
+        <!-- Botón PayPhone (visible por defecto) -->
+        <div id="btn-payphone-wrapper" class="w-100">
+          <%= form.submit "Pagar con Tarjeta", class: "btn btn-primary", id: "btn-payphone" %>
+        </div>
+
+        <!-- Placeholder mismo ancho para el botón de transferencia (el form real está afuera) -->
+        <div id="btn-transfer-wrapper" class="w-100" style="display:none;">
+          <button type="button" class="btn btn-warning w-100 fw-bold"
+                  onclick="document.getElementById('transfer-form').requestSubmit()">
+            <i class="fas fa-university me-2"></i> Reservar y pagar por transferencia
+          </button>
+        </div>
+
         <%= link_to cancel_path, class: "btn btn-outline-secondary" do %>
           <i class="fas fa-times"></i>
           Cancelar
@@ -525,4 +585,45 @@
       </div>
     <% end %>
   </div>
+
+  <%# Form de transferencia FUERA del form de PayPhone (no se puede anidar forms en HTML) %>
+  <%= form_with url: reservar_transferencia_subscriptions_path, method: :post,
+        id: "transfer-form", style: "display:none;" do |tf| %>
+    <%= tf.hidden_field :plan_id,           value: @plan_price.id %>
+    <%= tf.hidden_field :subscribable_type,  value: subscribable_type %>
+    <%= tf.hidden_field :subscribable_id,    value: subscribable_id %>
+    <input type="hidden" name="vendedor_id" id="transfer-vendedor-id" value="">
+  <% end %>
 </div>
+
+<script>
+(function() {
+  const radios        = document.querySelectorAll('input[name="payment_method"]');
+  const transferPanel = document.getElementById('transfer-panel');
+  const btnPayphone   = document.getElementById('btn-payphone-wrapper');
+  const btnTransfer   = document.getElementById('btn-transfer-wrapper');
+  const vendedorSelect = document.getElementById('vendedor_select');
+  const btnTransferLink = document.getElementById('btn-transfer');
+
+  function toggle() {
+    const isTransfer = document.getElementById('pay_transfer')?.checked;
+    if (transferPanel) transferPanel.style.display = isTransfer ? 'block' : 'none';
+    if (btnPayphone)   btnPayphone.style.display   = isTransfer ? 'none'  : 'block';
+    if (btnTransfer)   btnTransfer.style.display    = isTransfer ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', toggle));
+
+  // Sincronizar vendedor_id del select al hidden field del form de transferencia
+  const vendedorHidden = document.getElementById('transfer-vendedor-id');
+  if (vendedorSelect && vendedorHidden) {
+    vendedorSelect.addEventListener('change', function() {
+      vendedorHidden.value = this.value;
+    });
+    // Inicializar con el valor actual
+    vendedorHidden.value = vendedorSelect.value;
+  }
+
+  toggle();
+})();
+</script>

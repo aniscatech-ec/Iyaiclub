@@ -1,4 +1,4 @@
-<%= form_with(model: [@establishment, experience].compact, local: true, class: 'card shadow-sm border-warning') do |form| %>
+<%= form_with(model: [@establishment, experience].compact, local: true, class: 'card shadow-sm border-warning', data: { controller: "form-validation" }) do |form| %>
   <div class="card-body">
     <% if experience.errors.any? %>
       <div class="alert alert-danger">
@@ -18,12 +18,12 @@
     <div class="row">
       <div class="col-md-8 mb-3">
         <%= form.label :name, "Nombre de la Experiencia", class: "form-label fw-bold" %>
-        <%= form.text_field :name, class: "form-control", placeholder: "Ej. Tour en Cuatrimotos" %>
+        <%= form.text_field :name, class: "form-control", placeholder: "Ej. Tour en Cuatrimotos", required: true %>
       </div>
 
       <div class="col-md-4 mb-3">
         <%= form.label :price, "Precio ($)", class: "form-label fw-bold" %>
-        <%= form.number_field :price, step: 0.01, class: "form-control", placeholder: "Ej. 25.00" %>
+        <%= form.number_field :price, step: 0.01, class: "form-control", placeholder: "Ej. 25.00", required: true %>
       </div>
     </div>
 

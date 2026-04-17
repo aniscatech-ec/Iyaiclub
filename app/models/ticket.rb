@@ -18,7 +18,7 @@ class Ticket < ApplicationRecord
   scope :for_event, ->(name) { where(event_name: name) if name.present? }
   scope :participantes, -> { where(status: :activo) }
   scope :reservados, -> { where(status: :reservado) }
-  scope :expired_reservations, -> { reservados.where("reserved_at < ?", 10.minutes.ago) }
+  scope :expired_reservations, -> { none }
 
   def mark_as_used!
     update!(status: :usado, used_at: Time.current)
@@ -36,13 +36,11 @@ class Ticket < ApplicationRecord
   end
 
   def reservation_expired?
-    reservado? && reserved_at.present? && reserved_at < 10.minutes.ago
+    false
   end
 
   def time_remaining
-    return 0 unless reservado? && reserved_at.present?
-    remaining = (reserved_at + 10.minutes - Time.current).to_i
-    [remaining, 0].max
+    nil
   end
 
   def qr_svg(module_size: 4)

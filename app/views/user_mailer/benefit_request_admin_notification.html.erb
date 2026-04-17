@@ -1,0 +1,104 @@
+<h2 style="margin: 0 0 16px 0; color: #EB633B; font-size: 22px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  🎁 Nueva solicitud de beneficio exclusivo
+</h2>
+
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 15px; line-height: 1.6;">
+  El usuario <strong><%= @user.name.presence || @user.email %></strong> ha solicitado usar su beneficio de membresía.
+  Revisa los detalles y actívalo desde el panel cuando esté listo.
+</p>
+
+<!-- Datos del usuario -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; background-color: #f0f4ff; border-left: 4px solid #4361ee; border-radius: 6px;">
+  <tr>
+    <td style="padding: 18px 22px;">
+      <h3 style="margin: 0 0 10px 0; color: #1a1a2e; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+        👤 Datos del miembro
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px; width: 35%;">Nombre</td>
+          <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @user.name %></td>
+        </tr>
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px;">Correo</td>
+          <td style="padding: 3px 0; font-size: 13px;">
+            <a href="mailto:<%= @user.email %>" style="color: #4361ee; text-decoration: none;"><%= @user.email %></a>
+          </td>
+        </tr>
+        <% phone = @user.try(:phone) || @user.try(:whatsapp) %>
+        <% if phone.present? %>
+          <tr>
+            <td style="padding: 3px 0; color: #555; font-size: 13px;">Teléfono/WA</td>
+            <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= phone %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px;">Plan</td>
+          <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @user.membership_display_name %></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Detalle de la solicitud -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; background-color: #fff9f0; border-left: 4px solid #ffc107; border-radius: 6px;">
+  <tr>
+    <td style="padding: 18px 22px;">
+      <h3 style="margin: 0 0 10px 0; color: #856404; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+        👑 Detalle del beneficio
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px; width: 35%;">Tipo</td>
+          <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @booking.benefit_label %></td>
+        </tr>
+        <% if @booking.establishment&.name.present? %>
+          <tr>
+            <td style="padding: 3px 0; color: #555; font-size: 13px;">Establecimiento</td>
+            <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @booking.establishment.name %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px;">Fecha entrada</td>
+          <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @booking.start_date&.strftime("%d/%m/%Y") %></td>
+        </tr>
+        <% if @booking.end_date.present? %>
+          <tr>
+            <td style="padding: 3px 0; color: #555; font-size: 13px;">Fecha salida</td>
+            <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @booking.end_date.strftime("%d/%m/%Y") %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td style="padding: 3px 0; color: #555; font-size: 13px;">Personas</td>
+          <td style="padding: 3px 0; color: #222; font-size: 13px; font-weight: bold;"><%= @booking.guest_count %></td>
+        </tr>
+        <% if @booking.benefit_notes.present? %>
+          <tr>
+            <td style="padding: 3px 0; color: #555; font-size: 13px;">Notas</td>
+            <td style="padding: 3px 0; color: #222; font-size: 13px; font-style: italic;"><%= @booking.benefit_notes %></td>
+          </tr>
+        <% end %>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Botón panel admin -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+  <tr>
+    <td>
+      <a href="<%= benefit_requests_admin_memberships_url %>"
+         style="background-color: #EB633B; border-radius: 8px; color: #ffffff; display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 15px; font-weight: bold; line-height: 1; padding: 14px 28px;
+                text-align: center; text-decoration: none;">
+        Ver en panel de administración →
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 0; color: #777777; font-size: 13px; line-height: 1.5;">
+  Esta notificación es automática del sistema IyaiClub.
+</p>

@@ -1,0 +1,84 @@
+<h2 style="margin: 0 0 16px 0; color: #EB633B; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  ¡Solicitud de beneficio recibida!
+</h2>
+
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Hola <strong><%= @user.name.presence || @user.email %></strong>, recibimos tu solicitud de
+  <strong><%= @booking.benefit_label %></strong> como parte de tu plan
+  <strong><%= @user.membership_display_name %></strong>.
+</p>
+
+<!-- Resumen de la solicitud -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #fff9f0; border-left: 4px solid #ffc107; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #856404; font-size: 15px; font-weight: bold;">
+        👑 Resumen de tu solicitud
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px; width: 45%;">Tipo de beneficio</td>
+          <td style="padding: 4px 0; color: #333333; font-size: 14px; font-weight: bold;"><%= @booking.benefit_label %></td>
+        </tr>
+        <% if @booking.establishment&.name.present? %>
+          <tr>
+            <td style="padding: 4px 0; color: #555555; font-size: 14px;">Establecimiento</td>
+            <td style="padding: 4px 0; color: #333333; font-size: 14px; font-weight: bold;"><%= @booking.establishment.name %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Fecha solicitada</td>
+          <td style="padding: 4px 0; color: #333333; font-size: 14px; font-weight: bold;">
+            <%= @booking.start_date&.strftime("%d/%m/%Y") %>
+            <% if @booking.end_date.present? %>
+              — <%= @booking.end_date.strftime("%d/%m/%Y") %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Personas</td>
+          <td style="padding: 4px 0; color: #333333; font-size: 14px; font-weight: bold;"><%= @booking.guest_count %></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Costo</td>
+          <td style="padding: 4px 0; color: #28a745; font-size: 14px; font-weight: bold;">GRATIS</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Próximos pasos -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f8f9fa; border-radius: 8px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #495057; font-size: 15px; font-weight: bold;">¿Qué sigue?</h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            📞 &nbsp;Un miembro de nuestro equipo te contactará pronto por WhatsApp o correo.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            📅 &nbsp;Confirmaremos disponibilidad y coordinaremos los detalles de tu estadía.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            ✅ &nbsp;Una vez listo, recibirás otro correo con la confirmación oficial.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Tienes alguna pregunta? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a>.
+</p>
+
+<p style="margin: 16px 0 0 0; color: #555555; font-size: 14px; font-style: italic;">
+  Con cariño,<br/>
+  <strong style="color: #EB633B; font-style: normal;">El equipo de IyaiClub</strong>
+</p>

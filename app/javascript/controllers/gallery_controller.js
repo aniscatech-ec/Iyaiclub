@@ -1,119 +1,105 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Gestiona la adición de nuevas galerías con imágenes.
+//
+// Estrategia: al hacer "Agregar", clona el input[type=file][multiple] original
+// (que tiene los File objects reales del SO) y lo inserta en el DOM con el
+// name correcto para nested_attributes. El submit multipart normal lo envía.
+// No se usa DataTransfer (no funciona en iOS Safari) ni fetch manual.
+//
+// En el servidor, gallery_images_attributes recibe un input multiple → el
+// controller procesa cada archivo creando un GalleryImage por cada uno.
 export default class extends Controller {
-    static targets = ["container", "name", "files"]
+  static targets = ["container", "name", "files"]
 
-    connect() {
-        this.galleries = []
+  connect() {
+    this._seq = 0
+  }
+
+  addGallery(event) {
+    event.preventDefault()
+
+    const nameInput = this.nameTarget
+    const filesInput = this.filesTarget
+
+    if (!filesInput.files || filesInput.files.length === 0) {
+      alert("Selecciona al menos una imagen para la galería")
+      return
     }
 
-    // Renderizar previews
-    renderGalleries() {
-        this.containerTarget.innerHTML = ""
-        this.galleries.forEach((gallery, gIndex) => {
-            const div = document.createElement("div")
-            div.classList.add("card", "mb-3")
-            div.innerHTML = `
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <strong>${gallery.name}</strong>
-          <button type="button" class="btn btn-sm btn-danger" 
-            data-action="click->gallery#deleteGallery" data-index="${gIndex}">
-            Eliminar galería
-          </button>
-        </div>
-        <div class="card-body" id="gallery-${gIndex}"></div>
-        <div class="card-footer">
-          <input type="file" class="form-control mb-2" multiple 
-            data-action="change->gallery#addImages" data-index="${gIndex}">
-        </div>
-      `
-            const body = div.querySelector(`#gallery-${gIndex}`)
-            gallery.files.forEach((file, fIndex) => {
-                const url = URL.createObjectURL(file)
-                const imgDiv = document.createElement("div")
-                imgDiv.classList.add("d-inline-block", "position-relative", "me-2", "mb-2")
-                imgDiv.innerHTML = `
-          <img src="${url}" class="img-thumbnail" style="width:120px;height:120px;object-fit:cover;">
-          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-            data-action="click->gallery#deleteImage"
-            data-gindex="${gIndex}" data-findex="${fIndex}">x</button>
-        `
-                body.appendChild(imgDiv)
-            })
-            this.containerTarget.appendChild(div)
-        })
-    }
+    const key = Date.now() + (this._seq++)
+    const model = this.element.dataset.model || this._inferModel()
+    // Usamos un campo especial "files[]" que el controller procesa manualmente
+    const filesFieldName = `new_gallery_uploads[${key}][files][]`
+    const galleryNameFieldName = `new_gallery_uploads[${key}][name]`
 
-    // Agregar galería
-    addGallery() {
-        const name = this.nameTarget.value
-        const files = this.filesTarget.files
+    // Tarjeta visual
+    const card = document.createElement("div")
+    card.className = "card mb-3 border-0 shadow-sm"
+    card.innerHTML = `
+      <div class="card-header d-flex justify-content-between align-items-center py-2" style="background:#f8f9fa;">
+        <strong class="small">
+          <i class="fas fa-folder-open me-1 text-muted"></i>${this._escape(nameInput.value.trim() || "Galería")}
+        </strong>
+        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill"
+                data-action="click->gallery#removeGallery">
+          <i class="fas fa-trash me-1"></i> Quitar
+        </button>
+      </div>
+      <div class="card-body p-2 gallery-previews d-flex flex-wrap gap-2"></div>
+    `
 
-        if (!name || files.length === 0) {
-            alert("Agrega un nombre y al menos una imagen")
-            return
-        }
+    // Hidden con el nombre de la galería
+    const nameHidden = document.createElement("input")
+    nameHidden.type = "hidden"
+    nameHidden.name = galleryNameFieldName
+    nameHidden.value = nameInput.value.trim() || "Galería"
+    card.appendChild(nameHidden)
 
-        const uniqueKey = Date.now().toString() // 🔑 índice único para Rails
-        this.galleries.push({ key: uniqueKey, name, files: Array.from(files) })
-        this.renderGalleries()
+    // Clonar el input[type=file] original — contiene los File objects reales
+    // El clon se inserta en el card con el name correcto y display:none
+    const cloned = filesInput.cloneNode(true)
+    cloned.name = filesFieldName
+    cloned.style.display = "none"
+    cloned.removeAttribute("data-gallery-target")
+    cloned.removeAttribute("id")
+    card.appendChild(cloned)
 
-        this.nameTarget.value = ""
-        this.filesTarget.value = ""
-    }
+    // Previews
+    const previewArea = card.querySelector(".gallery-previews")
+    Array.from(filesInput.files).forEach(file => {
+      const reader = new FileReader()
+      reader.onload = e => {
+        const img = document.createElement("img")
+        img.src = e.target.result
+        img.className = "img-thumbnail rounded"
+        img.style.cssText = "width:72px;height:54px;object-fit:cover;"
+        img.title = file.name
+        previewArea.appendChild(img)
+      }
+      reader.readAsDataURL(file)
+    })
 
-    // Eliminar galería
-    deleteGallery(event) {
-        const index = event.target.dataset.index
-        this.galleries.splice(index, 1)
-        this.renderGalleries()
-    }
+    this.containerTarget.appendChild(card)
 
-    // Eliminar imagen
-    deleteImage(event) {
-        const gIndex = event.target.dataset.gindex
-        const fIndex = event.target.dataset.findex
-        this.galleries[gIndex].files.splice(fIndex, 1)
-        if (this.galleries[gIndex].files.length === 0) {
-            this.galleries.splice(gIndex, 1)
-        }
-        this.renderGalleries()
-    }
+    // Limpiar
+    nameInput.value = ""
+    filesInput.value = ""
+  }
 
-    // Añadir imágenes a galería existente
-    addImages(event) {
-        const gIndex = event.target.dataset.index
-        const files = Array.from(event.target.files)
-        this.galleries[gIndex].files = this.galleries[gIndex].files.concat(files)
-        this.renderGalleries()
-    }
+  removeGallery(event) {
+    event.preventDefault()
+    event.target.closest(".card")?.remove()
+  }
 
-    // Interceptar submit
-    submitForm(event) {
-        event.preventDefault()
-        const form = this.element
-        const formData = new FormData(form)
+  _escape(str) {
+    return str.replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+    )
+  }
 
-        const model = form.dataset.model
-
-        this.galleries.forEach((gallery) => {
-            // usamos key único para nuevas galerías
-            formData.append(`${model}[establishment_attributes][galleries_attributes][${gallery.key}][name]`, gallery.name)
-            gallery.files.forEach((file, fIndex) => {
-                formData.append(`${model}[establishment_attributes][galleries_attributes][${gallery.key}][gallery_images_attributes][${fIndex}][file]`, file)
-            })
-        })
-
-        fetch(form.action, {
-            method: form.method,
-            body: formData,
-            headers: { "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content }
-        }).then(resp => {
-            if (resp.redirected) {
-                window.location.href = resp.url
-            } else {
-                resp.text().then(html => { document.body.innerHTML = html })
-            }
-        })
-    }
+  _inferModel() {
+    const match = (this.element.action || "").match(/\/(\w+)\/?\d*$/)
+    return match ? match[1].replace(/s$/, "") : "establishment"
+  }
 }

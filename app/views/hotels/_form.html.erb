@@ -20,13 +20,13 @@
             </div>
             <div class="col-md-3">
               <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
-              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true %>
+              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true, id: "hotel_document_type_select" %>
             </div>
             <div class="col-md-3">
               <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true %>
+                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true, id: "hotel_document_number_input" %>
               </div>
             </div>
             <div class="col-md-4">
@@ -47,7 +47,7 @@
               <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999", required: true %>
+                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "Ej: 0991234567", required: true, pattern: "[0-9]{10}", maxlength: 10, title: "10 dígitos numéricos. Ej: 0991234567" %>
               </div>
             </div>
           </div>
@@ -404,14 +404,14 @@
             <%= e.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-phone"></i></span>
-              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true, pattern: "[0-9]{7,15}" %>
             </div>
           </div>
           <div class="col-md-4">
             <%= e.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true, pattern: "[0-9]{10,15}" %>
             </div>
             <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
           </div>
@@ -419,7 +419,7 @@
             <%= e.label :email, "Correo electronico", class: "form-label fw-semibold required-field" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true, pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
             </div>
           </div>
           <div class="col-md-6">
@@ -571,7 +571,7 @@
                       </div>
 
                       <div class="flex-grow-1">
-                        <%= gi.file_field :file, direct_upload: true, class: "form-control form-control-sm" %>
+                        <%= gi.file_field :file, class: "form-control form-control-sm" %>
                         <div class="form-check form-check-inline mt-1">
                           <%= gi.check_box :_destroy, {}, "1", "0" %>
                           <%= gi.label :_destroy, "Eliminar", class: "form-check-label ms-1 text-danger small" %>
@@ -620,8 +620,12 @@
         const provinceSelect = document.getElementById('establishment_province_id');
         const citySelect = document.getElementById('establishment_city_id');
 
+        // Guardar selecciones actuales antes de recargar opciones
+        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
+        const selectedCityId = citySelect ? citySelect.value : null;
+
         // Función para cargar provincias
-        function loadProvinces(countryId) {
+        function loadProvinces(countryId, restoreProvinceId) {
             if (!countryId) {
                 provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
@@ -633,9 +637,14 @@
                 .then(data => {
                     provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
                     data.forEach(province => {
-                        provinceSelect.innerHTML += `<option value="${province.id}">${province.name}</option>`;
+                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
+                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
                     });
                     citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    // Si había una provincia seleccionada, cargar sus ciudades
+                    if (restoreProvinceId) {
+                        loadCities(restoreProvinceId, selectedCityId);
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading provinces:', error);
@@ -644,7 +653,7 @@
         }
 
         // Función para cargar ciudades
-        function loadCities(provinceId) {
+        function loadCities(provinceId, restoreCityId) {
             if (!provinceId) {
                 citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                 return;
@@ -655,7 +664,8 @@
                 .then(data => {
                     citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
                     data.forEach(city => {
-                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
+                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
                     });
                 })
                 .catch(error => {
@@ -667,18 +677,18 @@
         // Event listeners
         if (countrySelect) {
             countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value);
+                loadProvinces(this.value, null);
             });
 
-            // Cargar provincias si hay un país preseleccionado
+            // Cargar provincias si hay un país preseleccionado, restaurando selección
             if (countrySelect.value) {
-                loadProvinces(countrySelect.value);
+                loadProvinces(countrySelect.value, selectedProvinceId);
             }
         }
 
         if (provinceSelect) {
             provinceSelect.addEventListener('change', function() {
-                loadCities(this.value);
+                loadCities(this.value, null);
             });
         }
     }
@@ -749,7 +759,7 @@
                     <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][id]" id="">
                     <input type="hidden" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][_destroy]" value="false" class="gallery-image-mark-destroy">
                     <div class="flex-grow-1">
-                        <input type="file" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][file]" direct_upload="true" class="form-control form-control-sm">
+                        <input type="file" name="hotel[establishment_attributes][galleries_attributes][${galleryId}][gallery_images_attributes][${newId}][file]" class="form-control form-control-sm">
                     </div>
                     <div class="ms-2">
                         <a href="#" class="remove-gallery-image btn btn-sm btn-outline-danger rounded-pill"><i class="fas fa-times"></i></a>
@@ -788,4 +798,44 @@
             }
         }
     });
+
+    // ═══════════════ VALIDACIÓN DOCUMENTO ═══════════════
+    (function() {
+        const typeSelect = document.getElementById('hotel_document_type_select');
+        const numberInput = document.getElementById('hotel_document_number_input');
+
+        function updateDocumentPattern() {
+            if (!typeSelect || !numberInput) return;
+            switch (typeSelect.value) {
+                case 'ruc':
+                    numberInput.pattern = '[0-9]{13}';
+                    numberInput.maxLength = 13;
+                    numberInput.placeholder = 'Ej: 0901234567001 (13 dígitos)';
+                    numberInput.title = 'El RUC debe tener exactamente 13 dígitos numéricos';
+                    break;
+                case 'cedula':
+                    numberInput.pattern = '[0-9]{10}';
+                    numberInput.maxLength = 10;
+                    numberInput.placeholder = 'Ej: 0901234567 (10 dígitos)';
+                    numberInput.title = 'La cédula debe tener exactamente 10 dígitos numéricos';
+                    break;
+                case 'pasaporte':
+                    numberInput.pattern = '[A-Za-z0-9]{6,15}';
+                    numberInput.maxLength = 15;
+                    numberInput.placeholder = 'Ej: AB1234567 (6-15 caracteres)';
+                    numberInput.title = 'El pasaporte debe tener entre 6 y 15 caracteres alfanuméricos';
+                    break;
+                default:
+                    numberInput.pattern = '';
+                    numberInput.maxLength = 15;
+                    numberInput.placeholder = 'Número de documento';
+                    numberInput.title = '';
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', updateDocumentPattern);
+            updateDocumentPattern(); // aplicar al cargar (incluye re-render con errores)
+        }
+    })();
 </script>

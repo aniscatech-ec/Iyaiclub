@@ -1,0 +1,194 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <!-- Encabezado -->
+      <div class="mb-4 d-flex align-items-center gap-2">
+        <%= link_to :back, class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+          <i class="fas fa-arrow-left"></i>
+        <% end %>
+        <div>
+          <h3 class="fw-bold mb-0">
+            <i class="fas fa-crown me-2" style="color: var(--brand-orange);"></i>
+            Reservar con Beneficio Exclusivo
+          </h3>
+          <small class="text-muted">Tu plan <%= current_user.membership_display_name %> incluye este beneficio</small>
+        </div>
+      </div>
+
+      <!-- Resumen del establecimiento -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <% establishment = @bookable.respond_to?(:establishment) ? @bookable.establishment : nil %>
+          <h5 class="fw-bold mb-3">
+            <%= establishment&.name || @bookable.try(:name) || "Establecimiento" %>
+          </h5>
+          <% if establishment&.address.present? %>
+            <p class="text-muted small mb-2">
+              <i class="fas fa-map-marker-alt me-1"></i> <%= establishment.address %>
+            </p>
+          <% end %>
+          <ul class="list-group list-group-flush">
+            <% if @booking.benefit_type == "pool" %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-swimming-pool me-1 text-info"></i> Tipo de beneficio</span>
+                <strong>Acceso a Piscina</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-ticket-alt me-1"></i> Visitas disponibles este año</span>
+                <strong class="text-success"><%= current_user.remaining_pool_visits %> de <%= current_user.pool_visits_per_year %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-users me-1"></i> Máx. acompañantes</span>
+                <strong><%= current_user.max_pool_guests %> persona(s)</strong>
+              </li>
+            <% else %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-bed me-1 text-primary"></i> Tipo de beneficio</span>
+                <strong>Alojamiento Gratuito</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-moon me-1"></i> Noches disponibles este año</span>
+                <strong class="text-success"><%= current_user.remaining_free_nights %> de <%= current_user.free_nights_per_year %></strong>
+              </li>
+              <% if current_user.includes_breakfast? %>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span><i class="fas fa-coffee me-1 text-warning"></i> Desayuno</span>
+                  <strong class="text-success">Incluido</strong>
+                </li>
+              <% end %>
+              <% if current_user.includes_dinner? %>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span><i class="fas fa-utensils me-1 text-warning"></i> Cena</span>
+                  <strong class="text-success">Incluida</strong>
+                </li>
+              <% end %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-users me-1"></i> Máx. acompañantes</span>
+                <strong><%= current_user.max_lodging_guests %> persona(s)</strong>
+              </li>
+            <% end %>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-tag me-1"></i> Costo</span>
+              <strong class="text-success fs-5">GRATIS</strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Alerta informativa -->
+      <div class="alert alert-info border-0 rounded-3 d-flex gap-2 align-items-start mb-4" role="alert">
+        <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+        <div class="small">
+          Al enviar esta solicitud, nuestro equipo te contactará por WhatsApp o correo para confirmar disponibilidad y coordinar los detalles.
+          La reserva se activará una vez que todo esté listo.
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <% parent_path = if params[:getaway_id]
+                         turista_getaway_benefit_requests_path(@bookable)
+                       elsif params[:hotel_id]
+                         turista_hotel_benefit_requests_path(@bookable)
+                       else
+                         turista_lodging_benefit_requests_path(@bookable)
+                       end %>
+
+      <%= form_with url: parent_path, method: :post, local: true, scope: :booking do |f| %>
+        <%= f.hidden_field :benefit_type, value: @booking.benefit_type %>
+
+        <% if @booking.errors.any? %>
+          <div class="alert alert-danger rounded-3 mb-4">
+            <strong>Por favor corrige los siguientes errores:</strong>
+            <ul class="mb-0 mt-1 small">
+              <% @booking.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Datos del titular -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0"><i class="fas fa-user me-2"></i>Datos del titular</h6>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre completo</label>
+              <%= f.text_field :guest_name, value: @booking.guest_name,
+                    class: "form-control", required: true %>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Correo electrónico</label>
+              <%= f.email_field :guest_email, value: @booking.guest_email,
+                    class: "form-control", required: true %>
+            </div>
+            <div class="mb-0">
+              <label class="form-label fw-semibold">
+                Número de personas
+                <small class="text-muted fw-normal">
+                  (máx. <%= @booking.benefit_type == "pool" ? current_user.max_pool_guests : current_user.max_lodging_guests %>)
+                </small>
+              </label>
+              <%= f.number_field :guest_count, value: (@booking.guest_count || 1),
+                    class: "form-control",
+                    min: 1,
+                    max: (@booking.benefit_type == "pool" ? current_user.max_pool_guests : current_user.max_lodging_guests),
+                    required: true %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fechas preferidas -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0"><i class="fas fa-calendar-alt me-2"></i>Fechas preferidas</h6>
+            <small class="text-muted">Sujeto a disponibilidad</small>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6">
+                <label class="form-label fw-semibold">Fecha de entrada</label>
+                <%= f.date_field :start_date, value: @booking.start_date,
+                      class: "form-control",
+                      min: Date.current.to_s,
+                      required: true %>
+              </div>
+              <% if @booking.benefit_type == "lodging" %>
+                <div class="col-12 col-sm-6">
+                  <label class="form-label fw-semibold">Fecha de salida</label>
+                  <%= f.date_field :end_date, value: @booking.end_date,
+                        class: "form-control",
+                        min: (Date.current + 1.day).to_s %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas adicionales -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0"><i class="fas fa-comment-alt me-2"></i>Notas adicionales</h6>
+            <small class="text-muted">Opcional — solicitudes especiales, restricciones alimenticias, etc.</small>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <%= f.text_area :benefit_notes, value: @booking.benefit_notes,
+                  class: "form-control", rows: 3,
+                  placeholder: "Ej: Llegamos tarde, necesitamos cuna para bebé..." %>
+          </div>
+        </div>
+
+        <!-- Botón de envío -->
+        <div class="d-grid gap-2">
+          <%= f.submit "Enviar solicitud de beneficio",
+                class: "btn btn-warning fw-bold py-3 rounded-pill",
+                style: "font-size: 1rem;" %>
+          <%= link_to "Cancelar", :back, class: "btn btn-outline-secondary rounded-pill" %>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>
