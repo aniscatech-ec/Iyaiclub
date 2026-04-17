@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_130000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -73,6 +73,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_120000) do
     t.bigint "room_id"
     t.string "bookable_type", null: false
     t.bigint "user_id"
+    t.boolean "benefit_request", default: false, null: false
+    t.string "benefit_type"
+    t.text "benefit_notes"
+    t.text "admin_notes"
+    t.index ["benefit_request"], name: "index_bookings_on_benefit_request"
     t.index ["bookable_type", "bookable_id"], name: "index_bookings_on_bookable_type_and_bookable_id"
     t.index ["room_id"], name: "index_bookings_on_room_id"
     t.index ["status"], name: "index_bookings_on_status"

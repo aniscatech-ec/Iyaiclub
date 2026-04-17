@@ -165,6 +165,42 @@ module MembershipAccess
     free_nights_benefits[:max_guests]
   end
 
+  # ─── Benefit request helpers ───────────────────────────────────────────────
+
+  def used_lodging_benefits_this_year
+    return 0 unless respond_to?(:bookings)
+    bookings.confirmed_benefits
+            .where(benefit_type: "lodging")
+            .where("created_at >= ?", Date.current.beginning_of_year)
+            .count
+  end
+
+  def used_pool_benefits_this_year
+    return 0 unless respond_to?(:bookings)
+    bookings.confirmed_benefits
+            .where(benefit_type: "pool")
+            .where("created_at >= ?", Date.current.beginning_of_year)
+            .count
+  end
+
+  def remaining_free_nights
+    [free_nights_per_year - used_lodging_benefits_this_year, 0].max
+  end
+
+  def remaining_pool_visits
+    [pool_visits_per_year - used_pool_benefits_this_year, 0].max
+  end
+
+  def can_request_lodging_benefit?
+    can_access_free_nights? && remaining_free_nights > 0
+  end
+
+  def can_request_pool_benefit?
+    can_access_pool_visits? && remaining_pool_visits > 0
+  end
+
+  # ────────────────────────────────────────────────────────────────────────────
+
   def membership_display_name
     case membership_level
     when :free then "Free"

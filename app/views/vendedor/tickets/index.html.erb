@@ -44,24 +44,26 @@
   <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body px-4 pb-4">
       <% if @tickets.any? %>
-        <%= form_with url: bulk_acreditar_vendedor_event_tickets_path(@event), method: :patch, id: "bulk-tickets-form" do |f| %>
-          <%= hidden_field_tag :_bulk_action, "acreditar" %>
+        <%= form_with url: bulk_acreditar_vendedor_event_tickets_path(@event), method: :patch, id: "bulk-tickets-form",
+              data: { turbo_confirm: "" } do |f| %>
 
           <!-- Barra de acciones masivas -->
           <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
             <span class="fw-semibold me-2">
               <span id="selected-count">0</span> ticket(s) seleccionado(s)
             </span>
-            <button type="submit" id="btn-bulk-acreditar"
+            <button type="button" id="btn-bulk-acreditar"
                     class="btn btn-success btn-sm"
+                    data-action="acreditar"
                     data-url="<%= bulk_acreditar_vendedor_event_tickets_path(@event) %>"
-                    data-turbo-confirm="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
+                    data-confirm-msg="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
               <i class="fas fa-check me-1"></i> Acreditar seleccionados
             </button>
-            <button type="submit" id="btn-bulk-rechazar"
+            <button type="button" id="btn-bulk-rechazar"
                     class="btn btn-danger btn-sm"
-                    formaction="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
-                    data-turbo-confirm="¿Rechazar los tickets seleccionados?">
+                    data-action="rechazar"
+                    data-url="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
+                    data-confirm-msg="¿Rechazar los tickets seleccionados?">
               <i class="fas fa-times me-1"></i> Rechazar seleccionados
             </button>
             <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
@@ -208,13 +210,21 @@
     updateToolbar();
   });
 
-  // Validar que haya al menos un ticket seleccionado antes de hacer submit
+  // Manejar acreditar y rechazar: cambiar action del form y hacer submit nativo
   ['btn-bulk-acreditar', 'btn-bulk-rechazar'].forEach(function(id) {
-    document.getElementById(id)?.addEventListener('click', function(e) {
+    document.getElementById(id)?.addEventListener('click', function() {
       if (getChecked().length === 0) {
-        e.preventDefault();
         alert('Selecciona al menos un ticket.');
+        return;
       }
+      var msg = this.getAttribute('data-confirm-msg');
+      if (!confirm(msg)) return;
+
+      // Cambiar la action del formulario a la URL del botón pulsado
+      form.action = this.getAttribute('data-url');
+      // Remover data-turbo-confirm para que Turbo no vuelva a preguntar
+      form.removeAttribute('data-turbo-confirm');
+      form.submit();
     });
   });
 })();

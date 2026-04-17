@@ -104,6 +104,15 @@ Rails.application.routes.draw do
   namespace :turista do
     resources :dashboard, only: [:index]
     resources :bookings, only: [:index, :show]
+    resources :getaways, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
+    resources :hotels, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
+    resources :lodgings, only: [] do
+      resources :benefit_requests, only: [:new, :create], controller: "benefit_requests"
+    end
     resources :visits, only: [:index]
     resources :points, only: [:index]
     resources :rewards, only: [:index] do
@@ -227,6 +236,16 @@ Rails.application.routes.draw do
         patch :approve
         patch :cancel
         patch :update_plan_price
+      end
+      collection do
+        get  :benefit_requests
+      end
+    end
+
+    resources :benefit_bookings, only: [], controller: "memberships" do
+      member do
+        patch :activate_benefit
+        patch :reject_benefit
       end
     end
 

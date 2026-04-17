@@ -2,6 +2,7 @@ class Admin::MembershipsController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!
   before_action :set_membership, only: [:show, :update, :destroy, :approve, :cancel]
+  before_action :set_benefit_booking, only: [:activate_benefit, :reject_benefit]
   layout "dashboard"
 
   def index
@@ -71,6 +72,27 @@ class Admin::MembershipsController < ApplicationController
     end
   end
 
+  def benefit_requests
+    @benefit_bookings = Booking.benefit_requests
+                               .includes(:user, :bookable)
+                               .order(created_at: :desc)
+    @benefit_bookings = @benefit_bookings.where(status: params[:status]) if params[:status].present?
+    @benefit_bookings = @benefit_bookings.where(benefit_type: params[:benefit_type]) if params[:benefit_type].present?
+  end
+
+  def activate_benefit
+    @benefit_booking.activar_beneficio!
+    UserMailer.benefit_activated(@benefit_booking.user, @benefit_booking).deliver_later
+    redirect_to benefit_requests_admin_memberships_path,
+                notice: "Beneficio activado. Se notificó al usuario #{@benefit_booking.user&.name}."
+  end
+
+  def reject_benefit
+    @benefit_booking.update!(status: :rechazado, admin_notes: params[:admin_notes])
+    redirect_to benefit_requests_admin_memberships_path,
+                notice: "Solicitud rechazada."
+  end
+
   private
 
   def set_membership
@@ -83,5 +105,9 @@ class Admin::MembershipsController < ApplicationController
 
   def plan_price_params
     params.require(:plan_price).permit(:price)
+  end
+
+  def set_benefit_booking
+    @benefit_booking = Booking.benefit_requests.find(params[:id])
   end
 end

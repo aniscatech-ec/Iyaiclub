@@ -9,7 +9,14 @@
         <i class="fas fa-hotel" style="color: <%= status_color(booking.status) %>;"></i>
       </div>
       <div class="flex-grow-1">
-        <h6 class="fw-bold mb-1"><%= booking.establishment&.name || "Establecimiento" %></h6>
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+          <h6 class="fw-bold mb-0"><%= booking.establishment&.name || "Establecimiento" %></h6>
+          <% if booking.benefit_request? %>
+            <span class="badge text-dark" style="background: linear-gradient(135deg, #ffc107, #fd7e14); font-size: 0.65rem;">
+              <i class="fas fa-crown me-1"></i><%= booking.benefit_label %>
+            </span>
+          <% end %>
+        </div>
         <p class="text-muted small mb-2">
           <i class="fas fa-map-marker-alt me-1"></i>
           <%= booking.establishment&.city&.name %>
@@ -19,12 +26,18 @@
             <i class="fas fa-calendar-alt me-1"></i>
             <%= booking.start_date&.strftime("%d/%m/%Y") %>
           </span>
-          <span class="badge bg-light text-dark">
-            <i class="fas fa-calendar-check me-1"></i>
-            <%= booking.end_date&.strftime("%d/%m/%Y") %>
-          </span>
+          <% if booking.end_date.present? %>
+            <span class="badge bg-light text-dark">
+              <i class="fas fa-calendar-check me-1"></i>
+              <%= booking.end_date.strftime("%d/%m/%Y") %>
+            </span>
+          <% end %>
           <span class="badge bg-<%= status_badge_class(booking.status) %>">
-            <%= booking.status&.capitalize %>
+            <% if booking.benefit_request? && booking.pendiente? %>
+              Pendiente de activación
+            <% else %>
+              <%= booking.status&.capitalize %>
+            <% end %>
           </span>
         </div>
       </div>

@@ -10,14 +10,34 @@ class Booking < ApplicationRecord
   }
 
   validates :start_date, :guest_count, :guest_name, :guest_email, presence: true
-  validates :end_date, presence: true, if: -> { bookable_type.in?(%w[Room Unit Lodging]) }
+  validates :end_date, presence: true, if: -> { !benefit_request? && bookable_type.in?(%w[Room Unit Lodging]) }
   validate :end_after_start
   validate :bookable_available
+
+  scope :benefit_requests,   -> { where(benefit_request: true) }
+  scope :pending_benefits,   -> { benefit_requests.where(status: "pendiente") }
+  scope :confirmed_benefits, -> { benefit_requests.where(status: "confirmado") }
+
+  BENEFIT_TYPES = { lodging: "lodging", pool: "pool" }.freeze
+
+  def activar_beneficio!
+    update!(status: "confirmado")
+  end
+
+  def benefit_label
+    case benefit_type
+    when "lodging" then "Alojamiento Gratuito"
+    when "pool"    then "Piscina Gratuita"
+    else "Beneficio Exclusivo"
+    end
+  end
 
   def establishment
     case bookable
     when Room
       bookable.hotel&.establishment
+    when Hotel
+      bookable.establishment
     else
       bookable&.establishment
     end

@@ -1,0 +1,157 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-crown me-2" style="color: var(--brand-orange);"></i>
+      Solicitudes de Beneficio Exclusivo
+    </h3>
+    <%= link_to admin_memberships_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver a Membresías
+    <% end %>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body py-3 px-4">
+      <div class="d-flex flex-wrap gap-2">
+        <%= link_to benefit_requests_admin_memberships_path,
+              class: "btn btn-sm #{params[:status].blank? ? 'btn-primary' : 'btn-outline-primary'}" do %>
+          Todas
+        <% end %>
+        <%= link_to benefit_requests_admin_memberships_path(status: "pendiente"),
+              class: "btn btn-sm #{params[:status] == 'pendiente' ? 'btn-warning' : 'btn-outline-warning'}" do %>
+          <i class="fas fa-clock me-1"></i> Pendientes
+        <% end %>
+        <%= link_to benefit_requests_admin_memberships_path(status: "confirmado"),
+              class: "btn btn-sm #{params[:status] == 'confirmado' ? 'btn-success' : 'btn-outline-success'}" do %>
+          <i class="fas fa-check me-1"></i> Activadas
+        <% end %>
+        <%= link_to benefit_requests_admin_memberships_path(status: "rechazado"),
+              class: "btn btn-sm #{params[:status] == 'rechazado' ? 'btn-danger' : 'btn-outline-danger'}" do %>
+          <i class="fas fa-times me-1"></i> Rechazadas
+        <% end %>
+        <div class="ms-auto d-flex gap-2">
+          <%= link_to benefit_requests_admin_memberships_path(params.permit(:status).merge(benefit_type: "lodging")),
+                class: "btn btn-sm #{params[:benefit_type] == 'lodging' ? 'btn-primary' : 'btn-outline-primary'}" do %>
+            <i class="fas fa-bed me-1"></i> Alojamiento
+          <% end %>
+          <%= link_to benefit_requests_admin_memberships_path(params.permit(:status).merge(benefit_type: "pool")),
+                class: "btn btn-sm #{params[:benefit_type] == 'pool' ? 'btn-info text-white' : 'btn-outline-info'}" do %>
+            <i class="fas fa-swimming-pool me-1"></i> Piscina
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+      <% if @benefit_bookings.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">#</th>
+                <th>Usuario</th>
+                <th>Plan</th>
+                <th>Beneficio</th>
+                <th>Establecimiento</th>
+                <th>Fechas solicitadas</th>
+                <th>Personas</th>
+                <th>Estado</th>
+                <th class="pe-4">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @benefit_bookings.each do |booking| %>
+                <% user = booking.user %>
+                <% establishment = booking.establishment %>
+                <tr class="<%= 'table-warning' if booking.pendiente? %>">
+                  <td class="ps-4 text-muted small"><%= booking.id %></td>
+                  <td>
+                    <div class="fw-semibold"><%= user&.name || "—" %></div>
+                    <div class="small text-muted"><%= user&.email %></div>
+                    <% phone = user&.try(:phone) || user&.try(:whatsapp) %>
+                    <% if phone.present? %>
+                      <%= link_to whatsapp_link(phone, "Hola #{user.name}, recibimos tu solicitud de beneficio IyaiClub."),
+                            target: "_blank", class: "badge bg-success text-decoration-none mt-1" do %>
+                        <i class="fab fa-whatsapp me-1"></i><%= phone %>
+                      <% end %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if user&.active_membership %>
+                      <span class="badge <%= user.membership_badge_class %>">
+                        <%= user.membership_display_name %>
+                      </span>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= booking.benefit_type == 'pool' ? 'bg-info text-dark' : 'bg-primary' %>">
+                      <i class="fas <%= booking.benefit_type == 'pool' ? 'fa-swimming-pool' : 'fa-bed' %> me-1"></i>
+                      <%= booking.benefit_label %>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="fw-semibold small"><%= establishment&.name || "—" %></div>
+                    <div class="text-muted" style="font-size: 0.75rem;"><%= establishment&.address&.truncate(35) %></div>
+                  </td>
+                  <td class="small">
+                    <div><i class="fas fa-sign-in-alt me-1 text-success"></i><%= booking.start_date&.strftime("%d/%m/%Y") || "—" %></div>
+                    <% if booking.end_date.present? %>
+                      <div><i class="fas fa-sign-out-alt me-1 text-danger"></i><%= booking.end_date.strftime("%d/%m/%Y") %></div>
+                    <% end %>
+                  </td>
+                  <td class="text-center"><%= booking.guest_count %></td>
+                  <td>
+                    <% status_cfg = case booking.status
+                                    when "pendiente"  then { cls: "bg-warning text-dark", label: "Pendiente" }
+                                    when "confirmado" then { cls: "bg-success",           label: "Activada" }
+                                    when "rechazado"  then { cls: "bg-danger",            label: "Rechazada" }
+                                    else                   { cls: "bg-secondary",         label: booking.status&.capitalize }
+                                    end %>
+                    <span class="badge <%= status_cfg[:cls] %>"><%= status_cfg[:label] %></span>
+                    <% if booking.benefit_notes.present? %>
+                      <div class="small text-muted mt-1" title="<%= booking.benefit_notes %>">
+                        <i class="fas fa-comment-alt me-1"></i><%= booking.benefit_notes.truncate(30) %>
+                      </div>
+                    <% end %>
+                  </td>
+                  <td class="pe-4">
+                    <% if booking.pendiente? %>
+                      <div class="d-flex flex-column flex-lg-row gap-1">
+                        <%= button_to activate_benefit_admin_benefit_booking_path(booking),
+                              method: :patch,
+                              form: { data: { turbo_confirm: "¿Activar el beneficio para #{user&.name}? Se le enviará un correo de confirmación." } },
+                              class: "btn btn-success btn-sm" do %>
+                          <i class="fas fa-check me-1"></i> Activar
+                        <% end %>
+                        <%= button_to reject_benefit_admin_benefit_booking_path(booking),
+                              method: :patch,
+                              form: { data: { turbo_confirm: "¿Rechazar esta solicitud?" } },
+                              class: "btn btn-outline-danger btn-sm" do %>
+                          <i class="fas fa-times me-1"></i> Rechazar
+                        <% end %>
+                      </div>
+                    <% elsif booking.confirmado? %>
+                      <span class="text-success small"><i class="fas fa-check-circle me-1"></i>Activado</span>
+                    <% elsif booking.rechazado? %>
+                      <span class="text-danger small"><i class="fas fa-times-circle me-1"></i>Rechazado</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-5">
+          <i class="fas fa-crown fa-3x text-muted mb-3"></i>
+          <h6 class="text-muted">No hay solicitudes de beneficio</h6>
+          <p class="text-muted small">Cuando un miembro solicite usar su beneficio exclusivo, aparecerá aquí.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

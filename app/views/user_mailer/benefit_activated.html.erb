@@ -1,0 +1,95 @@
+<h2 style="margin: 0 0 16px 0; color: #28a745; font-size: 24px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  ✅ ¡Tu <%= @booking.benefit_label %> está confirmado!
+</h2>
+
+<p style="margin: 0 0 16px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+  Hola <strong><%= @user.name.presence || @user.email %></strong>, ¡buenas noticias!
+  Hemos coordinado todo para que disfrutes tu beneficio exclusivo. Aquí están los detalles confirmados:
+</p>
+
+<!-- Confirmación -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f0fff4; border-left: 4px solid #28a745; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #155724; font-size: 15px; font-weight: bold;">
+        🎉 Reserva confirmada
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px; width: 40%;">Beneficio</td>
+          <td style="padding: 4px 0; color: #155724; font-size: 14px; font-weight: bold;"><%= @booking.benefit_label %></td>
+        </tr>
+        <% if @booking.establishment&.name.present? %>
+          <tr>
+            <td style="padding: 4px 0; color: #555555; font-size: 14px;">Establecimiento</td>
+            <td style="padding: 4px 0; color: #155724; font-size: 14px; font-weight: bold;"><%= @booking.establishment.name %></td>
+          </tr>
+          <% if @booking.establishment.address.present? %>
+            <tr>
+              <td style="padding: 4px 0; color: #555555; font-size: 14px;">Dirección</td>
+              <td style="padding: 4px 0; color: #333333; font-size: 14px;"><%= @booking.establishment.address %></td>
+            </tr>
+          <% end %>
+          <% if @booking.establishment.phone.present? %>
+            <tr>
+              <td style="padding: 4px 0; color: #555555; font-size: 14px;">Teléfono</td>
+              <td style="padding: 4px 0; color: #333333; font-size: 14px;"><%= @booking.establishment.phone %></td>
+            </tr>
+          <% end %>
+        <% end %>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Fecha</td>
+          <td style="padding: 4px 0; color: #155724; font-size: 14px; font-weight: bold;">
+            <%= @booking.start_date&.strftime("%d/%m/%Y") %>
+            <% if @booking.end_date.present? %>
+              — <%= @booking.end_date.strftime("%d/%m/%Y") %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Personas</td>
+          <td style="padding: 4px 0; color: #155724; font-size: 14px; font-weight: bold;"><%= @booking.guest_count %></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">Costo total</td>
+          <td style="padding: 4px 0; color: #28a745; font-size: 16px; font-weight: bold;">GRATIS ✓</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Instrucciones -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f8f9fa; border-radius: 8px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 10px 0; color: #495057; font-size: 15px; font-weight: bold;">📋 Instrucciones</h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            🪪 &nbsp;Presenta este correo o tu identificación al llegar al establecimiento.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            📲 &nbsp;Si tienes alguna duda, contáctanos por WhatsApp antes de tu visita.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 5px 0; color: #555555; font-size: 14px;">
+            ⏰ &nbsp;Respeta los horarios de check-in/check-out del establecimiento.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 13px; line-height: 1.5;">
+  ¿Tienes alguna pregunta? Escríbenos a <a href="mailto:info@iyaiclub.com" style="color: #EB633B; text-decoration: none;">info@iyaiclub.com</a> o por WhatsApp.
+</p>
+
+<p style="margin: 16px 0 0 0; color: #555555; font-size: 14px; font-style: italic;">
+  ¡Disfruta tu beneficio exclusivo!<br/>
+  <strong style="color: #EB633B; font-style: normal;">El equipo de IyaiClub</strong>
+</p>

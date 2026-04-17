@@ -191,6 +191,32 @@
               <% end %>
             <% end %>
 
+            <%# Botón de beneficio exclusivo para piscinas %>
+            <% if user_signed_in? && current_user.turista? && @getaway.piscina? && current_user.can_request_pool_benefit? %>
+              <div class="border border-warning rounded-3 p-3 text-center mb-1" style="background: rgba(255,193,7,0.08);">
+                <div class="small text-warning fw-semibold mb-2">
+                  <i class="fas fa-crown me-1"></i>
+                  Beneficio <%= current_user.membership_display_name %>
+                  <span class="badge bg-warning text-dark ms-1"><%= current_user.remaining_pool_visits %> visita(s) disponible(s)</span>
+                </div>
+                <%= link_to new_turista_getaway_benefit_request_path(@getaway, benefit_type: "pool"),
+                      class: "btn btn-warning rounded-pill fw-bold w-100" do %>
+                  <i class="fas fa-swimming-pool me-1"></i> Reservar con mi beneficio
+                <% end %>
+              </div>
+            <% elsif user_signed_in? && current_user.turista? && @getaway.piscina? && current_user.can_access_pool_visits? && !current_user.can_request_pool_benefit? %>
+              <div class="border rounded-3 p-2 text-center mb-1 bg-light">
+                <small class="text-muted">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Ya usaste todas tus visitas de piscina este año (<%= current_user.pool_visits_per_year %> de <%= current_user.pool_visits_per_year %>)
+                </small>
+              </div>
+            <% end %>
+
+            <%= link_to getaway_bookings_path(@getaway), class: "btn btn-primary rounded-pill fw-semibold" do %>
+              <i class="fas fa-calendar-check me-1"></i> Reservar ahora
+            <% end %>
+
             <% phone = est.whatsapp.presence || est.legal_info&.contact_phone %>
             <% if phone.present? %>
               <a href="https://wa.me/<%= phone.to_s.gsub(/\D/, '') %>?text=<%= CGI.escape("Hola, me interesa la escapada #{est.name}") %>"

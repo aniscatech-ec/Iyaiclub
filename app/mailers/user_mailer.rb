@@ -83,8 +83,10 @@ class UserMailer < ApplicationMailer
       ? "⚠️ Membresía expirada sin pago: #{user.email}"
       : "⚠️ Cliente sin renovación: #{user.email} – prórroga iniciada"
 
+    admin_email = User.where(role: :administrador).pluck(:email).presence || ["pauliyai@iyaiclub.com"]
+
     mail(
-      to: "pauliyai@iyaiclub.com",
+      to: admin_email,
       subject: subject,
       from: email_from(:portal)
     )
@@ -99,6 +101,44 @@ class UserMailer < ApplicationMailer
       to: @user.email,
       subject: "Tu membresía IyaiClub ha expirado",
       from: email_from(:portal)
+    )
+  end
+
+  # Confirmación al usuario cuando solicita un beneficio exclusivo
+  def benefit_request_confirmation(user, booking)
+    @user    = user
+    @booking = booking
+
+    mail(
+      to: @user.email,
+      subject: "Solicitud de beneficio exclusivo recibida - IyaiClub",
+      from: email_from(:reservas)
+    )
+  end
+
+  # Notificación al admin cuando un usuario solicita un beneficio exclusivo
+  def benefit_request_admin_notification(user, booking)
+    @user    = user
+    @booking = booking
+
+    admin_email = User.where(role: :administrador).pluck(:email).presence || ["pauliyai@iyaiclub.com"]
+
+    mail(
+      to: admin_email,
+      subject: "🎁 Nueva solicitud de beneficio: #{user.name} – #{booking.benefit_label}",
+      from: email_from(:portal)
+    )
+  end
+
+  # Notificación al usuario cuando el admin activa su beneficio
+  def benefit_activated(user, booking)
+    @user    = user
+    @booking = booking
+
+    mail(
+      to: @user.email,
+      subject: "¡Tu #{booking.benefit_label} está confirmado! - IyaiClub",
+      from: email_from(:reservas)
     )
   end
 
