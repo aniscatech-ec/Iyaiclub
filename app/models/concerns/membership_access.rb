@@ -167,28 +167,41 @@ module MembershipAccess
 
   # ─── Benefit request helpers ───────────────────────────────────────────────
 
-  def used_lodging_benefits_this_year
+  # Noches comprometidas este año: pendientes + confirmadas (excluye rechazadas/canceladas)
+  def used_nights_this_year
     return 0 unless respond_to?(:bookings)
-    bookings.confirmed_benefits
+    bookings.benefit_requests
             .where(benefit_type: "lodging")
+            .where(status: %w[pendiente confirmado])
             .where("created_at >= ?", Date.current.beginning_of_year)
-            .count
+            .sum { |b| b.total_nights }
   end
 
-  def used_pool_benefits_this_year
+  # Días comprometidos este año (mismo cálculo)
+  def used_days_this_year
+    used_nights_this_year
+  end
+
+  # Visitas a piscina comprometidas este año: pendientes + confirmadas
+  def used_pool_visits_this_year
     return 0 unless respond_to?(:bookings)
-    bookings.confirmed_benefits
+    bookings.benefit_requests
             .where(benefit_type: "pool")
+            .where(status: %w[pendiente confirmado])
             .where("created_at >= ?", Date.current.beginning_of_year)
             .count
   end
 
   def remaining_free_nights
-    [free_nights_per_year - used_lodging_benefits_this_year, 0].max
+    [free_nights_per_year - used_nights_this_year, 0].max
+  end
+
+  def remaining_free_days
+    [free_days_per_year - used_days_this_year, 0].max
   end
 
   def remaining_pool_visits
-    [pool_visits_per_year - used_pool_benefits_this_year, 0].max
+    [pool_visits_per_year - used_pool_visits_this_year, 0].max
   end
 
   def can_request_lodging_benefit?

@@ -13,6 +13,7 @@ class Booking < ApplicationRecord
   validates :end_date, presence: true, if: -> { !benefit_request? && bookable_type.in?(%w[Room Unit Lodging]) }
   validate :end_after_start
   validate :bookable_available
+  validate :benefit_nights_within_allowance, if: -> { benefit_request? && benefit_type == "lodging" }
 
   scope :benefit_requests,   -> { where(benefit_request: true) }
   scope :pending_benefits,   -> { benefit_requests.where(status: "pendiente") }
@@ -60,6 +61,16 @@ class Booking < ApplicationRecord
     return if bookable.blank? || start_date.blank? || end_date.blank?
     unless bookable.available_between?(start_date, end_date)
       errors.add(:base, "La unidad no está disponible en las fechas seleccionadas")
+    end
+  end
+
+  def benefit_nights_within_allowance
+    return if user.blank? || start_date.blank? || end_date.blank?
+    nights = total_nights
+    return if nights <= 0
+    remaining = user.remaining_free_nights
+    if nights > remaining
+      errors.add(:end_date, "excede tu saldo disponible. Tienes #{remaining} noche(s) restante(s) este año (solicitaste #{nights})")
     end
   end
 end

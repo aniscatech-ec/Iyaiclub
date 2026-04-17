@@ -49,7 +49,14 @@
               </li>
               <li class="list-group-item d-flex justify-content-between px-0">
                 <span><i class="fas fa-moon me-1"></i> Noches disponibles este año</span>
-                <strong class="text-success"><%= current_user.remaining_free_nights %> de <%= current_user.free_nights_per_year %></strong>
+                <strong class="text-success">
+                  <span id="remaining-nights-display"><%= current_user.remaining_free_nights %></span>
+                  de <%= current_user.free_nights_per_year %>
+                </strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span><i class="fas fa-sun me-1"></i> Días disponibles este año</span>
+                <strong class="text-success"><%= current_user.remaining_free_days %> de <%= current_user.free_days_per_year %></strong>
               </li>
               <% if current_user.includes_breakfast? %>
                 <li class="list-group-item d-flex justify-content-between px-0">
@@ -152,6 +159,7 @@
                 <label class="form-label fw-semibold">Fecha de entrada</label>
                 <%= f.date_field :start_date, value: @booking.start_date,
                       class: "form-control",
+                      id: "benefit_start_date",
                       min: Date.current.to_s,
                       required: true %>
               </div>
@@ -160,12 +168,92 @@
                   <label class="form-label fw-semibold">Fecha de salida</label>
                   <%= f.date_field :end_date, value: @booking.end_date,
                         class: "form-control",
+                        id: "benefit_end_date",
                         min: (Date.current + 1.day).to_s %>
+                </div>
+
+                <!-- Resumen dinámico de noches seleccionadas -->
+                <div class="col-12" id="nights-summary" style="display:none;">
+                  <div class="rounded-3 p-3 d-flex align-items-center gap-3"
+                       id="nights-summary-box">
+                    <i class="fas fa-moon fa-lg"></i>
+                    <div>
+                      <div class="fw-semibold" id="nights-summary-text"></div>
+                      <div class="small" id="nights-summary-remaining"></div>
+                    </div>
+                  </div>
                 </div>
               <% end %>
             </div>
           </div>
         </div>
+
+        <% if @booking.benefit_type == "lodging" %>
+          <script>
+          (function() {
+            var maxNights   = <%= current_user.remaining_free_nights %>;
+            var startInput  = document.getElementById('benefit_start_date');
+            var endInput    = document.getElementById('benefit_end_date');
+            var summaryBox  = document.getElementById('nights-summary');
+            var summaryText = document.getElementById('nights-summary-text');
+            var summaryRem  = document.getElementById('nights-summary-remaining');
+            var summaryWrap = document.getElementById('nights-summary-box');
+
+            function updateSummary() {
+              var start = startInput.value ? new Date(startInput.value) : null;
+              var end   = endInput.value   ? new Date(endInput.value)   : null;
+
+              if (!start || !end || end <= start) {
+                summaryBox.style.display = 'none';
+                return;
+              }
+
+              var nights    = Math.round((end - start) / (1000 * 60 * 60 * 24));
+              var remaining = maxNights - nights;
+              summaryBox.style.display = 'block';
+
+              if (nights > maxNights) {
+                summaryWrap.className = 'rounded-3 p-3 d-flex align-items-center gap-3 bg-danger bg-opacity-10 text-danger';
+                summaryText.textContent = nights + ' noche(s) seleccionada(s) — excede tu saldo';
+                summaryRem.textContent  = 'Solo tienes ' + maxNights + ' noche(s) disponible(s). Ajusta la fecha de salida.';
+                // Bloquear fecha máxima de salida
+                var maxEnd = new Date(start);
+                maxEnd.setDate(maxEnd.getDate() + maxNights);
+                endInput.max = maxEnd.toISOString().split('T')[0];
+              } else {
+                summaryWrap.className = 'rounded-3 p-3 d-flex align-items-center gap-3 bg-success bg-opacity-10 text-success';
+                summaryText.textContent = nights + ' noche(s) seleccionada(s)';
+                summaryRem.textContent  = 'Te quedarán ' + remaining + ' noche(s) disponible(s) tras esta solicitud.';
+                endInput.max = '';
+              }
+            }
+
+            function onStartChange() {
+              if (!startInput.value) return;
+              // Mínimo de end = start + 1 día
+              var minEnd = new Date(startInput.value);
+              minEnd.setDate(minEnd.getDate() + 1);
+              endInput.min = minEnd.toISOString().split('T')[0];
+              // Máximo de end = start + noches restantes
+              var maxEnd = new Date(startInput.value);
+              maxEnd.setDate(maxEnd.getDate() + maxNights);
+              endInput.max = maxEnd.toISOString().split('T')[0];
+              // Si la fecha de salida ya elegida queda fuera del rango, limpiarla
+              if (endInput.value && new Date(endInput.value) > maxEnd) {
+                endInput.value = '';
+              }
+              updateSummary();
+            }
+
+            startInput.addEventListener('change', onStartChange);
+            endInput.addEventListener('change', updateSummary);
+
+            // Inicializar si ya hay valores (error de validación)
+            if (startInput.value) onStartChange();
+            if (endInput.value)   updateSummary();
+          })();
+          </script>
+        <% end %>
 
         <!-- Notas adicionales -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">

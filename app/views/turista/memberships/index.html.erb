@@ -384,12 +384,21 @@
   function togglePricing() {
     const toggle = document.getElementById('pricingToggle');
     const isAnnual = toggle.checked;
-    
+
     // Update labels
     document.querySelectorAll('.price-label').forEach(label => {
       label.classList.remove('active');
     });
     document.querySelector(`.price-label[data-period="${isAnnual ? 'annual' : 'monthly'}"]`).classList.add('active');
+
+    // Actualizar href de los botones según el periodo seleccionado
+    document.querySelectorAll('.btn-plan-subscribe').forEach(btn => {
+      const monthlyId = btn.dataset.monthlyId;
+      const annualId  = btn.dataset.annualId;
+      const baseUrl   = btn.dataset.baseUrl;
+      const id = isAnnual ? (annualId || monthlyId) : (monthlyId || annualId);
+      if (id && baseUrl) btn.href = baseUrl + '?plan_id=' + id;
+    });
     
     // Animate price change
     document.querySelectorAll('.monthly-price').forEach(el => {
@@ -994,8 +1003,13 @@
                     Plan Actual
                   </button>
                 <% else %>
-                  <%= link_to new_subscription_path(plan_id: (annual_price || monthly_price)&.id), 
-                      class: "btn btn-#{colors[:btn]} btn-subscribe w-100" do %>
+                  <%= link_to new_subscription_path(plan_id: (annual_price || monthly_price)&.id),
+                      class: "btn btn-#{colors[:btn]} btn-subscribe w-100 btn-plan-subscribe",
+                      data: {
+                        monthly_id: monthly_price&.id,
+                        annual_id:  annual_price&.id,
+                        base_url:   new_subscription_path
+                      } do %>
                     <i class="fas fa-rocket me-2"></i> Comenzar Ahora
                   <% end %>
                 <% end %>
