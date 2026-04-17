@@ -1,0 +1,25 @@
+¡Bienvenido, <%= @user.name.presence || "viajero" %>!
+
+Tu cuenta en IyaiClub ha sido verificada exitosamente. Ya tienes acceso a todo nuestro ecosistema de viajes y experiencias únicas.
+
+<% if @membership %>
+TU MEMBRESÍA
+------------
+Tipo: <%= @membership.plan_name %>
+Estado: Activa
+<% if @membership.end_date %>Válida hasta: <%= @membership.end_date.strftime("%d/%m/%Y") %><% end %>
+
+<% end %>
+Accede a tu panel:
+<%= turista_dashboard_index_url %>
+
+¿QUÉ PUEDES HACER AHORA?
+- Explorar destinos exclusivos
+- Hacer reservas en hoteles y restaurantes
+- Acumular puntos con cada experiencia
+- Canjear recompensas y disfrutar beneficios
+
+¿Necesitas ayuda? Escríbenos a info@iyaiclub.com
+
+Con cariño,
+El equipo de IyaiClub

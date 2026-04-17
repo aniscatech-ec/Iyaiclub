@@ -8,61 +8,28 @@
         </div>
         <div class="card-body">
 
+          <% establishment_name = @hotel&.establishment&.name || @parent&.establishment&.name || "Establecimiento" %>
+          <% bookable_name = @room&.name.presence || @unit&.name.presence || @unit&.unit_type.presence || @parent&.name.presence || "—" %>
+          <% price_per_night = @room&.price_per_night || @unit&.base_price || (@parent.respond_to?(:price_per_night) ? @parent.price_per_night : nil) || (@parent.respond_to?(:price) ? @parent.price : nil) || 0 %>
+
           <div class="alert alert-info">
-            <strong><%= @hotel.establishment.name %></strong> —
-            Unidad: <strong><%= @unit.unit_type.presence || "Sin tipo" %></strong>
-            (Capacidad: <%= @unit.capacity %> personas)
-            <br>
-            Precio base: <strong>$<%= number_with_precision(@unit.base_price, precision: 2) %></strong> / noche
-            <% if @unit.respond_to?(:price_per_person) && @unit.price_per_person.present? %>
-              | Precio por persona: <strong>$<%= number_with_precision(@unit.price_per_person, precision: 2) %></strong>
+            <strong><%= establishment_name %></strong>
+            <% if bookable_name.present? && bookable_name != "—" %>
+              — <strong><%= bookable_name %></strong>
+            <% end %>
+            <% if price_per_night > 0 %>
+              <br>Precio por noche: <strong>$<%= number_with_precision(price_per_night, precision: 2) %></strong>
             <% end %>
           </div>
 
-          <%= form_with(model: [@hotel, @booking], local: true) do |f| %>
-            <% if @booking.errors.any? %>
-              <div class="alert alert-danger">
-                <h6><%= pluralize(@booking.errors.count, "error") %> encontrados:</h6>
-                <ul class="mb-0">
-                  <% @booking.errors.full_messages.each do |msg| %>
-                    <li><%= msg %></li>
-                  <% end %>
-                </ul>
-              </div>
+          <% if @hotel %>
+            <%= form_with(model: [@hotel, @booking], local: true, data: { turbo: false }) do |f| %>
+              <%= render "form", f: f, booking: @booking, room: @room %>
             <% end %>
-
-            <%= f.hidden_field :unit_id, value: @unit.id %>
-
-            <div class="mb-3">
-              <%= f.label :guest_name, "Nombre completo", class: "form-label" %>
-              <%= f.text_field :guest_name, class: "form-control", placeholder: "Tu nombre completo", value: current_user.name %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :guest_email, "Correo electrónico", class: "form-label" %>
-              <%= f.email_field :guest_email, class: "form-control", placeholder: "tu@email.com", value: current_user.email %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :guest_count, "Número de huéspedes", class: "form-label" %>
-              <%= f.number_field :guest_count, class: "form-control", min: 1, max: @unit.capacity || 10 %>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <%= f.label :start_date, "Fecha de entrada", class: "form-label" %>
-                <%= f.date_field :start_date, class: "form-control", min: Date.today %>
-              </div>
-              <div class="col-md-6 mb-3">
-                <%= f.label :end_date, "Fecha de salida", class: "form-label" %>
-                <%= f.date_field :end_date, class: "form-control", min: Date.tomorrow %>
-              </div>
-            </div>
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-3">
-              <%= link_to "Cancelar", hotel_path(@hotel), class: "btn btn-outline-secondary" %>
-              <%= f.submit "Solicitar reserva", class: "btn btn-primary" %>
-            </div>
+          <% else %>
+            <%= form_with(model: [@parent, @booking], local: true, data: { turbo: false }) do |f| %>
+              <%= render "form", f: f, booking: @booking, room: nil %>
+            <% end %>
           <% end %>
 
         </div>

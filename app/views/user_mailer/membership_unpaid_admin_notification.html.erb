@@ -1,0 +1,97 @@
+<h2 style="margin: 0 0 16px 0; color: #dc3545; font-size: 22px; font-weight: bold; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <%= @grace_ended ? "⛔ Membresía expirada sin pago" : "⚠️ Cliente sin renovación — prórroga iniciada" %>
+</h2>
+
+<!-- Resumen del evento -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: <%= @grace_ended ? '#fff5f5' : '#fff8e1' %>; border-left: 4px solid <%= @grace_ended ? '#dc3545' : '#ffc107' %>; border-radius: 6px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <% if @grace_ended %>
+        <p style="margin: 0; color: #721c24; font-size: 15px; line-height: 1.5;">
+          La prórroga de <strong><%= @user.email %></strong> ha terminado y su membresía
+          <strong><%= @membership.plan_name %></strong> ha expirado definitivamente sin renovación.
+        </p>
+      <% else %>
+        <p style="margin: 0; color: #6c5700; font-size: 15px; line-height: 1.5;">
+          La membresía de <strong><%= @user.email %></strong> venció y no ha sido renovada.
+          Se ha activado una prórroga de <strong>5 días</strong> hasta el
+          <strong><%= @membership.grace_period_until&.strftime("%d/%m/%Y") %></strong>.
+        </p>
+      <% end %>
+    </td>
+  </tr>
+</table>
+
+<!-- Datos del cliente -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0; background-color: #f8f9fa; border-radius: 8px;">
+  <tr>
+    <td style="padding: 20px 24px;">
+      <h3 style="margin: 0 0 12px 0; color: #495057; font-size: 15px; font-weight: bold;">Datos del cliente</h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+            <strong>Nombre:</strong> <%= @user.name.presence || "—" %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+            <strong>Email:</strong> <%= @user.email %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+            <strong>Plan:</strong> <%= @membership.plan_name %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+            <strong>Fecha de vencimiento:</strong> <%= @membership.end_date&.strftime("%d/%m/%Y") %>
+          </td>
+        </tr>
+        <% if @membership.grace_period_until.present? %>
+          <tr>
+            <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+              <strong>Prórroga hasta:</strong> <%= @membership.grace_period_until.strftime("%d/%m/%Y") %>
+            </td>
+          </tr>
+        <% end %>
+        <tr>
+          <td style="padding: 4px 0; color: #555555; font-size: 14px;">
+            <strong>Estado actual:</strong>
+            <span style="color: <%= @grace_ended ? '#dc3545' : '#856404' %>; font-weight: bold;">
+              <%= @grace_ended ? "Expirada" : "En prórroga" %>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Enlace al admin -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 28px 0;">
+  <tr>
+    <td align="center">
+      <a href="<%= admin_memberships_url %>"
+         style="background-color: #495057;
+                border: 2px solid #343a40;
+                border-radius: 8px;
+                color: #ffffff;
+                display: inline-block;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-size: 15px;
+                font-weight: bold;
+                line-height: 1;
+                padding: 14px 30px;
+                text-align: center;
+                text-decoration: none;
+                -webkit-text-size-adjust: none;">
+        Ver en el panel de administración
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 24px 0 0 0; padding-top: 20px; border-top: 1px solid #eeeeee; color: #777777; font-size: 12px;">
+  Notificación automática del sistema IyaiClub — <%= Date.current.strftime("%d/%m/%Y") %>
+</p>

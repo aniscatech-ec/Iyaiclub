@@ -53,14 +53,96 @@
   <%= render "shared/search_hotels" %>
 <% end %>
 
+<!-- Explora por Categorías - Arriba de todo -->
+<div class="container-fluid py-2" style="background-color: #f2f7f8;">
+  <div class="container-fluid text-center">
+    <!-- Título -->
+    <h6 class="fw-bold mb-0" style="color: #7B3F00; font-size: 0.85rem;">Explora por Categorías</h6>
+    <p class="mb-1" style="color: #7B3F00; font-size: 0.7rem;">Encuentra lo que buscas para tu próxima aventura</p>
+
+    <!-- Grid de categorías -->
+    <section class="categories">
+      <div class="container-fluid px-2">
+        <div class="row row-cols-2 row-cols-md-6 g-2">
+          <% category_catalog.each do |cat| %>
+            <div class="col">
+              <%= render "shared/category_card_with_dropdown", category: cat %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Banner publicitario de Eventos - Compacto y arriba de todo -->
+<% if @upcoming_events.any? %>
+<div id="eventsBanner" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+  <div class="carousel-inner">
+    <% @upcoming_events.each_with_index do |event, index| %>
+      <div class="carousel-item <%= 'active' if index == 0 %>">
+        <%= link_to event_path(event), class: "text-decoration-none" do %>
+          <div class="position-relative" style="height: 220px; overflow: hidden;">
+            <% if event.image.attached? %>
+              <%= image_tag event.image, class: "w-100 h-100", style: "object-fit: cover;" %>
+            <% else %>
+              <div class="w-100 h-100" style="background: linear-gradient(135deg, #21C188, #FF9800);"></div>
+            <% end %>
+            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-between px-4" style="background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%);">
+              <div class="text-white">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge bg-warning text-dark">
+                    <i class="fas fa-calendar-alt me-1"></i> EVENTO
+                  </span>
+                  <span class="badge bg-white text-dark">
+                    <%= event.event_date&.strftime('%d/%m') || 'Próximamente' %>
+                  </span>
+                  <span class="badge <%= event.ticket_price.to_f > 0 ? 'bg-success' : 'bg-info' %>">
+                    <%= event.ticket_price.to_f > 0 ? "$#{number_with_precision(event.ticket_price, precision: 2)}" : 'GRATIS' %>
+                  </span>
+                </div>
+                <h4 class="fw-bold mb-1"><%= event.name %></h4>
+                <% if event.location.present? %>
+                  <p class="mb-0 small"><i class="fas fa-map-marker-alt me-1"></i> <%= event.location %></p>
+                <% end %>
+              </div>
+              <span class="text-white fw-bold fs-5">
+                Ver más <i class="fas fa-chevron-right ms-2"></i>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @upcoming_events.count > 1 %>
+    <button class="carousel-control-prev" type="button" data-bs-target="#eventsBanner" data-bs-slide="prev" style="width: 30px; opacity: 0.7;">
+      <span class="carousel-control-prev-icon" style="width: 15px; height: 15px;" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#eventsBanner" data-bs-slide="next" style="width: 30px; opacity: 0.7;">
+      <span class="carousel-control-next-icon" style="width: 15px; height: 15px;" aria-hidden="true"></span>
+    </button>
+  <% end %>
+</div>
+<script>
+  document.addEventListener("turbo:load", function() {
+    var el = document.getElementById("eventsBanner");
+    if (el && typeof bootstrap !== "undefined") {
+      new bootstrap.Carousel(el, { interval: 5000, ride: "carousel" });
+    }
+  });
+</script>
+<% end %>
+
 <!-- Fragmento dentro del body -->
-<div class="container-fluid py-5"
+<div class="container-fluid py-3"
      style="background: linear-gradient(90deg, #21C188, #FF9800); color: white;">
   <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
 
       <!-- Slide 1 -->
-      <div class="carousel-item active" style="height: 60vh;">
+      <div class="carousel-item active" style="height: 35vh;">
         <div class="position-absolute top-0 start-0 w-100 h-100">
           <%= image_tag "quito.jpg", class: "w-100 h-100", style: "object-fit: cover;" %>
         </div>
@@ -72,7 +154,7 @@
       </div>
 
       <!-- Slide 2 -->
-      <div class="carousel-item" style="height: 60vh;">
+      <div class="carousel-item" style="height: 35vh;">
         <div class="position-absolute top-0 start-0 w-100 h-100">
           <%= image_tag "cuenca.jpg", class: "w-100 h-100", style: "object-fit: cover;" %>
         </div>
@@ -84,7 +166,7 @@
       </div>
 
       <!-- Slide 3 -->
-      <div class="carousel-item" style="height: 60vh;">
+      <div class="carousel-item" style="height: 35vh;">
         <div class="position-absolute top-0 start-0 w-100 h-100">
           <%= image_tag "guayaquil.webp", class: "w-100 h-100", style: "object-fit: cover;" %>
         </div>
@@ -108,25 +190,7 @@
 
 </div>
 
-<div class="container-fluid py-5" style="background-color: #f2f7f8;">
-  <div class="container-fluid text-center">
-
-
-    <!-- Título -->
-    <h2 class="fw-bold" style="color: #7B3F00;">Explora por Categorías</h2>
-    <p style="color: #7B3F00;">Encuentra exactamente lo que buscas para tu próxima aventura</p>
-
-    <!-- Grid de categorías -->
-    <section class="categories py-5">
-      <div class="container-fluid ms-2 me-2">
-        <div class="row row-cols-1 row-cols-md-6 g-4">
-          <% category_catalog.each do |cat| %>
-            <div class="col-6 col-md-2">
-              <%= render "shared/category_card_with_dropdown", category: cat %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </section>
-  </div>
+<div class="container py-4">
+  <%= render "shared/custom_experience_cta" %>
 </div>
+

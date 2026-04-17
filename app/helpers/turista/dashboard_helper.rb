@@ -27,10 +27,11 @@ module Turista::DashboardHelper
     end
   end
 
-  def membership_gradient(plan_type)
-    case plan_type&.to_sym
-    when :vip then "#FFD700, #FFA500"
-    when :premium then "#8B5CF6, #6366F1"
+  def membership_gradient(plan_name)
+    case plan_name&.downcase
+    when /gold/, /vip/       then "#FFD700, #FFA500"
+    when /platinum/, /premium/ then "#8B5CF6, #6366F1"
+    when /bronce/             then "#CD7F32, #a0522d"
     else "var(--brand-green), #2a8c00"
     end
   end

@@ -1,0 +1,204 @@
+<%#
+  Partial compartido para renderizar la barra lateral con información común
+  de un establecimiento (datos legales, contacto, ubicación, horarios).
+
+  Parámetros:
+    - establishment: el objeto Establishment
+    - show_legal: (opcional) mostrar datos legales (true por defecto)
+    - show_hours: (opcional) mostrar horarios (true por defecto)
+%>
+<%
+  est = establishment
+  legal = est.legal_info
+  show_legal = local_assigns.fetch(:show_legal, true)
+  show_hours = local_assigns.fetch(:show_hours, true)
+%>
+
+<!-- DATOS LEGALES -->
+<% if show_legal && legal.present? %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green, #3FBD02), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h6 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> Datos legales</h6>
+    </div>
+    <div class="card-body p-3">
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-building me-1"></i> Razón social</div>
+        <div class="info-value small"><%= legal.business_name.presence || "—" %></div>
+      </div>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-id-card me-1"></i> <%= legal.document_type.presence || "Documento" %></div>
+        <div class="info-value small"><%= legal.document_number.presence || "—" %></div>
+      </div>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-user-tie me-1"></i> Representante</div>
+        <div class="info-value small"><%= legal.legal_representative.presence || "—" %></div>
+      </div>
+      <% if legal.contact_email.present? %>
+        <div class="info-item mb-2">
+          <div class="info-label"><i class="fas fa-envelope me-1"></i> Email</div>
+          <div class="info-value small">
+            <a href="mailto:<%= legal.contact_email %>" class="text-decoration-none">
+              <%= legal.contact_email %>
+            </a>
+          </div>
+        </div>
+      <% end %>
+      <% if legal.contact_phone.present? %>
+        <div class="info-item">
+          <div class="info-label"><i class="fas fa-phone me-1"></i> Teléfono</div>
+          <div class="info-value small">
+            <a href="tel:<%= legal.contact_phone %>" class="text-decoration-none">
+              <%= legal.contact_phone %>
+            </a>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<!-- CONTACTO PÚBLICO -->
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+  <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee, #88682B), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+    <h6 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> Contacto</h6>
+  </div>
+  <div class="card-body p-3">
+    <% if est.phone.present? %>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-phone me-1"></i> Teléfono</div>
+        <div class="info-value small">
+          <a href="tel:<%= est.phone %>" class="text-decoration-none"><%= est.phone %></a>
+        </div>
+      </div>
+    <% end %>
+    <% if est.whatsapp.present? %>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fab fa-whatsapp me-1 text-success"></i> WhatsApp</div>
+        <div class="info-value small">
+          <a href="https://wa.me/<%= est.whatsapp.to_s.gsub(/\D/, '') %>" target="_blank" class="text-decoration-none">
+            <%= est.whatsapp %>
+          </a>
+        </div>
+      </div>
+    <% end %>
+    <% if est.email.present? %>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-envelope me-1"></i> Email</div>
+        <div class="info-value small">
+          <a href="mailto:<%= est.email %>" class="text-decoration-none"><%= est.email %></a>
+        </div>
+      </div>
+    <% end %>
+    <% if est.website.present? %>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-globe me-1"></i> Sitio web</div>
+        <div class="info-value small">
+          <a href="<%= est.website %>" target="_blank" class="text-decoration-none text-truncate d-inline-block" style="max-width: 100%;">
+            <%= est.website %>
+          </a>
+        </div>
+      </div>
+    <% end %>
+    <% if est.video_url.present? %>
+      <div class="info-item">
+        <div class="info-label"><i class="fab fa-youtube me-1 text-danger"></i> Video</div>
+        <div class="info-value small">
+          <a href="<%= est.video_url %>" target="_blank" class="text-decoration-none">Ver video promocional</a>
+        </div>
+      </div>
+    <% end %>
+    <% unless est.phone.present? || est.whatsapp.present? || est.email.present? || est.website.present? || est.video_url.present? %>
+      <p class="text-muted fst-italic small mb-0">Sin información de contacto</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- UBICACIÓN -->
+<div class="card border-0 shadow-sm rounded-3 mb-4">
+  <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+    <h6 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> Ubicación</h6>
+  </div>
+  <div class="card-body p-3">
+    <% if est.address.present? %>
+      <div class="info-item mb-2">
+        <div class="info-label"><i class="fas fa-map-marker-alt me-1"></i> Dirección</div>
+        <div class="info-value small"><%= est.address %></div>
+      </div>
+    <% end %>
+    <div class="info-item mb-2">
+      <div class="info-label"><i class="fas fa-flag me-1"></i> País</div>
+      <div class="info-value small"><%= est.country&.name || "—" %></div>
+    </div>
+    <div class="info-item mb-2">
+      <div class="info-label"><i class="fas fa-map me-1"></i> Provincia</div>
+      <div class="info-value small"><%= est.province&.name || "—" %></div>
+    </div>
+    <div class="info-item mb-3">
+      <div class="info-label"><i class="fas fa-city me-1"></i> Ciudad</div>
+      <div class="info-value small"><%= est.city&.name || "—" %></div>
+    </div>
+
+    <% if est.arrival_instructions.present? %>
+      <div class="info-item mb-3 p-2 rounded-3" style="background: #fff8e1;">
+        <div class="info-label"><i class="fas fa-route me-1"></i> Cómo llegar</div>
+        <div class="info-value small"><%= est.arrival_instructions %></div>
+      </div>
+    <% end %>
+
+    <% if est.latitude.present? && est.longitude.present? %>
+      <div class="rounded-3 overflow-hidden">
+        <%= render "shared/map_display",
+                   latitude: est.latitude,
+                   longitude: est.longitude,
+                   name: est.name %>
+      </div>
+      <div class="mt-2 text-center">
+        <a href="https://www.google.com/maps?q=<%= est.latitude %>,<%= est.longitude %>" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+          <i class="fas fa-external-link-alt me-1"></i> Abrir en Google Maps
+        </a>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- HORARIOS -->
+<% if show_hours && (est.check_in_time.present? || est.check_out_time.present? || est.opening_time.present? || est.closing_time.present?) %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h6 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> Horarios</h6>
+    </div>
+    <div class="card-body p-3">
+      <% if est.check_in_time.present? || est.check_out_time.present? %>
+        <div class="row g-2 text-center">
+          <div class="col-6">
+            <div class="p-2 rounded-3" style="background: #f8f9fa;">
+              <div class="small text-muted"><i class="fas fa-sign-in-alt me-1" style="color: var(--brand-green, #3FBD02);"></i> Check-in</div>
+              <div class="fw-bold"><%= est.check_in_time&.strftime("%H:%M") || "—" %></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded-3" style="background: #f8f9fa;">
+              <div class="small text-muted"><i class="fas fa-sign-out-alt me-1" style="color: var(--brand-orange, #EB633B);"></i> Check-out</div>
+              <div class="fw-bold"><%= est.check_out_time&.strftime("%H:%M") || "—" %></div>
+            </div>
+          </div>
+        </div>
+      <% elsif est.opening_time.present? || est.closing_time.present? %>
+        <div class="row g-2 text-center">
+          <div class="col-6">
+            <div class="p-2 rounded-3" style="background: #f8f9fa;">
+              <div class="small text-muted"><i class="fas fa-door-open me-1" style="color: var(--brand-green, #3FBD02);"></i> Apertura</div>
+              <div class="fw-bold"><%= est.opening_time&.strftime("%H:%M") || "—" %></div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded-3" style="background: #f8f9fa;">
+              <div class="small text-muted"><i class="fas fa-door-closed me-1" style="color: var(--brand-orange, #EB633B);"></i> Cierre</div>
+              <div class="fw-bold"><%= est.closing_time&.strftime("%H:%M") || "—" %></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

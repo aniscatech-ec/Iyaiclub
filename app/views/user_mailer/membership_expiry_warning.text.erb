@@ -1,0 +1,17 @@
+Tu membresía IyaiClub vence en <%= @days_left %> <%= @days_left == 1 ? "día" : "días" %>
+
+Hola <%= @user.name.presence || @user.email %>,
+
+Tu membresía <%= @membership.plan_name %> vencerá el <%= @membership.end_date.strftime("%d/%m/%Y") %>.
+
+Para no perder tus beneficios, renueva antes de que expire. Si no la renuevas, tendrás una prórroga de 5 días adicionales.
+
+Plan: <%= @membership.plan_name %>
+Vence: <%= @membership.end_date.strftime("%d/%m/%Y") %>
+Descuento activo: <%= @user.discount_percentage %>%
+
+Renueva aquí: <%= turista_memberships_url %>
+
+¿Tienes alguna pregunta? Escríbenos a info@iyaiclub.com
+
+El equipo de IyaiClub

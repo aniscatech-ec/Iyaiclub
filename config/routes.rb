@@ -57,6 +57,13 @@ Rails.application.routes.draw do
   end
 
 
+  # PayPhone payment gateway
+  scope :payphone, controller: 'payphone', as: :payphone do
+    post :checkout, action: :checkout
+    get  :callback, action: :callback
+    get  :cancel,   action: :cancel
+  end
+
   resources :plan_prices
   resources :subscriptions do
     member do
@@ -74,6 +81,10 @@ Rails.application.routes.draw do
 
   resources :amenities
   get "home/home"
+
+  # Solicitudes personalizadas (Reserva Personalizada Iyaiclub)
+  # Rutas públicas: sólo new/create (requieren login en el controller).
+  resources :custom_requests, only: [:new, :create]
 
   resources :establishments do
     collection do
@@ -100,12 +111,56 @@ Rails.application.routes.draw do
       end
     end
     resources :redemptions, only: [:index]
-    resources :memberships, only: [:index]
+    resources :memberships, only: [:index] do
+      member do
+        patch :cancel
+        patch :reactivate
+      end
+    end
+    resources :custom_requests, only: [:index, :show]
+    resources :tickets, only: [:index, :show] do
+      member do
+        get :download
+        patch :mark_as_used
+        get :check_status
+      end
+    end
+    resources :events, only: [:index, :show] do
+      resources :tickets, only: [] do
+        collection do
+          get :new_free
+          post :create_free
+          get :new_purchase
+          post :create_purchase
+          get :new_transfer
+          post :create_transfer
+          get :transfer_status
+        end
+      end
+    end
+  end
+  namespace :vendedor do
+    resources :dashboard, only: [:index]
+    resources :events, only: [] do
+      resources :tickets, only: [:index] do
+        member do
+          patch :acreditar
+          patch :rechazar
+        end
+      end
+    end
   end
   namespace :afiliado do
     get "dashboard/index"
   end
-  devise_for :users
+  devise_for :users, controllers: {
+    confirmations: 'users/confirmations',
+    registrations: 'users/registrations'
+  }, sign_out_via: [:get, :delete]
+
+  # Vista informativa mostrada tras el registro para indicar al usuario
+  # que debe revisar su correo y confirmar la cuenta
+  get 'users/confirmation_pending', to: 'users/registrations#confirmation_pending', as: :users_confirmation_pending
 
   # get "home/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -121,6 +176,8 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root "home#index"
+
+  resources :events, only: [:index, :show]
   # authenticated :user do
   #   root to: "dashboard#index", as: :authenticated_root
   # end
@@ -154,6 +211,43 @@ Rails.application.routes.draw do
       member do
         patch :approve
         patch :cancel
+        patch :update_plan_price
+      end
+    end
+
+    resources :custom_requests, only: [:index, :show, :update, :destroy] do
+      member do
+        patch :assign
+        patch :change_status
+      end
+    end
+
+    resources :events do
+      member do
+        get :scanner
+        post :verify_ticket
+      end
+
+      resources :tickets, only: [:index] do
+        member do
+          patch :mark_used, to: "events#mark_ticket_used"
+        end
+      end
+
+      resources :raffles, only: [:index, :show, :new, :create, :destroy] do
+        member do
+          patch :draw_winner
+        end
+      end
+
+      resources :vendedores do
+        member do
+          patch :toggle_active
+        end
+        collection do
+          get :new_vendedor
+          post :create_vendedor
+        end
       end
     end
   end

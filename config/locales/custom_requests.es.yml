@@ -1,0 +1,20 @@
+es:
+  activerecord:
+    models:
+      custom_request:
+        one:   "Solicitud personalizada"
+        other: "Solicitudes personalizadas"
+    attributes:
+      custom_request:
+        destination:       "Destino"
+        start_date:        "Fecha de inicio"
+        end_date:          "Fecha de fin"
+        guests_count:      "Número de personas"
+        estimated_budget:  "Presupuesto estimado"
+        experience_type:   "Tipo de experiencia"
+        interests:         "Intereses"
+        preferences:       "Preferencias"
+        comments:          "Comentarios"
+        status:            "Estado"
+      establishment:
+        tipo_gestion_reserva: "Tipo de gestión de reservas"

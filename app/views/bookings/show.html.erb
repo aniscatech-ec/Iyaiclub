@@ -1,3 +1,27 @@
+<%
+  bookable = @booking.bookable
+  establishment = @booking.establishment
+  establishment_name = establishment&.name || @hotel&.establishment&.name || "Establecimiento"
+
+  bookable_name = case bookable
+                  when Room    then bookable.name.presence || bookable.room_type.to_s.humanize
+                  when Unit    then bookable.name.presence || bookable.unit_type.to_s.humanize
+                  when Lodging then bookable.name.presence || "Alojamiento"
+                  when Experience then bookable.name
+                  when Getaway    then bookable.name
+                  else "—"
+                  end
+
+  price_per_night = case bookable
+                    when Room    then bookable.price_per_night
+                    when Unit    then bookable.base_price
+                    when Lodging then bookable.price_per_night
+                    else nil
+                    end
+
+  iyaiclub_managed = establishment&.iyaiclub?
+%>
+
 <div class="container my-4">
   <div class="row justify-content-center">
     <div class="col-lg-8">
@@ -9,7 +33,7 @@
         <div class="card-body">
 
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0"><%= @hotel.establishment.name %></h5>
+            <h5 class="mb-0"><%= establishment_name %></h5>
             <% badge_class = case @booking.status
                              when "pendiente" then "bg-warning text-dark"
                              when "confirmado" then "bg-success"
@@ -19,6 +43,13 @@
                              end %>
             <span class="badge <%= badge_class %> fs-6"><%= @booking.status.capitalize %></span>
           </div>
+
+          <% if iyaiclub_managed %>
+            <div class="alert alert-info py-2 mb-3">
+              <i class="bi bi-shield-check me-1"></i>
+              Reserva gestionada por <strong>IyaiClub</strong>
+            </div>
+          <% end %>
 
           <hr>
 
@@ -39,23 +70,23 @@
               <p class="fw-bold"><%= @booking.guest_count %></p>
             </div>
             <div class="col-md-4 mb-3">
-              <p class="text-muted mb-1">Entrada</p>
-              <p class="fw-bold"><%= @booking.start_date.strftime("%d/%m/%Y") %></p>
+              <p class="text-muted mb-1">Entrada / inicio</p>
+              <p class="fw-bold"><%= @booking.start_date&.strftime("%d/%m/%Y") %></p>
             </div>
             <div class="col-md-4 mb-3">
-              <p class="text-muted mb-1">Salida</p>
-              <p class="fw-bold"><%= @booking.end_date.strftime("%d/%m/%Y") %></p>
+              <p class="text-muted mb-1">Salida / fin</p>
+              <p class="fw-bold"><%= @booking.end_date&.strftime("%d/%m/%Y") %></p>
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-4 mb-3">
-              <p class="text-muted mb-1">Noches</p>
+              <p class="text-muted mb-1">Noches / días</p>
               <p class="fw-bold"><%= @booking.total_nights %></p>
             </div>
             <div class="col-md-4 mb-3">
-              <p class="text-muted mb-1">Unidad</p>
-              <p class="fw-bold"><%= @booking.unit.unit_type.presence || "Sin tipo" %></p>
+              <p class="text-muted mb-1">Servicio</p>
+              <p class="fw-bold"><%= bookable_name %></p>
             </div>
             <div class="col-md-4 mb-3">
               <p class="text-muted mb-1">Total</p>
@@ -65,37 +96,76 @@
             </div>
           </div>
 
-          <% phone = @booking.establishment&.whatsapp.presence || @booking.establishment&.legal_info&.contact_phone %>
-          <%= render "shared/whatsapp_button",
-                     phone: phone,
-                     message: "Hola, tengo una consulta sobre mi reserva ##{@booking.id} en #{@hotel.establishment.name}" %>
+          <%# ---- WhatsApp (solo para reservas autogestionadas) ---- %>
+          <% unless iyaiclub_managed %>
+            <%
+              phone = establishment&.whatsapp.presence || establishment&.legal_info&.contact_phone
+              wa_message = [
+                "Hola, me comunico desde *Iyaiclub* respecto a mi reserva.",
+                "",
+                "*Reserva ##{@booking.id}*",
+                "*Establecimiento:* #{establishment_name}",
+                "*Servicio:* #{bookable_name}",
+                price_per_night ? "*Precio por noche:* $#{number_with_precision(price_per_night, precision: 2)}" : nil,
+                "",
+                "*Huésped:* #{@booking.guest_name}",
+                "*Email:* #{@booking.guest_email}",
+                "*Huéspedes:* #{@booking.guest_count}",
+                "",
+                "*Check-in:* #{@booking.start_date&.strftime("%d/%m/%Y")}",
+                "*Check-out:* #{@booking.end_date&.strftime("%d/%m/%Y")}",
+                "*Noches:* #{@booking.total_nights}",
+                "*Total:* $#{number_with_precision(@booking.total_price || 0, precision: 2)}",
+                "",
+                "Quedo atento a su confirmación. Gracias."
+              ].compact.join("\n")
+            %>
+            <%= render "shared/whatsapp_button", phone: phone, message: wa_message %>
+          <% end %>
+
+          <%# ---- Botón de pago PayPhone (reservas pendientes con precio) ---- %>
+          <% if @booking.pendiente? && @booking.total_price.to_f > 0 && iyaiclub_managed %>
+            <hr>
+            <div class="text-center">
+              <%= form_with url: payphone_checkout_path, method: :post, local: true do |pf| %>
+                <%= pf.hidden_field :payable_type, value: "Booking" %>
+                <%= pf.hidden_field :payable_id, value: @booking.id %>
+                <%= pf.submit "Pagar con PayPhone", class: "btn btn-success btn-lg" %>
+              <% end %>
+              <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+                <i class="fas fa-lock me-1"></i> Pago seguro con Visa, MasterCard, Diners Club o Discover
+              </p>
+            </div>
+          <% end %>
 
         </div>
       </div>
 
-      <% if current_user.afiliado? || current_user.administrador? %>
+      <%# ---- Gestión de reserva (afiliado/admin, solo autogestionadas) ---- %>
+      <% if (current_user.afiliado? || current_user.administrador?) && !iyaiclub_managed %>
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-header bg-dark text-white fw-bold">
             <i class="bi bi-gear me-2"></i> Gestión de reserva
           </div>
           <div class="card-body">
             <div class="d-flex flex-wrap gap-2">
+              <% booking_path_args = @hotel ? [@hotel, @booking] : (@parent ? [@parent, @booking] : @booking) %>
               <% unless @booking.confirmado? %>
-                <%= form_with(model: [@hotel, @booking], method: :patch, local: true, class: "d-inline") do |f| %>
+                <%= form_with(model: booking_path_args, method: :patch, local: true, class: "d-inline") do |f| %>
                   <%= f.hidden_field :status, value: "confirmado" %>
                   <%= f.submit "Confirmar", class: "btn btn-success" %>
                 <% end %>
               <% end %>
 
               <% unless @booking.rechazado? %>
-                <%= form_with(model: [@hotel, @booking], method: :patch, local: true, class: "d-inline") do |f| %>
+                <%= form_with(model: booking_path_args, method: :patch, local: true, class: "d-inline") do |f| %>
                   <%= f.hidden_field :status, value: "rechazado" %>
                   <%= f.submit "Rechazar", class: "btn btn-danger" %>
                 <% end %>
               <% end %>
 
               <% unless @booking.cancelado? %>
-                <%= form_with(model: [@hotel, @booking], method: :patch, local: true, class: "d-inline") do |f| %>
+                <%= form_with(model: booking_path_args, method: :patch, local: true, class: "d-inline") do |f| %>
                   <%= f.hidden_field :status, value: "cancelado" %>
                   <%= f.submit "Cancelar", class: "btn btn-secondary" %>
                 <% end %>
@@ -106,8 +176,14 @@
       <% end %>
 
       <div class="text-center">
-        <%= link_to "Volver al hotel", hotel_path(@hotel), class: "btn btn-outline-secondary me-2" %>
-        <%= link_to "Ver todas las reservas", hotel_bookings_path(@hotel), class: "btn btn-outline-primary" %>
+        <% if @hotel %>
+          <%= link_to "Volver al hotel", hotel_path(@hotel), class: "btn btn-outline-secondary me-2" %>
+          <%= link_to "Ver todas las reservas", hotel_bookings_path(@hotel), class: "btn btn-outline-primary" %>
+        <% elsif @parent %>
+          <%= link_to "Volver", polymorphic_path(@parent), class: "btn btn-outline-secondary me-2" %>
+        <% else %>
+          <%= link_to "Mis reservas", turista_bookings_path, class: "btn btn-outline-primary" %>
+        <% end %>
       </div>
 
     </div>

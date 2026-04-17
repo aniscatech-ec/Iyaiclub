@@ -1,0 +1,213 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-magic me-2" style="color: var(--brand-orange, #EB633B);"></i>
+        Solicitud #<%= @custom_request.id %>
+      </h3>
+      <%= custom_request_status_badge(@custom_request.status) %>
+    </div>
+    <%= link_to admin_custom_requests_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+  </div>
+
+  <div class="row g-4">
+    <!-- ═══════════════ INFORMACIÓN PRINCIPAL ═══════════════ -->
+    <div class="col-12 col-lg-8">
+
+      <!-- TURISTA -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, var(--brand-green, #3FBD02), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-user me-2"></i> Turista</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Nombre</div>
+              <div class="fw-semibold"><%= @custom_request.user&.name.presence || "—" %></div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Email</div>
+              <div class="fw-semibold"><%= @custom_request.user&.email %></div>
+            </div>
+            <% if @custom_request.user&.phone.present? %>
+              <div class="col-12 col-md-6">
+                <div class="small text-muted">Teléfono</div>
+                <div class="fw-semibold"><%= @custom_request.user.phone %></div>
+              </div>
+            <% end %>
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Membresía</div>
+              <div>
+                <span class="badge <%= @custom_request.user&.membership_badge_class %>">
+                  <%= @custom_request.user&.membership_display_name %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS DEL VIAJE -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, var(--brand-orange, #EB633B), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-plane-departure me-2"></i> Datos del viaje</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="small text-muted">Destino</div>
+              <div class="fw-semibold"><i class="fas fa-map-marker-alt me-1"></i> <%= @custom_request.destination %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Inicio</div>
+              <div class="fw-semibold"><%= @custom_request.start_date&.strftime("%d/%m/%Y") %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Fin</div>
+              <div class="fw-semibold"><%= @custom_request.end_date&.strftime("%d/%m/%Y") %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Personas</div>
+              <div class="fw-semibold"><%= @custom_request.guests_count %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Días</div>
+              <div class="fw-semibold"><%= @custom_request.total_days %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="small text-muted">Presupuesto</div>
+              <div class="fw-semibold">
+                <% if @custom_request.estimated_budget.present? %>
+                  $<%= number_with_precision(@custom_request.estimated_budget, precision: 2) %>
+                <% else %>
+                  —
+                <% end %>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="small text-muted">Experiencia</div>
+              <div>
+                <span class="badge rounded-pill"
+                      style="background: <%= experience_type_color(@custom_request.experience_type) %>;">
+                  <i class="<%= experience_type_icon(@custom_request.experience_type) %> me-1"></i>
+                  <%= experience_type_label(@custom_request.experience_type) %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERESES Y PREFERENCIAS -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-heart me-2"></i> Intereses y preferencias</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <div class="small text-muted fw-semibold mb-2">Intereses</div>
+            <% if @custom_request.interests.present? %>
+              <% @custom_request.interests.reject(&:blank?).each do |i| %>
+                <span class="badge rounded-pill bg-success me-1 mb-1">
+                  <i class="<%= interest_icon(i) %> me-1"></i><%= interest_label(i) %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="text-muted small">No especificados</span>
+            <% end %>
+          </div>
+          <div>
+            <div class="small text-muted fw-semibold mb-2">Preferencias</div>
+            <% if @custom_request.preferences.present? %>
+              <% @custom_request.preferences.reject(&:blank?).each do |p| %>
+                <span class="badge rounded-pill bg-primary me-1 mb-1">
+                  <i class="<%= preference_icon(p) %> me-1"></i><%= preference_label(p) %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="text-muted small">No especificadas</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if @custom_request.comments.present? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3"
+               style="background: linear-gradient(135deg, var(--brand-cofee-black, #7F5935), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-comment-dots me-2"></i> Comentarios del turista</h5>
+          </div>
+          <div class="card-body p-4">
+            <%= simple_format(@custom_request.comments) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ═══════════════ PANEL DE GESTIÓN ═══════════════ -->
+    <div class="col-12 col-lg-4">
+
+      <!-- CAMBIAR ESTADO -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-tasks me-2"></i> Cambiar estado</h6>
+        </div>
+        <div class="card-body p-3">
+          <div class="d-grid gap-2">
+            <% CustomRequest.statuses.keys.each do |status_key| %>
+              <% next if status_key == @custom_request.status %>
+              <%= button_to change_status_admin_custom_request_path(@custom_request, status: status_key),
+                            method: :patch,
+                            class: "btn btn-outline-secondary btn-sm",
+                            data: { turbo_confirm: "¿Cambiar a #{status_key.humanize}?" } do %>
+                <i class="fas fa-arrow-right me-1"></i> <%= status_key.humanize %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASIGNAR A ADMIN -->
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3"
+             style="background: linear-gradient(135deg, var(--brand-cofee, #88682B), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h6 class="mb-0 fw-bold"><i class="fas fa-user-tag me-2"></i> Asignar a</h6>
+        </div>
+        <div class="card-body p-3">
+          <%= form_with url: assign_admin_custom_request_path(@custom_request), method: :patch, local: true do %>
+            <%= select_tag :assigned_to_id,
+                           options_from_collection_for_select(@admins, :id,
+                             ->(u) { u.name.presence || u.email },
+                             @custom_request.assigned_to_id),
+                           include_blank: "Sin asignar",
+                           class: "form-select form-select-sm mb-2" %>
+            <button class="btn btn-primary btn-sm w-100" type="submit">
+              <i class="fas fa-save me-1"></i> Guardar asignación
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- METADATA -->
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-3 small">
+          <div class="mb-1">
+            <strong>Creada:</strong>
+            <%= @custom_request.created_at.strftime("%d/%m/%Y %H:%M") %>
+          </div>
+          <div>
+            <strong>Actualizada:</strong>
+            <%= @custom_request.updated_at.strftime("%d/%m/%Y %H:%M") %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

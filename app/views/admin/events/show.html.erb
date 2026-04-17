@@ -1,0 +1,357 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-calendar-alt me-2" style="color: var(--brand-orange);"></i>
+      <%= @event.name %>
+      <span class="badge <%= event_status_badge(@event.status) %> ms-2"><%= @event.status.humanize %></span>
+    </h3>
+    <div class="d-flex gap-2">
+      <%= link_to scanner_admin_event_path(@event), class: "btn btn-primary" do %>
+        <i class="fas fa-qrcode me-1"></i> Verificar Tickets
+      <% end %>
+      <%= link_to edit_admin_event_path(@event), class: "btn btn-warning" do %>
+        <i class="fas fa-edit me-1"></i> Editar
+      <% end %>
+      <%= link_to admin_events_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Info del evento -->
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Evento
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Fecha</span>
+              <strong><%= @event.event_date&.strftime('%d/%m/%Y %H:%M') || 'Sin fecha' %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Lugar</span>
+              <strong><%= @event.location.presence || '-' %></strong>
+            </li>
+            <% if @event.maps_url.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Mapa</span>
+                <%= link_to "Ver mapa", @event.maps_url, target: "_blank", class: "fw-bold" %>
+              </li>
+            <% end %>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Precio por ticket</span>
+              <strong>$<%= number_with_precision(@event.ticket_price, precision: 2) %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Tickets vendidos</span>
+              <strong><%= @event.tickets.count %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Disponibles / Total</span>
+              <strong><%= @event.available_tickets || 0 %> / <%= @event.total_tickets || '-' %></strong>
+            </li>
+          </ul>
+          <% if @event.description.present? %>
+            <div class="mt-3">
+              <small class="text-muted">Descripción</small>
+              <p class="mb-0"><%= @event.description %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sorteos -->
+    <div class="col-12 col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-trophy me-2 text-warning"></i>
+            Sorteos
+          </h5>
+          <%= link_to new_admin_event_raffle_path(@event), class: "btn btn-sm btn-success" do %>
+            <i class="fas fa-plus me-1"></i> Nuevo Sorteo
+          <% end %>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <% if @raffles.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Premio</th>
+                    <th>Estado</th>
+                    <th>Ganador</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @raffles.each do |raffle| %>
+                    <tr>
+                      <td><strong><%= raffle.prize %></strong></td>
+                      <td><span class="badge <%= raffle.status == 'realizado' ? 'bg-success' : 'bg-secondary' %>"><%= raffle.status.humanize %></span></td>
+                      <td>
+                        <% if raffle.winner.present? %>
+                          <span class="badge bg-warning text-dark">🎱 <%= raffle.winning_number %></span>
+                          <small><%= raffle.winner.guest_name %></small>
+                        <% else %>
+                          <span class="text-muted">Pendiente</span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <%= link_to admin_event_raffle_path(@event, raffle), class: "btn btn-outline-info" do %>
+                            <i class="fas fa-eye"></i>
+                          <% end %>
+                          <% if raffle.pendiente? %>
+                            <%= link_to draw_winner_admin_event_raffle_path(@event, raffle),
+                                data: { turbo_method: :patch, turbo_confirm: "¿Realizar sorteo ahora?" },
+                                class: "btn btn-outline-warning" do %>
+                              <i class="fas fa-random"></i>
+                            <% end %>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center text-muted py-3">
+              <i class="fas fa-trophy fa-2x mb-2"></i>
+              <p>No hay sorteos creados</p>
+              <%= link_to new_admin_event_raffle_path(@event), class: "btn btn-outline-success btn-sm" do %>
+                <i class="fas fa-plus me-1"></i> Crear sorteo
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendedores -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-users me-2 text-info"></i>
+        Vendedores (<%= @event_vendedores.count %>)
+      </h5>
+      <div class="d-flex gap-2">
+        <% unassigned = User.where(role: :vendedor).where.not(id: @event.vendedores.select(:id)) %>
+        <% if unassigned.any? %>
+          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#assignVendedorModal">
+            <i class="fas fa-user-plus me-1"></i> Asignar Existente
+          </button>
+        <% end %>
+        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createVendedorModal">
+          <i class="fas fa-plus me-1"></i> Crear Vendedor
+        </button>
+      </div>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% if @event_vendedores.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>WhatsApp</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Tickets Pend.</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @event_vendedores.each do |ev| %>
+                <tr>
+                  <td><strong><%= ev.user.name %></strong></td>
+                  <td>
+                    <% if ev.user.phone.present? %>
+                      <%= link_to ev.user.phone, whatsapp_link(ev.user.phone), target: "_blank", class: "text-success text-decoration-none" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td><small><%= ev.user.email %></small></td>
+                  <td>
+                    <span class="badge <%= ev.active? ? 'bg-success' : 'bg-secondary' %>">
+                      <%= ev.active? ? 'Activo' : 'Inactivo' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% pending_count = Ticket.where(vendedor: ev.user, event: @event, status: :reservado).count %>
+                    <% if pending_count > 0 %>
+                      <span class="badge bg-warning text-dark"><%= pending_count %></span>
+                    <% else %>
+                      <span class="text-muted">0</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <%= link_to toggle_active_admin_event_vendedor_path(@event, ev),
+                          data: { turbo_method: :patch },
+                          class: "btn btn-outline-#{ev.active? ? 'secondary' : 'success'}" do %>
+                        <i class="fas fa-<%= ev.active? ? 'pause' : 'play' %>"></i>
+                      <% end %>
+                      <%= link_to admin_event_vendedor_path(@event, ev),
+                          data: { turbo_method: :delete, turbo_confirm: "¿Remover a #{ev.user.name} de este evento?" },
+                          class: "btn btn-outline-danger" do %>
+                        <i class="fas fa-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-users fa-2x mb-2"></i>
+          <p class="mb-0">No hay vendedores asignados a este evento</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Modal: Asignar vendedor existente -->
+  <% if unassigned.any? %>
+    <div class="modal fade" id="assignVendedorModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2 text-primary"></i>Asignar Vendedor</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with url: admin_event_vendedores_path(@event), method: :post, local: true do %>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Seleccionar Vendedor</label>
+                <select name="event_vendedor[user_id]" class="form-select" required>
+                  <option value="">Seleccione...</option>
+                  <% unassigned.each do |v| %>
+                    <option value="<%= v.id %>"><%= v.name %> - <%= v.phone || 'Sin teléfono' %></option>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer border-0">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Asignar al Evento</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Modal: Crear nuevo vendedor -->
+  <div class="modal fade" id="createVendedorModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-plus me-2 text-success"></i>Crear Vendedor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <%= form_with url: create_vendedor_admin_event_vendedores_path(@event), method: :post, local: true do %>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Nombre completo</label>
+              <input type="text" name="user[name]" class="form-control" required placeholder="Nombre del vendedor">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">WhatsApp / Teléfono</label>
+              <input type="text" name="user[phone]" class="form-control" required placeholder="0999999999">
+              <small class="text-muted">Los compradores contactarán a este número</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <input type="email" name="user[email]" class="form-control" required placeholder="vendedor@email.com">
+              <small class="text-muted">Se usará para iniciar sesión</small>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">Contraseña</label>
+                <input type="password" name="user[password]" class="form-control" required minlength="6">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Confirmar</label>
+                <input type="password" name="user[password_confirmation]" class="form-control" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold">País</label>
+                <%= collection_select(:user, :country_id, Country.all, :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">Ciudad</label>
+                <%= collection_select(:user, :city_id, City.all.limit(50), :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
+              </div>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="autoAssignCheck" checked>
+              <label class="form-check-label" for="autoAssignCheck">Asignar automáticamente a este evento</label>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success">Crear Vendedor</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets vendidos -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-ticket-alt me-2 text-primary"></i>
+        Tickets Vendidos (<%= @tickets.count %>)
+      </h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% if @tickets.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Código</th>
+                <th>Asistente</th>
+                <th>N° Rifa</th>
+                <th>Estado</th>
+                <th>Fecha Compra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @tickets.each do |ticket| %>
+                <tr>
+                  <td><strong style="color: #2E7D32;"><%= ticket.ticket_code %></strong></td>
+                  <td><%= ticket.guest_name %></td>
+                  <td><span class="badge bg-warning text-dark"><%= ticket.raffle_number %></span></td>
+                  <td><span class="badge <%= ticket_status_badge_class(ticket.status) %>"><%= ticket.status.humanize %></span></td>
+                  <td><small><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-ticket-alt fa-2x mb-2"></i>
+          <p>No hay tickets vendidos aún</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

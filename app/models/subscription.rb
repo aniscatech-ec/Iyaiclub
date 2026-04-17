@@ -6,6 +6,11 @@ class Subscription < ApplicationRecord
   # enum :duration,  mensual: 0, anual: 2
   enum :status, pendiente: 0, activada: 1, vencida: 2, cancelada: 3
   enum :payment_method, transferencia: 0, tarjeta: 1, efectivo: 2
+  # cancellation_type: 0 = por_usuario (cancela pero mantiene beneficios hasta end_date),
+  #                    1 = por_admin, 2 = por_impago (se activa prórroga de 5 días)
+  enum :cancellation_type, por_usuario: 0, por_admin: 1, por_impago: 2
+
+  GRACE_PERIOD_DAYS = 5
 
   # Calcula fecha de fin según duración
   def set_dates
@@ -23,13 +28,6 @@ class Subscription < ApplicationRecord
     "tarjeta" => "Pague con tarjeta de crédito o débito en el siguiente enlace: https://pagos.empresa.com"
   }.freeze
 
-  # def calculate_amount
-  #   price_record = PlanPrice.find_by(plan_type: plan_type, duration: duration)
-  #   self.amount = price_record&.price || 0
-  # end
-  #
-  # before_validation :calculate_amount
-
   def affiliate
     establishment.user
   end
@@ -41,6 +39,47 @@ class Subscription < ApplicationRecord
 
   def for_establishment?
     subscribable_type == "Establishment"
+  end
+
+  def plan_name
+    PlanPrice.find_by(id: plan_type)&.plan&.name || "Sin plan"
+  end
+
+  # El usuario cancela voluntariamente: se marca cancelled_at pero mantiene
+  # el status :activada hasta que venza end_date (los beneficios siguen activos).
+  def cancel_by_user!
+    update!(
+      cancelled_at: Time.current,
+      cancellation_type: :por_usuario
+    )
+  end
+
+  # ¿El usuario ya solicitó cancelación pero el período aún está vigente?
+  def pending_cancellation?
+    cancelled_at.present? && activada? && end_date >= Date.current
+  end
+
+  # ¿Está en período de prórroga por impago?
+  def in_grace_period?
+    grace_period_until.present? && Date.current <= grace_period_until
+  end
+
+  # ¿Está dentro de los últimos N días antes de vencer?
+  def expiring_soon?(days = 7)
+    activada? && end_date.present? && end_date.between?(Date.current, Date.current + days.days)
+  end
+
+  # Inicia prórroga de 5 días por impago y cambia tipo de cancelación
+  def start_grace_period!
+    update!(
+      grace_period_until: Date.current + GRACE_PERIOD_DAYS.days,
+      cancellation_type: :por_impago
+    )
+  end
+
+  # Expira la membresía definitivamente (fin de prórroga o fin normal)
+  def expire!
+    update!(status: :vencida)
   end
 
   validate :only_one_active_subscription_for_tourist, on: :create

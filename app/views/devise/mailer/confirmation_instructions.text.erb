@@ -1,0 +1,17 @@
+¡Hola <%= @resource.name.presence || "viajero" %>!
+
+Gracias por unirte a IyaiClub. Estamos muy emocionados de tenerte con nosotros.
+
+Para completar tu registro y activar tu cuenta, por favor confirma tu dirección de correo visitando el siguiente enlace:
+
+<%= confirmation_url(@resource, confirmation_token: @token) %>
+
+Este enlace es seguro, personalizado y expira en 3 días.
+
+¿QUÉ TE ESPERA EN IYAICLUB?
+- Hoteles y alojamientos únicos en los mejores destinos
+- Restaurantes exclusivos con reservas instantáneas
+- Sistema de puntos que se convierten en recompensas
+- Ofertas personalizadas y experiencias únicas
+
+¿Necesitas ayuda? Escríbenos a info@iyaiclub.com

@@ -65,9 +65,9 @@ class SubscriptionsController < ApplicationController
   end
 
   def create
-    # TODO: el flujo de pago aún está en desarrollo.
-    # Por ahora cualquier envío de formulario redirige al dashboard sin persistir nada.
-    redirect_to turista_dashboard_index_path, notice: "El proceso de pago aún está en desarrollo."
+    # El flujo de pago va directo al checkout de PayPhone desde el formulario new.
+    # Este action no se usa normalmente, pero redirige como fallback.
+    redirect_back fallback_location: root_path, alert: "Usa el botón de pago para completar tu suscripción."
   end
 
   def update

@@ -1,0 +1,17 @@
+Tu membresía IyaiClub venció — tienes 5 días de prórroga
+
+Hola <%= @user.name.presence || @user.email %>,
+
+Tu membresía <%= @membership.plan_name %> venció el <%= @membership.end_date.strftime("%d/%m/%Y") %>.
+
+Hemos activado automáticamente una prórroga de 5 días para que puedas renovarla.
+
+PRÓRROGA ACTIVA HASTA: <%= @grace_until.strftime("%d/%m/%Y") %>
+
+Durante este período sigues teniendo acceso a todos tus beneficios. Pasada esta fecha, tu membresía expirará definitivamente.
+
+Renueva aquí: <%= turista_memberships_url %>
+
+¿Tienes problemas con tu pago? Contáctanos en info@iyaiclub.com
+
+El equipo de IyaiClub

@@ -1,0 +1,89 @@
+<link href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css" rel="stylesheet">
+<script src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"></script>
+
+<div class="row justify-content-center my-4">
+  <div class="col-lg-6 col-md-8">
+
+    <%# ---- Resumen del pago ---- %>
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header text-white fw-bold" style="background: linear-gradient(135deg, #34c759, #36a30c);">
+        <i class="fas fa-shield-alt me-2"></i> Pago seguro con PayPhone
+      </div>
+      <div class="card-body">
+
+        <div class="d-flex align-items-center mb-3">
+          <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+               style="width: 48px; height: 48px; background: rgba(52, 199, 89, 0.1);">
+            <i class="fas fa-receipt text-success fs-5"></i>
+          </div>
+          <div>
+            <h5 class="mb-0">Resumen de pago</h5>
+            <small class="text-muted"><%= @reference %></small>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row mb-2">
+          <div class="col-6">
+            <span class="text-muted">Concepto</span>
+          </div>
+          <div class="col-6 text-end">
+            <span class="fw-bold"><%= @reference %></span>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-6">
+            <span class="text-muted">Email</span>
+          </div>
+          <div class="col-6 text-end">
+            <span><%= current_user.email %></span>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="col-6">
+            <span class="text-muted fw-bold fs-5">Total</span>
+          </div>
+          <div class="col-6 text-end">
+            <span class="fw-bold fs-4 text-success">
+              $<%= number_with_precision(@amount_cents / 100.0, precision: 2) %> USD
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ---- Cajita de Pagos PayPhone ---- %>
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body text-center py-4"
+           data-controller="payphone"
+           data-payphone-token-value="<%= @payphone_token %>"
+           data-payphone-store-id-value="<%= @store_id %>"
+           data-payphone-amount-value="<%= @amount_cents %>"
+           data-payphone-client-transaction-id-value="<%= @client_transaction_id %>"
+           data-payphone-reference-value="<%= @reference %>"
+           data-payphone-email-value="<%= current_user.email %>">
+
+        <div id="pp-button"></div>
+
+        <p class="text-muted mt-3 mb-0" style="font-size: 0.8rem;">
+          <i class="fas fa-lock me-1"></i>
+          Pago procesado de forma segura por PayPhone.
+          Aceptamos Visa, MasterCard, Diners Club y Discover.
+        </p>
+      </div>
+    </div>
+
+    <%# ---- Botón cancelar ---- %>
+    <div class="text-center">
+      <%= link_to root_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-times me-1"></i> Cancelar pago
+      <% end %>
+    </div>
+
+  </div>
+</div>

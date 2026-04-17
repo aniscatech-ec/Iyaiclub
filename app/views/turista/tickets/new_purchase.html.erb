@@ -1,0 +1,169 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="mb-4">
+        <h3 class="fw-bold">
+          <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
+          Comprar Ticket
+        </h3>
+      </div>
+
+      <!-- Resumen del evento -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><%= @event.name %></h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-calendar me-1"></i> Fecha</span>
+              <strong><%= @event.event_date&.strftime('%d/%m/%Y %H:%M') %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-map-marker-alt me-1"></i> Lugar</span>
+              <strong><%= @event.location %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span><i class="fas fa-tag me-1"></i> Precio unitario</span>
+              <strong class="text-success">$<%= number_with_precision(@event.ticket_price, precision: 2) %></strong>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Formulario unificado -->
+      <%= form_with url: create_purchase_turista_event_tickets_path(@event), method: :post, data: { controller: "purchase-form", turbo: false, "purchase-form-unit-price": @event.ticket_price } do |f| %>
+
+        <!-- Datos del asistente -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-user me-2 text-primary"></i>
+              Datos del asistente
+            </h6>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" name="guest_name" class="form-control" value="<%= current_user.name %>" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" name="guest_email" class="form-control" value="<%= current_user.email %>" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cantidad de tickets -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-ticket-alt me-2 text-warning"></i>
+              Cantidad de tickets
+            </h6>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+              <label class="form-label">¿Cuántos tickets deseas comprar?</label>
+              <div class="input-group">
+                <button type="button" class="btn btn-outline-secondary" data-action="click->purchase-form#decrementQuantity">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" name="quantity" id="ticket_quantity" class="form-control text-center" value="1" min="1" max="<%= @event.available_tickets || 10 %>" data-purchase-form-target="quantityInput" data-action="input->purchase-form#updateTotal">
+                <button type="button" class="btn btn-outline-secondary" data-action="click->purchase-form#incrementQuantity">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <small class="text-muted">Disponibles: <%= @event.available_tickets || "Sin límite" %></small>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+              <span class="fw-bold">Total a pagar:</span>
+              <span class="text-success fs-4 fw-bold" data-purchase-form-target="totalPrice">
+                $<%= number_with_precision(@event.ticket_price, precision: 2) %>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Método de pago -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-wallet me-2 text-success"></i>
+              Método de pago
+            </h6>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <!-- Tarjeta de crédito/débito -->
+            <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="tarjetaOption">
+              <input type="radio" name="payment_method" value="tarjeta"
+                     class="form-check-input" id="payment_tarjeta" required checked
+                     data-action="change->purchase-form#toggleVendedores">
+              <label class="form-check-label w-100 ms-2" for="payment_tarjeta">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong><i class="fas fa-credit-card me-2 text-primary"></i> Tarjeta de Crédito / Débito</strong>
+                    <br><small class="text-muted">Pago seguro con PayPhone</small>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <i class="fab fa-cc-visa text-primary fs-5"></i>
+                    <i class="fab fa-cc-mastercard text-danger fs-5"></i>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Transferencia bancaria -->
+            <% if @vendedores.any? %>
+              <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="transferenciaOption">
+                <input type="radio" name="payment_method" value="transferencia"
+                       class="form-check-input" id="payment_transferencia"
+                       data-action="change->purchase-form#toggleVendedores">
+                <label class="form-check-label w-100 ms-2" for="payment_transferencia">
+                  <strong><i class="fas fa-exchange-alt me-2 text-success"></i> Transferencia Bancaria</strong>
+                  <br><small class="text-muted">Coordina el pago con un vendedor vía WhatsApp</small>
+                </label>
+              </div>
+
+              <!-- Selector de vendedor (solo visible cuando elige transferencia) -->
+              <div id="vendedor-section" class="ms-4 mt-2" style="display: none;" data-purchase-form-target="vendedorSection">
+                <label class="form-label fw-bold">Seleccionar vendedor</label>
+                <% @vendedores.each do |vendedor| %>
+                  <div class="form-check border rounded-3 p-3 mb-2">
+                    <input type="radio" name="vendedor_id" value="<%= vendedor.id %>"
+                           class="form-check-input" id="vendedor_<%= vendedor.id %>"
+                           <%= 'checked' if @vendedores.first == vendedor %>>
+                    <label class="form-check-label w-100 ms-2" for="vendedor_<%= vendedor.id %>">
+                      <strong><%= vendedor.name %></strong>
+                      <% if vendedor.phone.present? %>
+                        <br>
+                        <small class="text-success">
+                          <i class="fab fa-whatsapp me-1"></i> <%= vendedor.phone %>
+                        </small>
+                      <% end %>
+                    </label>
+                  </div>
+                <% end %>
+
+                <div class="alert alert-warning mt-3 mb-0">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <small><strong>Importante:</strong> Tienes <strong>10 minutos</strong> para completar la transferencia. Si no se confirma, la reserva se cancela automáticamente.</small>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success btn-lg" data-purchase-form-target="submitButton">
+            <i class="fas fa-shopping-cart me-1"></i> Continuar con el pago — $<%= number_with_precision(@event.ticket_price, precision: 2) %>
+          </button>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-3">
+        <%= link_to event_path(@event), class: "text-muted" do %>
+          <i class="fas fa-arrow-left me-1"></i> Volver al evento
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,13 +5,18 @@ class Establishment < ApplicationRecord
   # has_many :amenities, through: :establishment_amenities #error por eliminacion
   has_many :establishment_amenities, dependent: :destroy
   has_many :amenities, through: :establishment_amenities
+<<<<<<< HEAD
   
   after_create :create_verification_record
   # has_many :subscriptions, as: :suscribable, dependent: :destroy
+=======
+  has_many :subscriptions, as: :subscribable, dependent: :destroy
+>>>>>>> d7df6b36cc9ee881bb8b60418ba3b424abd63e5e
 
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
   enum :status, { active: 0, inactive: 1 }, default: :active
+  enum :tipo_gestion_reserva, { autogestion: 0, iyaiclub: 1 }, default: :autogestion
 
   # ── Validaciones obligatorias según documento de requerimientos ──
   validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }
@@ -42,13 +47,18 @@ class Establishment < ApplicationRecord
   has_many :units, dependent: :destroy
   has_many :payment_methods, dependent: :destroy
   has_many :galleries, dependent: :destroy
+  has_many :booking_requests, dependent: :destroy
+  has_many :rewards, dependent: :destroy
+  has_many :user_points, dependent: :destroy
+  has_many :visits, dependent: :destroy
 
   accepts_nested_attributes_for :legal_info
   accepts_nested_attributes_for :verification
   accepts_nested_attributes_for :units
   accepts_nested_attributes_for :payment_methods
   # accepts_nested_attributes_for :galleries
-  accepts_nested_attributes_for :galleries, allow_destroy: true
+  accepts_nested_attributes_for :galleries, allow_destroy: true,
+                                            reject_if: ->(attrs) { attrs["name"].blank? && attrs["id"].blank? }
   has_one :pricing_policy, dependent: :destroy
   accepts_nested_attributes_for :pricing_policy
 

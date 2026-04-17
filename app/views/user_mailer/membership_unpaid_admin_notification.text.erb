@@ -1,0 +1,21 @@
+<%= @grace_ended ? "MEMBRESÍA EXPIRADA SIN PAGO" : "CLIENTE SIN RENOVACIÓN — PRÓRROGA INICIADA" %>
+
+<% if @grace_ended %>
+La prórroga de <%= @user.email %> ha terminado. Su membresía <%= @membership.plan_name %> ha expirado definitivamente.
+<% else %>
+La membresía de <%= @user.email %> venció y no ha sido renovada. Se activó una prórroga de 5 días hasta el <%= @membership.grace_period_until&.strftime("%d/%m/%Y") %>.
+<% end %>
+
+DATOS DEL CLIENTE:
+Nombre: <%= @user.name.presence || "—" %>
+Email: <%= @user.email %>
+Plan: <%= @membership.plan_name %>
+Vencimiento: <%= @membership.end_date&.strftime("%d/%m/%Y") %>
+<% if @membership.grace_period_until.present? %>
+Prórroga hasta: <%= @membership.grace_period_until.strftime("%d/%m/%Y") %>
+<% end %>
+Estado: <%= @grace_ended ? "Expirada" : "En prórroga" %>
+
+Ver en el panel: <%= admin_memberships_url %>
+
+Notificación automática del sistema IyaiClub — <%= Date.current.strftime("%d/%m/%Y") %>

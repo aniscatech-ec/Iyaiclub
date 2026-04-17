@@ -21,4 +21,24 @@ module ApplicationHelper
     url += "?text=#{ERB::Util.url_encode(message)}" if message.present?
     url
   end
+
+  def ticket_status_badge_class(status)
+    case status.to_s
+    when 'activo' then 'bg-success'
+    when 'usado' then 'bg-secondary'
+    when 'cancelado' then 'bg-danger'
+    when 'reservado' then 'bg-warning text-dark'
+    else 'bg-secondary'
+    end
+  end
+
+  def event_status_badge(status)
+    case status.to_s
+    when 'borrador' then 'bg-secondary'
+    when 'publicado' then 'bg-success'
+    when 'cancelado' then 'bg-danger'
+    when 'finalizado' then 'bg-dark'
+    else 'bg-secondary'
+    end
+  end
 end

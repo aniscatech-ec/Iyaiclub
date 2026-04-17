@@ -33,6 +33,10 @@
 
 </div>
 
+<% unless current_user&.administrador? || current_user&.afiliado? %>
+  <%= render "shared/custom_experience_cta" %>
+<% end %>
+
 <% if current_user&.administrador? %>
   <%= render "table_view", hotels: @hotels %>
 <% elsif current_user&.afiliado? %>

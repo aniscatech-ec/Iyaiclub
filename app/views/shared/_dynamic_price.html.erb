@@ -1,0 +1,39 @@
+<%#
+  Partial reutilizable para mostrar precio dinámico según membresía.
+  Locales requeridas:
+    data: Hash generado por DynamicPricingHelper#calculate_dynamic_price
+    size: :sm | :md | :lg
+%>
+<%
+  price_size = case size
+               when :lg then "fs-2"
+               when :sm then "fs-6"
+               else "fs-4"
+               end
+  base_size  = size == :lg ? "fs-6" : "small"
+%>
+<div class="dynamic-price dynamic-price--<%= size %>">
+  <% if data[:has_discount] %>
+    <div class="text-muted text-decoration-line-through <%= base_size %> mb-0">
+      $<%= number_with_precision(data[:base], precision: 2) %>
+    </div>
+    <div class="fw-bold <%= price_size %>" style="color: var(--brand-orange, #EB633B);">
+      $<%= number_with_precision(data[:final], precision: 2) %>
+    </div>
+    <span class="badge rounded-pill bg-success mt-1">
+      <i class="fas fa-crown me-1"></i>
+      Precio exclusivo con tu membresía <%= data[:membership_name] %>
+    </span>
+  <% elsif data[:logged_in] %>
+    <div class="fw-bold <%= price_size %>" style="color: var(--brand-orange, #EB633B);">
+      $<%= number_with_precision(data[:base], precision: 2) %>
+    </div>
+  <% else %>
+    <div class="fw-bold <%= price_size %>" style="color: var(--brand-orange, #EB633B);">
+      $<%= number_with_precision(data[:base], precision: 2) %>
+    </div>
+    <%= link_to new_user_session_path, class: "small text-decoration-none d-inline-block mt-1" do %>
+      <i class="fas fa-sign-in-alt me-1"></i> Inicia sesión para ver descuentos
+    <% end %>
+  <% end %>
+</div>

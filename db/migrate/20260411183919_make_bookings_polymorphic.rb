@@ -1,5 +1,8 @@
 class MakeBookingsPolymorphic < ActiveRecord::Migration[8.0]
   def up
+    # Remove foreign key first (MySQL requires this before dropping the index)
+    remove_foreign_key :bookings, :units if foreign_key_exists?(:bookings, :units)
+
     # Remove old index
     remove_index :bookings, :unit_id if index_exists?(:bookings, :unit_id)
 

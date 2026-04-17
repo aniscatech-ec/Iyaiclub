@@ -27,3 +27,4 @@ pin "flatpickr" # @4.6.13
 
 pin "jquery" # @3.7.1
 pin "select2" # @4.1.0
+pin "html5-qrcode", to: "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"
