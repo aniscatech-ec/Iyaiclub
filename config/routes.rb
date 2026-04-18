@@ -185,7 +185,8 @@ Rails.application.routes.draw do
   end
   devise_for :users, controllers: {
     confirmations: 'users/confirmations',
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    sessions:      'users/sessions'
   }, sign_out_via: [:get, :delete]
 
   # Vista informativa mostrada tras el registro para indicar al usuario
