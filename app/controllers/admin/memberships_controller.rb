@@ -82,7 +82,7 @@ class Admin::MembershipsController < ApplicationController
 
   def activate_benefit
     @benefit_booking.activar_beneficio!
-    UserMailer.benefit_activated(@benefit_booking.user, @benefit_booking).deliver_later
+    UserMailer.benefit_activated(@benefit_booking.user, @benefit_booking).deliver_later if @benefit_booking.user.present?
     redirect_to benefit_requests_admin_memberships_path,
                 notice: "Beneficio activado. Se notificó al usuario #{@benefit_booking.user&.name}."
   end

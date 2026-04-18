@@ -13,7 +13,7 @@ class Booking < ApplicationRecord
   validates :end_date, presence: true, if: -> { !benefit_request? && bookable_type.in?(%w[Room Unit Lodging]) }
   validate :end_after_start
   validate :bookable_available
-  validate :benefit_nights_within_allowance, if: -> { benefit_request? && benefit_type == "lodging" }
+  validate :benefit_nights_within_allowance, if: -> { new_record? && benefit_request? && benefit_type == "lodging" }
 
   scope :benefit_requests,   -> { where(benefit_request: true) }
   scope :pending_benefits,   -> { benefit_requests.where(status: "pendiente") }

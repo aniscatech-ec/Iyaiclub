@@ -29,7 +29,15 @@
                 <strong><%= booking.guest_name %></strong>
                 <br><small class="text-muted"><%= booking.guest_email %></small>
               </td>
-              <td><%= booking.room&.name || booking.unit&.unit_type.presence || "—" %></td>
+              <td>
+                <% if booking.bookable_type == "Room" %>
+                  <%= booking.bookable&.name || "—" %>
+                <% elsif booking.bookable_type == "Unit" %>
+                  <%= booking.bookable&.unit_type.presence || "—" %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
               <td><%= booking.start_date.strftime("%d/%m/%Y") %></td>
               <td><%= booking.end_date.strftime("%d/%m/%Y") %></td>
               <td class="text-center"><%= booking.guest_count %></td>

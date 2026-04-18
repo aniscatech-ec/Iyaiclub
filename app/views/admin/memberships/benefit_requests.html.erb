@@ -123,13 +123,15 @@
                       <div class="d-flex flex-column flex-lg-row gap-1">
                         <%= button_to activate_benefit_admin_benefit_booking_path(booking),
                               method: :patch,
-                              form: { data: { turbo_confirm: "¿Activar el beneficio para #{user&.name}? Se le enviará un correo de confirmación." } },
+                              form: { data: { turbo: false } },
+                              data: { confirm: "¿Activar el beneficio para #{user&.name}? Se le enviará un correo de confirmación." },
                               class: "btn btn-success btn-sm" do %>
                           <i class="fas fa-check me-1"></i> Activar
                         <% end %>
                         <%= button_to reject_benefit_admin_benefit_booking_path(booking),
                               method: :patch,
-                              form: { data: { turbo_confirm: "¿Rechazar esta solicitud?" } },
+                              form: { data: { turbo: false } },
+                              data: { confirm: "¿Rechazar esta solicitud?" },
                               class: "btn btn-outline-danger btn-sm" do %>
                           <i class="fas fa-times me-1"></i> Rechazar
                         <% end %>
