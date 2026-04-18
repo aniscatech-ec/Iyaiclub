@@ -1,8 +1,25 @@
-<%= form_with(model: [@establishment, experience].compact, local: true, class: 'card shadow-sm border-warning', data: { controller: "form-validation" }) do |form| %>
-  <div class="card-body">
+<%
+  # Determinar la ruta del form según contexto
+  form_model = if @getaway
+    [@getaway, experience]
+  elsif @establishment
+    [@establishment, experience]
+  else
+    experience
+  end
+%>
+<%= form_with(model: form_model, local: true, class: "card shadow-sm border-0", data: { controller: "form-validation" }) do |form| %>
+  <div class="card-header text-white fw-bold rounded-top-3" style="background: linear-gradient(135deg, #8e44ad, #6c3483);">
+    <i class="fas fa-star me-2"></i>
+    <%= experience.persisted? ? "Editar atracción" : "Nueva atracción" %>
+    <% if @getaway %>
+      <span class="fw-normal opacity-75"> — <%= @getaway.establishment.name %></span>
+    <% end %>
+  </div>
+  <div class="card-body p-4">
     <% if experience.errors.any? %>
       <div class="alert alert-danger">
-        <h5 class="alert-heading"><%= pluralize(experience.errors.count, "error") %> impidieron guardar:</h5>
+        <h6 class="alert-heading fw-bold"><%= pluralize(experience.errors.count, "error") %> impidieron guardar:</h6>
         <ul class="mb-0">
           <% experience.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -11,41 +28,57 @@
       </div>
     <% end %>
 
-    <% if @establishment %>
+    <% if @getaway %>
+      <%= form.hidden_field :getaway_id, value: @getaway.id %>
+      <%= form.hidden_field :establishment_id, value: @getaway.establishment_id %>
+    <% elsif @establishment %>
       <%= form.hidden_field :establishment_id, value: @establishment.id %>
     <% end %>
 
-    <div class="row">
-      <div class="col-md-8 mb-3">
-        <%= form.label :name, "Nombre de la Experiencia", class: "form-label fw-bold" %>
-        <%= form.text_field :name, class: "form-control", placeholder: "Ej. Tour en Cuatrimotos", required: true %>
+    <div class="row g-3">
+      <div class="col-md-8">
+        <%= form.label :name, "Nombre de la atracción", class: "form-label fw-semibold required-field" %>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-star"></i></span>
+          <%= form.text_field :name, class: "form-control", placeholder: "Ej. Subida a la cima del monumento", required: true %>
+        </div>
       </div>
 
-      <div class="col-md-4 mb-3">
-        <%= form.label :price, "Precio ($)", class: "form-label fw-bold" %>
-        <%= form.number_field :price, step: 0.01, class: "form-control", placeholder: "Ej. 25.00", required: true %>
+      <div class="col-md-4">
+        <%= form.label :price, "Precio ($)", class: "form-label fw-semibold required-field" %>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+          <%= form.number_field :price, step: 0.01, min: 0.01, class: "form-control", placeholder: "0.00", required: true %>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <%= form.label :description, "Descripción", class: "form-label fw-semibold" %>
+        <%= form.text_area :description, rows: 3, class: "form-control",
+              placeholder: "Describe qué incluye esta atracción, qué experiencia vivirá el visitante..." %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :duration, "Duración estimada", class: "form-label fw-semibold" %>
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-clock"></i></span>
+          <%= form.text_field :duration, class: "form-control", placeholder: "Ej. 30 minutos, 1 hora" %>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <%= form.label :requirements, "Requisitos o condiciones", class: "form-label fw-semibold" %>
+        <%= form.text_area :requirements, rows: 2, class: "form-control",
+              placeholder: "Edad mínima, restricciones de salud, ropa adecuada..." %>
       </div>
     </div>
 
-    <div class="mb-3">
-      <%= form.label :description, "Descripción General", class: "form-label fw-bold" %>
-      <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Detalles sobre la experiencia..." %>
-    </div>
-
-    <div class="row bg-light rounded p-2 mb-3 mx-1 border">
-      <div class="col-md-12 mb-2">
-        <%= form.label :duration, "Duración Estimada", class: "form-label fw-bold" %>
-        <%= form.text_field :duration, class: "form-control", placeholder: "Ej. 2 horas, Medio día, etc." %>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <%= form.label :requirements, "Requisitos", class: "form-label fw-bold" %>
-      <%= form.text_area :requirements, rows: 3, class: "form-control", placeholder: "Edad mínima, ropa cómoda, experiencia previa..." %>
-    </div>
-
-    <div class="d-grid mt-4">
-      <%= form.submit "Guardar Experiencia", class: "btn btn-warning fw-bold btn-lg" %>
+    <div class="d-flex gap-3 mt-4">
+      <%= form.submit experience.persisted? ? "Guardar cambios" : "Crear atracción",
+            class: "btn fw-bold btn-lg px-5",
+            style: "background: #8e44ad; color: white; border: none;" %>
+      <% back_path = @getaway ? getaway_path(@getaway) : (@establishment ? establishment_path(@establishment) : experiences_path) %>
+      <%= link_to "Cancelar", back_path, class: "btn btn-outline-secondary btn-lg" %>
     </div>
   </div>
 <% end %>

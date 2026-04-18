@@ -6,9 +6,10 @@ Rails.application.routes.draw do
   resources :temporary_lodgings
   resources :getaways, only: [:index, :show] do
     resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
+    resources :experiences, only: [:index, :new, :create], shallow: false
   end
-  
-  resources :experiences, only: [] do
+
+  resources :experiences, only: [:show, :edit, :update, :destroy] do
     resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
   end
 

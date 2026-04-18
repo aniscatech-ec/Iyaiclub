@@ -24,6 +24,7 @@
   }
   icon = getaway_icons[@getaway.subcategory] || "fa-map-marked-alt"
   subcategory_label = getaway_labels[@getaway.subcategory] || @getaway.subcategory&.humanize&.titleize
+  can_edit = current_user&.administrador? || (current_user&.afiliado? && est.user_id == current_user.id)
 %>
 
 <div class="est-show-page">
@@ -151,6 +152,71 @@
         </div>
       <% end %>
 
+      <!-- ATRACCIONES CON COSTO -->
+      <% if @getaway.experiences.any? || can_edit %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center"
+               style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-star me-2"></i> Atracciones y actividades</h5>
+            <% if can_edit %>
+              <%= link_to new_getaway_experience_path(@getaway),
+                    class: "btn btn-sm btn-light text-purple fw-semibold rounded-pill" do %>
+                <i class="fas fa-plus me-1"></i> Agregar
+              <% end %>
+            <% end %>
+          </div>
+          <div class="card-body p-4">
+            <% if @getaway.experiences.any? %>
+              <div class="row g-3">
+                <% @getaway.experiences.each do |exp| %>
+                  <div class="col-12 col-md-6">
+                    <div class="border rounded-3 p-3 h-100 d-flex flex-column" style="border-color: #e2d9f3 !important;">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold mb-0" style="color: #6c3483;"><%= exp.name %></h6>
+                        <span class="badge rounded-pill fw-semibold ms-2"
+                              style="background: #8e44ad; font-size: 0.85rem;">
+                          <%= number_to_currency(exp.price) %>
+                        </span>
+                      </div>
+                      <% if exp.duration.present? %>
+                        <div class="small text-muted mb-2">
+                          <i class="fas fa-clock me-1"></i> <%= exp.duration %>
+                        </div>
+                      <% end %>
+                      <% if exp.description.present? %>
+                        <p class="small text-muted mb-3 flex-grow-1"><%= truncate(exp.description, length: 100) %></p>
+                      <% end %>
+                      <div class="d-flex gap-2 mt-auto">
+                        <%= link_to new_experience_booking_path(exp),
+                              class: "btn btn-sm btn-outline-primary rounded-pill flex-grow-1" do %>
+                          <i class="fas fa-calendar-check me-1"></i> Reservar
+                        <% end %>
+                        <% if can_edit %>
+                          <%= link_to edit_experience_path(exp),
+                                class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+                            <i class="fas fa-edit"></i>
+                          <% end %>
+                          <%= button_to experience_path(exp), method: :delete,
+                                data: { turbo_confirm: "¿Eliminar la atracción «#{exp.name}»?" },
+                                class: "btn btn-sm btn-outline-danger rounded-pill" do %>
+                            <i class="fas fa-trash"></i>
+                          <% end %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-muted mb-0 text-center py-2">
+                <i class="fas fa-info-circle me-1"></i>
+                Este getaway no tiene atracciones adicionales registradas aún.
+              </p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <!-- GALERÍA -->
       <%= render "shared/establishment_gallery", establishment: est %>
 
@@ -184,7 +250,6 @@
       <div class="card border-0 shadow-sm rounded-3 mb-4 sticky-top-actions">
         <div class="card-body p-3">
           <div class="d-grid gap-2">
-            <% can_edit = current_user&.administrador? || (current_user&.afiliado? && est.user_id == current_user.id) %>
             <% if can_edit %>
               <%= link_to edit_getaway_path(@getaway), class: "btn btn-primary rounded-pill fw-semibold" do %>
                 <i class="fas fa-edit me-1"></i> Editar escapada

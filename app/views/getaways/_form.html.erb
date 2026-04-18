@@ -330,6 +330,77 @@
 
   <% end %>
 
+  <!-- ═══════════════ 8. ATRACCIONES CON COSTO ═══════════════ -->
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header fw-bold rounded-top-3 d-flex justify-content-between align-items-center"
+         style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white;">
+      <span><i class="fas fa-star me-2"></i> 8. Atracciones y actividades (con costo adicional)</span>
+      <% if getaway.persisted? %>
+        <%= link_to new_getaway_experience_path(getaway),
+              class: "btn btn-sm btn-light fw-semibold rounded-pill" do %>
+          <i class="fas fa-plus me-1"></i> Agregar atracción
+        <% end %>
+      <% end %>
+    </div>
+    <div class="card-body p-4">
+      <% if getaway.persisted? %>
+        <% experiences = getaway.experiences.to_a %>
+        <% if experiences.any? %>
+          <div class="row g-3 mb-3">
+            <% experiences.each do |exp| %>
+              <div class="col-12 col-md-6">
+                <div class="border rounded-3 p-3 d-flex flex-column h-100" style="border-color: #e2d9f3 !important;">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <span class="fw-semibold" style="color: #6c3483;"><%= exp.name %></span>
+                    <span class="badge rounded-pill ms-2" style="background: #8e44ad;">
+                      <%= number_to_currency(exp.price) %>
+                    </span>
+                  </div>
+                  <% if exp.duration.present? %>
+                    <small class="text-muted mb-1"><i class="fas fa-clock me-1"></i><%= exp.duration %></small>
+                  <% end %>
+                  <% if exp.description.present? %>
+                    <p class="small text-muted mb-2 flex-grow-1"><%= truncate(exp.description, length: 80) %></p>
+                  <% end %>
+                  <div class="d-flex gap-2 mt-auto">
+                    <%= link_to edit_experience_path(exp), class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+                      <i class="fas fa-edit me-1"></i> Editar
+                    <% end %>
+                    <%= button_to experience_path(exp), method: :delete,
+                          data: { turbo_confirm: "¿Eliminar la atracción «#{exp.name}»?" },
+                          class: "btn btn-sm btn-outline-danger rounded-pill" do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted mb-3">
+            <i class="fas fa-info-circle me-1"></i>
+            Aún no hay atracciones registradas para esta escapada.
+          </p>
+        <% end %>
+        <div class="text-center">
+          <%= link_to new_getaway_experience_path(getaway),
+                class: "btn rounded-pill fw-semibold",
+                style: "background: #8e44ad; color: white; border: none;" do %>
+            <i class="fas fa-plus me-2"></i> Agregar atracción con costo
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-light border mb-0 d-flex align-items-center gap-3">
+          <i class="fas fa-info-circle fa-lg" style="color: #8e44ad;"></i>
+          <span class="text-muted">
+            Podrás agregar atracciones y actividades con costo adicional
+            <strong>después de guardar</strong> la escapada por primera vez.
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <!-- ═══════════════ BOTONES ═══════════════ -->
   <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
     <button type="submit" class="gradient-btn btn-lg flex-grow-1 order-1 order-sm-1">

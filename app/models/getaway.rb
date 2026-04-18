@@ -14,6 +14,8 @@ class Getaway < ApplicationRecord
     camping: 7
   }
 
+  has_many :experiences, dependent: :destroy
+
   validates :subcategory, presence: true
   validates :entry_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
 end

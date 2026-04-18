@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_17_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -210,7 +210,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_17_100000) do
     t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "getaway_id"
     t.index ["establishment_id"], name: "index_experiences_on_establishment_id"
+    t.index ["getaway_id"], name: "index_experiences_on_getaway_id"
   end
 
   create_table "galleries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

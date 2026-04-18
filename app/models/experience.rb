@@ -1,5 +1,6 @@
 class Experience < ApplicationRecord
   belongs_to :establishment
+  belongs_to :getaway, optional: true
   has_many :bookings, as: :bookable, dependent: :destroy
 
   validates :name, presence: true
