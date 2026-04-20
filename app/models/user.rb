@@ -28,8 +28,6 @@ class User < ApplicationRecord
   has_many :handled_tickets, class_name: "Ticket", foreign_key: :vendedor_id, dependent: :nullify
   has_many :handled_subscriptions, class_name: "Subscription", foreign_key: :vendedor_id, dependent: :nullify
 
-  before_create :generate_vendor_code
-
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)
   end
@@ -63,15 +61,4 @@ class User < ApplicationRecord
     )
   end
 
-  def generate_vendor_code
-    return if vendor_code.present?
-
-    loop do
-      code = "VND-#{SecureRandom.alphanumeric(6).upcase}"
-      unless self.class.exists?(vendor_code: code)
-        self.vendor_code = code
-        break
-      end
-    end
-  end
 end

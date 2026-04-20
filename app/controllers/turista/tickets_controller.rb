@@ -1,5 +1,4 @@
 class Turista::TicketsController < ApplicationController
-  include VendedorCodeLookup
   before_action :authenticate_user!
   before_action :set_ticket, only: [:show, :download, :mark_as_used, :check_status]
   before_action :set_event, only: [:new_free, :create_free, :new_purchase, :create_purchase, :new_transfer, :create_transfer, :transfer_status]
@@ -216,10 +215,10 @@ class Turista::TicketsController < ApplicationController
   end
 
   def create_transfer_ticket
-    vendedor = resolve_vendedor_by_code(params[:vendor_code], @event)
+    vendedor = User.find_by(id: params[:vendedor_id], role: :vendedor)
     unless vendedor
       redirect_to new_purchase_turista_event_tickets_path(@event),
-                  alert: vendedor_code_error(params[:vendor_code], @event)
+                  alert: "Por favor selecciona un vendedor."
       return
     end
 

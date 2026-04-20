@@ -112,43 +112,41 @@
             </div>
 
             <!-- Transferencia bancaria -->
-            <div class="form-check border rounded-3 p-3 mb-3"
-                 data-purchase-form-target="transferenciaOption">
-              <input type="radio" name="payment_method" value="transferencia"
-                     class="form-check-input" id="payment_transferencia"
-                     data-action="change->purchase-form#toggleVendedores">
-              <label class="form-check-label w-100 ms-2" for="payment_transferencia">
-                <strong>
-                  <i class="fas fa-exchange-alt me-2 text-success"></i>
-                  Transferencia Bancaria
-                </strong>
-                <br><small class="text-muted">Paga por transferencia usando el código de tu vendedor</small>
-              </label>
-            </div>
+            <% if @vendedores.any? %>
+              <div class="form-check border rounded-3 p-3 mb-3"
+                   data-purchase-form-target="transferenciaOption">
+                <input type="radio" name="payment_method" value="transferencia"
+                       class="form-check-input" id="payment_transferencia"
+                       data-action="change->purchase-form#toggleVendedores">
+                <label class="form-check-label w-100 ms-2" for="payment_transferencia">
+                  <strong>
+                    <i class="fas fa-exchange-alt me-2 text-success"></i>
+                    Transferencia Bancaria
+                  </strong>
+                  <br><small class="text-muted">Paga por transferencia a través de un vendedor</small>
+                </label>
+              </div>
 
-            <!-- Código de vendedor -->
-            <div id="vendedor-section" class="ms-4 mt-2" style="display: none;"
-                 data-purchase-form-target="vendedorSection">
-              <label class="form-label fw-bold">Código del vendedor</label>
-              <div class="input-group mb-2">
-                <span class="input-group-text"><i class="fas fa-user-tag text-muted"></i></span>
-                <input type="text" name="vendor_code" class="form-control"
-                       placeholder="Ej: VND-ABC123"
-                       style="text-transform: uppercase; letter-spacing: 1px;"
-                       maxlength="10">
+              <!-- Selector de vendedor -->
+              <div id="vendedor-section" class="ms-4 mt-2" style="display: none;"
+                   data-purchase-form-target="vendedorSection">
+                <label class="form-label fw-bold">Selecciona tu vendedor</label>
+                <select name="vendedor_id" class="form-select mb-3" required>
+                  <option value="">Seleccione un vendedor...</option>
+                  <% @vendedores.each do |v| %>
+                    <option value="<%= v.id %>"><%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %></option>
+                  <% end %>
+                </select>
+                <div class="alert alert-warning mb-0">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <small>
+                    <strong>Importante:</strong> Tienes <strong>10 minutos</strong>
+                    para completar la transferencia. Si no se confirma, la reserva
+                    se cancela automáticamente.
+                  </small>
+                </div>
               </div>
-              <small class="text-muted d-block mb-3">
-                Solicita este código a tu vendedor o asesor de ventas.
-              </small>
-              <div class="alert alert-warning mb-0">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <small>
-                  <strong>Importante:</strong> Tienes <strong>10 minutos</strong>
-                  para completar la transferencia. Si no se confirma, la reserva
-                  se cancela automáticamente.
-                </small>
-              </div>
-            </div>
+            <% end %>
           </div>
         </div>
 

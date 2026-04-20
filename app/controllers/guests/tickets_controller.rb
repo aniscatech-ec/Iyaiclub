@@ -1,5 +1,4 @@
 class Guests::TicketsController < ApplicationController
-  include VendedorCodeLookup
   before_action :set_event, only: [:new_purchase, :create_purchase, :transfer_status]
   before_action :set_ticket_by_code, only: [:show, :check_status]
 
@@ -162,11 +161,11 @@ class Guests::TicketsController < ApplicationController
   def create_transfer_ticket
     gp       = guest_params
     quantity = [params[:quantity].to_i, 1].max
-    vendedor = resolve_vendedor_by_code(params[:vendor_code], @event)
+    vendedor = User.find_by(id: params[:vendedor_id], role: :vendedor)
 
     unless vendedor
       redirect_to guests_new_purchase_event_tickets_path(@event),
-                  alert: vendedor_code_error(params[:vendor_code], @event)
+                  alert: "Por favor selecciona un vendedor."
       return
     end
 
