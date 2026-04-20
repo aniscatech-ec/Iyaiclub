@@ -1,0 +1,54 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow border-danger mb-4">
+        <div class="card-header bg-danger text-white fw-bold d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-tag"></i> Detalles de la Promoción</span>
+          <%= link_to "Volver al Establecimiento", establishment_path(@promotion.establishment), class: "btn btn-sm btn-outline-light" %>
+        </div>
+        
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h3 class="fw-bold mb-1 border-bottom pb-2"><%= @promotion.title %></h3>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-danger fs-5"><%= @promotion.discount_percentage %>% OFF</span>
+            </div>
+          </div>
+
+          <div class="row mb-4 bg-light rounded p-3 mx-0 border border-danger-subtle">
+            <div class="col-md-6 mb-2">
+              <strong class="text-muted d-block"><i class="bi bi-calendar-event me-1 text-danger"></i> Inicio</strong>
+              <span class="fs-5"><%= @promotion.start_date.strftime("%d/%m/%Y") %></span>
+            </div>
+            <div class="col-md-6 mb-2">
+              <strong class="text-muted d-block"><i class="bi bi-calendar-x me-1 text-danger"></i> Fin</strong>
+              <span class="fs-5"><%= @promotion.end_date.strftime("%d/%m/%Y") %></span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <strong class="text-muted d-block mb-1"><i class="bi bi-card-text me-1 text-danger"></i> Descripción</strong>
+            <div class="p-3 border rounded bg-light">
+              <%= simple_format @promotion.description.presence || "Sin descripción detallada." %>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between border-top pt-3 mt-4">
+            <div>
+              <%= link_to edit_promotion_path(@promotion), class: "btn btn-outline-warning" do %>
+                <i class="bi bi-pencil"></i> Editar
+              <% end %>
+            </div>
+            <div>
+              <%= button_to promotion_path(@promotion), method: :delete, data: { turbo_confirm: "¿Estás seguro de que deseas eliminar esta promoción?" }, class: "btn btn-outline-danger" do %>
+                <i class="bi bi-trash"></i> Eliminar
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

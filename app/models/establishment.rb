@@ -79,9 +79,7 @@ class Establishment < ApplicationRecord
   has_many :getaways, dependent: :destroy
   has_many :lodgings, dependent: :destroy
   has_many :experiences, dependent: :destroy
-
-
-
+  has_many :promotions, dependent: :destroy
   private
 
   def create_verification_record

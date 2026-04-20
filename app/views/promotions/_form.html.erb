@@ -1,0 +1,50 @@
+<%= form_with(model: [@establishment, promotion].compact, local: true, class: 'card shadow-sm border-danger', data: { controller: "form-validation" }) do |form| %>
+  <div class="card-body">
+    <% if promotion.errors.any? %>
+      <div class="alert alert-danger">
+        <h5 class="alert-heading"><%= pluralize(promotion.errors.count, "error") %> impidieron guardar:</h5>
+        <ul class="mb-0">
+          <% promotion.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if @establishment %>
+      <%= form.hidden_field :establishment_id, value: @establishment.id %>
+    <% end %>
+
+    <div class="row">
+      <div class="col-md-8 mb-3">
+        <%= form.label :title, "Título de la Promoción", class: "form-label fw-bold" %>
+        <%= form.text_field :title, class: "form-control", placeholder: "Ej. Descuento de Fin de Semana", required: true %>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <%= form.label :discount_percentage, "Descuento (%)", class: "form-label fw-bold" %>
+        <%= form.number_field :discount_percentage, step: 1, min: 1, max: 100, class: "form-control", placeholder: "Ej. 15", required: true %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :description, "Descripción (Opcional)", class: "form-label fw-bold" %>
+      <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Detalles sobre las condiciones de la promoción..." %>
+    </div>
+
+    <div class="row bg-light rounded p-2 mb-3 mx-1 border border-danger-subtle">
+      <div class="col-md-6 mb-2">
+        <%= form.label :start_date, "Fecha de Inicio", class: "form-label fw-bold" %>
+        <%= form.date_field :start_date, class: "form-control", required: true %>
+      </div>
+      <div class="col-md-6 mb-2">
+        <%= form.label :end_date, "Fecha de Fin", class: "form-label fw-bold" %>
+        <%= form.date_field :end_date, class: "form-control", required: true %>
+      </div>
+    </div>
+
+    <div class="d-grid mt-4">
+      <%= form.submit "Guardar Promoción", class: "btn btn-danger text-white fw-bold btn-lg" %>
+    </div>
+  </div>
+<% end %>

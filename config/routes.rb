@@ -97,6 +97,7 @@ Rails.application.routes.draw do
     resources :getaways, shallow: true
     resources :lodgings, shallow: true
     resources :experiences, shallow: true
+    resources :promotions, shallow: true
     member do
       get :dashboard  # /establishments/:id/dashboard
     end
