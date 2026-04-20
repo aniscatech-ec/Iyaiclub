@@ -100,6 +100,7 @@ Rails.application.routes.draw do
     resources :getaways, shallow: true
     resources :lodgings, shallow: true
     resources :experiences, shallow: true
+    resources :promotions, shallow: true
     member do
       get :dashboard  # /establishments/:id/dashboard
     end
@@ -222,6 +223,13 @@ Rails.application.routes.draw do
   namespace :admin do
     get "dashboard/index"
     resources :invoice_claims, only: [:index, :show] do
+      member do
+        patch :approve
+        patch :reject
+      end
+    end
+
+    resources :verifications, only: [:index, :show] do
       member do
         patch :approve
         patch :reject

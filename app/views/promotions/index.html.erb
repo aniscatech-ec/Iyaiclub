@@ -1,0 +1,40 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-danger"><i class="bi bi-tags"></i> Promociones</h2>
+    
+    <% if @establishment %>
+      <%= link_to "Volver al Establecimiento", establishment_path(@establishment), class: "btn btn-outline-secondary" %>
+    <% end %>
+  </div>
+
+  <% if @promotions.any? %>
+    <div class="row">
+      <% @promotions.each do |promotion| %>
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 border-danger shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold d-flex justify-content-between align-items-center">
+              <span><%= promotion.discount_percentage %>% OFF</span>
+              <i class="bi bi-tag-fill"></i>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title fw-bold"><%= promotion.title %></h5>
+              <p class="small text-muted mb-2">
+                <i class="bi bi-calendar"></i> <%= promotion.start_date.strftime("%d/%m/%Y") %> - <%= promotion.end_date.strftime("%d/%m/%Y") %>
+              </p>
+              <p class="card-text text-truncate"><%= promotion.description %></p>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-between">
+              <%= link_to "Detalles", promotion_path(promotion), class: "btn btn-sm btn-outline-secondary" %>
+              <%= link_to "Editar", edit_promotion_path(promotion), class: "btn btn-sm btn-outline-warning" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="alert alert-secondary text-center py-5">
+      <i class="bi bi-tags fs-1 text-muted d-block mb-3"></i>
+      <h5>No hay promociones registradas.</h5>
+    </div>
+  <% end %>
+</div>

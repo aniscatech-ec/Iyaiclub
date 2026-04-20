@@ -1,0 +1,37 @@
+<div class="row align-items-center mb-4">
+  <div class="col-8">
+    <h1 class="h3 mb-0 text-gray-800">Pending Verifications</h1>
+  </div>
+</div>
+
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered" width="100%" cellspacing="0">
+        <thead>
+          <tr>
+            <th>Establishment Name</th>
+            <th>Owner</th>
+            <th>Created Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @verifications.each do |verification| %>
+            <tr>
+              <td><%= verification.establishment.name %></td>
+              <td><%= verification.establishment.user.name %></td>
+              <td><%= verification.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+              <td><span class="badge bg-warning text-dark"><%= verification.status %></span></td>
+              <td>
+                <%= link_to 'Review', admin_verification_path(verification), class: 'btn btn-sm btn-info' %>
+                <%= link_to 'Approve', approve_admin_verification_path(verification), data: { "turbo-method": :patch }, class: 'btn btn-sm btn-success' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
