@@ -1,4 +1,5 @@
 class SubscriptionsController < ApplicationController
+  include VendedorCodeLookup
   before_action :set_subscription, only: %i[show edit update destroy approve cancel]
   before_action :authenticate_user!
   before_action :authenticate_admin!, only: %i[selector]
@@ -75,11 +76,11 @@ class SubscriptionsController < ApplicationController
   # Crea una suscripción en estado :reservada asignada al vendedor elegido.
   def reservar_transferencia
     plan_price = PlanPrice.find(params[:plan_id])
-    vendedor   = User.find_by(id: params[:vendedor_id], role: :vendedor)
+    vendedor   = resolve_vendedor_by_code(params[:vendor_code])
 
     unless vendedor
       redirect_back fallback_location: turista_memberships_path,
-                    alert: "Debes seleccionar un asesor de ventas."
+                    alert: vendedor_code_error(params[:vendor_code])
       return
     end
 

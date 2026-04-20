@@ -1,0 +1,58 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-5">
+
+      <div class="text-center mb-4">
+        <div class="display-4 mb-3" style="color: var(--brand-orange);">
+          <i class="fas fa-search"></i>
+        </div>
+        <h3 class="fw-bold">Buscar mi ticket</h3>
+        <p class="text-muted">
+          Ingresa el código de tu ticket y tu cédula para recuperarlo.
+        </p>
+      </div>
+
+      <% if @error.present? %>
+        <div class="alert alert-danger">
+          <i class="fas fa-exclamation-circle me-2"></i> <%= @error %>
+        </div>
+      <% end %>
+
+      <%= form_with url: guests_ticket_lookup_path, method: :get, local: true do |f| %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body p-4">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Código del ticket</label>
+              <input type="text" name="code" class="form-control form-control-lg"
+                     placeholder="EXP-000001"
+                     value="<%= params[:code] %>"
+                     style="text-transform: uppercase; letter-spacing: 1px;"
+                     required>
+              <div class="form-text">Formato: EXP-XXXXXX (lo encontrarás en tu email de confirmación)</div>
+            </div>
+            <div class="mb-0">
+              <label class="form-label fw-bold">Cédula / Pasaporte</label>
+              <input type="text" name="cedula" class="form-control form-control-lg"
+                     placeholder="Tu número de cédula o pasaporte"
+                     value="<%= params[:cedula] %>"
+                     required>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-search me-2"></i> Buscar ticket
+          </button>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-4">
+        <%= link_to events_path, class: "text-muted" do %>
+          <i class="fas fa-arrow-left me-1"></i> Ver eventos
+        <% end %>
+      </div>
+
+    </div>
+  </div>
+</div>

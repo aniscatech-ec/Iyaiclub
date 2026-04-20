@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -197,6 +197,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
     t.integer "status", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "member_price", precision: 10, scale: 2
+    t.decimal "non_member_price", precision: 10, scale: 2
     t.index ["event_date"], name: "index_events_on_event_date"
     t.index ["status"], name: "index_events_on_status"
   end
@@ -354,7 +356,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
   create_table "payphone_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "payable_type"
     t.bigint "payable_id"
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.bigint "transaction_id"
     t.string "client_transaction_id", null: false
     t.integer "amount_cents", null: false
@@ -436,6 +438,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
     t.datetime "updated_at", null: false
     t.json "refund_policy"
     t.index ["establishment_id"], name: "index_pricing_policies_on_establishment_id"
+  end
+
+  create_table "promotions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "discount_percentage", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_promotions_on_establishment_id"
   end
 
   create_table "provinces", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -604,7 +618,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
   end
 
   create_table "tickets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.bigint "payphone_transaction_id"
     t.string "ticket_code", null: false
     t.integer "raffle_number", null: false
@@ -723,11 +737,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "vendor_code"
     t.index ["city_id"], name: "index_users_on_city_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["vendor_code"], name: "index_users_on_vendor_code", unique: true
   end
 
   create_table "vehicles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -745,6 +761,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
     t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "status", default: 0
+    t.text "reviewer_notes"
+    t.datetime "verified_at"
+    t.integer "reviewed_by_id"
     t.index ["establishment_id"], name: "index_verifications_on_establishment_id"
   end
 
@@ -796,6 +816,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_18_193656) do
   add_foreign_key "plan_vendedores", "plans"
   add_foreign_key "plan_vendedores", "users", column: "vendedor_id"
   add_foreign_key "pricing_policies", "establishments"
+  add_foreign_key "promotions", "establishments"
   add_foreign_key "provinces", "countries"
   add_foreign_key "raffles", "events"
   add_foreign_key "redemptions", "rewards"

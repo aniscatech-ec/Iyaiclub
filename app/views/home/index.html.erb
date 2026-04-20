@@ -95,8 +95,9 @@
                   <span class="badge bg-white text-dark">
                     <%= event.event_date&.strftime('%d/%m') || 'Próximamente' %>
                   </span>
-                  <span class="badge <%= event.ticket_price.to_f > 0 ? 'bg-success' : 'bg-info' %>">
-                    <%= event.ticket_price.to_f > 0 ? "$#{number_with_precision(event.ticket_price, precision: 2)}" : 'GRATIS' %>
+                  <% _home_price = event.price_for(current_user) %>
+                  <span class="badge <%= _home_price > 0 ? 'bg-success' : 'bg-info' %>">
+                    <%= _home_price > 0 ? "$#{number_with_precision(_home_price, precision: 2)}" : 'GRATIS' %>
                   </span>
                 </div>
                 <h4 class="fw-bold mb-1"><%= event.name %></h4>

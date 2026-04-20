@@ -60,7 +60,8 @@
                     <small><%= event.location.presence || "-" %></small>
                   </td>
                   <td>
-                    <strong>$<%= number_with_precision(event.ticket_price, precision: 2) %></strong>
+                    <div><small class="text-muted">Afiliado:</small> <strong>$<%= number_with_precision(event.member_price, precision: 2) %></strong></div>
+                    <div><small class="text-muted">No afiliado:</small> <strong>$<%= number_with_precision(event.non_member_price, precision: 2) %></strong></div>
                   </td>
                   <td>
                     <span class="badge bg-secondary"><%= event.tickets.count %> vendidos</span>

@@ -45,8 +45,12 @@
               </li>
             <% end %>
             <li class="list-group-item d-flex justify-content-between px-0">
-              <span>Precio por ticket</span>
-              <strong>$<%= number_with_precision(@event.ticket_price, precision: 2) %></strong>
+              <span>Precio afiliado</span>
+              <strong>$<%= number_with_precision(@event.member_price, precision: 2) %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Precio no afiliado</span>
+              <strong>$<%= number_with_precision(@event.non_member_price, precision: 2) %></strong>
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span>Tickets vendidos</span>

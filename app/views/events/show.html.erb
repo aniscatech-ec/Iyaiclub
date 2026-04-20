@@ -8,10 +8,11 @@
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <h2 class="fw-bold mb-0"><%= @event.name %></h2>
-            <% if @event.ticket_price.to_f == 0 %>
+            <% _price = @event.price_for(current_user) %>
+            <% if _price == 0 %>
               <span class="badge bg-success fs-6">GRATIS</span>
             <% else %>
-              <span class="badge bg-primary fs-6">$<%= number_with_precision(@event.ticket_price, precision: 2) %></span>
+              <span class="badge bg-primary fs-6">$<%= number_with_precision(_price, precision: 2) %></span>
             <% end %>
           </div>
 
@@ -63,7 +64,7 @@
 
           <div class="d-flex flex-column flex-md-row gap-2">
             <% if user_signed_in? %>
-              <% if @event.ticket_price.to_f == 0 %>
+              <% if @event.price_for(current_user) == 0 %>
                 <% if @event.sold_out? %>
                   <button class="btn btn-secondary btn-lg" disabled>
                     <i class="fas fa-times-circle me-1"></i> Agotado
@@ -91,9 +92,28 @@
                 <% end %>
               <% end %>
             <% else %>
-              <%= link_to new_user_registration_path, class: "btn btn-warning btn-lg" do %>
-                <i class="fas fa-star me-1"></i> Suscríbete para beneficios exclusivos
+              <% if @event.sold_out? %>
+                <button class="btn btn-secondary btn-lg" disabled>
+                  <i class="fas fa-times-circle me-1"></i> Agotado
+                </button>
+              <% elsif @event.price_for(nil) == 0 %>
+                <%= link_to new_user_session_path, class: "btn btn-success btn-lg" do %>
+                  <i class="fas fa-ticket-alt me-1"></i> Inicia sesión para obtener tu ticket gratuito
+                <% end %>
+              <% else %>
+                <%= link_to guests_new_purchase_event_tickets_path(@event), class: "btn btn-success btn-lg" do %>
+                  <i class="fas fa-ticket-alt me-1"></i> Comprar Ticket — $<%= number_with_precision(@event.price_for(nil), precision: 2) %>
+                <% end %>
               <% end %>
+              <div class="d-flex align-items-center gap-2 p-2 rounded-3" style="background: linear-gradient(135deg, #fff8e1, #fff3cd); border: 1px dashed #ffc107;">
+                <i class="fas fa-tag text-warning fs-5"></i>
+                <div>
+                  <div class="fw-bold small">¿Afiliado? Tu precio: <span class="text-success">$<%= number_with_precision(@event.member_price, precision: 2) %></span></div>
+                  <%= link_to new_user_registration_path, class: "text-primary small fw-semibold text-decoration-none" do %>
+                    Regístrate Gratis para un descuento especial <i class="fas fa-arrow-right ms-1"></i>
+                  <% end %>
+                </div>
+              </div>
             <% end %>
 
             <%= link_to events_path, class: "btn btn-outline-secondary" do %>

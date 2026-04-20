@@ -1,5 +1,5 @@
 class Ticket < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :event, optional: true
   belongs_to :payphone_transaction, optional: true
   belongs_to :vendedor, class_name: "User", optional: true

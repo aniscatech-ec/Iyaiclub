@@ -157,6 +157,7 @@ Rails.application.routes.draw do
   end
   namespace :vendedor do
     resources :dashboard, only: [:index]
+    resources :sales, only: [:index]
     resources :events, only: [] do
       resources :tickets, only: [:index] do
         member do
@@ -213,6 +214,17 @@ Rails.application.routes.draw do
   root "home#index"
 
   resources :events, only: [:index, :show]
+
+  # Compra de tickets para usuarios no loggeados
+  scope :guests, module: :guests do
+    get  "events/:event_id/tickets/new",      to: "tickets#new_purchase",      as: :guests_new_purchase_event_tickets
+    post "events/:event_id/tickets",          to: "tickets#create_purchase",   as: :guests_create_purchase_event_tickets
+    get  "events/:event_id/tickets/transfer", to: "tickets#transfer_status",   as: :guests_transfer_status_event_tickets
+    get  "tickets/lookup",                    to: "tickets#lookup",            as: :guests_ticket_lookup
+    get  "tickets/:code/check",               to: "tickets#check_status",      as: :guests_check_ticket_status
+    get  "tickets/:code",                     to: "tickets#show",              as: :guests_ticket
+  end
+
   # authenticated :user do
   #   root to: "dashboard#index", as: :authenticated_root
   # end

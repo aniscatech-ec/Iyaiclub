@@ -1,6 +1,6 @@
 class PayphoneTransaction < ApplicationRecord
   belongs_to :payable, polymorphic: true, optional: true
-  belongs_to :user
+  belongs_to :user, optional: true
 
   enum :status, { pendiente: 0, aprobado: 1, cancelado: 2, revertido: 3 }
 

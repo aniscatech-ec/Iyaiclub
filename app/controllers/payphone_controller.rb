@@ -218,6 +218,7 @@ class PayphoneController < ApplicationController
     event    = Event.find(meta["event_id"])
     quantity = (meta["quantity"] || 1).to_i
 
+    unit_price = meta["unit_price"].to_f
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
@@ -227,8 +228,8 @@ class PayphoneController < ApplicationController
           event_name:     event.name,
           event_date:     event.event_date,
           event_location: event.location,
-          unit_price:     event.ticket_price,
-          total_price:    event.ticket_price,   # precio por ticket individual
+          unit_price:     unit_price,
+          total_price:    unit_price,
           guest_name:     meta["guest_name"],
           guest_email:    meta["guest_email"],
           guest_phone:    meta["guest_phone"],
@@ -257,17 +258,26 @@ class PayphoneController < ApplicationController
     when Ticket
       payable.acreditar! unless payable.activo?
       begin
-        # Enviar todos los tickets de la transacción (compra múltiple)
-        all_tickets = if transaction&.metadata&.dig("quantity").to_i > 1
-                        Ticket.where(
-                          user: payable.user,
-                          event: payable.event,
-                          status: :activo
-                        ).order(:id).last(transaction.metadata["quantity"].to_i)
+        quantity = transaction&.metadata&.dig("quantity").to_i
+        # Obtener todos los tickets de la transacción (compra múltiple)
+        all_tickets = if quantity > 1
+                        if payable.user.present?
+                          Ticket.where(user: payable.user, event: payable.event, status: :activo)
+                                .order(:id).last(quantity)
+                        else
+                          Ticket.where(user: nil, event: payable.event, status: :activo,
+                                       guest_email: payable.guest_email)
+                                .order(:id).last(quantity)
+                        end
                       else
                         [payable]
                       end
-        TicketMailer.ticket_purchased(payable.user, all_tickets).deliver_later
+
+        if payable.user.present?
+          TicketMailer.ticket_purchased(payable.user, all_tickets).deliver_later
+        else
+          TicketMailer.ticket_confirmation_guest(all_tickets).deliver_later
+        end
       rescue => e
         Rails.logger.error("Error enviando email de ticket PayPhone: #{e.message}")
       end
@@ -288,7 +298,11 @@ class PayphoneController < ApplicationController
     when Booking
       booking_redirect_path(payable)
     when Ticket
-      turista_ticket_path(payable)
+      if payable.user.present?
+        turista_ticket_path(payable)
+      else
+        guests_ticket_path(payable.ticket_code)
+      end
     when nil
       # Transacción sin payable (pago rechazado/cancelado para ticket)
       if transaction.metadata&.dig("type") == "ticket"

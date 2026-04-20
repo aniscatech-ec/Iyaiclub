@@ -71,11 +71,22 @@
           </h5>
         </div>
         <div class="card-body px-4 pb-4">
-          <div class="mb-3">
-            <%= form.label :ticket_price, "Precio por Ticket (USD)", class: "form-label fw-bold" %>
-            <div class="input-group">
-              <span class="input-group-text">$</span>
-              <%= form.number_field :ticket_price, class: "form-control", step: 0.01, min: 0 %>
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-sm-6">
+              <%= form.label :member_price, "Precio Afiliado (USD)", class: "form-label fw-bold" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= form.number_field :member_price, class: "form-control", step: 0.01, min: 0, placeholder: "0.00" %>
+              </div>
+              <div class="form-text">Para usuarios con cuenta registrada.</div>
+            </div>
+            <div class="col-12 col-sm-6">
+              <%= form.label :non_member_price, "Precio No Afiliado (USD)", class: "form-label fw-bold" %>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <%= form.number_field :non_member_price, class: "form-control", step: 0.01, min: 0, placeholder: "0.00" %>
+              </div>
+              <div class="form-text">Para visitantes sin cuenta.</div>
             </div>
           </div>
 

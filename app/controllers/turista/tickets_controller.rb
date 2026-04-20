@@ -1,4 +1,5 @@
 class Turista::TicketsController < ApplicationController
+  include VendedorCodeLookup
   before_action :authenticate_user!
   before_action :set_ticket, only: [:show, :download, :mark_as_used, :check_status]
   before_action :set_event, only: [:new_free, :create_free, :new_purchase, :create_purchase, :new_transfer, :create_transfer, :transfer_status]
@@ -35,7 +36,7 @@ class Turista::TicketsController < ApplicationController
   end
 
   def new_free
-    if @event.ticket_price.to_f > 0
+    if @event.price_for(current_user) > 0
       redirect_to events_path, alert: "Este evento requiere pago."
       return
     end
@@ -58,7 +59,7 @@ class Turista::TicketsController < ApplicationController
   end
 
   def create_free
-    if @event.ticket_price.to_f > 0
+    if @event.price_for(current_user) > 0
       redirect_to events_path, alert: "Este evento requiere pago."
       return
     end
@@ -96,7 +97,7 @@ class Turista::TicketsController < ApplicationController
   # --- Flujo unificado de compra ---
 
   def new_purchase
-    if @event.ticket_price.to_f == 0
+    if @event.price_for(current_user) == 0
       redirect_to new_free_turista_event_tickets_path(@event), notice: "Este evento es gratuito."
       return
     end
@@ -142,7 +143,7 @@ class Turista::TicketsController < ApplicationController
     message = "Hola, soy #{current_user.name}. " \
               "Acabo de reservar un ticket para el evento #{@event.name} " \
               "(Código: #{@ticket.ticket_code}). " \
-              "Precio: $#{@event.ticket_price}. " \
+              "Precio: $#{@event.price_for(current_user)}. " \
               "Por favor confirmar el pago por transferencia."
     @whatsapp_url = helpers.whatsapp_link(@vendedor.phone, message)
   end
@@ -168,6 +169,7 @@ class Turista::TicketsController < ApplicationController
     params.require(:ticket).permit(:guest_name, :guest_email, :guest_phone)
   end
 
+
   def create_payphone_ticket
     guest_name = params[:guest_name].presence || current_user.name
     guest_email = params[:guest_email].presence || current_user.email
@@ -181,7 +183,7 @@ class Turista::TicketsController < ApplicationController
     end
 
     # NO crear tickets aún — se crean solo cuando PayPhone confirma el pago
-    @amount_cents = ((@event.ticket_price || 0) * 100 * quantity).to_i
+    @amount_cents = (@event.price_for(current_user) * 100 * quantity).to_i
     @client_transaction_id = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     @reference = "#{quantity} ticket(s) - #{@event.name}"
 
@@ -200,7 +202,7 @@ class Turista::TicketsController < ApplicationController
         guest_name: guest_name,
         guest_email: guest_email,
         guest_phone: current_user.phone,
-        unit_price: @event.ticket_price
+        unit_price: @event.price_for(current_user)
       }
     )
 
@@ -214,9 +216,10 @@ class Turista::TicketsController < ApplicationController
   end
 
   def create_transfer_ticket
-    vendedor = @event.active_vendedores.find_by(id: params[:vendedor_id])
+    vendedor = resolve_vendedor_by_code(params[:vendor_code], @event)
     unless vendedor
-      redirect_to new_purchase_turista_event_tickets_path(@event), alert: "Vendedor no válido."
+      redirect_to new_purchase_turista_event_tickets_path(@event),
+                  alert: vendedor_code_error(params[:vendor_code], @event)
       return
     end
 
@@ -239,8 +242,8 @@ class Turista::TicketsController < ApplicationController
           event_name: @event.name,
           event_date: @event.event_date,
           event_location: @event.location,
-          unit_price: @event.ticket_price,
-          total_price: @event.ticket_price * quantity,
+          unit_price: @event.price_for(current_user),
+          total_price: @event.price_for(current_user) * quantity,
           guest_name: params[:guest_name].presence || current_user.name,
           guest_email: params[:guest_email].presence || current_user.email,
           guest_phone: current_user.phone,
@@ -260,7 +263,7 @@ class Turista::TicketsController < ApplicationController
     end
 
     redirect_to transfer_status_turista_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.ticket_price * quantity)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.price_for(current_user) * quantity)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to new_purchase_turista_event_tickets_path(@event),
                 alert: "Error al crear tickets: #{e.message}"

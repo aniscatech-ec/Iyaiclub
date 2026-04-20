@@ -1,0 +1,172 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
+      Ticket <%= @ticket.ticket_code %>
+    </h3>
+    <%= link_to events_path, class: "btn btn-outline-secondary" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver a eventos
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-6">
+      <!-- Información del ticket -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-info-circle me-2 text-primary"></i>
+            Información del Ticket
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <div class="mb-3">
+            <span class="badge <%= ticket_status_badge_class(@ticket.status) %> fs-5 px-4 py-2">
+              <%= @ticket.status.humanize %>
+            </span>
+          </div>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Código de ticket</span>
+              <strong style="color: #2E7D32;"><%= @ticket.ticket_code %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Evento</span>
+              <strong><%= @ticket.event_name %></strong>
+            </li>
+            <% if @ticket.event_date.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Fecha</span>
+                <strong><%= @ticket.event_date.strftime('%d/%m/%Y') %></strong>
+              </li>
+            <% end %>
+            <% if @ticket.event_location.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Lugar</span>
+                <strong><%= @ticket.event_location %></strong>
+              </li>
+            <% end %>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Asistente</span>
+              <strong><%= @ticket.guest_name.to_s.split("·").first.strip %></strong>
+            </li>
+            <% if @ticket.guest_email.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Email</span>
+                <strong><%= @ticket.guest_email %></strong>
+              </li>
+            <% end %>
+            <% if @ticket.guest_phone.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Teléfono</span>
+                <strong><%= @ticket.guest_phone %></strong>
+              </li>
+            <% end %>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Precio</span>
+              <strong>$<%= number_with_precision(@ticket.unit_price, precision: 2) %></strong>
+            </li>
+            <% if @ticket.used_at.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Usado el</span>
+                <strong><%= @ticket.used_at.strftime('%d/%m/%Y %H:%M') %></strong>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Número de rifa -->
+      <% if @ticket.activo? || @ticket.usado? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4"
+             style="background: linear-gradient(135deg, #FFF8E1, #FFE082);">
+          <div class="card-body text-center py-4">
+            <h5 class="fw-bold mb-3" style="color: #F57F17;">
+              <i class="fas fa-trophy me-2"></i> Número de Rifa
+            </h5>
+            <div class="fw-bold mb-3" style="font-size: 48px; color: #E65100;">
+              <%= @ticket.raffle_number %>
+            </div>
+            <p class="mb-0" style="color: #555;">
+              🎱 Con este número participas en el sorteo oficial del evento
+            </p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <!-- Código QR -->
+      <% if @ticket.activo? || @ticket.usado? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-0">
+              <i class="fas fa-qrcode me-2 text-primary"></i>
+              Código QR
+            </h5>
+          </div>
+          <div class="card-body px-4 pb-4 text-center">
+            <div class="mb-3">
+              <%= @ticket.qr_svg.html_safe %>
+            </div>
+            <p class="text-muted small mb-0">
+              Presenta este código QR en la entrada del evento para validar tu ticket.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Estado de reserva -->
+      <% if @ticket.reservado? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4 border-warning">
+          <div class="card-body p-4 text-center">
+            <div class="display-4 text-warning mb-3">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h5 class="fw-bold">Esperando confirmación</h5>
+            <p class="text-muted">
+              El vendedor aún no ha confirmado tu pago.
+              Contáctalo por WhatsApp para agilizar el proceso.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Información de compra -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-receipt me-2 text-secondary"></i>
+            Información de Compra
+          </h5>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Fecha de compra</span>
+              <strong><%= @ticket.created_at.strftime('%d/%m/%Y %H:%M') %></strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between px-0">
+              <span>Total pagado</span>
+              <strong>$<%= number_with_precision(@ticket.total_price, precision: 2) %></strong>
+            </li>
+            <% if @ticket.payphone_transaction.present? %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Transacción</span>
+                <strong>#<%= @ticket.payphone_transaction.transaction_id %></strong>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Buscar otro ticket -->
+      <div class="text-center">
+        <%= link_to guests_ticket_lookup_path, class: "text-muted small" do %>
+          <i class="fas fa-search me-1"></i> Buscar otro ticket
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

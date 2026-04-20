@@ -529,32 +529,27 @@
           </label>
         </div>
 
-        <!-- Panel transferencia: selector de vendedor -->
+        <!-- Panel transferencia: código de vendedor -->
         <div id="transfer-panel" style="display:none;">
-          <% vendedores = @plan_vendedores.presence || [] %>
-          <% if vendedores.any? %>
-            <div class="mb-3">
-              <label class="field-label">
-                <i class="fas fa-user-tie me-1 text-success"></i>
-                Selecciona tu asesor de ventas
-              </label>
-              <select name="vendedor_id" id="vendedor_select" class="form-select rounded-3 border-2">
-                <option value="">-- Elige un asesor --</option>
-                <% vendedores.each do |v| %>
-                  <option value="<%= v.id %>"><%= v.name %></option>
-                <% end %>
-              </select>
-              <small class="text-muted mt-1 d-block">
-                <i class="fas fa-info-circle me-1"></i>
-                Tu asesor recibirá la solicitud y acreditará la membresía al recibir el pago.
-              </small>
+          <div class="mb-3">
+            <label class="field-label">
+              <i class="fas fa-user-tag me-1 text-success"></i>
+              Código de tu asesor de ventas
+            </label>
+            <div class="input-group">
+              <span class="input-group-text" style="border-radius: 10px 0 0 10px;">
+                <i class="fas fa-hashtag text-muted"></i>
+              </span>
+              <input type="text" name="vendor_code" id="vendor_code_input"
+                     class="form-control" placeholder="Ej: VND-ABC123"
+                     style="border-radius: 0 10px 10px 0; text-transform: uppercase; letter-spacing: 1px;"
+                     maxlength="10">
             </div>
-          <% else %>
-            <div class="alert alert-warning small rounded-3">
-              <i class="fas fa-exclamation-triangle me-1"></i>
-              No hay asesores disponibles para este plan. Usa una tarjeta de crédito/débito para pagar en línea.
-            </div>
-          <% end %>
+            <small class="text-muted mt-1 d-block">
+              <i class="fas fa-info-circle me-1"></i>
+              Ingresa el código que te proporcionó tu asesor. Al confirmar el pago, la membresía quedará activa.
+            </small>
+          </div>
         </div>
       </div>
 
@@ -592,7 +587,7 @@
     <%= tf.hidden_field :plan_id,           value: @plan_price.id %>
     <%= tf.hidden_field :subscribable_type,  value: subscribable_type %>
     <%= tf.hidden_field :subscribable_id,    value: subscribable_id %>
-    <input type="hidden" name="vendedor_id" id="transfer-vendedor-id" value="">
+    <input type="hidden" name="vendor_code" id="transfer-vendor-code" value="">
   <% end %>
 </div>
 
@@ -602,8 +597,6 @@
   const transferPanel = document.getElementById('transfer-panel');
   const btnPayphone   = document.getElementById('btn-payphone-wrapper');
   const btnTransfer   = document.getElementById('btn-transfer-wrapper');
-  const vendedorSelect = document.getElementById('vendedor_select');
-  const btnTransferLink = document.getElementById('btn-transfer');
 
   function toggle() {
     const isTransfer = document.getElementById('pay_transfer')?.checked;
@@ -614,14 +607,13 @@
 
   radios.forEach(r => r.addEventListener('change', toggle));
 
-  // Sincronizar vendedor_id del select al hidden field del form de transferencia
-  const vendedorHidden = document.getElementById('transfer-vendedor-id');
-  if (vendedorSelect && vendedorHidden) {
-    vendedorSelect.addEventListener('change', function() {
-      vendedorHidden.value = this.value;
+  // Sincronizar vendor_code del input al hidden field del form de transferencia
+  const vendorCodeInput  = document.getElementById('vendor_code_input');
+  const vendorCodeHidden = document.getElementById('transfer-vendor-code');
+  if (vendorCodeInput && vendorCodeHidden) {
+    vendorCodeInput.addEventListener('input', function() {
+      vendorCodeHidden.value = this.value.trim().toUpperCase();
     });
-    // Inicializar con el valor actual
-    vendedorHidden.value = vendedorSelect.value;
   }
 
   toggle();

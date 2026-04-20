@@ -19,7 +19,7 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     .header {
-      background: linear-gradient(135deg, #34c759, #2E7D32);
+      background: linear-gradient(135deg, #e53935, #b71c1c);
       color: white;
       padding: 30px 20px;
       text-align: center;
@@ -33,7 +33,7 @@
       padding: 30px 20px;
     }
     .ticket-card {
-      border: 2px solid #34c759;
+      border: 2px solid #e53935;
       border-radius: 10px;
       padding: 20px;
       margin: 20px 0;
@@ -42,25 +42,23 @@
     .ticket-code {
       font-size: 24px;
       font-weight: bold;
-      color: #2E7D32;
+      color: #b71c1c;
       margin: 10px 0;
-    }
-    .raffle-number {
-      background: linear-gradient(135deg, #FFD700, #FFA500);
-      color: #333;
-      font-size: 32px;
-      font-weight: bold;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 15px 0;
-      display: inline-block;
-      min-width: 120px;
     }
     .info-row {
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
       border-bottom: 1px solid #eee;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #1976D2;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
     }
     .footer {
       background-color: #f8f9fa;
@@ -74,21 +72,25 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Ticket Confirmado</h1>
-      <p style="margin: 5px 0 0 0; opacity: 0.9;">Tu pago ha sido verificado exitosamente</p>
+      <h1>&#10060; Reserva Rechazada</h1>
+      <p style="margin: 5px 0 0 0; opacity: 0.9;">Tu reserva de ticket no pudo ser confirmada</p>
     </div>
 
     <div class="content">
-      <p>Hola <strong><%= @name %></strong>,</p>
-      <p>Tu ticket para <strong><%= @event_name %></strong> ha sido acreditado. El pago por transferencia fue confirmado por el vendedor.</p>
+      <p>Hola <strong><%= @guest_name %></strong>,</p>
+      <p>
+        Lamentablemente, tu reserva de ticket para
+        <strong><%= @event_name %></strong>
+        fue rechazada. Esto puede deberse a que el pago por transferencia no fue
+        confirmado a tiempo o no pudo ser verificado por el vendedor.
+      </p>
 
       <div class="ticket-card">
-        <div style="font-size: 14px; color: #666;">Codigo de Ticket</div>
+        <div style="font-size: 14px; color: #666;">Código de Ticket</div>
         <div class="ticket-code"><%= @ticket.ticket_code %></div>
-
-        <div style="font-size: 14px; color: #666; margin-top: 15px;">Tu numero de rifa</div>
-        <div class="raffle-number"><%= @ticket.raffle_number %></div>
-        <div style="font-size: 12px; color: #888;">Con este numero participas en el sorteo</div>
+        <div style="font-size: 13px; color: #999; margin-top: 5px;">
+          Estado: <strong style="color: #e53935;">Rechazado</strong>
+        </div>
       </div>
 
       <div style="margin: 20px 0;">
@@ -97,32 +99,29 @@
           <strong><%= @ticket.event_name %></strong>
         </div>
         <div class="info-row">
-          <span>Fecha</span>
+          <span>Fecha del evento</span>
           <strong><%= @ticket.event_date&.strftime('%d/%m/%Y') %></strong>
         </div>
         <div class="info-row">
-          <span>Lugar</span>
-          <strong><%= @ticket.event_location %></strong>
-        </div>
-        <div class="info-row">
           <span>Asistente</span>
-          <strong><%= @ticket.guest_name %></strong>
-        </div>
-        <div class="info-row">
-          <span>Monto</span>
-          <strong>$<%= '%.2f' % @ticket.total_price %> USD</strong>
+          <strong><%= @guest_name %></strong>
         </div>
       </div>
 
-      <p style="text-align: center;">
-        <a href="<%= @ticket_url || turista_tickets_url %>" style="display: inline-block; background: #34c759; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-          Ver mi ticket
+      <p>
+        Los tickets reservados han sido liberados. Si deseas intentarlo nuevamente,
+        puedes volver a comprar un ticket para este evento.
+      </p>
+
+      <p style="text-align: center; margin-top: 25px;">
+        <a href="<%= @event_url %>" class="cta-button">
+          Volver al evento
         </a>
       </p>
     </div>
 
     <div class="footer">
-      <p>Presenta tu ticket (codigo QR) en la entrada del evento.</p>
+      <p>Si crees que esto fue un error, contacta a nuestro soporte.</p>
       <p>&copy; <%= Date.current.year %> IyaiClub - www.iyaiclub.com</p>
     </div>
   </div>

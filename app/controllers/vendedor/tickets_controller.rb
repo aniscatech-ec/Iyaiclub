@@ -21,7 +21,7 @@ class Vendedor::TicketsController < ApplicationController
     if @ticket.reservado?
       @ticket.acreditar!
       begin
-        TicketMailer.ticket_acreditado(@ticket.user, @ticket).deliver_later
+        send_acreditado_email(@ticket)
       rescue => e
         Rails.logger.error("Error enviando email de acreditación: #{e.message}")
       end
@@ -36,6 +36,11 @@ class Vendedor::TicketsController < ApplicationController
   def rechazar
     if @ticket.reservado?
       @ticket.rechazar!
+      begin
+        send_rechazado_email(@ticket)
+      rescue => e
+        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+      end
       redirect_to vendedor_event_tickets_path(@event),
                   notice: "Ticket #{@ticket.ticket_code} rechazado."
     else
@@ -50,7 +55,7 @@ class Vendedor::TicketsController < ApplicationController
       next unless ticket.reservado?
       ticket.acreditar!
       begin
-        TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_later
+        send_acreditado_email(ticket)
       rescue => e
         Rails.logger.error("Error enviando email de acreditación: #{e.message}")
       end
@@ -65,6 +70,11 @@ class Vendedor::TicketsController < ApplicationController
     @bulk_tickets.each do |ticket|
       next unless ticket.reservado?
       ticket.rechazar!
+      begin
+        send_rechazado_email(ticket)
+      rescue => e
+        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+      end
       rechazados += 1
     end
     redirect_to vendedor_event_tickets_path(@event),
@@ -88,5 +98,14 @@ class Vendedor::TicketsController < ApplicationController
       return
     end
     @bulk_tickets = @event.tickets.where(vendedor: current_user, id: ids)
+  end
+
+  def send_acreditado_email(ticket)
+    TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_later
+  end
+
+  def send_rechazado_email(ticket)
+    return if ticket.user.present?
+    TicketMailer.ticket_rechazado_guest(ticket).deliver_later
   end
 end
