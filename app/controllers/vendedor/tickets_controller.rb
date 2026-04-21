@@ -111,15 +111,22 @@ class Vendedor::TicketsController < ApplicationController
     @bulk_tickets = @event.tickets.where(vendedor: current_user, id: ids)
   end
 
-  # Todos los tickets pendientes del mismo comprador en este evento
+  # Todos los tickets pendientes del mismo comprador en este evento.
+  # Agrupa por guest_email si está presente, o por guest_name como fallback.
+  # Siempre incluye el ticket original aunque la query no lo encuentre.
   def same_buyer_pending(ticket)
-    scope = @event.tickets.where(
-      vendedor:    current_user,
-      guest_email: ticket.guest_email,
-      guest_name:  ticket.guest_name,
-      status:      :reservado
-    )
-    scope.to_a
+    scope = @event.tickets.where(vendedor: current_user, status: :reservado)
+
+    scope = if ticket.guest_email.present?
+              scope.where(guest_email: ticket.guest_email)
+            else
+              scope.where(guest_name: ticket.guest_name)
+            end
+
+    results = scope.to_a
+    # Garantizar que el ticket original siempre esté incluido
+    results << ticket unless results.map(&:id).include?(ticket.id)
+    results
   end
 
   def send_acreditado_email(ticket)

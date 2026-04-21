@@ -41,171 +41,166 @@
     <% end %>
   </div>
 
+  <%# Form bulk FUERA de la tabla — solo se usa via JS, nunca envuelve los button_to individuales %>
+  <form id="bulk-tickets-form" action="<%= bulk_acreditar_vendedor_event_tickets_path(@event) %>"
+        method="post" style="display:none;">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <input type="hidden" name="_method" value="patch">
+  </form>
+
+  <!-- Barra de acciones masivas (fuera de cualquier form) -->
+  <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
+    <span class="fw-semibold me-2">
+      <span id="selected-count">0</span> ticket(s) seleccionado(s)
+    </span>
+    <button type="button" id="btn-bulk-acreditar"
+            class="btn btn-success btn-sm"
+            data-url="<%= bulk_acreditar_vendedor_event_tickets_path(@event) %>"
+            data-confirm-msg="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
+      <i class="fas fa-check me-1"></i> Acreditar seleccionados
+    </button>
+    <button type="button" id="btn-bulk-rechazar"
+            class="btn btn-danger btn-sm"
+            data-url="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
+            data-confirm-msg="¿Rechazar los tickets seleccionados?">
+      <i class="fas fa-times me-1"></i> Rechazar seleccionados
+    </button>
+    <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
+      <i class="fas fa-square me-1"></i> Deseleccionar todo
+    </button>
+  </div>
+
   <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body px-4 pb-4">
       <% if @tickets.any? %>
-        <%= form_with url: bulk_acreditar_vendedor_event_tickets_path(@event), method: :patch, id: "bulk-tickets-form" do |f| %>
-
-          <!-- Barra de acciones masivas -->
-          <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
-            <span class="fw-semibold me-2">
-              <span id="selected-count">0</span> ticket(s) seleccionado(s)
-            </span>
-            <button type="button" id="btn-bulk-acreditar"
-                    class="btn btn-success btn-sm"
-                    data-action="acreditar"
-                    data-url="<%= bulk_acreditar_vendedor_event_tickets_path(@event) %>"
-                    data-confirm-msg="¿Acreditar los tickets seleccionados? Esto confirma que los pagos fueron recibidos.">
-              <i class="fas fa-check me-1"></i> Acreditar seleccionados
-            </button>
-            <button type="button" id="btn-bulk-rechazar"
-                    class="btn btn-danger btn-sm"
-                    data-action="rechazar"
-                    data-url="<%= bulk_rechazar_vendedor_event_tickets_path(@event) %>"
-                    data-confirm-msg="¿Rechazar los tickets seleccionados?">
-              <i class="fas fa-times me-1"></i> Rechazar seleccionados
-            </button>
-            <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
-              <i class="fas fa-square me-1"></i> Deseleccionar todo
-            </button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 36px;">
-                    <input type="checkbox" id="select-all" class="form-check-input" title="Seleccionar todos los pendientes">
-                  </th>
-                  <th>Código</th>
-                  <th>Comprador</th>
-                  <th>Teléfono</th>
-                  <th>Precio</th>
-                  <th>Estado</th>
-                  <th>Tiempo</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <%
-                  # Agrupar tickets pendientes por comprador; los no-pendientes se muestran individualmente
-                  pending_groups = @tickets.select(&:reservado?).group_by { |t| [t.guest_email, t.guest_name] }
-                  non_pending    = @tickets.reject(&:reservado?)
-                %>
-
-                <%# --- Filas agrupadas por comprador (pendientes) --- %>
-                <% pending_groups.each do |(email, name), group| %>
-                  <% representative = group.first %>
-                  <% total_amount   = group.sum(&:total_price) %>
-                  <% all_ids        = group.map(&:id) %>
-                  <tr class="table-warning">
-                    <td>
-                      <input type="checkbox" class="form-check-input group-checkbox"
-                             data-group-ids="<%= all_ids.join(',') %>">
-                    </td>
-                    <td>
-                      <% if group.size == 1 %>
-                        <strong style="color: #2E7D32;"><%= representative.ticket_code %></strong>
-                      <% else %>
-                        <span class="badge bg-secondary mb-1"><%= group.size %> tickets</span>
-                        <div>
-                          <% group.each do |t| %>
-                            <small style="color: #2E7D32;" class="d-block"><%= t.ticket_code %></small>
-                          <% end %>
-                        </div>
-                      <% end %>
-                    </td>
-                    <td>
-                      <strong><%= name %></strong>
-                      <% if email.present? %>
-                        <br><small class="text-muted"><%= email %></small>
-                      <% end %>
-                    </td>
-                    <td>
-                      <% if representative.guest_phone.present? %>
-                        <%= link_to representative.guest_phone, whatsapp_link(representative.guest_phone), target: "_blank", class: "text-success" %>
-                      <% else %>
-                        <span class="text-muted">-</span>
-                      <% end %>
-                    </td>
-                    <td>
-                      $<%= number_with_precision(total_amount, precision: 2) %>
-                      <% if group.size > 1 %>
-                        <br><small class="text-muted">(<%= group.size %> × $<%= number_with_precision(representative.unit_price, precision: 2) %>)</small>
-                      <% end %>
-                    </td>
-                    <td>
-                      <span class="badge bg-warning text-dark">Pendiente</span>
-                    </td>
-                    <td>
-                      <span class="badge bg-warning text-dark">Pendiente</span>
-                    </td>
-                    <td>
-                      <div class="d-flex gap-1">
-                        <%= button_to acreditar_vendedor_event_ticket_path(@event, representative),
-                            method: :patch,
-                            form: { data: { turbo_confirm: group.size > 1 ?
-                              "¿Acreditar los #{group.size} tickets de #{name.split('·').first.strip}? Esto confirma que el pago fue recibido." :
-                              "¿Acreditar ticket #{representative.ticket_code}? Esto confirma que el pago fue recibido." } },
-                            class: "btn btn-success btn-sm" do %>
-                          <i class="fas fa-check me-1"></i>
-                          Acreditar<% if group.size > 1 %> (<%= group.size %>)<% end %>
-                        <% end %>
-                        <%= button_to rechazar_vendedor_event_ticket_path(@event, representative),
-                            method: :patch,
-                            form: { data: { turbo_confirm: group.size > 1 ?
-                              "¿Rechazar los #{group.size} tickets de #{name.split('·').first.strip}?" :
-                              "¿Rechazar ticket #{representative.ticket_code}?" } },
-                            class: "btn btn-danger btn-sm" do %>
-                          <i class="fas fa-times me-1"></i>
-                          Rechazar<% if group.size > 1 %> (<%= group.size %>)<% end %>
+        <%
+          pending_groups = @tickets.select(&:reservado?).group_by { |t| [t.guest_email, t.guest_name] }
+          non_pending    = @tickets.reject(&:reservado?)
+        %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox" id="select-all" class="form-check-input" title="Seleccionar todos los pendientes">
+                </th>
+                <th>Código</th>
+                <th>Comprador</th>
+                <th>Teléfono</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Tiempo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%# --- Filas agrupadas por comprador (pendientes) --- %>
+              <% pending_groups.each do |(email, name), group| %>
+                <% representative = group.first %>
+                <% total_amount   = group.sum(&:total_price) %>
+                <% all_ids        = group.map(&:id) %>
+                <tr class="table-warning">
+                  <td>
+                    <input type="checkbox" class="form-check-input group-checkbox"
+                           data-group-ids="<%= all_ids.join(',') %>">
+                  </td>
+                  <td>
+                    <% if group.size == 1 %>
+                      <strong style="color: #2E7D32;"><%= representative.ticket_code %></strong>
+                    <% else %>
+                      <span class="badge bg-secondary mb-1"><%= group.size %> tickets</span>
+                      <div>
+                        <% group.each do |t| %>
+                          <small style="color: #2E7D32;" class="d-block"><%= t.ticket_code %></small>
                         <% end %>
                       </div>
-                    </td>
-                  </tr>
-                <% end %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <strong><%= name %></strong>
+                    <% if email.present? %>
+                      <br><small class="text-muted"><%= email %></small>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if representative.guest_phone.present? %>
+                      <%= link_to representative.guest_phone, whatsapp_link(representative.guest_phone), target: "_blank", class: "text-success" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    $<%= number_with_precision(total_amount, precision: 2) %>
+                    <% if group.size > 1 %>
+                      <br><small class="text-muted">(<%= group.size %> × $<%= number_with_precision(representative.unit_price, precision: 2) %>)</small>
+                    <% end %>
+                  </td>
+                  <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                  <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <%= button_to acreditar_vendedor_event_ticket_path(@event, representative),
+                          method: :patch,
+                          form: { data: { turbo_confirm: group.size > 1 ?
+                            "¿Acreditar los #{group.size} tickets de #{name.split('·').first.strip}? Esto confirma que el pago fue recibido." :
+                            "¿Acreditar ticket #{representative.ticket_code}? Esto confirma que el pago fue recibido." } },
+                          class: "btn btn-success btn-sm" do %>
+                        <i class="fas fa-check me-1"></i>
+                        Acreditar<% if group.size > 1 %> (<%= group.size %>)<% end %>
+                      <% end %>
+                      <%= button_to rechazar_vendedor_event_ticket_path(@event, representative),
+                          method: :patch,
+                          form: { data: { turbo_confirm: group.size > 1 ?
+                            "¿Rechazar los #{group.size} tickets de #{name.split('·').first.strip}?" :
+                            "¿Rechazar ticket #{representative.ticket_code}?" } },
+                          class: "btn btn-danger btn-sm" do %>
+                        <i class="fas fa-times me-1"></i>
+                        Rechazar<% if group.size > 1 %> (<%= group.size %>)<% end %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
 
-                <%# --- Filas individuales (acreditados / rechazados) --- %>
-                <% non_pending.each do |ticket| %>
-                  <tr>
-                    <td></td>
-                    <td><strong style="color: #2E7D32;"><%= ticket.ticket_code %></strong></td>
-                    <td>
-                      <strong><%= ticket.guest_name %></strong>
-                      <% if ticket.guest_email.present? %>
-                        <br><small class="text-muted"><%= ticket.guest_email %></small>
-                      <% end %>
-                    </td>
-                    <td>
-                      <% if ticket.guest_phone.present? %>
-                        <%= link_to ticket.guest_phone, whatsapp_link(ticket.guest_phone), target: "_blank", class: "text-success" %>
-                      <% else %>
-                        <span class="text-muted">-</span>
-                      <% end %>
-                    </td>
-                    <td>$<%= number_with_precision(ticket.total_price, precision: 2) %></td>
-                    <td>
-                      <span class="badge <%= ticket_status_badge_class(ticket.status) %>">
-                        <%= ticket.status.humanize %>
-                      </span>
-                    </td>
-                    <td>
-                      <small class="text-muted"><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small>
-                    </td>
-                    <td>
-                      <% if ticket.activo? %>
-                        <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Acreditado</span>
-                      <% elsif ticket.cancelado? %>
-                        <span class="text-danger"><i class="fas fa-times-circle"></i> Rechazado</span>
-                      <% end %>
-                    </td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-
-        <% end %>
+              <%# --- Filas individuales (acreditados / rechazados) --- %>
+              <% non_pending.each do |ticket| %>
+                <tr>
+                  <td></td>
+                  <td><strong style="color: #2E7D32;"><%= ticket.ticket_code %></strong></td>
+                  <td>
+                    <strong><%= ticket.guest_name %></strong>
+                    <% if ticket.guest_email.present? %>
+                      <br><small class="text-muted"><%= ticket.guest_email %></small>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if ticket.guest_phone.present? %>
+                      <%= link_to ticket.guest_phone, whatsapp_link(ticket.guest_phone), target: "_blank", class: "text-success" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td>$<%= number_with_precision(ticket.total_price, precision: 2) %></td>
+                  <td>
+                    <span class="badge <%= ticket_status_badge_class(ticket.status) %>">
+                      <%= ticket.status.humanize %>
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-muted"><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small>
+                  </td>
+                  <td>
+                    <% if ticket.activo? %>
+                      <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Acreditado</span>
+                    <% elsif ticket.cancelado? %>
+                      <span class="text-danger"><i class="fas fa-times-circle"></i> Rechazado</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       <% else %>
         <div class="text-center text-muted py-4">
           <i class="fas fa-ticket-alt fa-3x mb-3"></i>
@@ -256,7 +251,7 @@
 
   document.querySelectorAll('.group-checkbox').forEach(cb => {
     cb.addEventListener('change', function () {
-      const allGroups    = document.querySelectorAll('.group-checkbox');
+      const allGroups     = document.querySelectorAll('.group-checkbox');
       const checkedGroups = document.querySelectorAll('.group-checkbox:checked');
       if (selectAll) selectAll.checked = allGroups.length > 0 && allGroups.length === checkedGroups.length;
       updateToolbar();
@@ -269,7 +264,6 @@
     updateToolbar();
   });
 
-  // Al hacer submit: inyectar los ticket_ids como campos hidden y enviar
   ['btn-bulk-acreditar', 'btn-bulk-rechazar'].forEach(function(btnId) {
     document.getElementById(btnId)?.addEventListener('click', function() {
       const checkedGroups = getCheckedGroups();
@@ -277,13 +271,12 @@
         alert('Selecciona al menos un grupo de tickets.');
         return;
       }
-      var msg = this.getAttribute('data-confirm-msg');
-      if (!confirm(msg)) return;
+      if (!confirm(this.getAttribute('data-confirm-msg'))) return;
 
-      // Limpiar campos hidden previos
+      // Limpiar ticket_ids previos del form oculto
       form.querySelectorAll('input[name="ticket_ids[]"]').forEach(el => el.remove());
 
-      // Agregar un campo hidden por cada ticket_id seleccionado
+      // Inyectar un hidden por cada ticket_id seleccionado
       checkedGroups.forEach(cb => {
         cb.getAttribute('data-group-ids').split(',').filter(Boolean).forEach(id => {
           const input = document.createElement('input');
