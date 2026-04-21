@@ -36,6 +36,7 @@ class Establishment < ApplicationRecord
   has_one :hotel, dependent: :destroy
   has_one :restaurant, dependent: :destroy
   has_one :transport, dependent: :destroy
+  has_one :travel_agency, dependent: :destroy
   has_one :temporary_lodging, dependent: :destroy
   has_one :legal_info, dependent: :destroy
   has_one :verification, dependent: :destroy

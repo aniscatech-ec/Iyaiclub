@@ -1,0 +1,70 @@
+<!-- app/views/tour_packages/_form.html.erb -->
+<%= form_with(model: [@travel_agency, tour_package], local: true, html: { multipart: true }) do |f| %>
+  <%= render_validation_errors(tour_package) %>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-white border-0 py-3" style="border-radius: 1rem 1rem 0 0;">
+      <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-box-open me-2 text-warning"></i> Información del Paquete</h5>
+    </div>
+    <div class="card-body p-4 pt-0">
+      <div class="row g-4">
+        <div class="col-md-8">
+          <%= f.label :name, "Nombre del Paquete", class: "form-label fw-semibold required-field" %>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-tag text-muted"></i></span>
+            <%= f.text_field :name, class: "form-control border-start-0 ps-0 bg-light", required: true, placeholder: "Ej: Tour a las Islas Galápagos" %>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <%= f.label :price, "Precio total ($)", class: "form-label fw-semibold required-field" %>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-dollar-sign text-success"></i></span>
+            <%= f.number_field :price, step: 0.01, min: 0, class: "form-control border-start-0 ps-0 bg-light", required: true, placeholder: "0.00" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= f.label :duration, "Duración", class: "form-label fw-semibold" %>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0"><i class="fas fa-clock text-muted"></i></span>
+            <%= f.text_field :duration, class: "form-control border-start-0 ps-0 bg-light", placeholder: "Ej: 3 días, 2 noches" %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <%= f.label :photos, "Fotos del Paquete (Máx 5)", class: "form-label fw-semibold" %>
+          <%= f.file_field :photos, multiple: true, accept: 'image/*', class: "form-control" %>
+          <small class="text-muted">Si subes nuevas fotos, se añadirán a las existentes.</small>
+          
+          <% if tour_package.photos.attached? %>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <% tour_package.photos.each do |photo| %>
+                <div class="position-relative">
+                  <%= image_tag photo.variant(resize_to_limit: [100, 100]), class: "img-thumbnail rounded shadow-sm" if photo.variable? %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="col-12">
+          <%= f.label :description, "Descripción corta", class: "form-label fw-semibold" %>
+          <%= f.text_area :description, rows: 3, class: "form-control", placeholder: "Resumen de lo que incluye y ofrece el paquete..." %>
+        </div>
+
+        <div class="col-12">
+          <%= f.label :itinerary, "Itinerario detallado", class: "form-label fw-semibold" %>
+          <%= f.text_area :itinerary, rows: 6, class: "form-control", placeholder: "Día 1: ...\nDía 2: ..." %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit "Guardar Paquete", class: "btn btn-warning btn-lg rounded-pill px-5 fw-bold shadow-sm" %>
+    <%= link_to travel_agency_path(@travel_agency), class: "btn btn-outline-secondary btn-lg rounded-pill px-4" do %>
+      Cancelar
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,403 @@
+<%= form_with(model: travel_agency, local: true, html: { multipart: true },
+                                data: { controller: "form-validation gallery", model: "travel_agency" }) do |f| %>
+  <%= render_validation_errors(travel_agency) %>
+
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-suitcase-rolling me-2"></i> Perfil de la Agencia Turística</h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <%= f.label :subcategory, "Subcategoría", class: "form-label fw-semibold required-field" %>
+          <%= f.select :subcategory, options_for_select(TravelAgency.subcategories.keys.map { |k| [k.humanize, k] }, travel_agency.subcategory), { include_blank: "Seleccione..." }, class: "form-select", required: true %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= f.fields_for :establishment do |e| %>
+
+    <!-- ═══════════════ 1. DATOS LEGALES ═══════════════ -->
+    <%= e.fields_for :legal_info do |l| %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-green), #2a8c00); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-file-contract me-2"></i> 1. Datos legales y contacto</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= l.label :business_name, "Razón social / nombre comercial", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-building"></i></span>
+                <%= l.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
+              <%= l.select :document_type, options_for_select([["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]], l.object&.document_type), { include_blank: "Seleccione" }, class: "form-select", required: true, id: "travel_agency_document_type_select" %>
+            </div>
+            <div class="col-md-3">
+              <%= l.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                <%= l.text_field :document_number, class: "form-control", placeholder: "Ej: 0105871503001", required: true, id: "travel_agency_document_number_input" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                <%= l.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_email, "Email de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <%= l.email_field :contact_email, class: "form-control", placeholder: "correo@ejemplo.com", required: true,
+                    pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= l.label :contact_phone, "Teléfono de contacto", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <%= l.telephone_field :contact_phone, class: "form-control", placeholder: "+593 99 999 9999", required: true,
+                    pattern: "[0-9]{7,15}" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- ═══════════════ 2. PERFIL DE LA AGENCIA (ESTABLISHMENT) ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-orange), #c94a28); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i> 2. Detalles principales</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <%= e.label :name, "Nombre público de la agencia", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-store"></i></span>
+              <%= e.text_field :name, class: "form-control", placeholder: "Nombre visible para los clientes", required: true %>
+            </div>
+          </div>
+          <div class="col-12">
+            <%= e.label :short_description, "Descripción de la agencia", class: "form-label fw-semibold required-field" %>
+            <%= e.text_area :short_description, rows: 2, class: "form-control", placeholder: "Breve descripción", required: true %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 3. CONTACTO ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 3. Contacto y ubicación</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :address, "Dirección", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+              <%= e.text_field :address, class: "form-control", placeholder: "Dirección de la agencia", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :arrival_instructions, "Cómo llegar / referencias", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-route"></i></span>
+              <%= e.text_field :arrival_instructions, class: "form-control", placeholder: "Referencias para llegar" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <%= e.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true,
+                  pattern: "[0-9]{7,15}" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+              <%= e.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true,
+                  pattern: "[0-9]{10,15}" %>
+            </div>
+            <small class="text-muted">Con codigo de pais, sin + ni espacios</small>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :email, "Correo electronico", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+              <%= e.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true,
+                  pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :country_id, "País", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :country_id, Country.order(:name), :id, :name, { include_blank: "Seleccione país" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :province_id, Province.order(:name), :id, :name, { include_blank: "Seleccione provincia" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= e.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
+            <%= e.collection_select :city_id, City.order(:name), :id, :name, { include_blank: "Seleccione ciudad" }, class: "form-select", required: true %>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :latitude, "Latitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :latitude, class: "form-control", placeholder: "Ej: -2.897095", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :longitude, "Longitud", class: "form-label fw-semibold required-field" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-crosshairs"></i></span>
+              <%= e.text_field :longitude, class: "form-control", placeholder: "Ej: -79.004536", required: true %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :video_url, "URL de video (YouTube)", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fab fa-youtube" style="color: #e74c3c;"></i></span>
+              <%= e.text_field :video_url, class: "form-control", placeholder: "https://youtube.com/watch?v=..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 4. HORARIOS ═══════════════ -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+      <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #9b59b6, #7d3c98); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i> 4. Horarios de atención</h5>
+      </div>
+      <div class="card-body p-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= e.label :check_in_time, "Hora de apertura", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-open" style="color: var(--brand-green);"></i></span>
+              <%= e.time_field :check_in_time, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= e.label :check_out_time, "Hora de cierre", class: "form-label fw-semibold" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-door-closed" style="color: var(--brand-orange);"></i></span>
+              <%= e.time_field :check_out_time, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ 5. COMODIDADES ═══════════════ -->
+    <% if Amenity.any? %>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #27ae60, #1e8449); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-concierge-bell me-2"></i> 5. Comodidades y servicios</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-2">
+            <% Amenity.order(:name).each do |amenity| %>
+              <div class="col-6 col-md-4 col-lg-3">
+                <div class="form-check">
+                  <%= check_box_tag "travel_agency[establishment_attributes][amenity_ids][]", amenity.id, e.object.amenity_ids.include?(amenity.id), class: "form-check-input", id: "amenity_#{amenity.id}" %>
+                  <label class="form-check-label" for="amenity_<%= amenity.id %>"><%= amenity.name %></label>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <%= hidden_field_tag "travel_agency[establishment_attributes][amenity_ids][]", "" %>
+        </div>
+      </div>
+    <% end %>
+
+  <% end %>
+
+  <!-- ═══════════════ 6. GALERÍAS ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, var(--brand-cofee-black), #5a3d1f); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-images me-2"></i> 6. Galerías de imágenes</h5>
+    </div>
+    <div class="card-body p-4">
+      <%# Galerías existentes (solo aparecen en edit) %>
+      <%= f.fields_for :establishment do |e| %>
+        <% if e.object.galleries.any? %>
+          <div class="mb-4">
+            <h6 class="fw-bold text-muted mb-3"><i class="fas fa-folder-open me-1"></i> Galerías existentes</h6>
+            <%= e.fields_for :galleries do |g| %>
+              <div class="border rounded-3 p-3 mb-3" style="background: #fafafa;">
+                <%= g.hidden_field :id %>
+                <div class="mb-2">
+                  <%= g.label :name, "Nombre de la galería", class: "form-label fw-semibold" %>
+                  <%= g.text_field :name, class: "form-control" %>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <% g.object.gallery_images.each do |img| %>
+                    <div class="position-relative">
+                      <% if img.persisted? && img.file.attached? %>
+                        <%= image_tag img.file.variant(resize_to_limit: [200, 120]), class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
+                      <% end %>
+                      <%= g.fields_for :gallery_images, img do |gi| %>
+                        <%= gi.hidden_field :id %>
+                        <div class="form-check mt-1">
+                          <%= gi.check_box :_destroy, class: "form-check-input" %>
+                          <%= gi.label :_destroy, "Eliminar imagen", class: "form-check-label small text-danger" %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label fw-semibold small">Agregar imágenes a esta galería</label>
+                  <%= file_field_tag "gallery_uploads[#{g.object.id}][]", multiple: true, accept: "image/*", class: "form-control form-control-sm" %>
+                  <small class="text-muted">No reemplazan las existentes.</small>
+                </div>
+
+                <div class="form-check">
+                  <%= g.check_box :_destroy, class: "form-check-input" %>
+                  <%= g.label :_destroy, "Eliminar galería completa", class: "form-check-label text-danger" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <div id="galleries-container" data-gallery-target="container"></div>
+      <div class="border rounded-3 p-3" style="background: #fafafa;">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Nombre de la galería</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-folder-open"></i></span>
+              <input type="text" data-gallery-target="name" class="form-control" placeholder="Ej: Ambientes, Paquetes...">
+            </div>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Imágenes</label>
+            <input type="file" data-gallery-target="files" multiple class="form-control" accept="image/jpeg,image/png,image/webp">
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="button" class="btn btn-primary rounded-pill" data-action="gallery#addGallery">
+              <i class="fas fa-plus me-1"></i> Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ BOTONES ═══════════════ -->
+  <div class="d-flex gap-2 mb-4">
+    <%= f.submit "Guardar agencia", class: "btn btn-primary btn-lg rounded-pill px-4 fw-bold" %>
+    <%= link_to travel_agencies_path, class: "btn btn-outline-secondary btn-lg rounded-pill px-4" do %>
+      <i class="fas fa-times me-1"></i> Cancelar
+    <% end %>
+  </div>
+<% end %>
+
+<script>
+    function initLocationScript() {
+        const countrySelect = document.getElementById('travel_agency_establishment_attributes_country_id');
+        const provinceSelect = document.getElementById('travel_agency_establishment_attributes_province_id');
+        const citySelect = document.getElementById('travel_agency_establishment_attributes_city_id');
+
+        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
+        const selectedCityId = citySelect ? citySelect.value : null;
+
+        function loadProvinces(countryId, restoreProvinceId) {
+            if (!countryId) {
+                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+            fetch(`/locations/provinces/${countryId}`)
+                .then(r => r.json())
+                .then(data => {
+                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
+                    data.forEach(province => {
+                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
+                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
+                    });
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
+                })
+                .catch(() => { provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>'; });
+        }
+
+        function loadCities(provinceId, restoreCityId) {
+            if (!provinceId) {
+                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                return;
+            }
+            fetch(`/locations/cities/${provinceId}`)
+                .then(r => r.json())
+                .then(data => {
+                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
+                    data.forEach(city => {
+                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
+                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
+                    });
+                })
+                .catch(() => { citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>'; });
+        }
+
+        if (countrySelect) {
+            countrySelect.addEventListener('change', function() {
+                loadProvinces(this.value, null);
+            });
+            if (countrySelect.value) {
+                loadProvinces(countrySelect.value, selectedProvinceId);
+            }
+        }
+
+        if (provinceSelect) {
+            provinceSelect.addEventListener('change', function() {
+                loadCities(this.value, null);
+            });
+        }
+    }
+
+    initLocationScript();
+    document.addEventListener('DOMContentLoaded', initLocationScript);
+    document.addEventListener('turbo:load', initLocationScript);
+    setTimeout(initLocationScript, 500);
+
+    (function() {
+        const typeSelect = document.getElementById('travel_agency_document_type_select');
+        const numberInput = document.getElementById('travel_agency_document_number_input');
+        function updateDocumentPattern() {
+            if (!typeSelect || !numberInput) return;
+            switch (typeSelect.value) {
+                case 'ruc':       numberInput.pattern = '[0-9]{13}';      numberInput.maxLength = 13; break;
+                case 'cedula':    numberInput.pattern = '[0-9]{10}';      numberInput.maxLength = 10; break;
+                case 'pasaporte': numberInput.pattern = '[A-Za-z0-9]{6,15}'; numberInput.maxLength = 15; break;
+                default:          numberInput.removeAttribute('pattern');  numberInput.removeAttribute('maxlength'); break;
+            }
+        }
+        function init() {
+            if (typeSelect) {
+                typeSelect.addEventListener('change', updateDocumentPattern);
+                updateDocumentPattern();
+            }
+        }
+        init();
+        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('turbo:load', init);
+    })();
+</script>

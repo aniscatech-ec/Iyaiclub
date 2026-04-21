@@ -1,0 +1,98 @@
+<!-- app/views/tour_packages/index.html.erb -->
+<div class="container-fluid pt-4 px-4 pb-5">
+  <div class="row mb-4 align-items-center">
+    <div class="col-auto">
+      <%= link_to travel_agency_path(@travel_agency), class: "btn btn-outline-secondary rounded-circle shadow-sm" do %>
+        <i class="fas fa-arrow-left"></i>
+      <% end %>
+    </div>
+    <div class="col">
+      <h3 class="mb-0 fw-bold" style="color: #2c3e50;">
+        <i class="fas fa-boxes me-2 text-warning"></i> Paquetes de: <%= @travel_agency.establishment.name %>
+      </h3>
+      <p class="text-muted mb-0">Gestión de paquetes turísticos</p>
+    </div>
+    <div class="col-auto">
+      <%= link_to new_travel_agency_tour_package_path(@travel_agency), class: "btn btn-warning rounded-pill px-4 shadow-sm fw-semibold" do %>
+        <i class="fas fa-plus me-1"></i> Añadir Paquete
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <% if @tour_packages.empty? %>
+        <div class="text-center py-5">
+          <i class="fas fa-box-open fa-3x text-muted opacity-50 mb-3"></i>
+          <h5 class="fw-bold text-dark">No hay paquetes creados</h5>
+          <p class="text-muted mb-4">Esta agencia aún no ofrece paquetes turísticos.</p>
+          <%= link_to new_travel_agency_tour_package_path(@travel_agency), class: "btn btn-warning rounded-pill px-4 fw-semibold" do %>
+            <i class="fas fa-plus me-1"></i> Crear mi primer Paquete
+          <% end %>
+        </div>
+      <% else %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="border-top-left-radius: 0.5rem;">Paquete</th>
+                <th scope="col">Duración</th>
+                <th scope="col">Precio</th>
+                <th scope="col" class="text-center">Fotos</th>
+                <th scope="col" style="border-top-right-radius: 0.5rem;" class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @tour_packages.each do |package| %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="bg-light rounded d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <% if package.photos.attached? %>
+                          <%= image_tag package.photos.first.variant(resize_to_fill: [48, 48]), class: "rounded", style: "width: 100%; height: 100%; object-fit: cover;" %>
+                        <% else %>
+                          <i class="fas fa-image text-muted"></i>
+                        <% end %>
+                      </div>
+                      <div>
+                        <h6 class="mb-0 fw-bold"><%= package.name %></h6>
+                        <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">
+                          <%= package.description.presence || "Sin descripción" %>
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><%= package.duration.presence || "-" %></td>
+                  <td class="fw-bold text-success"><%= number_to_currency(package.price, unit: "$") %></td>
+                  <td class="text-center">
+                    <span class="badge bg-light text-dark border">
+                      <i class="fas fa-camera text-muted me-1"></i> <%= package.photos.count %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <%= link_to travel_agency_tour_package_path(@travel_agency, package), class: "btn btn-sm btn-light rounded-circle shadow-sm mx-1", title: "Ver" do %>
+                      <i class="fas fa-eye text-primary"></i>
+                    <% end %>
+                    <%= link_to edit_travel_agency_tour_package_path(@travel_agency, package), class: "btn btn-sm btn-light rounded-circle shadow-sm mx-1", title: "Editar" do %>
+                      <i class="fas fa-edit text-secondary"></i>
+                    <% end %>
+                    <%= link_to travel_agency_tour_package_path(@travel_agency, package), data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro?" }, class: "btn btn-sm btn-light rounded-circle shadow-sm mx-1", title: "Eliminar" do %>
+                      <i class="fas fa-trash text-danger"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        
+        <% if @pagy && @pagy.pages > 1 %>
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <small class="text-muted"><%== pagy_info(@pagy) %></small>
+            <%== pagy_bootstrap_nav(@pagy) %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
