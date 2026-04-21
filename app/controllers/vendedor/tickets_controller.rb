@@ -29,7 +29,7 @@ class Vendedor::TicketsController < ApplicationController
     group.each(&:acreditar!)
 
     begin
-      send_acreditado_email(group.first)
+      send_acreditado_email(group)
     rescue => e
       Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
     end
@@ -62,16 +62,23 @@ class Vendedor::TicketsController < ApplicationController
 
   def bulk_acreditar
     acreditados = 0
+    # Acreditar todos primero
     @bulk_tickets.each do |ticket|
       next unless ticket.reservado?
       ticket.acreditar!
+      acreditados += 1
+    end
+
+    # Enviar un email por comprador (agrupa por email o nombre)
+    acreditados_tickets = @bulk_tickets.reload.select(&:activo?)
+    acreditados_tickets.group_by { |t| t.guest_email.presence || t.guest_name }.each do |_, group|
       begin
-        send_acreditado_email(ticket)
+        send_acreditado_email(group)
       rescue => e
         Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
       end
-      acreditados += 1
     end
+
     redirect_to vendedor_event_tickets_path(@event),
                 notice: "#{acreditados} #{'ticket'.pluralize(acreditados)} acreditado#{'s' if acreditados != 1} exitosamente."
   end
@@ -129,8 +136,9 @@ class Vendedor::TicketsController < ApplicationController
     results
   end
 
-  def send_acreditado_email(ticket)
-    TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_now
+  def send_acreditado_email(tickets)
+    tickets = Array(tickets)
+    TicketMailer.ticket_acreditado(tickets.first.user, tickets).deliver_now
   end
 
   def send_rechazado_email(ticket)

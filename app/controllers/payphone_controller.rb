@@ -301,7 +301,7 @@ class PayphoneController < ApplicationController
       if payable.user.present?
         turista_ticket_path(payable)
       else
-        guests_ticket_path(payable.ticket_code)
+        events_path
       end
     when nil
       # Transacción sin payable (pago rechazado/cancelado para ticket)

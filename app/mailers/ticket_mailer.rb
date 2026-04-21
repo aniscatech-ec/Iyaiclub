@@ -19,32 +19,40 @@ class TicketMailer < ApplicationMailer
     @event_name = @tickets.first.event_name
     @total_amount = @tickets.sum(&:total_price)
     @guest_name = @tickets.first.guest_name.to_s.split("·").first.strip
-    @ticket_url = Rails.application.routes.url_helpers
-                       .guests_ticket_url(@tickets.first.ticket_code, host: default_url_options[:host])
+
+    @tickets.each do |t|
+      pdf_data = TicketPdfService.new(t).generate
+      attachments["ticket_#{t.ticket_code}.pdf"] = {
+        mime_type: "application/pdf",
+        content:   pdf_data
+      }
+    end
 
     mail(
       to: @tickets.first.guest_email,
-      subject: "🎟️ Tu ticket para #{@event_name} - IyaiClub"
+      subject: "🎟️ Tu#{@tickets.size > 1 ? 's' : ''} ticket#{@tickets.size > 1 ? 's' : ''} para #{@event_name} - IyaiClub"
     )
   end
 
-  # Acepta user nil para soportar guests (transferencia confirmada por vendedor)
-  def ticket_acreditado(user, ticket)
-    @ticket     = ticket
-    @event_name = ticket.event_name
-    @name       = user&.name || ticket.guest_name.to_s.split("·").first.strip
-    recipient   = user&.email || ticket.guest_email
+  # Acepta user nil para soportar guests (transferencia confirmada por vendedor).
+  # tickets puede ser un array (compra múltiple) o un solo ticket.
+  def ticket_acreditado(user, tickets)
+    @tickets    = Array(tickets)
+    @ticket     = @tickets.first
+    @event_name = @ticket.event_name
+    @name       = user&.name || @ticket.guest_name.to_s.split("·").first.strip
+    recipient   = user&.email || @ticket.guest_email
 
-    helpers = Rails.application.routes.url_helpers
-    host    = default_url_options[:host]
+    # Adjuntar un PDF por ticket
+    @tickets.each do |t|
+      pdf_data = TicketPdfService.new(t).generate
+      attachments["ticket_#{t.ticket_code}.pdf"] = {
+        mime_type: "application/pdf",
+        content:   pdf_data
+      }
+    end
 
-    @ticket_url = if user.present?
-                    helpers.turista_ticket_url(ticket, host: host)
-                  else
-                    helpers.guests_ticket_url(ticket.ticket_code, host: host)
-                  end
-
-    mail(to: recipient, subject: "✅ Ticket confirmado para #{@event_name} - IyaiClub")
+    mail(to: recipient, subject: "✅ Ticket#{@tickets.size > 1 ? 's' : ''} confirmado#{@tickets.size > 1 ? 's' : ''} para #{@event_name} - IyaiClub")
   end
 
   # Notificación de rechazo solo para guests (turistas loggeados ven el polling en tiempo real)

@@ -1,6 +1,6 @@
 <div class="container-fluid px-3 px-md-4 py-4">
   <div class="row justify-content-center">
-    <div class="col-12 col-md-6 col-lg-5">
+    <div class="col-12 col-md-7 col-lg-6">
 
       <div class="text-center mb-4">
         <div class="display-4 mb-3" style="color: var(--brand-orange);">
@@ -44,6 +44,70 @@
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-search me-2"></i> Buscar ticket
           </button>
+        </div>
+      <% end %>
+
+      <% if @ticket %>
+        <div class="card border-0 shadow-sm rounded-4 mt-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-0">
+              <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
+              Tu Ticket
+            </h5>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="mb-3">
+              <span class="badge <%= ticket_status_badge_class(@ticket.status) %> fs-6 px-3 py-2">
+                <%= @ticket.status.humanize %>
+              </span>
+            </div>
+
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Código</span>
+                <strong style="color: #2E7D32;"><%= @ticket.ticket_code %></strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Evento</span>
+                <strong><%= @ticket.event_name %></strong>
+              </li>
+              <% if @ticket.event_date.present? %>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>Fecha</span>
+                  <strong><%= @ticket.event_date.strftime('%d/%m/%Y') %></strong>
+                </li>
+              <% end %>
+              <% if @ticket.event_location.present? %>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>Lugar</span>
+                  <strong><%= @ticket.event_location %></strong>
+                </li>
+              <% end %>
+              <li class="list-group-item d-flex justify-content-between px-0">
+                <span>Asistente</span>
+                <strong><%= @ticket.guest_name.to_s.split("·").first.strip %></strong>
+              </li>
+            </ul>
+
+            <% if @ticket.activo? || @ticket.usado? %>
+              <div class="mt-4 p-3 rounded-3 text-center"
+                   style="background: linear-gradient(135deg, #FFF8E1, #FFE082);">
+                <p class="fw-bold mb-1" style="color: #F57F17;">Número de Rifa</p>
+                <p class="mb-1" style="font-size: 36px; font-weight: bold; color: #E65100;"><%= @ticket.raffle_number %></p>
+                <p class="small mb-0" style="color: #555;">Con este número participas en el sorteo</p>
+              </div>
+
+              <div class="text-center mt-4">
+                <%= @ticket.qr_svg.html_safe %>
+                <p class="text-muted small mt-2">Presenta este QR en la entrada del evento.</p>
+              </div>
+            <% elsif @ticket.reservado? %>
+              <div class="alert alert-warning mt-3">
+                <i class="fas fa-hourglass-half me-2"></i>
+                <small>Tu ticket está pendiente de confirmación. Recibirás el PDF por email una vez acreditado.</small>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
 

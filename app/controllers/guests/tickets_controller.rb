@@ -1,6 +1,5 @@
 class Guests::TicketsController < ApplicationController
   before_action :set_event, only: [:new_purchase, :create_purchase, :transfer_status]
-  before_action :set_ticket_by_code, only: [:show, :check_status]
 
   def new_purchase
     if @event.price_for(nil) == 0
@@ -46,25 +45,15 @@ class Guests::TicketsController < ApplicationController
     redirect_to events_path, alert: "Ticket no encontrado."
   end
 
-  def check_status
-    render json: {
-      status: @ticket.status,
-      time_remaining: @ticket.time_remaining
-    }
-  end
-
-  def show
-  end
-
   def lookup
-    if request.post? || params[:code].present?
+    if params[:code].present?
       code   = params[:code].to_s.strip.upcase
       cedula = params[:cedula].to_s.strip
 
-      @ticket = Ticket.find_by(ticket_code: code)
+      ticket = Ticket.find_by(ticket_code: code)
 
-      if @ticket && @ticket.guest_name.to_s.include?(cedula)
-        redirect_to guests_ticket_path(@ticket.ticket_code)
+      if ticket && ticket.guest_name.to_s.include?(cedula)
+        @ticket = ticket
       else
         @error = "No se encontró un ticket con ese código y cédula."
       end
@@ -75,12 +64,6 @@ class Guests::TicketsController < ApplicationController
 
   def set_event
     @event = Event.find(params[:event_id])
-  end
-
-  def set_ticket_by_code
-    @ticket = Ticket.find_by!(ticket_code: params[:code])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to guests_ticket_lookup_path, alert: "Ticket no encontrado."
   end
 
   def guest_params

@@ -1,21 +1,31 @@
 <p>Hola <strong><%= @name %></strong>,</p>
-<p>Tu ticket para <strong><%= @event_name %></strong> ha sido acreditado. El pago por transferencia fue confirmado por el vendedor.</p>
+<% if @tickets.size > 1 %>
+  <p>Tus <strong><%= @tickets.size %> tickets</strong> para <strong><%= @event_name %></strong> han sido acreditados. Los pagos por transferencia fueron confirmados por el vendedor.</p>
+<% else %>
+  <p>Tu ticket para <strong><%= @event_name %></strong> ha sido acreditado. El pago por transferencia fue confirmado por el vendedor.</p>
+<% end %>
 
-<!-- Ticket card -->
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
-  <tr>
-    <td align="center" style="border: 2px solid #34c759; border-radius: 10px; padding: 20px; text-align: center;">
-      <p style="margin: 0 0 4px 0; font-size: 13px; color: #666;">Código de Ticket</p>
-      <p style="margin: 0 0 16px 0; font-size: 24px; font-weight: bold; color: #2E7D32;"><%= @ticket.ticket_code %></p>
+<p style="font-size: 13px; color: #555; margin-bottom: 20px;">
+  Tus tickets están adjuntos a este correo en formato PDF. Descárgalos y preséntate con el código QR en la entrada del evento.
+</p>
 
-      <p style="margin: 0 0 4px 0; font-size: 13px; color: #666;">Tu número de rifa</p>
-      <p style="display: inline-block; background: linear-gradient(135deg, #FFD700, #FFA500); color: #333; font-size: 32px; font-weight: bold; padding: 12px 24px; border-radius: 10px; margin: 0 0 6px 0;"><%= @ticket.raffle_number %></p>
-      <p style="margin: 4px 0 0 0; font-size: 12px; color: #888;">Con este número participas en el sorteo</p>
-    </td>
-  </tr>
-</table>
+<% @tickets.each do |t| %>
+  <!-- Ticket card -->
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 16px 0;">
+    <tr>
+      <td style="border: 2px solid #34c759; border-radius: 10px; padding: 16px; text-align: center;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">Código de Ticket</p>
+        <p style="margin: 0 0 14px 0; font-size: 22px; font-weight: bold; color: #2E7D32;"><%= t.ticket_code %></p>
 
-<!-- Detalles -->
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666;">Número de rifa</p>
+        <p style="display: inline-block; background: linear-gradient(135deg, #FFD700, #FFA500); color: #333; font-size: 28px; font-weight: bold; padding: 10px 20px; border-radius: 10px; margin: 0 0 4px 0;"><%= t.raffle_number %></p>
+        <p style="margin: 4px 0 0 0; font-size: 11px; color: #888;">Con este número participas en el sorteo</p>
+      </td>
+    </tr>
+  </table>
+<% end %>
+
+<!-- Detalles del evento -->
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; font-size: 15px;">
   <tr>
     <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #555;">Evento</td>
@@ -31,20 +41,14 @@
   </tr>
   <tr>
     <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #555;">Asistente</td>
-    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;"><%= @ticket.guest_name %></td>
+    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;"><%= @ticket.guest_name.to_s.split('·').first.strip %></td>
   </tr>
   <tr>
-    <td style="padding: 8px 0; color: #555;">Monto</td>
-    <td style="padding: 8px 0; text-align: right; font-weight: bold;">$<%= '%.2f' % @ticket.total_price %> USD</td>
+    <td style="padding: 8px 0; color: #555;">Total</td>
+    <td style="padding: 8px 0; text-align: right; font-weight: bold;">$<%= '%.2f' % @tickets.sum(&:total_price) %> USD</td>
   </tr>
 </table>
 
-<p style="text-align: center; margin: 28px 0 0 0;">
-  <a href="<%= @ticket_url %>" style="display: inline-block; background: #34c759; color: #ffffff; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
-    Ver mi ticket
-  </a>
-</p>
-
 <p style="font-size: 13px; color: #888; text-align: center; margin-top: 20px;">
-  Presenta tu ticket (código QR) en la entrada del evento.
+  Presenta el código QR del ticket (adjunto o impreso) en la entrada del evento.
 </p>

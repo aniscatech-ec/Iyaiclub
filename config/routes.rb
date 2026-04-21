@@ -221,8 +221,6 @@ Rails.application.routes.draw do
     post "events/:event_id/tickets",          to: "tickets#create_purchase",   as: :guests_create_purchase_event_tickets
     get  "events/:event_id/tickets/transfer", to: "tickets#transfer_status",   as: :guests_transfer_status_event_tickets
     get  "tickets/lookup",                    to: "tickets#lookup",            as: :guests_ticket_lookup
-    get  "tickets/:code/check",               to: "tickets#check_status",      as: :guests_check_ticket_status
-    get  "tickets/:code",                     to: "tickets#show",              as: :guests_ticket
   end
 
   # authenticated :user do
