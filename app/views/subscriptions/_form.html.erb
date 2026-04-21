@@ -428,6 +428,7 @@
       <%= form.hidden_field :plan_price_id, value: @plan_price.id %>
       <%= form.hidden_field :subscribable_type, value: subscribable_type %>
       <%= form.hidden_field :subscribable_id, value: subscribable_id %>
+      <input type="hidden" name="referral_code" id="payphone-referral-code" value="">
 
       <%# -------------------- Summary Card -------------------- %>
       <div class="summary-card">
@@ -550,6 +551,32 @@
         </div>
       </div>
 
+      <%# -------------------- Código de referido -------------------- %>
+      <div class="form-section" style="padding-top: 0;">
+        <div class="section-title">
+          <i class="fas fa-user-plus"></i>
+          Código de referido
+        </div>
+        <div>
+          <label class="field-label">
+            ¿Alguien te recomendó IyaiClub?
+            <span class="optional">Opcional</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-ticket-alt text-success"></i></span>
+            <input type="text" name="referral_code" id="referral_code_input"
+                   class="form-control text-uppercase" maxlength="8"
+                   placeholder="Ej. AB12CD34"
+                   style="letter-spacing: 0.15em; font-weight: 600;"
+                   oninput="this.value = this.value.toUpperCase()">
+          </div>
+          <small class="text-muted mt-1 d-block">
+            <i class="fas fa-info-circle me-1"></i>
+            Si tienes el código de un amigo, ingrésalo aquí. Él recibirá puntos cuando completes tu compra.
+          </small>
+        </div>
+      </div>
+
       <%# -------------------- Actions -------------------- %>
       <div class="form-actions">
         <!-- Botón PayPhone (visible por defecto) -->
@@ -585,6 +612,7 @@
     <%= tf.hidden_field :subscribable_type,  value: subscribable_type %>
     <%= tf.hidden_field :subscribable_id,    value: subscribable_id %>
     <input type="hidden" name="vendedor_id" id="transfer-vendedor-id" value="">
+    <input type="hidden" name="referral_code" id="transfer-referral-code" value="">
   <% end %>
 </div>
 
@@ -610,6 +638,17 @@
   if (vendedorSelect && vendedorHidden) {
     vendedorSelect.addEventListener('change', function() {
       vendedorHidden.value = this.value;
+    });
+  }
+
+  // Sincronizar referral_code a ambos forms (payphone y transferencia)
+  const referralInput   = document.getElementById('referral_code_input');
+  const referralHidden  = document.getElementById('transfer-referral-code');
+  const referralPayphone = document.getElementById('payphone-referral-code');
+  if (referralInput) {
+    referralInput.addEventListener('input', function() {
+      if (referralHidden)   referralHidden.value   = this.value;
+      if (referralPayphone) referralPayphone.value = this.value;
     });
   }
 

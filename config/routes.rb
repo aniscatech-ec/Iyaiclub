@@ -185,6 +185,7 @@ Rails.application.routes.draw do
   end
   namespace :afiliado do
     get "dashboard/index"
+    resource :profile, only: [:show, :edit, :update], controller: "profiles"
   end
   devise_for :users, controllers: {
     confirmations: 'users/confirmations',
@@ -232,6 +233,7 @@ Rails.application.routes.draw do
   # end
   namespace :admin do
     get "dashboard/index"
+    resource :profile, only: [:show, :edit, :update], controller: "profiles"
     resources :invoice_claims, only: [:index, :show] do
       member do
         patch :approve
@@ -287,6 +289,8 @@ Rails.application.routes.draw do
         patch :change_status
       end
     end
+
+    resource :referral_settings, only: [:show, :update], controller: "referral_settings"
 
     resources :events do
       member do

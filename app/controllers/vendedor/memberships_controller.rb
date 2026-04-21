@@ -25,6 +25,7 @@ class Vendedor::MembershipsController < ApplicationController
   def acreditar
     if @membership.reservada?
       @membership.acreditar!
+      process_membership_referral(@membership)
       begin
         UserMailer.membership_notification(@membership.subscribable, :activada, @membership).deliver_later
       rescue => e
@@ -83,6 +84,7 @@ class Vendedor::MembershipsController < ApplicationController
     @bulk_memberships.each do |membership|
       next unless membership.reservada?
       membership.acreditar!
+      process_membership_referral(membership)
       begin
         UserMailer.membership_notification(membership.subscribable, :activada, membership).deliver_later
       rescue => e
@@ -118,5 +120,19 @@ class Vendedor::MembershipsController < ApplicationController
       return
     end
     @bulk_memberships = Subscription.where(vendedor: current_user, id: ids)
+  end
+
+  def process_membership_referral(membership)
+    return if membership.referral_code.blank?
+    referred_user = membership.subscribable.is_a?(User) ? membership.subscribable : nil
+    Referral.process(
+      referral_code:  membership.referral_code,
+      reward_type:    "membership",
+      referred_user:  referred_user,
+      referred_email: referred_user&.email,
+      source:         membership
+    )
+  rescue => e
+    Rails.logger.error("[Referral] Error en membership referral: #{e.message}")
   end
 end

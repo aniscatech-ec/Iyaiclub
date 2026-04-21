@@ -21,6 +21,13 @@ class User < ApplicationRecord
   has_many :assigned_custom_requests, class_name: "CustomRequest",
            foreign_key: :assigned_to_id, dependent: :nullify
   has_many :tickets, dependent: :destroy
+  has_many :referrals_given,    class_name: "Referral", foreign_key: :referrer_id, dependent: :destroy
+  has_many :referrals_received, class_name: "Referral", foreign_key: :referred_id, dependent: :nullify
+
+  before_create :generate_referral_code
+
+  has_one_attached :avatar
+  has_one_attached :cover_photo
 
   # Vendedor associations
   has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
@@ -59,6 +66,17 @@ class User < ApplicationRecord
       source: :welcome,
       description: "Puntos de bienvenida por confirmar tu cuenta"
     )
+  end
+
+  def generate_referral_code
+    return if referral_code.present?
+    loop do
+      code = SecureRandom.alphanumeric(8).upcase
+      unless User.exists?(referral_code: code)
+        self.referral_code = code
+        break
+      end
+    end
   end
 
 end

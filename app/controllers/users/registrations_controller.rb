@@ -2,6 +2,18 @@
 
 class Users::RegistrationsController < Devise::RegistrationsController
   skip_before_action :require_no_authentication, only: [:confirmation_pending]
+  before_action :block_vendedor_edit, only: [:edit, :update]
+
+  private
+
+  def block_vendedor_edit
+    if current_user&.vendedor?
+      redirect_to vendedor_dashboard_index_path,
+                  alert: "Los vendedores no pueden editar su perfil. Contacta a un administrador."
+    end
+  end
+
+  public
 
   # GET /users/confirmation_pending
   # Vista que se muestra después del registro informando al usuario

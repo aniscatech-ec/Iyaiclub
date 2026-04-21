@@ -1,6 +1,11 @@
-<%= link_to new_admin_user_path, class: "btn btn-primary btn-lg mb-3" do %>
-  <i class="fa-solid fa-plus"></i> Nuevo usuario
-<% end %>
+<div class="d-flex gap-2 mb-3">
+  <%= link_to new_admin_user_path, class: "btn btn-primary btn-lg" do %>
+    <i class="fa-solid fa-plus"></i> Nuevo usuario
+  <% end %>
+  <%= link_to admin_referral_settings_path, class: "btn btn-outline-success btn-lg" do %>
+    <i class="fas fa-user-plus me-1"></i> Configurar Referidos
+  <% end %>
+</div>
 
 <table class="table table-hover align-middle shadow-sm">
   <thead class="table-dark">

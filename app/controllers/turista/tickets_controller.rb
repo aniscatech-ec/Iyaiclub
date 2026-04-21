@@ -204,7 +204,8 @@ class Turista::TicketsController < ApplicationController
         guest_email: guest_email,
         guest_phone: current_user.phone,
         unit_price: unit_price,
-        total_price: total_price
+        total_price: total_price,
+        referral_code: params[:referral_code].to_s.strip.upcase.presence
       }
     )
 
@@ -253,7 +254,8 @@ class Turista::TicketsController < ApplicationController
           guest_phone: current_user.phone,
           status: :reservado,
           payment_method: :transferencia,
-          reserved_at: Time.current
+          reserved_at: Time.current,
+          referral_code: params[:referral_code].to_s.strip.upcase.presence
         )
         tickets << ticket
       end

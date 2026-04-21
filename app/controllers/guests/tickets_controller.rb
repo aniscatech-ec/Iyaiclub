@@ -120,15 +120,16 @@ class Guests::TicketsController < ApplicationController
       phone_number:          formatted_phone,
       status:                :pendiente,
       metadata: {
-        type:        "ticket",
-        guest:       true,
-        event_id:    @event.id,
-        quantity:    quantity,
-        guest_name:  guest_name_full,
-        guest_email: gp[:email],
-        guest_phone: gp[:phone],
-        unit_price:  unit_price,
-        total_price: total_price
+        type:          "ticket",
+        guest:         true,
+        event_id:      @event.id,
+        quantity:      quantity,
+        guest_name:    guest_name_full,
+        guest_email:   gp[:email],
+        guest_phone:   gp[:phone],
+        unit_price:    unit_price,
+        total_price:   total_price,
+        referral_code: params[:referral_code].to_s.strip.upcase.presence
       }
     )
 
@@ -182,7 +183,8 @@ class Guests::TicketsController < ApplicationController
           guest_phone:    gp[:phone],
           status:         :reservado,
           payment_method: :transferencia,
-          reserved_at:    Time.current
+          reserved_at:    Time.current,
+          referral_code:  params[:referral_code].to_s.strip.upcase.presence
         )
         tickets << ticket
       end

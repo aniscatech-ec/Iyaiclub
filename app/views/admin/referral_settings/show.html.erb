@@ -1,0 +1,171 @@
+<div class="container-fluid px-4 py-4" style="max-width: 720px;">
+  <div class="mb-4">
+    <h4 class="fw-bold mb-1">
+      <i class="fas fa-user-plus me-2 text-success"></i>
+      Configuración de Referidos
+    </h4>
+    <p class="text-muted small mb-0">
+      Define cuántos puntos gana el usuario que refirió a alguien cuando su referido completa una compra.
+    </p>
+  </div>
+
+  <% if notice.present? %>
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+      <i class="fas fa-check-circle me-2"></i> <%= notice %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% end %>
+  <% if alert.present? %>
+    <div class="alert alert-danger rounded-3" role="alert">
+      <i class="fas fa-exclamation-circle me-2"></i> <%= alert %>
+    </div>
+  <% end %>
+
+  <%= form_with url: admin_referral_settings_path, method: :patch, local: true do |f| %>
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h6 class="fw-bold mb-0">
+          <i class="fas fa-coins me-2 text-warning"></i>
+          Puntos por tipo de compra referida
+        </h6>
+      </div>
+      <div class="card-body px-4 pb-4">
+        <div class="row g-4">
+          <!-- Membresía -->
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100" style="border-color: #d4edda !important; background: #f8fff9;">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:36px; height:36px; background:#198754; color:white; font-size:1rem;">
+                  <i class="fas fa-crown"></i>
+                </div>
+                <div>
+                  <div class="fw-bold">Membresía</div>
+                  <small class="text-muted">Cuando el referido compra una membresía</small>
+                </div>
+              </div>
+              <label class="form-label fw-semibold small">Puntos al referidor</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-star text-warning"></i></span>
+                <input type="number" name="referral_settings[membership_points]"
+                       class="form-control" min="0" step="1"
+                       value="<%= @membership_config.points %>"
+                       placeholder="Ej. 200">
+                <span class="input-group-text text-muted">pts</span>
+              </div>
+              <small class="text-muted mt-1 d-block">
+                <%= @membership_config.description %>
+              </small>
+            </div>
+          </div>
+
+          <!-- Ticket -->
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100" style="border-color: #cce5ff !important; background: #f5faff;">
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:36px; height:36px; background:#0d6efd; color:white; font-size:1rem;">
+                  <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div>
+                  <div class="fw-bold">Ticket de Evento</div>
+                  <small class="text-muted">Cuando el referido compra un ticket</small>
+                </div>
+              </div>
+              <label class="form-label fw-semibold small">Puntos al referidor</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-star text-warning"></i></span>
+                <input type="number" name="referral_settings[ticket_points]"
+                       class="form-control" min="0" step="1"
+                       value="<%= @ticket_config.points %>"
+                       placeholder="Ej. 100">
+                <span class="input-group-text text-muted">pts</span>
+              </div>
+              <small class="text-muted mt-1 d-block">
+                <%= @ticket_config.description %>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info rounded-3 mt-4 mb-0 py-2 px-3">
+          <i class="fas fa-info-circle me-2"></i>
+          <small>
+            Los puntos se acreditan <strong>automáticamente</strong> cuando el pago es confirmado o cuando
+            el vendedor/admin acredita una transferencia. Poner <strong>0</strong> desactiva los puntos para ese tipo.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-3">
+      <button type="submit" class="btn btn-success px-4">
+        <i class="fas fa-save me-2"></i> Guardar configuración
+      </button>
+      <%= link_to "Volver", admin_dashboard_index_path, class: "btn btn-outline-secondary" %>
+    </div>
+  <% end %>
+
+  <!-- Historial de referidos recientes -->
+  <div class="card border-0 shadow-sm rounded-4 mt-5">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h6 class="fw-bold mb-0">
+        <i class="fas fa-history me-2 text-secondary"></i>
+        Últimos referidos acreditados
+      </h6>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% referrals = Referral.includes(:referrer, :referred).where(status: "acreditado").order(created_at: :desc).limit(20) %>
+      <% if referrals.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Referidor</th>
+                <th>Referido</th>
+                <th>Tipo</th>
+                <th class="text-end">Puntos</th>
+                <th class="text-end">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% referrals.each do |r| %>
+                <tr>
+                  <td>
+                    <strong><%= r.referrer.name %></strong>
+                    <br><small class="text-muted"><%= r.referrer.email %></small>
+                  </td>
+                  <td>
+                    <% if r.referred %>
+                      <%= r.referred.name %>
+                    <% else %>
+                      <span class="text-muted"><%= r.referred_email.presence || "—" %></span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if r.reward_type == "membership" %>
+                      <span class="badge bg-success">Membresía</span>
+                    <% else %>
+                      <span class="badge bg-primary">Ticket</span>
+                    <% end %>
+                  </td>
+                  <td class="text-end fw-bold text-warning">
+                    +<%= r.points_awarded %> pts
+                  </td>
+                  <td class="text-end text-muted small">
+                    <%= r.created_at.strftime("%d/%m/%Y") %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">
+          <i class="fas fa-info-circle me-1"></i>
+          Aún no hay referidos acreditados.
+        </p>
+      <% end %>
+    </div>
+  </div>
+</div>

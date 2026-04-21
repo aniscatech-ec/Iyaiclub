@@ -2,14 +2,27 @@
 
   <%# ── Hero de perfil ── %>
   <div class="card border-0 rounded-4 mb-4 overflow-hidden shadow-sm">
-    <div style="background: linear-gradient(135deg, var(--brand-orange, #EB633B) 0%, #c94a28 100%); min-height: 120px;"></div>
+    <%# Portada %>
+    <% if @user.cover_photo.attached? %>
+      <%= image_tag @user.cover_photo.variant(resize_to_fill: [1200, 160]),
+            style: "width:100%; height:160px; object-fit:cover; display:block;" %>
+    <% else %>
+      <div style="background: linear-gradient(135deg, var(--brand-orange, #EB633B) 0%, #c94a28 100%); height:120px;"></div>
+    <% end %>
+
     <div class="card-body px-4 pb-4 pt-0">
-      <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -40px;">
-        <%# Avatar con iniciales %>
-        <div class="d-flex align-items-center justify-content-center rounded-circle border border-4 border-white shadow flex-shrink-0"
-             style="width: 80px; height: 80px; background: var(--brand-cofee, #88682B); color: white; font-size: 1.8rem; font-weight: 700;">
-          <%= @user.name&.first&.upcase || "?" %>
-        </div>
+      <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -50px;">
+        <%# Avatar %>
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar.variant(resize_to_fill: [90, 90]),
+                class: "rounded-circle border border-4 border-white shadow flex-shrink-0",
+                style: "width:90px; height:90px; object-fit:cover; position:relative; z-index:1;" %>
+        <% else %>
+          <div class="d-flex align-items-center justify-content-center rounded-circle border border-4 border-white shadow flex-shrink-0"
+               style="width:90px; height:90px; background:var(--brand-cofee,#88682B); color:white; font-size:1.9rem; font-weight:700; position:relative; z-index:1;">
+            <%= @user.name&.first&.upcase || "?" %>
+          </div>
+        <% end %>
         <div class="flex-grow-1 pb-1">
           <div class="d-flex flex-wrap align-items-center gap-2">
             <h4 class="fw-bold mb-0"><%= @user.name %></h4>

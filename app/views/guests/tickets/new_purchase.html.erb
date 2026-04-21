@@ -197,6 +197,22 @@
           </div>
         </div>
 
+        <!-- Código de referido -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body px-4 py-3">
+            <label class="form-label fw-semibold mb-1">
+              <i class="fas fa-user-plus me-1 text-success"></i>
+              Código de referido
+              <span class="text-muted fw-normal small ms-1">(opcional)</span>
+            </label>
+            <input type="text" name="referral_code" class="form-control text-uppercase"
+                   maxlength="8" placeholder="Ej. AB12CD34"
+                   style="letter-spacing: 0.15em; font-weight: 600;"
+                   oninput="this.value = this.value.toUpperCase()">
+            <small class="text-muted">Si alguien te recomendó el evento, ingresa su código. Él recibirá puntos.</small>
+          </div>
+        </div>
+
         <div class="d-grid">
           <button type="submit" class="btn btn-success btn-lg"
                   data-purchase-form-target="submitButton">

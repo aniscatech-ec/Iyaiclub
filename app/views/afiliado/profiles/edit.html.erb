@@ -1,6 +1,6 @@
 <div class="container-fluid px-3 px-md-4 py-4">
   <div class="d-flex align-items-center mb-4">
-    <%= link_to turista_profile_path, class: "btn btn-outline-secondary btn-sm me-3" do %>
+    <%= link_to afiliado_profile_path, class: "btn btn-outline-secondary btn-sm me-3" do %>
       <i class="fas fa-arrow-left"></i>
     <% end %>
     <h3 class="fw-bold mb-0">Editar Perfil</h3>
@@ -10,7 +10,7 @@
     <div class="col-12 col-lg-6">
       <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4 p-md-5">
-          <%= form_with model: @user, url: turista_profile_path, method: :patch, local: true, multipart: true do |f| %>
+          <%= form_with model: @user, url: afiliado_profile_path, method: :patch, local: true, multipart: true do |f| %>
             <% if @user.errors.any? %>
               <div class="alert alert-danger rounded-3 mb-4">
                 <ul class="mb-0">
@@ -70,13 +70,6 @@
             <div class="mb-4">
               <%= f.label :birth_date, "Fecha de nacimiento", class: "form-label fw-semibold" %>
               <%= f.date_field :birth_date, class: "form-control rounded-3" %>
-            </div>
-
-            <div class="mb-4">
-              <div class="form-check">
-                <%= f.check_box :marketing_consent, class: "form-check-input" %>
-                <%= f.label :marketing_consent, "Deseo recibir ofertas y novedades de IyaiClub", class: "form-check-label" %>
-              </div>
             </div>
 
             <div class="d-grid">

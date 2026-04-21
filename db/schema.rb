@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_21_200002) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -487,6 +487,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
     t.index ["user_id"], name: "index_redemptions_on_user_id"
   end
 
+  create_table "referral_reward_configs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "reward_type", null: false
+    t.integer "points", default: 0, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reward_type"], name: "index_referral_reward_configs_on_reward_type", unique: true
+  end
+
+  create_table "referrals", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "referrer_id", null: false
+    t.bigint "referred_id"
+    t.string "referred_email"
+    t.string "reward_type", null: false
+    t.integer "points_awarded", default: 0, null: false
+    t.string "status", default: "pendiente", null: false
+    t.integer "source_id"
+    t.string "source_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["referred_id"], name: "index_referrals_on_referred_id"
+    t.index ["referrer_id"], name: "index_referrals_on_referrer_id"
+  end
+
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "unit_id", null: false
     t.bigint "user_id", null: false
@@ -604,6 +628,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
     t.bigint "vendedor_id"
     t.datetime "reserved_at"
     t.datetime "suspended_at"
+    t.string "referral_code", limit: 12
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
     t.index ["vendedor_id"], name: "index_subscriptions_on_vendedor_id"
   end
@@ -642,6 +667,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
     t.integer "payment_method", default: 0, null: false
     t.bigint "vendedor_id"
     t.datetime "reserved_at"
+    t.string "referral_code", limit: 12
     t.index ["event_id"], name: "index_tickets_on_event_id"
     t.index ["event_name"], name: "index_tickets_on_event_name"
     t.index ["payment_method"], name: "index_tickets_on_payment_method"
@@ -741,10 +767,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.string "vendor_code"
+    t.string "referral_code", limit: 12
     t.index ["city_id"], name: "index_users_on_city_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["referral_code"], name: "index_users_on_referral_code", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["vendor_code"], name: "index_users_on_vendor_code", unique: true
   end
@@ -824,6 +852,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
   add_foreign_key "raffles", "events"
   add_foreign_key "redemptions", "rewards"
   add_foreign_key "redemptions", "users"
+  add_foreign_key "referrals", "users", column: "referred_id"
+  add_foreign_key "referrals", "users", column: "referrer_id"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"

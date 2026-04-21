@@ -1,0 +1,146 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <%# ── Hero de perfil ── %>
+  <div class="card border-0 rounded-4 mb-4 overflow-hidden shadow-sm">
+    <%# Portada %>
+    <% if @user.cover_photo.attached? %>
+      <%= image_tag @user.cover_photo.variant(resize_to_fill: [1200, 160]),
+            style: "width:100%; height:160px; object-fit:cover; display:block;" %>
+    <% else %>
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); height:120px;"></div>
+    <% end %>
+
+    <div class="card-body px-4 pb-4 pt-0">
+      <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -50px;">
+        <%# Avatar %>
+        <% if @user.avatar.attached? %>
+          <%= image_tag @user.avatar.variant(resize_to_fill: [90, 90]),
+                class: "rounded-circle border border-4 border-white shadow flex-shrink-0",
+                style: "width:90px; height:90px; object-fit:cover; position:relative; z-index:1;" %>
+        <% else %>
+          <div class="d-flex align-items-center justify-content-center rounded-circle border border-4 border-white shadow flex-shrink-0"
+               style="width:90px; height:90px; background:#1e293b; color:white; font-size:1.9rem; font-weight:700; position:relative; z-index:1;">
+            <%= @user.name&.first&.upcase || "?" %>
+          </div>
+        <% end %>
+        <div class="flex-grow-1 pb-1">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <h4 class="fw-bold mb-0"><%= @user.name %></h4>
+            <span class="badge bg-dark rounded-pill">Administrador</span>
+          </div>
+          <p class="text-muted mb-0 small"><%= @user.email %></p>
+        </div>
+        <%= link_to edit_admin_profile_path, class: "btn btn-outline-secondary btn-sm rounded-pill align-self-end" do %>
+          <i class="fas fa-pen me-1"></i> Editar perfil
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-5">
+
+      <%# Info personal %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-user me-2" style="color: var(--brand-orange);"></i>
+            Información Personal
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <ul class="list-unstyled mb-0">
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-envelope text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Correo</small>
+                <span class="fw-semibold"><%= @user.email %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-phone text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Teléfono</small>
+                <span class="fw-semibold"><%= @user.phone.presence || "—" %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2">
+              <i class="fas fa-birthday-cake text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Fecha de nacimiento</small>
+                <span class="fw-semibold">
+                  <%= @user.birth_date&.strftime("%d/%m/%Y") || "—" %>
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <%# Cuenta %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-shield-alt me-2" style="color: var(--brand-green);"></i>
+            Cuenta
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <ul class="list-unstyled mb-3">
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-calendar-alt text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Miembro desde</small>
+                <span class="fw-semibold"><%= @user.created_at.strftime("%B %Y").capitalize %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2">
+              <i class="fas fa-check-circle text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Estado</small>
+                <% if @user.confirmed? %>
+                  <span class="badge bg-success rounded-pill">Confirmado</span>
+                <% else %>
+                  <span class="badge bg-warning rounded-pill">Pendiente de confirmación</span>
+                <% end %>
+              </div>
+            </li>
+          </ul>
+          <%= link_to edit_user_registration_path, class: "btn btn-sm btn-outline-secondary rounded-pill w-100" do %>
+            <i class="fas fa-lock me-1"></i> Cambiar contraseña o correo
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <%# Accesos rápidos de admin %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-bolt me-2" style="color: var(--brand-green);"></i>
+            Accesos Rápidos
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <div class="d-grid gap-2">
+            <%= link_to admin_users_path, class: "btn btn-outline-dark rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-users me-2"></i> Gestionar Usuarios
+            <% end %>
+            <%= link_to admin_memberships_path, class: "btn btn-outline-warning rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-crown me-2"></i> Membresías
+            <% end %>
+            <%= link_to admin_events_path, class: "btn btn-outline-primary rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-calendar-star me-2"></i> Eventos
+            <% end %>
+            <%= link_to admin_referral_settings_path, class: "btn btn-outline-success rounded-pill btn-sm text-start" do %>
+              <i class="fas fa-user-plus me-2"></i> Configurar Referidos
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -93,7 +93,8 @@ class SubscriptionsController < ApplicationController
       payment_method:    :transferencia,
       status:            :reservada,
       vendedor:          vendedor,
-      reserved_at:       Time.current
+      reserved_at:       Time.current,
+      referral_code:     params[:referral_code].to_s.strip.upcase.presence
     )
 
     if subscription.save

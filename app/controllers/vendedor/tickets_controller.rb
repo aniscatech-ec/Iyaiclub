@@ -28,6 +28,9 @@ class Vendedor::TicketsController < ApplicationController
     group = same_buyer_pending(@ticket)
     group.each(&:acreditar!)
 
+    # Procesar referido: solo el primer ticket del grupo lleva el código
+    process_ticket_referral(@ticket)
+
     begin
       send_acreditado_email(group)
     rescue => e
@@ -68,6 +71,9 @@ class Vendedor::TicketsController < ApplicationController
       ticket.acreditar!
       acreditados += 1
     end
+
+    # Procesar referidos para tickets acreditados
+    @bulk_tickets.reload.select(&:activo?).each { |t| process_ticket_referral(t) }
 
     # Enviar un email por comprador (agrupa por email o nombre)
     acreditados_tickets = @bulk_tickets.reload.select(&:activo?)
@@ -143,5 +149,18 @@ class Vendedor::TicketsController < ApplicationController
 
   def send_rechazado_email(ticket)
     TicketMailer.ticket_rechazado_guest(ticket).deliver_now
+  end
+
+  def process_ticket_referral(ticket)
+    return if ticket.referral_code.blank?
+    Referral.process(
+      referral_code:  ticket.referral_code,
+      reward_type:    "ticket",
+      referred_user:  ticket.user,
+      referred_email: ticket.guest_email,
+      source:         ticket
+    )
+  rescue => e
+    Rails.logger.error("[Referral] Error en ticket referral: #{e.message}")
   end
 end
