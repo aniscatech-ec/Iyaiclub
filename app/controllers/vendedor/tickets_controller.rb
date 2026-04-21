@@ -15,38 +15,49 @@ class Vendedor::TicketsController < ApplicationController
     @tickets = @tickets.where(status: params[:status])         if params[:status].present?
     @tickets = @tickets.where(guest_name: params[:buyer])      if params[:buyer].present?
     @tickets = @tickets.where(ticket_code: params[:code])      if params[:code].present?
+    @tickets = @tickets.to_a
   end
 
   def acreditar
-    if @ticket.reservado?
-      @ticket.acreditar!
-      begin
-        send_acreditado_email(@ticket)
-      rescue => e
-        Rails.logger.error("Error enviando email de acreditación: #{e.message}")
-      end
-      redirect_to vendedor_event_tickets_path(@event),
-                  notice: "Ticket #{@ticket.ticket_code} acreditado exitosamente."
-    else
+    unless @ticket.reservado?
       redirect_to vendedor_event_tickets_path(@event),
                   alert: "Este ticket no puede ser acreditado (estado: #{@ticket.status})."
+      return
     end
+
+    group = same_buyer_pending(@ticket)
+    group.each(&:acreditar!)
+
+    begin
+      send_acreditado_email(group.first)
+    rescue => e
+      Rails.logger.error("Error enviando email de acreditación: #{e.message}")
+    end
+
+    msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} acreditados exitosamente." \
+                         : "Ticket #{@ticket.ticket_code} acreditado exitosamente."
+    redirect_to vendedor_event_tickets_path(@event), notice: msg
   end
 
   def rechazar
-    if @ticket.reservado?
-      @ticket.rechazar!
-      begin
-        send_rechazado_email(@ticket)
-      rescue => e
-        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
-      end
-      redirect_to vendedor_event_tickets_path(@event),
-                  notice: "Ticket #{@ticket.ticket_code} rechazado."
-    else
+    unless @ticket.reservado?
       redirect_to vendedor_event_tickets_path(@event),
                   alert: "Este ticket no puede ser rechazado (estado: #{@ticket.status})."
+      return
     end
+
+    group = same_buyer_pending(@ticket)
+    group.each(&:rechazar!)
+
+    begin
+      send_rechazado_email(group.first)
+    rescue => e
+      Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+    end
+
+    msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} rechazados." \
+                         : "Ticket #{@ticket.ticket_code} rechazado."
+    redirect_to vendedor_event_tickets_path(@event), notice: msg
   end
 
   def bulk_acreditar
@@ -98,6 +109,17 @@ class Vendedor::TicketsController < ApplicationController
       return
     end
     @bulk_tickets = @event.tickets.where(vendedor: current_user, id: ids)
+  end
+
+  # Todos los tickets pendientes del mismo comprador en este evento
+  def same_buyer_pending(ticket)
+    scope = @event.tickets.where(
+      vendedor:    current_user,
+      guest_email: ticket.guest_email,
+      guest_name:  ticket.guest_name,
+      status:      :reservado
+    )
+    scope.to_a
   end
 
   def send_acreditado_email(ticket)
