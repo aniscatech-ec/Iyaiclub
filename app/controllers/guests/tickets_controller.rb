@@ -105,7 +105,9 @@ class Guests::TicketsController < ApplicationController
     end
 
     guest_name_full = formatted_guest_name(gp[:name], gp[:cedula])
-    amount_cents    = (@event.price_for(nil) * 100 * quantity).to_i
+    unit_price      = @event.price_for(nil)
+    total_price     = @event.total_price_for(nil, quantity)
+    amount_cents    = (total_price * 100).to_i
     client_tx_id    = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     formatted_phone = format_phone_for_payphone(gp[:phone])
 
@@ -125,7 +127,8 @@ class Guests::TicketsController < ApplicationController
         guest_name:  guest_name_full,
         guest_email: gp[:email],
         guest_phone: gp[:phone],
-        unit_price:  @event.price_for(nil)
+        unit_price:  unit_price,
+        total_price: total_price
       }
     )
 
@@ -159,6 +162,8 @@ class Guests::TicketsController < ApplicationController
     end
 
     guest_name_full = formatted_guest_name(gp[:name], gp[:cedula])
+    unit_price      = @event.price_for(nil)
+    total_price     = @event.total_price_for(nil, quantity)
     tickets         = []
 
     ActiveRecord::Base.transaction do
@@ -170,8 +175,8 @@ class Guests::TicketsController < ApplicationController
           event_name:     @event.name,
           event_date:     @event.event_date,
           event_location: @event.location,
-          unit_price:     @event.price_for(nil),
-          total_price:    @event.price_for(nil) * quantity,
+          unit_price:     unit_price,
+          total_price:    total_price,
           guest_name:     guest_name_full,
           guest_email:    gp[:email],
           guest_phone:    gp[:phone],
@@ -188,7 +193,7 @@ class Guests::TicketsController < ApplicationController
     tickets.each { |t| ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(t.id) }
 
     redirect_to guests_transfer_status_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.price_for(nil) * quantity)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', total_price)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to guests_new_purchase_event_tickets_path(@event),
                 alert: "Error al crear la reserva: #{e.message}"

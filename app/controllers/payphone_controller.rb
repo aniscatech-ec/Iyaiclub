@@ -218,7 +218,8 @@ class PayphoneController < ApplicationController
     event    = Event.find(meta["event_id"])
     quantity = (meta["quantity"] || 1).to_i
 
-    unit_price = meta["unit_price"].to_f
+    unit_price  = meta["unit_price"].to_f
+    total_price = meta["total_price"].present? ? meta["total_price"].to_f : unit_price * quantity
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
@@ -229,7 +230,7 @@ class PayphoneController < ApplicationController
           event_date:     event.event_date,
           event_location: event.location,
           unit_price:     unit_price,
-          total_price:    unit_price,
+          total_price:    total_price,
           guest_name:     meta["guest_name"],
           guest_email:    meta["guest_email"],
           guest_phone:    meta["guest_phone"],

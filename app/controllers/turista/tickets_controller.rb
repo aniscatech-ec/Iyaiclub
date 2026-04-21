@@ -182,7 +182,9 @@ class Turista::TicketsController < ApplicationController
     end
 
     # NO crear tickets aún — se crean solo cuando PayPhone confirma el pago
-    @amount_cents = (@event.price_for(current_user) * 100 * quantity).to_i
+    unit_price  = @event.price_for(current_user)
+    total_price = @event.total_price_for(current_user, quantity)
+    @amount_cents = (total_price * 100).to_i
     @client_transaction_id = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     @reference = "#{quantity} ticket(s) - #{@event.name}"
 
@@ -201,7 +203,8 @@ class Turista::TicketsController < ApplicationController
         guest_name: guest_name,
         guest_email: guest_email,
         guest_phone: current_user.phone,
-        unit_price: @event.price_for(current_user)
+        unit_price: unit_price,
+        total_price: total_price
       }
     )
 
@@ -231,6 +234,8 @@ class Turista::TicketsController < ApplicationController
       return
     end
 
+    unit_price  = @event.price_for(current_user)
+    total_price = @event.total_price_for(current_user, quantity)
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
@@ -241,8 +246,8 @@ class Turista::TicketsController < ApplicationController
           event_name: @event.name,
           event_date: @event.event_date,
           event_location: @event.location,
-          unit_price: @event.price_for(current_user),
-          total_price: @event.price_for(current_user) * quantity,
+          unit_price: unit_price,
+          total_price: total_price,
           guest_name: params[:guest_name].presence || current_user.name,
           guest_email: params[:guest_email].presence || current_user.email,
           guest_phone: current_user.phone,
@@ -256,13 +261,12 @@ class Turista::TicketsController < ApplicationController
       @event.decrement!(:available_tickets, quantity) if @event.available_tickets.present?
     end
 
-    # Programar expiración para todos los tickets
     tickets.each do |ticket|
       ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(ticket.id)
     end
 
     redirect_to transfer_status_turista_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.price_for(current_user) * quantity)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', total_price)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to new_purchase_turista_event_tickets_path(@event),
                 alert: "Error al crear tickets: #{e.message}"

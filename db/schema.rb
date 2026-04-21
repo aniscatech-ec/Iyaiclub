@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_21_190000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -199,6 +199,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.datetime "updated_at", null: false
     t.decimal "member_price", precision: 10, scale: 2
     t.decimal "non_member_price", precision: 10, scale: 2
+    t.integer "combo_quantity", comment: "Mínimo de tickets para activar precio combo (nil = desactivado)"
+    t.decimal "combo_discount", precision: 10, scale: 2, comment: "Descuento por ticket cuando se compra en combo"
     t.index ["event_date"], name: "index_events_on_event_date"
     t.index ["status"], name: "index_events_on_status"
   end
@@ -242,6 +244,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "free_entry", default: false, null: false
     t.index ["establishment_id"], name: "index_getaways_on_establishment_id"
   end
 

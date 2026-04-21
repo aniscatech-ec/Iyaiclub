@@ -18,4 +18,14 @@ class Getaway < ApplicationRecord
 
   validates :subcategory, presence: true
   validates :entry_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+
+  before_validation :apply_free_entry
+
+  private
+
+  def apply_free_entry
+    return unless free_entry?
+    self.entry_price = 0
+    establishment&.legal_info&.skip_validations = true if establishment&.legal_info
+  end
 end

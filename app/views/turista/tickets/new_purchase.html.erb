@@ -23,14 +23,26 @@
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span><i class="fas fa-tag me-1"></i> Precio unitario</span>
-              <strong class="text-success">$<%= number_with_precision(@event.price_for(current_user), precision: 2) %></strong>
+              <strong class="text-success" data-purchase-form-target="unitPriceDisplay">$<%= number_with_precision(@event.price_for(current_user), precision: 2) %></strong>
             </li>
+            <% if @event.combo_active? %>
+              <li class="list-group-item px-0">
+                <div class="d-flex align-items-center gap-2 text-warning">
+                  <i class="fas fa-tags"></i>
+                  <small><strong>Precio combo:</strong> comprando <%= @event.combo_quantity %>+ tickets, $<%= number_with_precision(@event.combo_discount, precision: 2) %> de descuento sobre el total</small>
+                </div>
+              </li>
+            <% end %>
           </ul>
         </div>
       </div>
 
       <!-- Formulario unificado -->
-      <%= form_with url: create_purchase_turista_event_tickets_path(@event), method: :post, data: { controller: "purchase-form", turbo: false, "purchase-form-unit-price": @event.price_for(current_user) } do |f| %>
+      <%= form_with url: create_purchase_turista_event_tickets_path(@event), method: :post,
+            data: { controller: "purchase-form", turbo: false,
+                    "purchase-form-unit-price":     @event.price_for(current_user),
+                    "purchase-form-combo-quantity": @event.combo_quantity.to_i,
+                    "purchase-form-combo-discount": @event.combo_discount.to_f } do |f| %>
 
         <!-- Datos del asistente -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -74,6 +86,14 @@
               </div>
               <small class="text-muted">Disponibles: <%= @event.available_tickets || "Sin límite" %></small>
             </div>
+            <% if @event.combo_active? %>
+              <div class="alert alert-warning py-2 px-3 mb-2" data-purchase-form-target="comboBadge" style="display:none;">
+                <i class="fas fa-tags me-1"></i>
+                <strong>¡Precio combo activo!</strong>
+                <span data-combo-lots>0</span> lote(s) × $<%= number_with_precision(@event.combo_discount, precision: 2) %> =
+                <strong><span data-combo-saving>$0.00</span> de descuento</strong> sobre el total.
+              </div>
+            <% end %>
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
               <span class="fw-bold">Total a pagar:</span>
               <span class="text-success fs-4 fw-bold" data-purchase-form-target="totalPrice">

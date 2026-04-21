@@ -1,22 +1,30 @@
 class LegalInfo < ApplicationRecord
   belongs_to :establishment
 
+  attr_accessor :skip_validations
+
   validates :business_name, presence: { message: "Por favor ingrese la razón social o nombre comercial" },
-                            length: { minimum: 3, maximum: 150, message: "La razón social debe tener al menos 3 caracteres" }
+                            length: { minimum: 3, maximum: 150, message: "La razón social debe tener al menos 3 caracteres" },
+                            unless: :skip_validations
 
   validates :legal_representative, presence: { message: "Por favor ingrese el nombre del responsable" },
-                                   length: { minimum: 3, maximum: 100, message: "El nombre del responsable debe tener al menos 3 caracteres" }
+                                   length: { minimum: 3, maximum: 100, message: "El nombre del responsable debe tener al menos 3 caracteres" },
+                                   unless: :skip_validations
 
-  validates :document_type, presence: { message: "Por favor seleccione el tipo de documento" }
+  validates :document_type, presence: { message: "Por favor seleccione el tipo de documento" },
+                            unless: :skip_validations
 
-  validates :document_number, presence: { message: "Por favor ingrese el número de documento" }
-  validate :validate_document_number_format
+  validates :document_number, presence: { message: "Por favor ingrese el número de documento" },
+                              unless: :skip_validations
+  validate :validate_document_number_format, unless: :skip_validations
 
   validates :contact_email, presence: { message: "Por favor ingrese un correo electrónico" },
-                            format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo electrónico no parece válido. Ejemplo: nombre@correo.com" }
+                            format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo electrónico no parece válido. Ejemplo: nombre@correo.com" },
+                            unless: :skip_validations
 
   validates :contact_phone, presence: { message: "Por favor ingrese un número de teléfono" },
-                            format: { with: /\A[0-9]{10}\z/, message: "El teléfono debe tener 10 dígitos. Ejemplo: 0991234567" }
+                            format: { with: /\A[0-9]{10}\z/, message: "El teléfono debe tener 10 dígitos. Ejemplo: 0991234567" },
+                            unless: :skip_validations
 
   private
 

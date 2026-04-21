@@ -90,6 +90,49 @@
             </div>
           </div>
 
+          <!-- Precio Combo -->
+          <div class="border rounded-3 p-3 mb-3" style="background: #fffbf0;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="fas fa-tags text-warning"></i>
+              <strong>Precio Combo <span class="text-muted fw-normal">(opcional)</span></strong>
+            </div>
+            <p class="small text-muted mb-3">
+              Descuento automático por ticket cuando el comprador adquiere <em>N</em> o más tickets a la vez.
+              Aplica sobre el precio afiliado o no afiliado según el tipo de usuario.
+            </p>
+            <div class="row g-2">
+              <div class="col-6">
+                <%= form.label :combo_quantity, "Mínimo de tickets", class: "form-label small fw-bold" %>
+                <%= form.number_field :combo_quantity, class: "form-control form-control-sm",
+                      min: 2, placeholder: "Ej: 3",
+                      data: { combo_field: "quantity" } %>
+                <div class="form-text">Cantidad mínima para activar el descuento</div>
+              </div>
+              <div class="col-6">
+                <%= form.label :combo_discount, "Descuento sobre el total (USD)", class: "form-label small fw-bold" %>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">-$</span>
+                  <%= form.number_field :combo_discount, class: "form-control",
+                        step: 0.01, min: 0.01, placeholder: "Ej: 2.00",
+                        data: { combo_field: "discount" } %>
+                </div>
+                <div class="form-text">Descuento fijo aplicado al precio final del lote</div>
+              </div>
+            </div>
+            <% if @event.combo_active? %>
+              <div class="mt-2 alert alert-warning alert-sm py-1 px-2 mb-0 small">
+                <i class="fas fa-tag me-1"></i>
+                Activo: comprando <%= @event.combo_quantity %>+ tickets se descuentan
+                $<%= '%.2f' % @event.combo_discount %> del precio total.
+              </div>
+            <% end %>
+            <div class="mt-2">
+              <%= link_to "#", class: "small text-danger", data: { action: "click->combo-clear#clear" } do %>
+                <i class="fas fa-times me-1"></i>Quitar precio combo
+              <% end %>
+            </div>
+          </div>
+
           <div class="mb-3">
             <%= form.label :total_tickets, "Total de Tickets Disponibles", class: "form-label fw-bold" %>
             <%= form.number_field :total_tickets, class: "form-control", min: 1 %>

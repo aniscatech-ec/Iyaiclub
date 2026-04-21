@@ -7,12 +7,35 @@
           <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
           Comprar Ticket
         </h3>
-        <p class="text-muted small mb-0">
-          No necesitas crear una cuenta.
-          <%= link_to "Inicia sesión", new_user_session_path, class: "text-primary" %>
-          si ya tienes una.
-        </p>
       </div>
+
+      <% if @event.member_price.present? && @event.member_price < @event.price_for(nil) %>
+        <div class="rounded-4 p-3 mb-4 d-flex align-items-center gap-3"
+             style="background: linear-gradient(135deg, #fff8f0, #ffe8d6); border: 1.5px solid #EB633B;">
+          <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+               style="width: 44px; height: 44px; background: #EB633B;">
+            <i class="fas fa-star text-white"></i>
+          </div>
+          <div class="flex-grow-1">
+            <p class="mb-1 fw-bold" style="color: #c94a28;">
+              ¡Ahorra $<%= number_with_precision(@event.price_for(nil) - @event.member_price, precision: 2) %> por ticket siendo afiliado
+            </p>
+            <p class="mb-0 small text-muted">
+              El precio afiliado es
+              <strong class="text-success">$<%= number_with_precision(@event.member_price, precision: 2) %></strong>
+              en vez de $<%= number_with_precision(@event.price_for(nil), precision: 2) %>.
+              <%= link_to "Regístrate gratis", new_user_registration_path, class: "fw-bold", style: "color: #EB633B;" %> o
+              <%= link_to "inicia sesión", new_user_session_path, class: "fw-bold", style: "color: #EB633B;" %>
+              para obtenerlo.
+            </p>
+          </div>
+        </div>
+      <% else %>
+        <p class="text-muted small mb-4">
+          <%= link_to "Inicia sesión", new_user_session_path, class: "text-primary" %>
+          si ya tienes una cuenta.
+        </p>
+      <% end %>
 
       <!-- Resumen del evento -->
       <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -29,8 +52,22 @@
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span><i class="fas fa-tag me-1"></i> Precio unitario</span>
-              <strong class="text-success">$<%= number_with_precision(@event.price_for(nil), precision: 2) %></strong>
+              <strong class="text-success" data-purchase-form-target="unitPriceDisplay">$<%= number_with_precision(@event.price_for(nil), precision: 2) %></strong>
             </li>
+            <% if @event.combo_active? %>
+              <li class="list-group-item px-0">
+                <div class="d-flex align-items-center gap-2" style="color: #EB633B;">
+                  <i class="fas fa-lock"></i>
+                  <small>
+                    <strong>Precio combo exclusivo para afiliados:</strong>
+                    $<%= number_with_precision(@event.combo_discount, precision: 2) %> de descuento
+                    por cada <%= @event.combo_quantity %> tickets.
+                    <%= link_to "Regístrate gratis", new_user_registration_path, style: "color: #EB633B; font-weight: bold;" %>
+                    para obtenerlo.
+                  </small>
+                </div>
+              </li>
+            <% end %>
           </ul>
         </div>
       </div>
@@ -38,7 +75,9 @@
       <%= form_with url: guests_create_purchase_event_tickets_path(@event),
                     method: :post,
                     data: { controller: "purchase-form", turbo: false,
-                            "purchase-form-unit-price": @event.price_for(nil) } do |f| %>
+                            "purchase-form-unit-price":     @event.price_for(nil),
+                            "purchase-form-combo-quantity": 0,
+                            "purchase-form-combo-discount": 0 } do |f| %>
 
         <!-- Datos del comprador -->
         <%= render "guest_fields" %>
@@ -71,6 +110,14 @@
               </div>
               <small class="text-muted">Disponibles: <%= @event.available_tickets || "Sin límite" %></small>
             </div>
+            <% if @event.combo_active? %>
+              <div class="alert alert-warning py-2 px-3 mb-2" data-purchase-form-target="comboBadge" style="display:none;">
+                <i class="fas fa-tags me-1"></i>
+                <strong>¡Precio combo activo!</strong>
+                <span data-combo-lots>0</span> lote(s) × $<%= number_with_precision(@event.combo_discount, precision: 2) %> =
+                <strong><span data-combo-saving>$0.00</span> de descuento</strong> sobre el total.
+              </div>
+            <% end %>
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
               <span class="fw-bold">Total a pagar:</span>
               <span class="text-success fs-4 fw-bold" data-purchase-form-target="totalPrice">

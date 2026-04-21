@@ -1,4 +1,4 @@
-<%= form_with(model: getaway.persisted? ? getaway : [@establishment, getaway], local: true, html: { class: "getaway-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
+<%= form_with(model: getaway.persisted? ? getaway : [@establishment, getaway], local: true, html: { class: "getaway-form", multipart: true, data: { controller: "form-validation free-entry" } }) do |form| %>
   <%= render_validation_errors(getaway) %>
 
   <%= form.fields_for :establishment do |est| %>
@@ -44,12 +44,23 @@
           </div>
 
           <div class="col-md-6">
-            <%= form.label :entry_price, "Precio de entrada ($)", class: "form-label fw-semibold required-field" %>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-              <%= form.number_field :entry_price, step: 0.01, min: 0, class: "form-control", placeholder: "0.00", required: true %>
+            <div class="mb-2">
+              <div class="form-check form-switch d-flex align-items-center gap-2 mb-2">
+                <%= form.check_box :free_entry, class: "form-check-input fs-5", role: "switch",
+                    id: "getaway_free_entry", style: "cursor:pointer;",
+                    data: { action: "change->free-entry#toggle" } %>
+                <%= form.label :free_entry, "Entrada Gratuita", class: "form-check-label fw-semibold", for: "getaway_free_entry", style: "cursor:pointer;" %>
+              </div>
             </div>
-            <small class="text-muted">Ingrese 0 si la entrada es gratuita</small>
+            <div id="entry-price-wrapper" data-free-entry-target="priceWrapper">
+              <%= form.label :entry_price, "Precio de entrada ($)", class: "form-label fw-semibold required-field" %>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                <%= form.number_field :entry_price, step: 0.01, min: 0, class: "form-control",
+                    placeholder: "0.00", required: true, id: "getaway_entry_price",
+                    data: { "free-entry-target": "priceField" } %>
+              </div>
+            </div>
           </div>
 
           <div class="col-md-6">
@@ -213,7 +224,7 @@
     </div>
 
     <!-- ═══════════════ 5. DATOS LEGALES ═══════════════ -->
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card shadow-sm border-0 rounded-3 mb-4" data-free-entry-target="legalCard">
       <div class="card-header bg-dark text-white fw-bold rounded-top-3">
         <i class="fas fa-file-contract me-2"></i> 5. Datos legales
       </div>
@@ -221,48 +232,55 @@
         <%= est.fields_for :legal_info do |li| %>
           <div class="row g-3">
             <div class="col-md-6">
-              <%= li.label :business_name, "Razón social", class: "form-label fw-semibold required-field" %>
+              <%= li.label :business_name, "Razón social", class: "form-label fw-semibold", data: { "free-entry-target": "legalLabel" } %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-building"></i></span>
-                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa", required: true %>
+                <%= li.text_field :business_name, class: "form-control", placeholder: "Nombre legal de la empresa",
+                    data: { "free-entry-target": "legalOptionalField" } %>
               </div>
+              <small class="text-muted" data-free-entry-target="optionalNote" style="display:none;">Opcional cuando la entrada es gratuita</small>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true %>
+                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true,
+                    data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
               <%= li.select :document_type, [["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]],
-                  { prompt: "Seleccione" }, class: "form-select", required: true, id: "getaway_document_type_select" %>
+                  { prompt: "Seleccione" }, class: "form-select", required: true, id: "getaway_document_type_select",
+                  data: { "free-entry-target": "legalRequiredField" } %>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true, id: "getaway_document_number_input" %>
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true, id: "getaway_document_number_input",
+                    data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true, pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}" %>
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true, pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}",
+                    data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "Ej: 0991234567", required: true, pattern: "[0-9]{10}", maxlength: 10, title: "10 dígitos numéricos" %>
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "Ej: 0991234567", required: true, pattern: "[0-9]{10}", maxlength: 10, title: "10 dígitos numéricos",
+                    data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
           </div>
@@ -414,6 +432,63 @@
 <% end %>
 
 <script>
+  // ── Free Entry toggle (inline fallback, Stimulus handles it too) ──────────
+  function initFreeEntryToggle() {
+    const checkbox    = document.getElementById('getaway_free_entry');
+    const priceWrapper = document.getElementById('entry-price-wrapper');
+    const priceField  = document.getElementById('getaway_entry_price');
+    const legalCard   = document.querySelector('[data-free-entry-target="legalCard"]');
+
+    if (!checkbox) return;
+
+    function applyState(free) {
+      // Price field
+      if (priceWrapper) priceWrapper.style.display = free ? 'none' : '';
+      if (priceField) {
+        priceField.disabled = free;
+        priceField.required = !free;
+        if (free) priceField.value = '0';
+      }
+
+      // Legal card opacity hint
+      if (legalCard) legalCard.style.opacity = free ? '0.55' : '';
+
+      // Required fields
+      document.querySelectorAll('[data-free-entry-target="legalRequiredField"]').forEach(function(el) {
+        el.disabled = free;
+        el.required = !free;
+      });
+
+      // Optional business_name field
+      document.querySelectorAll('[data-free-entry-target="legalOptionalField"]').forEach(function(el) {
+        el.disabled = free;
+        el.required = false;
+      });
+
+      // Optional note visibility
+      document.querySelectorAll('[data-free-entry-target="optionalNote"]').forEach(function(el) {
+        el.style.display = free ? '' : 'none';
+      });
+
+      // Update required-field label classes for required groups
+      document.querySelectorAll('[data-free-entry-target="legalRequiredGroup"] .form-label').forEach(function(el) {
+        if (free) {
+          el.classList.remove('required-field');
+        } else {
+          el.classList.add('required-field');
+        }
+      });
+    }
+
+    checkbox.addEventListener('change', function() { applyState(this.checked); });
+    applyState(checkbox.checked);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFreeEntryToggle);
+  document.addEventListener('turbo:load', initFreeEntryToggle);
+  initFreeEntryToggle();
+
+  // ── Location selects ───────────────────────────────────────────────────────
   function initGetawayLocationScript() {
     const countrySelect = document.getElementById('getaway_country_id');
     const provinceSelect = document.getElementById('getaway_province_id');

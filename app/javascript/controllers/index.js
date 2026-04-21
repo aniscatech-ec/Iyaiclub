@@ -12,6 +12,7 @@ import QrScannerController from "./qr_scanner_controller"
 import TransferStatusController from "./transfer_status_controller"
 import PurchaseFormController from "./purchase_form_controller"
 import PasswordToggleController from "./password_toggle_controller"
+import FreeEntryController from "./free_entry_controller"
 
 application.register("dropdown-hover", DropdownHoverController)
 application.register("affiliate", AffiliateController)
@@ -25,3 +26,4 @@ application.register("qr-scanner", QrScannerController)
 application.register("transfer-status", TransferStatusController)
 application.register("purchase-form", PurchaseFormController)
 application.register("password-toggle", PasswordToggleController)
+application.register("free-entry", FreeEntryController)
