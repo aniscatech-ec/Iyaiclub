@@ -127,7 +127,6 @@ class Vendedor::TicketsController < ApplicationController
   end
 
   def send_rechazado_email(ticket)
-    return if ticket.user.present?
     TicketMailer.ticket_rechazado_guest(ticket).deliver_later
   end
 end

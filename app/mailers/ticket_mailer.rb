@@ -35,12 +35,16 @@ class TicketMailer < ApplicationMailer
     @name       = user&.name || ticket.guest_name.to_s.split("·").first.strip
     recipient   = user&.email || ticket.guest_email
 
-    if user.nil?
-      @ticket_url = Rails.application.routes.url_helpers
-                         .guests_ticket_url(ticket.ticket_code, host: default_url_options[:host])
-    end
+    helpers = Rails.application.routes.url_helpers
+    host    = default_url_options[:host]
 
-    mail(to: recipient, subject: "Ticket confirmado para #{@event_name} - IyaiClub")
+    @ticket_url = if user.present?
+                    helpers.turista_ticket_url(ticket, host: host)
+                  else
+                    helpers.guests_ticket_url(ticket.ticket_code, host: host)
+                  end
+
+    mail(to: recipient, subject: "✅ Ticket confirmado para #{@event_name} - IyaiClub")
   end
 
   # Notificación de rechazo solo para guests (turistas loggeados ven el polling en tiempo real)
