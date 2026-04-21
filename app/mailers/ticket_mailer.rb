@@ -3,13 +3,21 @@ class TicketMailer < ApplicationMailer
 
   def ticket_purchased(user, tickets)
     @user = user
-    @tickets = tickets
-    @event_name = tickets.first.event_name
-    @total_amount = tickets.sum(&:total_price)
+    @tickets = Array(tickets)
+    @event_name = @tickets.first.event_name
+    @total_amount = @tickets.sum(&:total_price)
+
+    @tickets.each do |t|
+      pdf_data = TicketPdfService.new(t).generate
+      attachments["ticket_#{t.ticket_code}.pdf"] = {
+        mime_type: "application/pdf",
+        content:   pdf_data
+      }
+    end
 
     mail(
       to: @user.email,
-      subject: "🎟️ Tu ticket para #{@event_name} - IyaiClub"
+      subject: "🎟️ Tu#{@tickets.size > 1 ? 's' : ''} ticket#{@tickets.size > 1 ? 's' : ''} para #{@event_name} - IyaiClub"
     )
   end
 

@@ -11,7 +11,9 @@ export default class extends Controller {
   static targets = ["timer", "status", "loader"]
 
   connect() {
-    this.startCountdown()
+    if (this.hasTimerTarget && this.expiresAtValue > 0) {
+      this.startCountdown()
+    }
     this.startPolling()
   }
 
@@ -28,6 +30,8 @@ export default class extends Controller {
   }
 
   updateTimer() {
+    if (!this.hasTimerTarget) return
+
     const now = Math.floor(Date.now() / 1000)
     const remaining = this.expiresAtValue - now
 
@@ -36,11 +40,13 @@ export default class extends Controller {
       clearInterval(this.pollInterval)
       this.timerTarget.textContent = "00:00"
       this.timerTarget.classList.add("text-danger")
-      this.statusTarget.innerHTML =
-        '<div class="alert alert-danger text-center">' +
-        '<i class="fas fa-times-circle me-2"></i>' +
-        '<strong>La reserva ha expirado.</strong> El ticket fue cancelado por falta de confirmación.' +
-        '</div>'
+      if (this.hasStatusTarget) {
+        this.statusTarget.innerHTML =
+          '<div class="alert alert-danger text-center">' +
+          '<i class="fas fa-times-circle me-2"></i>' +
+          '<strong>La reserva ha expirado.</strong> El ticket fue cancelado por falta de confirmación.' +
+          '</div>'
+      }
       if (this.hasLoaderTarget) {
         this.loaderTarget.style.display = "none"
       }
@@ -52,7 +58,6 @@ export default class extends Controller {
     this.timerTarget.textContent =
       `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 
-    // Cambiar color cuando queda poco tiempo
     if (remaining <= 120) {
       this.timerTarget.classList.add("text-danger")
     } else if (remaining <= 300) {
@@ -71,29 +76,30 @@ export default class extends Controller {
         if (data.status === "activo") {
           clearInterval(this.countdownInterval)
           clearInterval(this.pollInterval)
-          this.statusTarget.innerHTML =
-            '<div class="alert alert-success text-center">' +
-            '<i class="fas fa-check-circle fa-2x mb-2 d-block"></i>' +
-            '<strong>¡Tu ticket ha sido acreditado exitosamente!</strong><br>' +
-            'Redirigiendo a tus tickets...' +
-            '</div>'
+          if (this.hasStatusTarget) {
+            this.statusTarget.innerHTML =
+              '<div class="alert alert-success text-center">' +
+              '<i class="fas fa-check-circle fa-2x mb-2 d-block"></i>' +
+              '<strong>¡Tu ticket ha sido acreditado exitosamente!</strong><br>' +
+              'Recibirás tu ticket en PDF por email. Redirigiendo...' +
+              '</div>'
+          }
           if (this.hasLoaderTarget) {
             this.loaderTarget.style.display = "none"
           }
-          this.timerTarget.closest(".card").style.display = "none"
           setTimeout(() => {
             window.location.href = this.ticketsUrlValue
           }, 2500)
         } else if (data.status === "cancelado") {
           clearInterval(this.countdownInterval)
           clearInterval(this.pollInterval)
-          this.timerTarget.textContent = "00:00"
-          this.timerTarget.classList.add("text-danger")
-          this.statusTarget.innerHTML =
-            '<div class="alert alert-danger text-center">' +
-            '<i class="fas fa-times-circle me-2"></i>' +
-            '<strong>La reserva fue cancelada o rechazada.</strong>' +
-            '</div>'
+          if (this.hasStatusTarget) {
+            this.statusTarget.innerHTML =
+              '<div class="alert alert-danger text-center">' +
+              '<i class="fas fa-times-circle me-2"></i>' +
+              '<strong>La reserva fue cancelada o rechazada.</strong>' +
+              '</div>'
+          }
           if (this.hasLoaderTarget) {
             this.loaderTarget.style.display = "none"
           }
