@@ -31,7 +31,7 @@ class Vendedor::TicketsController < ApplicationController
     begin
       send_acreditado_email(group.first)
     rescue => e
-      Rails.logger.error("Error enviando email de acreditación: #{e.message}")
+      Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
     end
 
     msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} acreditados exitosamente." \
@@ -52,7 +52,7 @@ class Vendedor::TicketsController < ApplicationController
     begin
       send_rechazado_email(group.first)
     rescue => e
-      Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+      Rails.logger.error("[TicketMailer] Error enviando email de rechazo: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
     end
 
     msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} rechazados." \
@@ -68,7 +68,7 @@ class Vendedor::TicketsController < ApplicationController
       begin
         send_acreditado_email(ticket)
       rescue => e
-        Rails.logger.error("Error enviando email de acreditación: #{e.message}")
+        Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
       end
       acreditados += 1
     end
@@ -84,7 +84,7 @@ class Vendedor::TicketsController < ApplicationController
       begin
         send_rechazado_email(ticket)
       rescue => e
-        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+        Rails.logger.error("[TicketMailer] Error enviando email de rechazo: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
       end
       rechazados += 1
     end
@@ -130,10 +130,10 @@ class Vendedor::TicketsController < ApplicationController
   end
 
   def send_acreditado_email(ticket)
-    TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_later
+    TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_now
   end
 
   def send_rechazado_email(ticket)
-    TicketMailer.ticket_rechazado_guest(ticket).deliver_later
+    TicketMailer.ticket_rechazado_guest(ticket).deliver_now
   end
 end

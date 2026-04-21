@@ -1,145 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #34c759, #2E7D32);
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .content {
-      padding: 20px;
-    }
-    .ticket-info {
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 15px 0;
-    }
-    .ticket-item {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 10px 0;
-      background-color: white;
-    }
-    .ticket-code {
-      font-size: 16px;
-      font-weight: bold;
-      color: #2E7D32;
-    }
-    .raffle-number {
-      font-size: 20px;
-      font-weight: bold;
-      color: #F57F17;
-      text-align: center;
-      margin: 10px 0;
-    }
-    .total {
-      background-color: #FFF8E1;
-      padding: 15px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      color: #E65100;
-    }
-    .footer {
-      background-color: #f5f5f5;
-      padding: 15px;
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #34c759;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>&#127903;&#65039; ¡Tus tickets están listos!</h1>
-    </div>
+<p>Hola <strong><%= @guest_name %></strong>,</p>
+<p>¡Gracias por tu compra! Has adquirido <strong><%= @tickets.count %> ticket(s)</strong> para el evento:</p>
 
-    <div class="content">
-      <p>Hola <strong><%= @guest_name %></strong>,</p>
+<p style="font-size: 18px; font-weight: bold; color: #2E7D32; margin: 4px 0 16px 0;"><%= @event_name %></p>
+<p>Tus tickets han sido generados exitosamente. Cada ticket incluye código único, código QR para validación en la entrada y número de participación para la rifa.</p>
 
-      <p>¡Gracias por tu compra! Has adquirido <strong><%= @tickets.count %> ticket(s)</strong> para el evento:</p>
+<% @tickets.each do |ticket| %>
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 12px 0; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fafafa;">
+    <tr>
+      <td style="padding: 14px 16px;">
+        <p style="margin: 0 0 6px 0;"><strong>Ticket:</strong> <span style="font-size: 15px; font-weight: bold; color: #2E7D32;"><%= ticket.ticket_code %></span></p>
+        <p style="margin: 0 0 10px 0;"><strong>Asistente:</strong> <%= ticket.guest_name.to_s.split("·").first.strip %></p>
+        <p style="margin: 0; text-align: center; font-size: 22px; font-weight: bold; color: #F57F17;">
+          &#127921; <%= ticket.raffle_number %>
+        </p>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #666; text-align: center;">
+          Con este número participas en el sorteo oficial del evento
+        </p>
+      </td>
+    </tr>
+  </table>
+<% end %>
 
-      <div class="ticket-info">
-        <h2 style="margin-top: 0; color: #2E7D32;"><%= @event_name %></h2>
-        <p>Tus tickets han sido generados exitosamente. Cada ticket incluye:</p>
-        <ul>
-          <li>Código único de ticket</li>
-          <li>Código QR para validación en la entrada</li>
-          <li>Número de participación para la rifa</li>
-        </ul>
-      </div>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; background-color: #FFF8E1; border-radius: 8px;">
+  <tr>
+    <td style="padding: 14px; text-align: center; font-size: 18px; font-weight: bold; color: #E65100;">
+      Total pagado: $<%= number_with_precision(@total_amount, precision: 2) %> USD
+    </td>
+  </tr>
+</table>
 
-      <% @tickets.each do |ticket| %>
-        <div class="ticket-item">
-          <div>
-            <strong>Ticket:</strong> <span class="ticket-code"><%= ticket.ticket_code %></span><br>
-            <strong>Asistente:</strong> <%= ticket.guest_name.to_s.split("·").first.strip %>
-          </div>
-          <div class="raffle-number">
-            &#127921; <%= ticket.raffle_number %>
-          </div>
-          <p style="font-size: 12px; color: #666; margin-top: 10px;">
-            Con este número participas en el sorteo oficial del evento
-          </p>
-        </div>
-      <% end %>
+<p style="text-align: center; margin: 28px 0 0 0;">
+  <a href="<%= @ticket_url %>" style="display: inline-block; background: #34c759; color: #ffffff; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+    Ver mi ticket
+  </a>
+</p>
 
-      <div class="total">
-        Total pagado: $<%= number_with_precision(@total_amount, precision: 2) %> USD
-      </div>
-
-      <p style="text-align: center; margin-top: 20px;">
-        <a href="<%= @ticket_url %>" class="btn">Ver mi ticket</a>
-      </p>
-
-      <p style="font-size: 12px; color: #666;">
-        Presenta tu ticket (impreso o digital) en la entrada del evento.<br><br>
-        Guarda este email — contiene el enlace a tu ticket.<br><br>
-        ¡Buena suerte en el sorteo! &#127808;
-      </p>
-    </div>
-
-    <div class="footer">
-      <p>www.iyaiclub.com</p>
-      <p>Este es un correo automático, por favor no responder.</p>
-    </div>
-  </div>
-</body>
-</html>
+<p style="font-size: 13px; color: #888; margin-top: 20px;">
+  Presenta tu ticket (impreso o digital) en la entrada del evento.<br><br>
+  Guarda este email — contiene el enlace a tu ticket.<br><br>
+  ¡Buena suerte en el sorteo! &#127808;
+</p>

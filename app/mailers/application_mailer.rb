@@ -16,6 +16,8 @@ class ApplicationMailer < ActionMailer::Base
     logo_path = Rails.root.join("app/assets/images/logo.jpeg")
     return unless File.exist?(logo_path)
 
-    attachments.inline["logo.jpeg"] = File.read(logo_path)
+    attachments.inline["logo.jpeg"] = File.binread(logo_path)
+  rescue => e
+    Rails.logger.error("[Mailer] Error adjuntando logo: #{e.message}")
   end
 end

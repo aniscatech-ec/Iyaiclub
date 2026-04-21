@@ -1,129 +1,51 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #e53935, #b71c1c);
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .content {
-      padding: 30px 20px;
-    }
-    .ticket-card {
-      border: 2px solid #e53935;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .ticket-code {
-      font-size: 24px;
-      font-weight: bold;
-      color: #b71c1c;
-      margin: 10px 0;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-    .cta-button {
-      display: inline-block;
-      background: #1976D2;
-      color: white;
-      padding: 12px 30px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .footer {
-      background-color: #f8f9fa;
-      padding: 20px;
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>&#10060; Reserva Rechazada</h1>
-      <p style="margin: 5px 0 0 0; opacity: 0.9;">Tu reserva de ticket no pudo ser confirmada</p>
-    </div>
+<p>Hola <strong><%= @guest_name %></strong>,</p>
+<p>
+  Lamentablemente, tu reserva de ticket para
+  <strong><%= @event_name %></strong>
+  fue rechazada. Esto puede deberse a que el pago por transferencia no fue
+  confirmado a tiempo o no pudo ser verificado por el vendedor.
+</p>
 
-    <div class="content">
-      <p>Hola <strong><%= @guest_name %></strong>,</p>
-      <p>
-        Lamentablemente, tu reserva de ticket para
-        <strong><%= @event_name %></strong>
-        fue rechazada. Esto puede deberse a que el pago por transferencia no fue
-        confirmado a tiempo o no pudo ser verificado por el vendedor.
+<!-- Ticket card -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+  <tr>
+    <td align="center" style="border: 2px solid #e53935; border-radius: 10px; padding: 20px; text-align: center;">
+      <p style="margin: 0 0 4px 0; font-size: 13px; color: #666;">Código de Ticket</p>
+      <p style="margin: 0 0 8px 0; font-size: 22px; font-weight: bold; color: #b71c1c;"><%= @ticket.ticket_code %></p>
+      <p style="margin: 0; font-size: 13px; color: #999;">
+        Estado: <strong style="color: #e53935;">Rechazado</strong>
       </p>
+    </td>
+  </tr>
+</table>
 
-      <div class="ticket-card">
-        <div style="font-size: 14px; color: #666;">Código de Ticket</div>
-        <div class="ticket-code"><%= @ticket.ticket_code %></div>
-        <div style="font-size: 13px; color: #999; margin-top: 5px;">
-          Estado: <strong style="color: #e53935;">Rechazado</strong>
-        </div>
-      </div>
+<!-- Detalles -->
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0; font-size: 15px;">
+  <tr>
+    <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #555;">Evento</td>
+    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;"><%= @ticket.event_name %></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #555;">Fecha del evento</td>
+    <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;"><%= @ticket.event_date&.strftime('%d/%m/%Y') %></td>
+  </tr>
+  <tr>
+    <td style="padding: 8px 0; color: #555;">Asistente</td>
+    <td style="padding: 8px 0; text-align: right; font-weight: bold;"><%= @guest_name %></td>
+  </tr>
+</table>
 
-      <div style="margin: 20px 0;">
-        <div class="info-row">
-          <span>Evento</span>
-          <strong><%= @ticket.event_name %></strong>
-        </div>
-        <div class="info-row">
-          <span>Fecha del evento</span>
-          <strong><%= @ticket.event_date&.strftime('%d/%m/%Y') %></strong>
-        </div>
-        <div class="info-row">
-          <span>Asistente</span>
-          <strong><%= @guest_name %></strong>
-        </div>
-      </div>
+<p>
+  Los tickets reservados han sido liberados. Si deseas intentarlo nuevamente,
+  puedes volver a comprar un ticket para este evento.
+</p>
 
-      <p>
-        Los tickets reservados han sido liberados. Si deseas intentarlo nuevamente,
-        puedes volver a comprar un ticket para este evento.
-      </p>
+<p style="text-align: center; margin: 28px 0 0 0;">
+  <a href="<%= @event_url %>" style="display: inline-block; background: #1976D2; color: #ffffff; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+    Volver al evento
+  </a>
+</p>
 
-      <p style="text-align: center; margin-top: 25px;">
-        <a href="<%= @event_url %>" class="cta-button">
-          Volver al evento
-        </a>
-      </p>
-    </div>
-
-    <div class="footer">
-      <p>Si crees que esto fue un error, contacta a nuestro soporte.</p>
-      <p>&copy; <%= Date.current.year %> IyaiClub - www.iyaiclub.com</p>
-    </div>
-  </div>
-</body>
-</html>
+<p style="font-size: 13px; color: #888; text-align: center; margin-top: 16px;">
+  Si crees que esto fue un error, contacta a nuestro soporte.
+</p>
