@@ -15,13 +15,21 @@ class Getaway < ApplicationRecord
   }
 
   has_many :experiences, dependent: :destroy
+  accepts_nested_attributes_for :experiences, allow_destroy: true, reject_if: :all_blank
 
   validates :subcategory, presence: true
   validates :entry_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   before_validation :apply_free_entry
+  before_validation :assign_establishment_to_experiences
 
   private
+
+  def assign_establishment_to_experiences
+    experiences.each do |exp|
+      exp.establishment_id ||= establishment_id
+    end
+  end
 
   def apply_free_entry
     return unless free_entry?
