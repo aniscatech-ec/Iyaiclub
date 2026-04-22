@@ -28,6 +28,9 @@ class Vendedor::TicketsController < ApplicationController
     group = same_buyer_pending(@ticket)
     group.each(&:acreditar!)
 
+    # Verificar cupo del vendedor
+    @event.event_vendedores.find_by(user: current_user)&.check_and_mark_quota!
+
     # Procesar referido: solo el primer ticket del grupo lleva el código
     process_ticket_referral(@ticket)
 
@@ -74,6 +77,9 @@ class Vendedor::TicketsController < ApplicationController
 
     # Procesar referidos para tickets acreditados
     @bulk_tickets.reload.select(&:activo?).each { |t| process_ticket_referral(t) }
+
+    # Verificar cupo del vendedor
+    @event.event_vendedores.find_by(user: current_user)&.check_and_mark_quota!
 
     # Enviar un email por comprador (agrupa por email o nombre)
     acreditados_tickets = @bulk_tickets.reload.select(&:activo?)

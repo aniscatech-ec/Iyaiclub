@@ -310,7 +310,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :vendedores do
+      resources :vendedores, only: [:index, :show, :create, :update, :destroy] do
         member do
           patch :toggle_active
         end

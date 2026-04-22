@@ -163,36 +163,63 @@
     <div class="card-body px-4 pb-4">
       <% if @event_vendedores.any? %>
         <div class="table-responsive">
-          <table class="table table-sm table-hover">
+          <table class="table table-sm table-hover align-middle">
             <thead class="table-light">
               <tr>
                 <th>Nombre</th>
-                <th>WhatsApp</th>
-                <th>Email</th>
+                <th>Contacto</th>
                 <th>Estado</th>
-                <th>Tickets Pend.</th>
+                <th>Cupo</th>
+                <th>Progreso</th>
+                <th>Pend.</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               <% @event_vendedores.each do |ev| %>
+                <% sold = ev.tickets_sold %>
+                <% pending_count = ev.tickets_pending %>
                 <tr>
-                  <td><strong><%= ev.user.name %></strong></td>
                   <td>
-                    <% if ev.user.phone.present? %>
-                      <%= link_to ev.user.phone, whatsapp_link(ev.user.phone), target: "_blank", class: "text-success text-decoration-none" %>
-                    <% else %>
-                      <span class="text-muted">-</span>
+                    <strong><%= ev.user.name %></strong>
+                    <% if ev.quota_met? %>
+                      <span class="badge bg-success ms-1" title="Cupo alcanzado el <%= ev.quota_met_at.strftime('%d/%m/%Y') %>">
+                        <i class="fas fa-check-circle me-1"></i>Cupo cumplido
+                      </span>
                     <% end %>
                   </td>
-                  <td><small><%= ev.user.email %></small></td>
+                  <td>
+                    <% if ev.user.phone.present? %>
+                      <%= link_to ev.user.phone, whatsapp_link(ev.user.phone), target: "_blank", class: "text-success text-decoration-none d-block small" %>
+                    <% end %>
+                    <small class="text-muted"><%= ev.user.email %></small>
+                  </td>
                   <td>
                     <span class="badge <%= ev.active? ? 'bg-success' : 'bg-secondary' %>">
                       <%= ev.active? ? 'Activo' : 'Inactivo' %>
                     </span>
                   </td>
                   <td>
-                    <% pending_count = Ticket.where(vendedor: ev.user, event: @event, status: :reservado).count %>
+                    <% if ev.has_quota? %>
+                      <span class="fw-semibold"><%= sold %> / <%= ev.quota %></span>
+                    <% else %>
+                      <span class="fw-semibold"><%= sold %></span>
+                      <small class="text-muted d-block">Sin límite</small>
+                    <% end %>
+                  </td>
+                  <td style="min-width: 120px;">
+                    <% if ev.has_quota? %>
+                      <% pct = ev.quota_progress_percent %>
+                      <div class="progress rounded-pill" style="height: 8px;">
+                        <div class="progress-bar <%= pct >= 100 ? 'bg-success' : (pct >= 60 ? 'bg-warning' : 'bg-info') %>"
+                             style="width: <%= pct %>%"></div>
+                      </div>
+                      <small class="text-muted"><%= pct %>%</small>
+                    <% else %>
+                      <span class="text-muted">—</span>
+                    <% end %>
+                  </td>
+                  <td>
                     <% if pending_count > 0 %>
                       <span class="badge bg-warning text-dark"><%= pending_count %></span>
                     <% else %>
@@ -201,14 +228,19 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
+                      <%= link_to admin_event_vendedor_path(@event, ev),
+                          class: "btn btn-outline-info", title: "Ver progreso" do %>
+                        <i class="fas fa-chart-bar"></i>
+                      <% end %>
                       <%= link_to toggle_active_admin_event_vendedor_path(@event, ev),
                           data: { turbo_method: :patch },
-                          class: "btn btn-outline-#{ev.active? ? 'secondary' : 'success'}" do %>
+                          class: "btn btn-outline-#{ev.active? ? 'secondary' : 'success'}",
+                          title: ev.active? ? 'Desactivar' : 'Activar' do %>
                         <i class="fas fa-<%= ev.active? ? 'pause' : 'play' %>"></i>
                       <% end %>
                       <%= link_to admin_event_vendedor_path(@event, ev),
                           data: { turbo_method: :delete, turbo_confirm: "¿Remover a #{ev.user.name} de este evento?" },
-                          class: "btn btn-outline-danger" do %>
+                          class: "btn btn-outline-danger", title: "Remover" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>
                     </div>
@@ -243,9 +275,14 @@
                 <select name="event_vendedor[user_id]" class="form-select" required>
                   <option value="">Seleccione...</option>
                   <% unassigned.each do |v| %>
-                    <option value="<%= v.id %>"><%= v.name %> - <%= v.phone || 'Sin teléfono' %></option>
+                    <option value="<%= v.id %>"><%= v.name %> — <%= v.phone || 'Sin teléfono' %></option>
                   <% end %>
                 </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Cupo de tickets <small class="text-muted fw-normal">(opcional)</small></label>
+                <input type="number" name="event_vendedor[quota]" class="form-control" min="1" placeholder="Ej: 50 — dejar vacío para sin límite">
+                <small class="text-muted">Al alcanzar el cupo se marcará como "cupo cumplido", pero podrá seguir vendiendo.</small>
               </div>
             </div>
             <div class="modal-footer border-0">
@@ -301,6 +338,11 @@
                 <label class="form-label fw-bold">Ciudad</label>
                 <%= collection_select(:user, :city_id, City.all.limit(50), :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
               </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Cupo de tickets <small class="text-muted fw-normal">(opcional)</small></label>
+              <input type="number" name="quota" class="form-control" min="1" placeholder="Ej: 50 — dejar vacío para sin límite">
+              <small class="text-muted">Al alcanzar el cupo se marcará como "cupo cumplido".</small>
             </div>
             <div class="form-check">
               <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="autoAssignCheck" checked>
