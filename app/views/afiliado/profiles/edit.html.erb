@@ -72,6 +72,72 @@
               <%= f.date_field :birth_date, class: "form-control rounded-3" %>
             </div>
 
+            <hr class="my-3">
+
+            <%# Documentos de identidad %>
+            <div class="mb-2">
+              <h6 class="fw-bold mb-1">
+                <i class="fas fa-id-card me-1" style="color:var(--brand-orange);"></i>
+                Documentos de identidad
+              </h6>
+              <p class="text-muted small mb-3">Requeridos para que un administrador apruebe tus establecimientos.</p>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :cedula_front, class: "form-label fw-semibold small" do %>
+                Cédula — Anverso (frente)
+                <% unless @user.cedula_front.attached? %>
+                  <span class="badge bg-danger ms-1">Faltante</span>
+                <% else %>
+                  <span class="badge bg-success ms-1"><i class="fas fa-check"></i> Subido</span>
+                <% end %>
+              <% end %>
+              <% if @user.cedula_front.attached? && @user.cedula_front.content_type&.start_with?("image/") %>
+                <%= image_tag @user.cedula_front.variant(resize_to_limit: [400, 200]),
+                      class: "rounded-3 d-block mb-2",
+                      style: "max-height:100px;object-fit:contain;background:#f8f9fa;" %>
+              <% end %>
+              <%= f.file_field :cedula_front, class: "form-control form-control-sm rounded-3",
+                    accept: "image/jpeg,image/png,image/webp,application/pdf" %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :cedula_back, class: "form-label fw-semibold small" do %>
+                Cédula — Reverso
+                <% unless @user.cedula_back.attached? %>
+                  <span class="badge bg-danger ms-1">Faltante</span>
+                <% else %>
+                  <span class="badge bg-success ms-1"><i class="fas fa-check"></i> Subido</span>
+                <% end %>
+              <% end %>
+              <% if @user.cedula_back.attached? && @user.cedula_back.content_type&.start_with?("image/") %>
+                <%= image_tag @user.cedula_back.variant(resize_to_limit: [400, 200]),
+                      class: "rounded-3 d-block mb-2",
+                      style: "max-height:100px;object-fit:contain;background:#f8f9fa;" %>
+              <% end %>
+              <%= f.file_field :cedula_back, class: "form-control form-control-sm rounded-3",
+                    accept: "image/jpeg,image/png,image/webp,application/pdf" %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :ruc_document, class: "form-label fw-semibold small" do %>
+                Documento RUC
+                <% unless @user.ruc_document.attached? %>
+                  <span class="badge bg-danger ms-1">Faltante</span>
+                <% else %>
+                  <span class="badge bg-success ms-1"><i class="fas fa-check"></i> Subido</span>
+                <% end %>
+              <% end %>
+              <% if @user.ruc_document.attached? && @user.ruc_document.content_type&.start_with?("image/") %>
+                <%= image_tag @user.ruc_document.variant(resize_to_limit: [400, 200]),
+                      class: "rounded-3 d-block mb-2",
+                      style: "max-height:100px;object-fit:contain;background:#f8f9fa;" %>
+              <% end %>
+              <%= f.file_field :ruc_document, class: "form-control form-control-sm rounded-3",
+                    accept: "image/jpeg,image/png,image/webp,application/pdf" %>
+              <small class="text-muted">JPG, PNG, WEBP o PDF</small>
+            </div>
+
             <div class="d-grid">
               <%= f.submit "Guardar cambios", class: "btn btn-primary rounded-pill fw-bold" %>
             </div>

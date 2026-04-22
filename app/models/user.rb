@@ -29,6 +29,17 @@ class User < ApplicationRecord
   has_one_attached :avatar
   has_one_attached :cover_photo
 
+  # Documentos de identidad requeridos para afiliados
+  has_one_attached :cedula_front  # Cédula anverso
+  has_one_attached :cedula_back   # Cédula reverso
+  has_one_attached :ruc_document  # RUC (foto o PDF)
+
+  validate :identity_documents_required_for_afiliado, on: :create
+
+  private_class_method def self.afiliado_doc_content_types
+    %w[image/jpeg image/png image/webp application/pdf]
+  end
+
   # Vendedor associations
   has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
   has_many :vendedor_events, through: :event_vendedores, source: :event
@@ -49,6 +60,13 @@ class User < ApplicationRecord
   after_commit :on_account_confirmed, on: :update, if: :just_confirmed?
 
   private
+
+  def identity_documents_required_for_afiliado
+    return unless afiliado?
+    errors.add(:cedula_front,  "Cédula (anverso) es obligatoria para afiliados") unless cedula_front.attached?
+    errors.add(:cedula_back,   "Cédula (reverso) es obligatoria para afiliados") unless cedula_back.attached?
+    errors.add(:ruc_document,  "Documento RUC es obligatorio para afiliados") unless ruc_document.attached?
+  end
 
   def just_confirmed?
     saved_change_to_confirmed_at? && confirmed_at.present? && confirmed_at_before_last_save.nil?

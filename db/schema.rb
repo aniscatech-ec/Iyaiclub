@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_21_210000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_22_110000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -165,6 +165,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_21_210000) do
     t.time "closing_time"
     t.integer "status", default: 0, null: false
     t.integer "tipo_gestion_reserva", default: 0, null: false
+    t.bigint "cover_image_blob_id"
+    t.integer "approval_status", default: 0, null: false, comment: "0=pending, 1=approved, 2=rejected"
+    t.string "approval_notes", comment: "Motivo del rechazo si aplica"
+    t.datetime "approved_at"
+    t.bigint "approved_by_id"
+    t.index ["approval_status"], name: "index_establishments_on_approval_status"
     t.index ["category"], name: "index_establishments_on_category"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["country_id"], name: "index_establishments_on_country_id"

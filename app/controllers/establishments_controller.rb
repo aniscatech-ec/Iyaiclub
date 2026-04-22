@@ -2,6 +2,7 @@ class EstablishmentsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_establishment, only: %i[show edit update destroy dashboard]
   before_action :authorize_admin_or_owner!, only: %i[show edit update destroy dashboard]
+  before_action :require_afiliado_docs_and_approval!, only: %i[choose_type create_type create]
   layout "dashboard"
 
   # def index
@@ -177,7 +178,19 @@ class EstablishmentsController < ApplicationController
   end
 
   def dashboard
+  end
 
+  def set_cover_image
+    blob_id = params[:blob_id].to_i
+    if blob_id > 0 && @establishment.images.attached? &&
+       @establishment.images.map(&:blob_id).include?(blob_id)
+      @establishment.update_column(:cover_image_blob_id, blob_id)
+      redirect_back fallback_location: edit_establishment_path(@establishment),
+                    notice: "Foto de portada actualizada."
+    else
+      redirect_back fallback_location: edit_establishment_path(@establishment),
+                    alert: "No se pudo establecer la portada."
+    end
   end
 
   def select_affiliate
@@ -249,6 +262,21 @@ class EstablishmentsController < ApplicationController
   end
 
   private
+
+  # Afiliados necesitan tener sus documentos de identidad subidos.
+  # Los administradores pueden crear establecimientos para cualquier afiliado sin restricción.
+  def require_afiliado_docs_and_approval!
+    return if current_user.administrador?
+    return unless current_user.afiliado?
+
+    unless current_user.cedula_front.attached? &&
+           current_user.cedula_back.attached? &&
+           current_user.ruc_document.attached?
+      redirect_to afiliado_profile_path,
+                  alert: "Debes subir tus documentos de identidad (cédula y RUC) antes de agregar un establecimiento. Edita tu perfil para subirlos."
+      return
+    end
+  end
 
   def set_establishment
     @establishment = Establishment.includes(:legal_info, :user, :country, :city, :province, :units, :amenities, :verification, :pricing_policy, :payment_methods, { galleries: { gallery_images: { file_attachment: :blob } } }).find(params[:id])

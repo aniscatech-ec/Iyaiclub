@@ -1,29 +1,382 @@
-<div class="row">
-  <div class="col-lg-8">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Review Verification - <%= @verification.establishment.name %></h6>
-      </div>
-      <div class="card-body">
-        <h5>Establishment Details</h5>
-        <p><strong>Name:</strong> <%= @verification.establishment.name %></p>
-        <p><strong>Owner:</strong> <%= @verification.establishment.user.name %></p>
-        <p><strong>Status:</strong> <span class="badge bg-warning text-dark"><%= @verification.status %></span></p>
+<div class="container-fluid px-3 px-md-4 py-4">
 
-        <hr>
+  <%# Breadcrumb %>
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><%= link_to "Verificaciones", admin_verifications_path %></li>
+      <li class="breadcrumb-item active"><%= @establishment.name %></li>
+    </ol>
+  </nav>
 
-        <%= link_to 'Approve', approve_admin_verification_path(@verification), data: { "turbo-method": :patch }, class: 'btn btn-success' %>
-
-        <hr>
-        
-        <%= form_with url: reject_admin_verification_path(@verification), method: :patch, local: true do |f| %>
-          <div class="mb-3">
-            <%= f.label :reviewer_notes, "Rejection Notes (Sent to owner)", class: "form-label" %>
-            <%= f.text_area :reviewer_notes, class: "form-control", rows: 3, required: true %>
-          </div>
-          <%= f.submit 'Reject', class: 'btn btn-danger' %>
-        <% end %>
-      </div>
+  <%# Header + estado %>
+  <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-between gap-3 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><%= @establishment.name %></h3>
+      <p class="text-muted mb-0 small">
+        <i class="fas fa-calendar me-1"></i> Registrado el <%= @establishment.created_at.strftime("%d/%m/%Y a las %H:%M") %>
+      </p>
+    </div>
+    <div>
+      <% badge = case @establishment.approval_status
+         when "pending"  then ["bg-warning text-dark", "Pendiente de aprobación"]
+         when "approved" then ["bg-success", "Aprobado"]
+         when "rejected" then ["bg-danger",  "Rechazado"]
+         else ["bg-secondary", @establishment.approval_status]
+         end %>
+      <span class="badge <%= badge[0] %> rounded-pill px-3 py-2 fs-6"><%= badge[1] %></span>
     </div>
   </div>
+
+  <div class="row g-4">
+
+    <%# ── Columna izquierda: datos del establecimiento ── %>
+    <div class="col-12 col-lg-7">
+
+      <%# Datos generales %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-building me-2" style="color:var(--brand-orange);"></i>
+            Datos del establecimiento
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <div class="row g-3">
+            <div class="col-6">
+              <small class="text-muted d-block">Tipo</small>
+              <span class="fw-semibold"><%= @establishment.category&.humanize&.titleize %></span>
+            </div>
+            <div class="col-6">
+              <small class="text-muted d-block">Estado</small>
+              <span class="badge <%= @establishment.active? ? 'bg-success' : 'bg-secondary' %>">
+                <%= @establishment.active? ? 'Activo' : 'Inactivo' %>
+              </span>
+            </div>
+            <div class="col-12">
+              <small class="text-muted d-block">Dirección</small>
+              <span class="fw-semibold"><%= @establishment.address.presence || "—" %></span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block">País</small>
+              <span class="fw-semibold"><%= @establishment.country&.name || "—" %></span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block">Provincia</small>
+              <span class="fw-semibold"><%= @establishment.province&.name || "—" %></span>
+            </div>
+            <div class="col-4">
+              <small class="text-muted d-block">Ciudad</small>
+              <span class="fw-semibold"><%= @establishment.city&.name || "—" %></span>
+            </div>
+            <% if @establishment.phone.present? || @establishment.whatsapp.present? || @establishment.email.present? %>
+              <div class="col-12"><hr class="my-1"></div>
+              <% if @establishment.phone.present? %>
+                <div class="col-6">
+                  <small class="text-muted d-block">Teléfono</small>
+                  <span class="fw-semibold"><%= @establishment.phone %></span>
+                </div>
+              <% end %>
+              <% if @establishment.whatsapp.present? %>
+                <div class="col-6">
+                  <small class="text-muted d-block">WhatsApp</small>
+                  <span class="fw-semibold"><%= @establishment.whatsapp %></span>
+                </div>
+              <% end %>
+              <% if @establishment.email.present? %>
+                <div class="col-12">
+                  <small class="text-muted d-block">Email</small>
+                  <span class="fw-semibold"><%= @establishment.email %></span>
+                </div>
+              <% end %>
+            <% end %>
+            <% if @establishment.short_description.present? %>
+              <div class="col-12"><hr class="my-1"></div>
+              <div class="col-12">
+                <small class="text-muted d-block">Descripción corta</small>
+                <p class="mb-0"><%= @establishment.short_description %></p>
+              </div>
+            <% end %>
+            <% if @establishment.description.present? %>
+              <div class="col-12">
+                <small class="text-muted d-block">Descripción completa</small>
+                <p class="mb-0 small text-dark" style="white-space: pre-line;"><%= truncate(@establishment.description, length: 300, separator: ' ') %></p>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Datos legales (collapse) %>
+          <% if @establishment.legal_info.present? %>
+            <div class="mt-3">
+              <button class="btn btn-sm btn-outline-secondary rounded-pill w-100"
+                      type="button" data-bs-toggle="collapse" data-bs-target="#legalInfoCollapse">
+                <i class="fas fa-file-contract me-1"></i> Ver datos legales
+              </button>
+              <div class="collapse mt-3" id="legalInfoCollapse">
+                <% li = @establishment.legal_info %>
+                <div class="row g-2 small">
+                  <div class="col-6">
+                    <span class="text-muted d-block">Razón social</span>
+                    <strong><%= li.business_name.presence || "—" %></strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">Representante legal</span>
+                    <strong><%= li.legal_representative.presence || "—" %></strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">Tipo documento</span>
+                    <strong><%= li.document_type.presence || "—" %></strong>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted d-block">Número documento</span>
+                    <strong><%= li.document_number.presence || "—" %></strong>
+                  </div>
+                  <% if li.contact_email.present? %>
+                    <div class="col-6">
+                      <span class="text-muted d-block">Email legal</span>
+                      <strong><%= li.contact_email %></strong>
+                    </div>
+                  <% end %>
+                  <% if li.contact_phone.present? %>
+                    <div class="col-6">
+                      <span class="text-muted d-block">Teléfono legal</span>
+                      <strong><%= li.contact_phone %></strong>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+        </div>
+      </div>
+
+      <%# Imágenes %>
+      <% if @establishment.images.attached? || @establishment.galleries.any? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 p-4 pb-2">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-images me-2" style="color:var(--brand-cofee);"></i>
+              Imágenes subidas
+            </h6>
+          </div>
+          <div class="card-body p-4 pt-2">
+            <div class="row g-2">
+              <% @establishment.images.each do |img| %>
+                <div class="col-4 col-md-3">
+                  <%= image_tag img.variant(resize_to_fill: [200, 140]),
+                        class: "rounded-3 w-100",
+                        style: "height:80px; object-fit:cover;",
+                        loading: "lazy" %>
+                </div>
+              <% end %>
+              <% @establishment.galleries.flat_map(&:gallery_images).each do |gi| %>
+                <% next unless gi.file.attached? %>
+                <div class="col-4 col-md-3">
+                  <%= image_tag gi.file.variant(resize_to_fill: [200, 140]),
+                        class: "rounded-3 w-100",
+                        style: "height:80px; object-fit:cover;",
+                        loading: "lazy" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Notas del rechazo previo %>
+      <% if @establishment.approval_rejected? && @establishment.approval_notes.present? %>
+        <div class="alert alert-danger rounded-4 mb-4">
+          <h6 class="fw-bold mb-1"><i class="fas fa-times-circle me-1"></i> Motivo del rechazo anterior</h6>
+          <p class="mb-0"><%= @establishment.approval_notes %></p>
+        </div>
+      <% end %>
+
+    </div>
+
+    <%# ── Columna derecha: datos del socio + documentos + acciones ── %>
+    <div class="col-12 col-lg-5">
+
+      <%# Datos del socio %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-user-tie me-2" style="color:var(--brand-green);"></i>
+            Socio afiliado
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <% if @owner.avatar.attached? %>
+              <%= image_tag @owner.avatar.variant(resize_to_fill: [56, 56]),
+                    class: "rounded-circle border flex-shrink-0",
+                    style: "width:56px;height:56px;object-fit:cover;" %>
+            <% else %>
+              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width:56px;height:56px;background:var(--brand-cofee,#88682B);color:white;font-size:1.4rem;font-weight:700;">
+                <%= @owner.name&.first&.upcase %>
+              </div>
+            <% end %>
+            <div>
+              <div class="fw-bold"><%= @owner.name %></div>
+              <small class="text-muted"><%= @owner.email %></small>
+            </div>
+          </div>
+          <ul class="list-unstyled mb-0 small">
+            <li class="py-1 border-bottom d-flex justify-content-between">
+              <span class="text-muted">Teléfono</span>
+              <strong><%= @owner.phone.presence || "—" %></strong>
+            </li>
+            <li class="py-1 border-bottom d-flex justify-content-between">
+              <span class="text-muted">Ciudad</span>
+              <strong><%= @owner.city&.name || "—" %></strong>
+            </li>
+            <li class="py-1 d-flex justify-content-between">
+              <span class="text-muted">Miembro desde</span>
+              <strong><%= @owner.created_at.strftime("%d/%m/%Y") %></strong>
+            </li>
+          </ul>
+          <div class="mt-3">
+            <%= link_to admin_user_path(@owner), class: "btn btn-sm btn-outline-secondary rounded-pill w-100" do %>
+              <i class="fas fa-external-link-alt me-1"></i> Ver perfil completo
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Documentos de identidad %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-id-card me-2" style="color:var(--brand-orange);"></i>
+            Documentos de identidad
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+
+          <%# Cédula anverso %>
+          <div class="mb-3">
+            <small class="text-muted fw-semibold d-block mb-1">Cédula — Anverso (frente)</small>
+            <% if @owner.cedula_front.attached? %>
+              <% if @owner.cedula_front.content_type&.start_with?("image/") %>
+                <%= image_tag @owner.cedula_front.variant(resize_to_limit: [500, 300]),
+                      class: "rounded-3 w-100", style: "max-height:160px;object-fit:contain;background:#f8f9fa;" %>
+              <% else %>
+                <%= link_to rails_blob_path(@owner.cedula_front, disposition: "inline"),
+                      target: "_blank",
+                      class: "btn btn-sm btn-outline-primary rounded-pill" do %>
+                  <i class="fas fa-file-pdf me-1"></i> Ver PDF
+                <% end %>
+              <% end %>
+              <%= link_to rails_blob_path(@owner.cedula_front, disposition: "attachment"),
+                    class: "btn btn-sm btn-outline-secondary rounded-pill ms-2" do %>
+                <i class="fas fa-download me-1"></i> Descargar
+              <% end %>
+            <% else %>
+              <span class="badge bg-danger rounded-pill">No subido</span>
+            <% end %>
+          </div>
+
+          <%# Cédula reverso %>
+          <div class="mb-3">
+            <small class="text-muted fw-semibold d-block mb-1">Cédula — Reverso</small>
+            <% if @owner.cedula_back.attached? %>
+              <% if @owner.cedula_back.content_type&.start_with?("image/") %>
+                <%= image_tag @owner.cedula_back.variant(resize_to_limit: [500, 300]),
+                      class: "rounded-3 w-100", style: "max-height:160px;object-fit:contain;background:#f8f9fa;" %>
+              <% else %>
+                <%= link_to rails_blob_path(@owner.cedula_back, disposition: "inline"),
+                      target: "_blank",
+                      class: "btn btn-sm btn-outline-primary rounded-pill" do %>
+                  <i class="fas fa-file-pdf me-1"></i> Ver PDF
+                <% end %>
+              <% end %>
+              <%= link_to rails_blob_path(@owner.cedula_back, disposition: "attachment"),
+                    class: "btn btn-sm btn-outline-secondary rounded-pill ms-2" do %>
+                <i class="fas fa-download me-1"></i> Descargar
+              <% end %>
+            <% else %>
+              <span class="badge bg-danger rounded-pill">No subido</span>
+            <% end %>
+          </div>
+
+          <%# RUC %>
+          <div>
+            <small class="text-muted fw-semibold d-block mb-1">Documento RUC</small>
+            <% if @owner.ruc_document.attached? %>
+              <% if @owner.ruc_document.content_type&.start_with?("image/") %>
+                <%= image_tag @owner.ruc_document.variant(resize_to_limit: [500, 300]),
+                      class: "rounded-3 w-100", style: "max-height:160px;object-fit:contain;background:#f8f9fa;" %>
+              <% else %>
+                <%= link_to rails_blob_path(@owner.ruc_document, disposition: "inline"),
+                      target: "_blank",
+                      class: "btn btn-sm btn-outline-primary rounded-pill" do %>
+                  <i class="fas fa-file-pdf me-1"></i> Ver PDF
+                <% end %>
+              <% end %>
+              <%= link_to rails_blob_path(@owner.ruc_document, disposition: "attachment"),
+                    class: "btn btn-sm btn-outline-secondary rounded-pill ms-2" do %>
+                <i class="fas fa-download me-1"></i> Descargar
+              <% end %>
+            <% else %>
+              <span class="badge bg-danger rounded-pill">No subido</span>
+            <% end %>
+          </div>
+
+        </div>
+      </div>
+
+      <%# Acciones: aprobar / rechazar %>
+      <% if @establishment.approval_pending? %>
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-header bg-transparent border-0 p-4 pb-2">
+            <h6 class="fw-bold mb-0">
+              <i class="fas fa-gavel me-2" style="color:var(--brand-cofee);"></i>
+              Decisión
+            </h6>
+          </div>
+          <div class="card-body p-4 pt-2">
+
+            <%# Aprobar %>
+            <div class="mb-3">
+              <%= button_to approve_admin_verification_path(@verification),
+                    method: :patch,
+                    class: "btn btn-success rounded-pill w-100 fw-bold",
+                    data: { turbo_confirm: "¿Aprobar el establecimiento \"#{@establishment.name}\"? El socio podrá publicarlo inmediatamente." } do %>
+                <i class="fas fa-check-circle me-2"></i> Aprobar establecimiento
+              <% end %>
+            </div>
+
+            <hr class="my-3">
+
+            <%# Rechazar con motivo %>
+            <%= form_with url: reject_admin_verification_path(@verification), method: :patch, local: true do |f| %>
+              <div class="mb-3">
+                <%= f.label :rejection_notes, "Motivo del rechazo", class: "form-label fw-semibold small" %>
+                <%= f.text_area :rejection_notes, rows: 4, class: "form-control rounded-3",
+                      placeholder: "Explica al socio por qué no se aprueba el establecimiento...", required: true %>
+                <small class="text-muted">Este mensaje será visible para el socio.</small>
+              </div>
+              <%= f.submit "Rechazar establecimiento", class: "btn btn-danger rounded-pill w-100 fw-bold" %>
+            <% end %>
+
+          </div>
+        </div>
+      <% elsif @establishment.approval_approved? %>
+        <div class="alert alert-success rounded-4 text-center">
+          <i class="fas fa-check-circle fa-2x mb-2"></i>
+          <p class="fw-bold mb-0">Establecimiento aprobado</p>
+          <small class="text-muted">
+            <%= @establishment.approved_at&.strftime("El %d/%m/%Y") %>
+          </small>
+        </div>
+      <% elsif @establishment.approval_rejected? %>
+        <div class="alert alert-danger rounded-4">
+          <p class="fw-bold mb-1"><i class="fas fa-times-circle me-1"></i> Rechazado</p>
+          <p class="mb-0 small"><%= @establishment.approval_notes %></p>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
 </div>

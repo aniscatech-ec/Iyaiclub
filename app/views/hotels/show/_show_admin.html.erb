@@ -62,26 +62,31 @@
   </div>
 
   <!-- ═══════════════ QUICK STATS ═══════════════ -->
+  <%
+    total_rooms_count     = hotel.rooms.sum(:quantity)
+    available_rooms_count = hotel.rooms.where(available: true).sum(:quantity) rescue hotel.rooms.sum(:quantity)
+    max_guests_count      = hotel.rooms.sum { |r| (r.guest_capacity || 0) * (r.quantity || 1) }
+  %>
   <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
       <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
         <div class="text-primary mb-1"><i class="fas fa-door-open fa-2x"></i></div>
-        <div class="fw-bold fs-4"><%= hotel.total_rooms || 0 %></div>
+        <div class="fw-bold fs-4"><%= total_rooms_count %></div>
         <div class="small text-muted">Habitaciones</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
         <div class="mb-1" style="color: var(--brand-green, #3FBD02);"><i class="fas fa-door-closed fa-2x"></i></div>
-        <div class="fw-bold fs-4"><%= hotel.available_rooms || 0 %></div>
-        <div class="small text-muted">Disponibles</div>
+        <div class="fw-bold fs-4"><%= hotel.rooms.count %></div>
+        <div class="small text-muted">Tipos de hab.</div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="card border-0 shadow-sm rounded-3 h-100 text-center p-3">
         <div class="mb-1" style="color: var(--brand-orange, #EB633B);"><i class="fas fa-users fa-2x"></i></div>
-        <div class="fw-bold fs-4"><%= hotel.max_guests || 0 %></div>
-        <div class="small text-muted">Huéspedes</div>
+        <div class="fw-bold fs-4"><%= max_guests_count %></div>
+        <div class="small text-muted">Cap. máx. huéspedes</div>
       </div>
     </div>
     <div class="col-6 col-md-3">

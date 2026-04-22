@@ -8,24 +8,43 @@
     - badges: array de hashes con { text:, color:, icon: } para mostrar badges
 %>
 <%
-  all_images = establishment.galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
-  carousel_id = "heroCarousel#{establishment.id}"
+  hero_images = establishment.all_hero_images
+  direct_imgs  = hero_images[:direct]   # ActiveStorage attachments
+  gallery_imgs = hero_images[:gallery]  # GalleryImage records
+  has_images   = direct_imgs.any? || gallery_imgs.any?
+  carousel_id  = "heroCarousel#{establishment.id}"
 %>
 
 <div class="est-hero position-relative mb-4 rounded-4 overflow-hidden shadow-sm">
-  <% if all_images.any? %>
+  <% if has_images %>
     <div id="<%= carousel_id %>" class="carousel slide carousel-fade" data-bs-ride="carousel">
       <div class="carousel-inner">
-        <% all_images.first(8).each_with_index do |gi, idx| %>
-          <div class="carousel-item <%= 'active' if idx == 0 %>">
-            <%= image_tag gi.file.variant(resize_to_limit: [1600, 600]),
+        <% slide_idx = 0 %>
+
+        <%# Imágenes directas (has_many_attached :images) — portada siempre primero %>
+        <% direct_imgs.first(8).each do |img| %>
+          <div class="carousel-item <%= 'active' if slide_idx == 0 %>">
+            <%= image_tag img.variant(resize_to_limit: [1600, 600]),
                           class: "est-hero-image w-100",
-                          loading: idx == 0 ? "eager" : "lazy",
+                          loading: slide_idx == 0 ? "eager" : "lazy",
                           alt: establishment.name %>
           </div>
+          <% slide_idx += 1 %>
+        <% end %>
+
+        <%# Imágenes de galerías como complemento (si las hay) %>
+        <% gallery_imgs.first([8 - slide_idx, 0].max).each do |gi| %>
+          <div class="carousel-item <%= 'active' if slide_idx == 0 %>">
+            <%= image_tag gi.file.variant(resize_to_limit: [1600, 600]),
+                          class: "est-hero-image w-100",
+                          loading: "lazy",
+                          alt: establishment.name %>
+          </div>
+          <% slide_idx += 1 %>
         <% end %>
       </div>
-      <% if all_images.size > 1 %>
+
+      <% if slide_idx > 1 %>
         <button class="carousel-control-prev" type="button" data-bs-target="#<%= carousel_id %>" data-bs-slide="prev">
           <span class="carousel-control-prev-icon"></span>
         </button>

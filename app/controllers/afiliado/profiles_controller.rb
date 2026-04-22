@@ -22,6 +22,7 @@ class Afiliado::ProfilesController < ApplicationController
   private
 
   def profile_params
-    params.require(:user).permit(:name, :phone, :birth_date, :avatar, :cover_photo)
+    params.require(:user).permit(:name, :phone, :birth_date, :avatar, :cover_photo,
+                                 :cedula_front, :cedula_back, :ruc_document)
   end
 end

@@ -13,6 +13,7 @@ import TransferStatusController from "./transfer_status_controller"
 import PurchaseFormController from "./purchase_form_controller"
 import PasswordToggleController from "./password_toggle_controller"
 import FreeEntryController from "./free_entry_controller"
+import RegistrationRoleController from "./registration_role_controller"
 
 application.register("dropdown-hover", DropdownHoverController)
 application.register("affiliate", AffiliateController)
@@ -27,3 +28,4 @@ application.register("transfer-status", TransferStatusController)
 application.register("purchase-form", PurchaseFormController)
 application.register("password-toggle", PasswordToggleController)
 application.register("free-entry", FreeEntryController)
+application.register("registration-role", RegistrationRoleController)

@@ -294,27 +294,17 @@
         <i class="fas fa-images me-2"></i> 6. Imágenes
       </div>
       <div class="card-body">
+        <%# Selector de foto de portada (solo si ya hay imágenes subidas) %>
         <% if getaway.establishment&.images&.attached? %>
-          <div class="mb-3">
-            <label class="form-label fw-semibold text-muted">Imágenes actuales</label>
-            <div class="d-flex flex-wrap gap-2">
-              <% getaway.establishment.images.each do |img| %>
-                <div class="position-relative">
-                  <%= image_tag img.variant(resize_to_limit: [120, 120]),
-                      class: "img-thumbnail rounded shadow-sm",
-                      style: "width: 120px; height: 80px; object-fit: cover;",
-                      loading: "lazy" %>
-                </div>
-              <% end %>
-            </div>
-          </div>
-          <hr>
+          <%= render "shared/cover_image_selector", establishment: getaway.establishment %>
+          <hr class="my-3">
         <% end %>
+
         <div class="mb-0">
           <%= est.label :images, "Subir imágenes", class: "form-label fw-semibold" %>
           <%= est.file_field :images, multiple: true, class: "form-control",
               accept: "image/jpeg,image/png,image/webp" %>
-          <small class="text-muted">Puedes seleccionar varias imágenes (JPG, PNG, WEBP)</small>
+          <small class="text-muted">Puedes seleccionar varias imágenes (JPG, PNG, WEBP). Las nuevas imágenes se agregan a las existentes.</small>
         </div>
       </div>
     </div>

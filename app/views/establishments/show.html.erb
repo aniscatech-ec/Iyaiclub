@@ -461,54 +461,28 @@
 
   <div class="card shadow-sm border-0 rounded-3 mb-4">
     <div class="card-header bg-dark text-white fw-bold rounded-top-3">
-      <i class="fas fa-shield-alt me-2"></i> 9. Verificación
+      <i class="fas fa-shield-alt me-2"></i> 9. Verificación y aprobación
     </div>
     <div class="card-body">
-      <% if @establishment.verification %>
-        <% v = @establishment.verification %>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <div class="text-center border rounded-3 p-3 h-100">
-              <i class="fas fa-id-card fs-3 mb-2 text-muted"></i>
-              <small class="text-muted d-block mb-2">Documento de identidad</small>
-              <% if v.identity_document.attached? %>
-                <%= link_to url_for(v.identity_document), target: "_blank", class: "btn btn-sm btn-outline-primary" do %>
-                  <i class="fas fa-eye me-1"></i> Ver documento
-                <% end %>
-              <% else %>
-                <span class="text-muted fst-italic">No cargado</span>
-              <% end %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="text-center border rounded-3 p-3 h-100">
-              <i class="fas fa-file-alt fs-3 mb-2 text-muted"></i>
-              <small class="text-muted d-block mb-2">Documento de propiedad</small>
-              <% if v.property_document.attached? %>
-                <%= link_to url_for(v.property_document), target: "_blank", class: "btn btn-sm btn-outline-primary" do %>
-                  <i class="fas fa-eye me-1"></i> Ver documento
-                <% end %>
-              <% else %>
-                <span class="text-muted fst-italic">No cargado</span>
-              <% end %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="text-center border rounded-3 p-3 h-100">
-              <i class="fas fa-camera fs-3 mb-2 text-muted"></i>
-              <small class="text-muted d-block mb-2">Selfie de verificación</small>
-              <% if v.selfie.attached? %>
-                <%= image_tag v.selfie.variant(resize_to_limit: [150, 150]), class: "img-thumbnail rounded shadow-sm" %>
-              <% else %>
-                <span class="text-muted fst-italic">No cargada</span>
-              <% end %>
-            </div>
-          </div>
+      <% case @establishment.approval_status
+         when "approved" %>
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge bg-success fs-6 px-3 py-2"><i class="fas fa-check-circle me-1"></i> Aprobado por administrador</span>
+          <% if @establishment.approved_at.present? %>
+            <small class="text-muted">el <%= @establishment.approved_at.strftime("%d/%m/%Y") %></small>
+          <% end %>
+        </div>
+      <% when "rejected" %>
+        <div>
+          <span class="badge bg-danger fs-6 px-3 py-2 mb-2"><i class="fas fa-times-circle me-1"></i> Rechazado</span>
+          <% if @establishment.approval_notes.present? %>
+            <p class="text-muted mt-2 mb-0"><strong>Motivo:</strong> <%= @establishment.approval_notes %></p>
+          <% end %>
         </div>
       <% else %>
-        <div class="text-center py-3">
-          <i class="fas fa-shield-alt fs-1 text-muted mb-2 d-block"></i>
-          <p class="text-muted fst-italic mb-0">No se han subido documentos de verificación.</p>
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="fas fa-clock me-1"></i> Pendiente de revisión</span>
+          <small class="text-muted">Un administrador revisará tu establecimiento pronto.</small>
         </div>
       <% end %>
     </div>
@@ -527,14 +501,6 @@
     </div>
   </div>
 
-  <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
-    <%= link_to edit_specific_establishment_path(@establishment), class: "gradient-btn btn-lg text-center text-decoration-none flex-grow-1" do %>
-      <i class="fas fa-pen me-2"></i> Editar establecimiento
-    <% end %>
-    <%= link_to establishments_path, class: "btn btn-outline-secondary btn-lg" do %>
-      <i class="fas fa-arrow-left me-2"></i> Volver al listado
-    <% end %>
-  </div>
 
 </div>
 
@@ -583,6 +549,7 @@
   </div>
 </div>
 
+<% unless @establishment.escapada? %>
 <div class="card mb-4 shadow-sm border-info">
   <div class="card-header bg-info text-dark fw-bold d-flex justify-content-between align-items-center">
     <span>11. Hospedajes Disponibles (Lodgings)</span>
@@ -630,6 +597,7 @@
     </div>
   </div>
 </div>
+<% end %>
 
 <div class="card mb-4 shadow-sm border-warning">
   <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
@@ -678,6 +646,7 @@
   </div>
 </div>
 
+<% unless @establishment.escapada? %>
 <div class="card mb-4 shadow-sm border-danger">
   <div class="card-header bg-danger text-white fw-bold d-flex justify-content-between align-items-center">
     <span>13. Promociones Disponibles (Ofertas)</span>
@@ -722,5 +691,17 @@
     <div class="">
       <%= link_to "+ Agregar Promoción", new_establishment_promotion_path(@establishment), class: "btn btn-danger text-white fw-bold" %>
     </div>
+  </div>
+</div>
+<% end %>
+
+<div class="container py-3 mb-5">
+  <div class="d-flex flex-column flex-sm-row gap-3">
+    <%= link_to edit_specific_establishment_path(@establishment), class: "gradient-btn btn-lg text-center text-decoration-none flex-grow-1" do %>
+      <i class="fas fa-pen me-2"></i> Editar establecimiento
+    <% end %>
+    <%= link_to establishments_path, class: "btn btn-outline-secondary btn-lg" do %>
+      <i class="fas fa-arrow-left me-2"></i> Volver al listado
+    <% end %>
   </div>
 </div>
