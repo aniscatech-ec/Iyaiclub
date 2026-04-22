@@ -47,7 +47,7 @@
   <!-- Sección Establecimientos -->
   <h4 class="mb-3 fw-bold">Establecimientos</h4>
   <div class="row g-4 mb-5">
-    <div class="col-md-2">
+    <div class="col-6 col-md-2">
       <%= link_to establishments_path, class: "text-decoration-none" do %>
         <div class="card border-0 shadow-sm d-flex flex-row align-items-center p-2 rounded-3" style="min-height: 45px;">
           <div class="d-flex align-items-center justify-content-center rounded-2 me-2 flex-shrink-0"
@@ -59,15 +59,15 @@
       <% end %>
     </div>
 
-    <% ["Hospedaje", "Gastronomia", "Transporte", "Alojamientos Temporales"].each do |cat_name| %>
+    <% ["Hospedaje", "Gastronomia", "Transporte", "Alojamientos Temporales", "Escapadas"].each do |cat_name| %>
       <% cat = category_catalog.find { |c| c[:name] == cat_name } %>
       <% next unless cat %>
-      <div class="col-md-2">
+      <div class="col-6 col-md-2">
         <%= render "shared/category_card_with_dropdown", category: cat %>
       </div>
     <% end %>
 
-    <div class="col-md-2">
+    <div class="col-6 col-md-2">
       <%= link_to amenities_path, class: "text-decoration-none" do %>
         <div class="card border-0 shadow-sm d-flex flex-row align-items-center p-2 rounded-3" style="min-height: 45px;">
           <div class="d-flex align-items-center justify-content-center rounded-2 me-2 flex-shrink-0"
