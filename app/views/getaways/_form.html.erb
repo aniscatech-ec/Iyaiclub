@@ -100,27 +100,27 @@
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <%= est.label :phone, "Teléfono", class: "form-label fw-semibold required-field" %>
+            <%= est.label :phone, "Teléfono", class: "form-label fw-semibold" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-phone"></i></span>
-              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456", required: true %>
+              <%= est.telephone_field :phone, class: "form-control", placeholder: "Ej: 072123456" %>
             </div>
           </div>
 
           <div class="col-md-6">
-            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold required-field" %>
+            <%= est.label :whatsapp, "WhatsApp", class: "form-label fw-semibold" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
-              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567", required: true %>
+              <%= est.telephone_field :whatsapp, class: "form-control", placeholder: "593991234567" %>
             </div>
             <small class="text-muted">Con código de país, sin + ni espacios</small>
           </div>
 
           <div class="col-md-6">
-            <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold required-field" %>
+            <%= est.label :email, "Correo electrónico", class: "form-label fw-semibold" %>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com", required: true %>
+              <%= est.email_field :email, class: "form-control", placeholder: "correo@ejemplo.com" %>
             </div>
           </div>
 
@@ -245,7 +245,7 @@
               <%= li.label :legal_representative, "Representante legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo", required: true,
+                <%= li.text_field :legal_representative, class: "form-control", placeholder: "Nombre completo",
                     data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
@@ -253,7 +253,7 @@
             <div class="col-md-6" data-free-entry-target="legalRequiredGroup">
               <%= li.label :document_type, "Tipo de documento", class: "form-label fw-semibold required-field" %>
               <%= li.select :document_type, [["RUC", "ruc"], ["Cédula", "cedula"], ["Pasaporte", "pasaporte"]],
-                  { prompt: "Seleccione" }, class: "form-select", required: true, id: "getaway_document_type_select",
+                  { prompt: "Seleccione" }, class: "form-select", id: "getaway_document_type_select",
                   data: { "free-entry-target": "legalRequiredField" } %>
             </div>
 
@@ -261,7 +261,7 @@
               <%= li.label :document_number, "Número de documento", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", required: true, id: "getaway_document_number_input",
+                <%= li.text_field :document_number, class: "form-control", placeholder: "Ej: 0102030405001", id: "getaway_document_number_input",
                     data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
@@ -270,7 +270,7 @@
               <%= li.label :contact_email, "Email de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com", required: true, pattern: "[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}",
+                <%= li.email_field :contact_email, class: "form-control", placeholder: "legal@empresa.com",
                     data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>
@@ -279,7 +279,7 @@
               <%= li.label :contact_phone, "Teléfono de contacto legal", class: "form-label fw-semibold required-field" %>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "Ej: 0991234567", required: true, pattern: "[0-9]{10}", maxlength: 10, title: "10 dígitos numéricos",
+                <%= li.telephone_field :contact_phone, class: "form-control", placeholder: "Ej: 0991234567", maxlength: 10,
                     data: { "free-entry-target": "legalRequiredField" } %>
               </div>
             </div>

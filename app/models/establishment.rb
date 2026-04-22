@@ -18,10 +18,10 @@ class Establishment < ApplicationRecord
   validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }
   validates :category, presence: { message: "Debe seleccionar una categoria" }
   validates :address, presence: { message: "La direccion es obligatoria" }
-  validates :phone, presence: { message: "El telefono de contacto es obligatorio" }
-  validates :whatsapp, presence: { message: "El enlace de WhatsApp es obligatorio" }
-  validates :email, presence: { message: "El correo electronico es obligatorio" },
-                    format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo no es valido", allow_blank: true }
+  validates :phone, presence: { message: "El telefono de contacto es obligatorio" }, unless: :escapada?
+  validates :whatsapp, presence: { message: "El enlace de WhatsApp es obligatorio" }, unless: :escapada?
+  validates :email, presence: { message: "El correo electronico es obligatorio" }, unless: :escapada?
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo no es valido" }, allow_blank: true
   validates :latitude, presence: { message: "La latitud es obligatoria (ubicacion en Google Maps)" }
   validates :longitude, presence: { message: "La longitud es obligatoria (ubicacion en Google Maps)" }
   validates :country_id, presence: { message: "Debe seleccionar un pais" }
