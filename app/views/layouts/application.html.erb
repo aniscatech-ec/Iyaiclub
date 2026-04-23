@@ -171,7 +171,7 @@
 </nav>
 <%#= render "shared/search_hotels" %>
 
-<%= yield :search_bar %>
+<div class="d-none d-md-block"><%= yield :search_bar %></div>
 
 <div class="container-fluid">
   <% if flash[:notice] %>

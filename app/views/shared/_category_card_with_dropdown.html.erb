@@ -24,6 +24,17 @@
     <% end %>
 
     <div class="category-dropdown">
+      <%# Header del bottom sheet (visible solo en móvil) %>
+      <div class="d-flex align-items-center justify-content-between px-3 py-2 d-md-none border-bottom"
+           style="background:#fff; flex-shrink:0;">
+        <span class="fw-bold" style="color:<%= cat_color %>;">
+          <i class="fas <%= cat_icon %> me-2"></i><%= cat_name %>
+        </span>
+        <button type="button"
+                class="btn-close btn-sm"
+                data-action="click->dropdown-hover#closeSheet"
+                aria-label="Cerrar"></button>
+      </div>
       <div class="list-group list-group-flush rounded-3 shadow overflow-hidden">
         <%= link_to cat_path, class: "list-group-item list-group-item-action px-3 py-2 fw-semibold",
             style: "font-size: 0.8rem; color: #{cat_color};" do %>
