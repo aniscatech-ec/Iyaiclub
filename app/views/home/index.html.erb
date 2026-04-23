@@ -92,9 +92,9 @@
               class: "text-decoration-none d-block" do %>
           <div class="position-relative" style="height: 220px; overflow: hidden;">
             <% if ad.image.attached? %>
-              <%= image_tag ad.image.variant(resize_to_fill: [1400, 440]),
+              <%= image_tag ad.image,
                     class: "position-absolute top-0 start-0 w-100 h-100",
-                    style: "object-fit: fill;" %>
+                    style: "object-fit: fill; width: 100%; height: 100%;" %>
             <% else %>
               <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, #1a1a2e, #16213e);"></div>
             <% end %>
