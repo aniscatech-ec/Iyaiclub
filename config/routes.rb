@@ -249,6 +249,12 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :advertisements do
+      member do
+        patch :toggle_active
+      end
+    end
+
     resources :users do
       get :establishments, on: :member
       collection do
