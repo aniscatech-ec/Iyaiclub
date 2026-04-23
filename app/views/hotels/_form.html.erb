@@ -135,15 +135,22 @@
 
         <%# ── Template para nueva habitación ── %>
         <template data-nested-form-target="template">
-          <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #f5f0ff;" data-new-record="true">
+          <div class="nested-fields border rounded-3 mb-3" style="background: #f5f0ff;" data-new-record="true">
             <%= f.fields_for :rooms, Room.new, child_index: 'NEW_RECORD' do |r| %>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i> Nueva habitación</h6>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
-                  <i class="fas fa-trash me-1"></i> Eliminar
-                </button>
+              <div class="d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i> <span class="nested-item-title">Nueva habitación</span></h6>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill nested-collapse-toggle"
+                          data-bs-toggle="collapse" data-bs-target=".room-body-NEW_RECORD" onclick="event.stopPropagation()">
+                    <i class="fas fa-chevron-up"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                    <i class="fas fa-trash me-1"></i> Eliminar
+                  </button>
+                </div>
               </div>
               <%= r.hidden_field :_destroy %>
+              <div class="collapse show p-3 pt-0 room-body-NEW_RECORD">
 
               <div class="row g-3">
                 <div class="col-md-6">
@@ -239,6 +246,7 @@
                   </div>
                 </div>
               </div>
+              </div><%# fin collapse body %>
             <% end %>
           </div>
         </template>
@@ -246,14 +254,24 @@
         <%# ── Habitaciones existentes ── %>
         <div data-nested-form-target="target">
           <%= f.fields_for :rooms do |r| %>
-            <div class="nested-fields border rounded-3 p-3 mb-3" style="background: #f5f0ff;" data-new-record="<%= r.object.new_record? %>">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i> <%= r.object.name || "Habitación" %></h6>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
-                  <i class="fas fa-trash me-1"></i> Eliminar
-                </button>
+            <div class="nested-fields border rounded-3 mb-3" style="background: #f5f0ff;" data-new-record="<%= r.object.new_record? %>">
+              <div class="d-flex justify-content-between align-items-center p-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-door-open me-2" style="color: #8e44ad;"></i>
+                  <span class="nested-item-title"><%= r.object.name.presence || "Habitación" %></span>
+                </h6>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill nested-collapse-toggle"
+                          data-bs-toggle="collapse" data-bs-target="#room-body-<%= r.object.id || 'new' %>"
+                          onclick="event.stopPropagation()">
+                    <i class="fas fa-chevron-up"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                    <i class="fas fa-trash me-1"></i> Eliminar
+                  </button>
+                </div>
               </div>
               <%= r.hidden_field :_destroy %>
+              <div class="collapse show p-3 pt-0" id="room-body-<%= r.object.id || 'new' %>">
 
               <div class="row g-3">
                 <div class="col-md-6">
@@ -369,6 +387,7 @@
                   </div>
                 </div>
               </div>
+              </div><%# fin collapse body %>
             </div>
           <% end %>
         </div>
@@ -441,7 +460,11 @@
     </div>
 
     <!-- ═══════════════ 5. UBICACIÓN ═══════════════ -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card border-0 shadow-sm rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="establishment_country_id"
+         data-location-select-province-id-value="establishment_province_id"
+         data-location-select-city-id-value="establishment_city_id">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #3498db, #2475a8); color: white; border-radius: 0.5rem 0.5rem 0 0;">
         <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 5. Ubicación</h5>
       </div>
@@ -611,101 +634,6 @@
     <% end %>
   </div>
 <% end %>
-
-<script>
-    // Intentar múltiples eventos para asegurar que el script se ejecute
-    function initLocationScript() {
-        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
-        const countrySelect = document.getElementById('establishment_country_id');
-        const provinceSelect = document.getElementById('establishment_province_id');
-        const citySelect = document.getElementById('establishment_city_id');
-
-        // Guardar selecciones actuales antes de recargar opciones
-        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-        const selectedCityId = citySelect ? citySelect.value : null;
-
-        // Función para cargar provincias
-        function loadProvinces(countryId, restoreProvinceId) {
-            if (!countryId) {
-                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-
-            fetch(`/locations/provinces/${countryId}`)
-                .then(response => response.json())
-                .then(data => {
-                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                    data.forEach(province => {
-                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
-                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
-                    });
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    // Si había una provincia seleccionada, cargar sus ciudades
-                    if (restoreProvinceId) {
-                        loadCities(restoreProvinceId, selectedCityId);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading provinces:', error);
-                    provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>';
-                });
-        }
-
-        // Función para cargar ciudades
-        function loadCities(provinceId, restoreCityId) {
-            if (!provinceId) {
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-
-            fetch(`/locations/cities/${provinceId}`)
-                .then(response => response.json())
-                .then(data => {
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    data.forEach(city => {
-                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
-                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading cities:', error);
-                    citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>';
-                });
-        }
-
-        // Event listeners
-        if (countrySelect) {
-            countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value, null);
-            });
-
-            // Cargar provincias si hay un país preseleccionado, restaurando selección
-            if (countrySelect.value) {
-                loadProvinces(countrySelect.value, selectedProvinceId);
-            }
-        }
-
-        if (provinceSelect) {
-            provinceSelect.addEventListener('change', function() {
-                loadCities(this.value, null);
-            });
-        }
-    }
-
-    // Múltiples intentos para asegurar que el script se ejecute
-    
-    // Intentar inmediatamente
-    initLocationScript();
-    
-    // Intentar con DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', initLocationScript);
-    
-    // Intentar con turbo:load
-    document.addEventListener('turbo:load', initLocationScript);
-    
-    // Intentar después de un pequeño delay
-    setTimeout(initLocationScript, 500);
 
     // ═══════════════ GALERÍAS (funcionalidad corregida) ═══════════════
     document.addEventListener('click', function (ev) {

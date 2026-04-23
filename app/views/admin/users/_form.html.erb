@@ -18,7 +18,11 @@
             </div>
           <% end %>
 
-          <%= form_with(model: [:admin, @user], local: true, html: { class: "needs-validation", novalidate: true }) do |f| %>
+          <%= form_with(model: [:admin, @user], local: true,
+                       html: { class: "needs-validation", novalidate: true,
+                               multipart: true,
+                               data: { controller: "registration-role",
+                                       registration_role_admin_mode_value: "true" } }) do |f| %>
 
             <div class="mb-3">
               <%= f.label :name, "Nombre", class: "form-label" %>
@@ -54,10 +58,59 @@
               <%= f.label :role, "Rol", class: "form-label" %>
               <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fa-regular fa-id-badge"></i></span>
-                <%= f.select :role, User.roles.keys.map { |r| [r.titleize, r] }, {prompt: "Seleccionar rol"}, class: "form-select", required: true %>
-                <div class="invalid-feedback">
-                  Por favor selecciona un rol.
-                </div>
+                <%= f.select :role, User.roles.keys.map { |r| [r.titleize, r] },
+                             { prompt: "Seleccionar rol" },
+                             class: "form-select", required: true,
+                             data: { action: "change->registration-role#toggleDocs",
+                                     registration_role_target: "roleSelect" } %>
+                <div class="invalid-feedback">Por favor selecciona un rol.</div>
+              </div>
+            </div>
+
+            <!-- ── Documentos de identidad (solo afiliados) ── -->
+            <div data-registration-role-target="docsSection" style="display:none;">
+              <div class="alert alert-info rounded-3 py-2 small mb-3">
+                <i class="fas fa-info-circle me-1"></i>
+                El afiliado necesita estos documentos para ser verificado.
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :cedula_front, class: "form-label fw-semibold" do %>
+                  <i class="fas fa-id-card me-1 text-primary"></i> Cédula — Anverso (frente)
+                <% end %>
+                <% if @user.persisted? && @user.cedula_front.attached? %>
+                  <div class="mb-1 small text-success"><i class="fas fa-check-circle me-1"></i> Documento ya subido</div>
+                <% end %>
+                <%= f.file_field :cedula_front, class: "form-control",
+                      accept: "image/jpeg,image/png,image/webp,application/pdf",
+                      data: { registration_role_target: "docInput" } %>
+                <small class="text-muted">JPG, PNG, WEBP o PDF</small>
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :cedula_back, class: "form-label fw-semibold" do %>
+                  <i class="fas fa-id-card me-1 text-primary"></i> Cédula — Reverso
+                <% end %>
+                <% if @user.persisted? && @user.cedula_back.attached? %>
+                  <div class="mb-1 small text-success"><i class="fas fa-check-circle me-1"></i> Documento ya subido</div>
+                <% end %>
+                <%= f.file_field :cedula_back, class: "form-control",
+                      accept: "image/jpeg,image/png,image/webp,application/pdf",
+                      data: { registration_role_target: "docInput" } %>
+                <small class="text-muted">JPG, PNG, WEBP o PDF</small>
+              </div>
+
+              <div class="mb-3">
+                <%= f.label :ruc_document, class: "form-label fw-semibold" do %>
+                  <i class="fas fa-file-invoice me-1 text-warning"></i> Documento RUC
+                <% end %>
+                <% if @user.persisted? && @user.ruc_document.attached? %>
+                  <div class="mb-1 small text-success"><i class="fas fa-check-circle me-1"></i> Documento ya subido</div>
+                <% end %>
+                <%= f.file_field :ruc_document, class: "form-control",
+                      accept: "image/jpeg,image/png,image/webp,application/pdf",
+                      data: { registration_role_target: "docInput" } %>
+                <small class="text-muted">JPG, PNG, WEBP o PDF</small>
               </div>
             </div>
 

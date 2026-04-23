@@ -174,7 +174,11 @@
       </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card shadow-sm border-0 rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="establishment_country_id"
+         data-location-select-province-id-value="establishment_province_id"
+         data-location-select-city-id-value="establishment_city_id">
       <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
         <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
       </div>
@@ -328,35 +332,44 @@
     </div>
     <div class="card-body" data-controller="nested-form">
       <template data-nested-form-target="template">
-        <div class="nested-fields border rounded-3 p-3 mb-3" data-new-record="true">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Nombre del vehículo</label>
-              <input type="text" name="transport[vehicles_attributes][NEW_RECORD][name]" class="form-control" placeholder="Ej: Toyota Hilux 2024">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Precio por día ($)</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-                <input type="number" step="0.01" name="transport[vehicles_attributes][NEW_RECORD][price_per_day]" class="form-control" placeholder="0.00">
-              </div>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold">Descripción</label>
-              <textarea name="transport[vehicles_attributes][NEW_RECORD][description]" class="form-control" rows="2" placeholder="Características del vehículo"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold">Condiciones de alquiler</label>
-              <textarea name="transport[vehicles_attributes][NEW_RECORD][conditions]" class="form-control" rows="2" placeholder="Requisitos, depósito, seguro..."></textarea>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Foto</label>
-              <input type="file" name="transport[vehicles_attributes][NEW_RECORD][photo]" class="form-control" accept="image/jpeg,image/png,image/webp">
-            </div>
-            <div class="col-md-6 d-flex align-items-end">
-              <button type="button" class="btn btn-outline-danger" data-action="nested-form#remove">
-                <i class="fas fa-trash me-1"></i> Eliminar vehículo
+        <div class="nested-fields border rounded-3 mb-3" data-new-record="true">
+          <div class="d-flex align-items-center justify-content-between p-3">
+            <h6 class="mb-0 fw-bold"><i class="fas fa-car me-2" style="color: var(--brand-green);"></i> <span class="nested-item-title">Nuevo vehículo</span></h6>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill nested-collapse-toggle"
+                      data-bs-toggle="collapse" data-bs-target=".nested-body-NEW_RECORD" onclick="event.stopPropagation()">
+                <i class="fas fa-chevron-up"></i>
               </button>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
+            </div>
+          </div>
+          <div class="collapse show p-3 pt-0 nested-body-NEW_RECORD">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nombre del vehículo</label>
+                <input type="text" name="transport[vehicles_attributes][NEW_RECORD][name]" class="form-control nested-title-input" placeholder="Ej: Toyota Hilux 2024">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Precio por día ($)</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                  <input type="number" step="0.01" name="transport[vehicles_attributes][NEW_RECORD][price_per_day]" class="form-control" placeholder="0.00">
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Descripción</label>
+                <textarea name="transport[vehicles_attributes][NEW_RECORD][description]" class="form-control" rows="2" placeholder="Características del vehículo"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Condiciones de alquiler</label>
+                <textarea name="transport[vehicles_attributes][NEW_RECORD][conditions]" class="form-control" rows="2" placeholder="Requisitos, depósito, seguro..."></textarea>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Foto</label>
+                <input type="file" name="transport[vehicles_attributes][NEW_RECORD][photo]" class="form-control" accept="image/jpeg,image/png,image/webp">
+              </div>
             </div>
           </div>
         </div>
@@ -365,43 +378,54 @@
       <div data-nested-form-target="target">
         <% transport.vehicles.each_with_index do |vehicle, index| %>
           <%= form.fields_for :vehicles, vehicle do |vf| %>
-            <div class="nested-fields border rounded-3 p-3 mb-3">
-              <div class="row g-3">
-                <%= vf.hidden_field :id %>
-                <div class="col-md-6">
-                  <%= vf.label :name, "Nombre del vehículo", class: "form-label fw-semibold" %>
-                  <%= vf.text_field :name, class: "form-control", placeholder: "Ej: Toyota Hilux 2024" %>
-                </div>
-                <div class="col-md-6">
-                  <%= vf.label :price_per_day, "Precio por día ($)", class: "form-label fw-semibold" %>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
-                    <%= vf.number_field :price_per_day, step: 0.01, class: "form-control", placeholder: "0.00" %>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <%= vf.label :description, "Descripción", class: "form-label fw-semibold" %>
-                  <%= vf.text_area :description, class: "form-control", rows: 2, placeholder: "Características del vehículo" %>
-                </div>
-                <div class="col-12">
-                  <%= vf.label :conditions, "Condiciones de alquiler", class: "form-label fw-semibold" %>
-                  <%= vf.text_area :conditions, class: "form-control", rows: 2, placeholder: "Requisitos, depósito, seguro..." %>
-                </div>
-                <div class="col-md-6">
-                  <%= vf.label :photo, "Foto", class: "form-label fw-semibold" %>
-                  <% if vehicle.persisted? && vehicle.photo.attached? %>
-                    <div class="mb-2">
-                      <%= image_tag vehicle.photo.variant(resize_to_limit: [120, 80]), class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
-                    </div>
-                  <% end %>
-                  <%= vf.file_field :photo, class: "form-control", accept: "image/jpeg,image/png,image/webp" %>
-                </div>
-                <div class="col-md-6 d-flex align-items-end">
-                  <%= vf.hidden_field :_destroy, value: "0", id: "vehicle_destroy_#{index}" %>
-                  <button type="button" class="btn btn-outline-danger" data-action="nested-form#remove"
-                          onclick="document.getElementById('vehicle_destroy_<%= index %>').value = '1'; this.closest('.nested-fields').style.display = 'none';">
-                    <i class="fas fa-trash me-1"></i> Eliminar vehículo
+            <div class="nested-fields border rounded-3 mb-3">
+              <%= vf.hidden_field :id %>
+              <%= vf.hidden_field :_destroy, value: "0", class: "destroy-field" %>
+              <div class="d-flex align-items-center justify-content-between p-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-car me-2" style="color: var(--brand-green);"></i>
+                  <span class="nested-item-title"><%= vehicle.name.presence || "Vehículo" %></span>
+                </h6>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill nested-collapse-toggle"
+                          data-bs-toggle="collapse" data-bs-target="#vehicle-body-<%= vehicle.id %>"
+                          onclick="event.stopPropagation()">
+                    <i class="fas fa-chevron-up"></i>
                   </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" data-action="click->nested-form#remove">
+                    <i class="fas fa-trash me-1"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+              <div class="collapse show p-3 pt-0" id="vehicle-body-<%= vehicle.id %>">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <%= vf.label :name, "Nombre del vehículo", class: "form-label fw-semibold" %>
+                    <%= vf.text_field :name, class: "form-control nested-title-input", placeholder: "Ej: Toyota Hilux 2024" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= vf.label :price_per_day, "Precio por día ($)", class: "form-label fw-semibold" %>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                      <%= vf.number_field :price_per_day, step: 0.01, class: "form-control", placeholder: "0.00" %>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <%= vf.label :description, "Descripción", class: "form-label fw-semibold" %>
+                    <%= vf.text_area :description, class: "form-control", rows: 2, placeholder: "Características del vehículo" %>
+                  </div>
+                  <div class="col-12">
+                    <%= vf.label :conditions, "Condiciones de alquiler", class: "form-label fw-semibold" %>
+                    <%= vf.text_area :conditions, class: "form-control", rows: 2, placeholder: "Requisitos, depósito, seguro..." %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= vf.label :photo, "Foto", class: "form-label fw-semibold" %>
+                    <% if vehicle.persisted? && vehicle.photo.attached? %>
+                      <div class="mb-2">
+                        <%= image_tag vehicle.photo.variant(resize_to_limit: [120, 80]), class: "img-thumbnail rounded shadow-sm", loading: "lazy" %>
+                      </div>
+                    <% end %>
+                    <%= vf.file_field :photo, class: "form-control", accept: "image/jpeg,image/png,image/webp" %>
+                  </div>
                 </div>
               </div>
             </div>
@@ -485,72 +509,6 @@
 <% end %>
 
 <script>
-    function initLocationScript() {
-        const countrySelect = document.getElementById('establishment_country_id');
-        const provinceSelect = document.getElementById('establishment_province_id');
-        const citySelect = document.getElementById('establishment_city_id');
-
-        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-        const selectedCityId = citySelect ? citySelect.value : null;
-
-        function loadProvinces(countryId, restoreProvinceId) {
-            if (!countryId) {
-                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/provinces/${countryId}`)
-                .then(r => r.json())
-                .then(data => {
-                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                    data.forEach(province => {
-                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
-                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
-                    });
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
-                })
-                .catch(() => { provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>'; });
-        }
-
-        function loadCities(provinceId, restoreCityId) {
-            if (!provinceId) {
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/cities/${provinceId}`)
-                .then(r => r.json())
-                .then(data => {
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    data.forEach(city => {
-                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
-                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
-                    });
-                })
-                .catch(() => { citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>'; });
-        }
-
-        if (countrySelect) {
-            countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value, null);
-            });
-            if (countrySelect.value) {
-                loadProvinces(countrySelect.value, selectedProvinceId);
-            }
-        }
-
-        if (provinceSelect) {
-            provinceSelect.addEventListener('change', function() {
-                loadCities(this.value, null);
-            });
-        }
-    }
-
-    initLocationScript();
-    document.addEventListener('DOMContentLoaded', initLocationScript);
-    document.addEventListener('turbo:load', initLocationScript);
-    setTimeout(initLocationScript, 500);
-
     (function() {
         const typeSelect = document.getElementById('transport_document_type_select');
         const numberInput = document.getElementById('transport_document_number_input');

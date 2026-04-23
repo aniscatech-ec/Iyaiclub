@@ -136,7 +136,11 @@
     </div>
 
     <!-- ═══════════════ 3. UBICACIÓN ═══════════════ -->
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card shadow-sm border-0 rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="getaway_country_id"
+         data-location-select-province-id-value="getaway_province_id"
+         data-location-select-city-id-value="getaway_city_id">
       <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
         <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
       </div>
@@ -477,71 +481,6 @@
   document.addEventListener('DOMContentLoaded', initFreeEntryToggle);
   document.addEventListener('turbo:load', initFreeEntryToggle);
   initFreeEntryToggle();
-
-  // ── Location selects ───────────────────────────────────────────────────────
-  function initGetawayLocationScript() {
-    const countrySelect = document.getElementById('getaway_country_id');
-    const provinceSelect = document.getElementById('getaway_province_id');
-    const citySelect = document.getElementById('getaway_city_id');
-
-    if (!countrySelect || !provinceSelect || !citySelect) return;
-
-    const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-    const selectedCityId = citySelect ? citySelect.value : null;
-
-    function loadProvinces(countryId, restoreProvinceId) {
-      if (!countryId) {
-        provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-        citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-        return;
-      }
-
-      fetch(`/locations/provinces/${countryId}`)
-        .then(response => response.json())
-        .then(data => {
-          provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-          data.forEach(province => {
-            const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
-            provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
-          });
-          citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-          if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
-        })
-        .catch(error => console.error('Error loading provinces:', error));
-    }
-
-    function loadCities(provinceId, restoreCityId) {
-      if (!provinceId) {
-        citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-        return;
-      }
-
-      fetch(`/locations/cities/${provinceId}`)
-        .then(response => response.json())
-        .then(data => {
-          citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-          data.forEach(city => {
-            const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
-            citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
-          });
-        })
-        .catch(error => console.error('Error loading cities:', error));
-    }
-
-    countrySelect.addEventListener('change', function() {
-      loadProvinces(this.value, null);
-    });
-
-    provinceSelect.addEventListener('change', function() {
-      loadCities(this.value, null);
-    });
-
-    if (countrySelect.value) loadProvinces(countrySelect.value, selectedProvinceId);
-  }
-
-  document.addEventListener('DOMContentLoaded', initGetawayLocationScript);
-  document.addEventListener('turbo:load', initGetawayLocationScript);
-  initGetawayLocationScript();
 
   // Validación de documento
   (function() {

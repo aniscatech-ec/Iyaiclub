@@ -95,7 +95,11 @@
     </div>
 
     <!-- ═══════════════ 3. CONTACTO ═══════════════ -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card border-0 shadow-sm rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="travel_agency_establishment_attributes_country_id"
+         data-location-select-province-id-value="travel_agency_establishment_attributes_province_id"
+         data-location-select-city-id-value="travel_agency_establishment_attributes_city_id">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
         <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 3. Contacto y ubicación</h5>
       </div>
@@ -302,6 +306,42 @@
     </div>
   </div>
 
+  <!-- ═══════════════ 7. PAQUETES TURÍSTICOS ═══════════════ -->
+  <div class="card border-0 shadow-sm rounded-3 mb-4" id="tour-packages-section">
+    <div class="card-header border-0 py-3 d-flex justify-content-between align-items-center"
+         style="background: linear-gradient(135deg, #1a6faf, #154f80); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+      <h5 class="mb-0 fw-bold"><i class="fas fa-map-marked-alt me-2"></i> 7. Paquetes Turísticos</h5>
+      <span class="badge bg-white text-primary rounded-pill px-3" id="packages-count-badge">
+        0 / 5
+      </span>
+    </div>
+    <div class="card-body p-4">
+      <p class="text-muted small mb-4">
+        <i class="fas fa-info-circle me-1"></i>
+        Puedes agregar hasta <strong>5 paquetes turísticos</strong>. Cada paquete es un producto que ofreces a tus clientes.
+      </p>
+
+      <div id="tour-packages-container">
+        <%= f.fields_for :tour_packages do |pkg| %>
+          <%= render "tour_package_fields", f: pkg %>
+        <% end %>
+      </div>
+
+      <% packages_count = travel_agency.tour_packages.reject(&:marked_for_destruction?).size %>
+      <div id="add-package-btn-wrapper" class="<%= packages_count >= 5 ? 'd-none' : '' %>">
+        <button type="button" id="add-tour-package"
+                class="btn btn-outline-primary rounded-pill fw-semibold">
+          <i class="fas fa-plus me-2"></i> Agregar paquete turístico
+        </button>
+        <small class="text-muted ms-2">(<span id="packages-remaining"><%= 5 - packages_count %></span> restantes)</small>
+      </div>
+
+      <div id="max-packages-msg" class="alert alert-warning rounded-3 mt-3 <%= packages_count < 5 ? 'd-none' : '' %>">
+        <i class="fas fa-exclamation-triangle me-1"></i> Has alcanzado el máximo de 5 paquetes.
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════ BOTONES ═══════════════ -->
   <div class="d-flex gap-2 mb-4">
     <%= f.submit "Guardar agencia", class: "btn btn-primary btn-lg rounded-pill px-4 fw-bold" %>
@@ -312,72 +352,291 @@
 <% end %>
 
 <script>
-    function initLocationScript() {
-        const countrySelect = document.getElementById('travel_agency_establishment_attributes_country_id');
-        const provinceSelect = document.getElementById('travel_agency_establishment_attributes_province_id');
-        const citySelect = document.getElementById('travel_agency_establishment_attributes_city_id');
+  // ── Paquetes turísticos: agregar / eliminar dinámicamente ──
+  document.addEventListener("turbo:load", function() {
+    const container  = document.getElementById("tour-packages-container");
+    const addBtn     = document.getElementById("add-tour-package");
+    const maxMsg     = document.getElementById("max-packages-msg");
+    const addWrapper = document.getElementById("add-package-btn-wrapper");
+    const remaining  = document.getElementById("packages-remaining");
+    const badge      = document.getElementById("packages-count-badge");
 
-        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-        const selectedCityId = citySelect ? citySelect.value : null;
+    if (!container || !addBtn) return;
 
-        function loadProvinces(countryId, restoreProvinceId) {
-            if (!countryId) {
-                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/provinces/${countryId}`)
-                .then(r => r.json())
-                .then(data => {
-                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                    data.forEach(province => {
-                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
-                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
-                    });
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
-                })
-                .catch(() => { provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>'; });
-        }
-
-        function loadCities(provinceId, restoreCityId) {
-            if (!provinceId) {
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/cities/${provinceId}`)
-                .then(r => r.json())
-                .then(data => {
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    data.forEach(city => {
-                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
-                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
-                    });
-                })
-                .catch(() => { citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>'; });
-        }
-
-        if (countrySelect) {
-            countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value, null);
-            });
-            if (countrySelect.value) {
-                loadProvinces(countrySelect.value, selectedProvinceId);
-            }
-        }
-
-        if (provinceSelect) {
-            provinceSelect.addEventListener('change', function() {
-                loadCities(this.value, null);
-            });
-        }
+    function countActive() {
+      return container.querySelectorAll(".tour-package-item:not(.d-none)").length;
     }
 
-    initLocationScript();
-    document.addEventListener('DOMContentLoaded', initLocationScript);
-    document.addEventListener('turbo:load', initLocationScript);
-    setTimeout(initLocationScript, 500);
+    function updateUI() {
+      const count = countActive();
+      if (remaining) remaining.textContent = 5 - count;
+      if (badge)     badge.textContent = count + " / 5";
+      if (count >= 5) {
+        addWrapper?.classList.add("d-none");
+        maxMsg?.classList.remove("d-none");
+      } else {
+        addWrapper?.classList.remove("d-none");
+        maxMsg?.classList.add("d-none");
+      }
+    }
 
+    // Eliminar paquete existente (marca _destroy) o nuevo (oculta)
+    container.addEventListener("click", function(e) {
+      const btn = e.target.closest(".remove-package");
+      if (!btn) return;
+      const item = btn.closest(".tour-package-item");
+      const destroyField = item.querySelector(".destroy-field");
+      if (destroyField && destroyField.value !== "false") {
+        // paquete persistido: marcar para destruir
+        destroyField.value = "1";
+        item.classList.add("d-none");
+      } else {
+        // paquete nuevo: simplemente ocultar y desactivar required
+        item.querySelectorAll("[required]").forEach(el => el.removeAttribute("required"));
+        if (destroyField) destroyField.value = "1";
+        item.classList.add("d-none");
+      }
+      updateUI();
+    });
+
+    // Actualizar título en tiempo real
+    container.addEventListener("input", function(e) {
+      if (!e.target.classList.contains("package-name-input")) return;
+      const preview = e.target.closest(".tour-package-item")?.querySelector(".package-title-preview");
+      if (preview) preview.textContent = e.target.value || "Nuevo paquete";
+    });
+
+    // Agregar nuevo paquete
+    addBtn.addEventListener("click", function() {
+      if (countActive() >= 5) return;
+      const index = new Date().getTime(); // índice único
+      const colId = `pkg-body-${index}`;
+      const html = `
+        <div class="tour-package-item border rounded-4 mb-3 position-relative"
+             style="background: linear-gradient(135deg, #f0f6ff, #e8f0fe);">
+          <input type="hidden" name="travel_agency[tour_packages_attributes][${index}][_destroy]" value="false" class="destroy-field">
+          <div class="d-flex align-items-center justify-content-between p-3 package-header"
+               style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#${colId}">
+            <h6 class="fw-bold mb-0 text-primary d-flex align-items-center gap-2">
+              <i class="fas fa-suitcase"></i>
+              <span class="package-title-preview">Nuevo paquete</span>
+            </h6>
+            <div class="d-flex align-items-center gap-2" onclick="event.stopPropagation()">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill pkg-collapse-btn"
+                      data-bs-toggle="collapse" data-bs-target="#${colId}"
+                      onclick="event.stopPropagation()">
+                <i class="fas fa-chevron-up"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill remove-package">
+                <i class="fas fa-trash me-1"></i> Eliminar
+              </button>
+            </div>
+          </div>
+          <div class="collapse show px-3 pb-3" id="${colId}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Nombre del paquete *</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <input type="text" name="travel_agency[tour_packages_attributes][${index}][name]"
+                       class="form-control package-name-input" placeholder="Ej: Aventura en el Cajas" required>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Tipo de paquete</label>
+              <select name="travel_agency[tour_packages_attributes][${index}][package_type]" class="form-select">
+                <option value="">Seleccione...</option>
+                <option value="aventura">Aventura</option>
+                <option value="cultural">Cultural</option>
+                <option value="relax">Relax</option>
+                <option value="naturaleza">Naturaleza</option>
+                <option value="gastronomico">Gastronómico</option>
+                <option value="familiar">Familiar</option>
+                <option value="religioso">Religioso</option>
+                <option value="fotografico">Fotográfico</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Dificultad</label>
+              <select name="travel_agency[tour_packages_attributes][${index}][difficulty]" class="form-select">
+                <option value="">Seleccione...</option>
+                <option value="facil">Fácil</option>
+                <option value="moderado">Moderado</option>
+                <option value="exigente">Exigente</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Destino principal</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                <input type="text" name="travel_agency[tour_packages_attributes][${index}][destination]"
+                       class="form-control" placeholder="Ej: Cuenca, Galápagos, Amazonia">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Punto de salida / encuentro</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-flag-checkered"></i></span>
+                <input type="text" name="travel_agency[tour_packages_attributes][${index}][departure_point]"
+                       class="form-control" placeholder="Ej: Terminal Terrestre Cuenca">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Días</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-sun"></i></span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][days]"
+                       class="form-control" min="1" placeholder="3">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Noches</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-moon"></i></span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][nights]"
+                       class="form-control" min="0" placeholder="2">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Mín. personas</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][min_group]"
+                       class="form-control" min="1" value="1">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Máx. personas</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-users"></i></span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][max_group]"
+                       class="form-control" min="1" value="15">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Precio por persona *</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][price]"
+                       class="form-control" min="0" step="0.01" placeholder="0.00" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Precio para miembros IyaiClub</label>
+              <div class="input-group">
+                <span class="input-group-text text-warning"><i class="fas fa-crown"></i></span>
+                <input type="number" name="travel_agency[tour_packages_attributes][${index}][member_price]"
+                       class="form-control" min="0" step="0.01" placeholder="0.00">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Temporada</label>
+              <select name="travel_agency[tour_packages_attributes][${index}][season]" class="form-select">
+                <option value="">Seleccione...</option>
+                <option value="Todo el año">Todo el año</option>
+                <option value="Temporada alta">Temporada alta</option>
+                <option value="Temporada baja">Temporada baja</option>
+                <option value="Verano">Verano</option>
+                <option value="Invierno">Invierno</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Servicios incluidos</label>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="form-check">
+                  <input type="checkbox" name="travel_agency[tour_packages_attributes][${index}][includes_transport]"
+                         class="form-check-input" value="1">
+                  <label class="form-check-label"><i class="fas fa-bus me-1 text-primary"></i> Transporte</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" name="travel_agency[tour_packages_attributes][${index}][includes_food]"
+                         class="form-check-input" value="1">
+                  <label class="form-check-label"><i class="fas fa-utensils me-1 text-warning"></i> Alimentación</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" name="travel_agency[tour_packages_attributes][${index}][includes_lodging]"
+                         class="form-check-input" value="1">
+                  <label class="form-check-label"><i class="fas fa-bed me-1 text-success"></i> Alojamiento</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" name="travel_agency[tour_packages_attributes][${index}][includes_guide]"
+                         class="form-check-input" value="1">
+                  <label class="form-check-label"><i class="fas fa-user-tie me-1 text-info"></i> Guía turístico</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Descripción general</label>
+              <textarea name="travel_agency[tour_packages_attributes][${index}][description]"
+                        class="form-control" rows="3"
+                        placeholder="Describe brevemente la experiencia..."></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Itinerario día a día</label>
+              <textarea name="travel_agency[tour_packages_attributes][${index}][itinerary]"
+                        class="form-control" rows="5"
+                        placeholder="Día 1: Llegada y bienvenida...&#10;Día 2: Visita al Parque Nacional..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">¿Qué incluye?</label>
+              <textarea name="travel_agency[tour_packages_attributes][${index}][includes]"
+                        class="form-control" rows="4"
+                        placeholder="Transporte en bus privado&#10;Alojamiento doble&#10;Desayunos"></textarea>
+              <small class="text-muted">Un ítem por línea.</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">¿Qué NO incluye?</label>
+              <textarea name="travel_agency[tour_packages_attributes][${index}][excludes]"
+                        class="form-control" rows="4"
+                        placeholder="Vuelos&#10;Gastos personales&#10;Propinas"></textarea>
+              <small class="text-muted">Un ítem por línea.</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Próximas salidas</label>
+              <textarea name="travel_agency[tour_packages_attributes][${index}][next_departures]"
+                        class="form-control" rows="3"
+                        placeholder="15 de mayo 2026&#10;10 de junio 2026"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Foto del paquete</label>
+              <input type="file" name="travel_agency[tour_packages_attributes][${index}][cover_photo]"
+                     class="form-control" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input type="checkbox" name="travel_agency[tour_packages_attributes][${index}][active]"
+                       class="form-check-input" role="switch" value="1" checked>
+                <label class="form-check-label fw-semibold">Paquete activo</label>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>`;
+      container.insertAdjacentHTML("beforeend", html);
+      updateUI();
+    });
+
+    updateUI();
+
+    // ── Toggle ícono chevron en colapso de paquetes ──
+    document.addEventListener("hide.bs.collapse", function(e) {
+      if (!e.target.id?.startsWith("pkg-body-")) return;
+      const item = e.target.closest(".tour-package-item");
+      if (!item) return;
+      const btn = item.querySelector(".pkg-collapse-btn i");
+      if (btn) { btn.className = "fas fa-chevron-down"; }
+    });
+    document.addEventListener("show.bs.collapse", function(e) {
+      if (!e.target.id?.startsWith("pkg-body-")) return;
+      const item = e.target.closest(".tour-package-item");
+      if (!item) return;
+      const btn = item.querySelector(".pkg-collapse-btn i");
+      if (btn) { btn.className = "fas fa-chevron-up"; }
+    });
+  });
+</script>
+
+<script>
     (function() {
         const typeSelect = document.getElementById('travel_agency_document_type_select');
         const numberInput = document.getElementById('travel_agency_document_number_input');

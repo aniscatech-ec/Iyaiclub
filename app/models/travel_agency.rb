@@ -18,4 +18,6 @@ class TravelAgency < ApplicationRecord
            to: :establishment
 
   accepts_nested_attributes_for :establishment
+  accepts_nested_attributes_for :tour_packages, allow_destroy: true,
+                                                reject_if: ->(attrs) { attrs[:name].blank? }
 end

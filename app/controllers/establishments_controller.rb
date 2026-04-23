@@ -244,7 +244,7 @@ class EstablishmentsController < ApplicationController
       redirect_to new_temporary_lodging_path(user_id: params[:user_id]) and return
 
     when "agencia"
-      redirect_to establishments_path, notice: "Módulo de Agencias de Viajes próximamente disponible"
+      redirect_to new_travel_agency_path(user_id: params[:user_id]) and return
 
     when "escapada"
       user = params[:user_id] ? User.find(params[:user_id]) : current_user

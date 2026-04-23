@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_22_200000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_23_100000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -698,6 +698,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_200000) do
     t.index ["vendedor_id"], name: "index_tickets_on_vendedor_id"
   end
 
+  create_table "tour_packages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "travel_agency_id", null: false
+    t.string "name"
+    t.string "duration"
+    t.text "itinerary"
+    t.decimal "price", precision: 10, scale: 2
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "package_type"
+    t.string "destination"
+    t.integer "days"
+    t.integer "nights"
+    t.integer "min_group", default: 1
+    t.integer "max_group", default: 15
+    t.string "difficulty"
+    t.string "departure_point"
+    t.decimal "member_price", precision: 10, scale: 2
+    t.text "includes"
+    t.text "excludes"
+    t.text "next_departures"
+    t.string "season"
+    t.boolean "includes_transport", default: false
+    t.boolean "includes_food", default: false
+    t.boolean "includes_lodging", default: false
+    t.boolean "includes_guide", default: false
+    t.boolean "active", default: true
+    t.index ["travel_agency_id"], name: "index_tour_packages_on_travel_agency_id"
+  end
+
   create_table "transports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "establishment_id", null: false
     t.string "transport_type", null: false
@@ -715,6 +745,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_200000) do
     t.index ["establishment_id"], name: "index_transports_on_establishment_id"
     t.index ["subcategory"], name: "index_transports_on_subcategory"
     t.index ["transport_type"], name: "index_transports_on_transport_type"
+  end
+
+  create_table "travel_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.integer "subcategory", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_travel_agencies_on_establishment_id"
   end
 
   create_table "unit_availabilities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -890,7 +928,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_22_200000) do
   add_foreign_key "tickets", "payphone_transactions"
   add_foreign_key "tickets", "users"
   add_foreign_key "tickets", "users", column: "vendedor_id"
+  add_foreign_key "tour_packages", "travel_agencies"
   add_foreign_key "transports", "establishments"
+  add_foreign_key "travel_agencies", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "hotels", column: "establishment_id"

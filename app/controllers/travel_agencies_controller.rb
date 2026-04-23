@@ -23,7 +23,7 @@ class TravelAgenciesController < ApplicationController
     @travel_agency = TravelAgency.new
     @travel_agency.build_establishment
     @travel_agency.establishment.build_legal_info
-    @travel_agency.establishment.category = :travel_agency # O usar el nombre existente que definamos
+    @travel_agency.establishment.category = :agencia
 
     if params[:user_id].present?
       @affiliate = User.find(params[:user_id])
@@ -128,6 +128,14 @@ class TravelAgenciesController < ApplicationController
   def travel_agency_params
     params.require(:travel_agency).permit(
       :subcategory,
+      tour_packages_attributes: [
+        :id, :name, :package_type, :destination, :days, :nights,
+        :min_group, :max_group, :difficulty, :departure_point,
+        :price, :member_price, :description, :itinerary,
+        :includes, :excludes, :next_departures, :season, :duration,
+        :includes_transport, :includes_food, :includes_lodging, :includes_guide,
+        :active, :cover_photo, :_destroy
+      ],
       establishment_attributes: [
         :user_id, :id, :name, :short_description, :description, :long_description,
         :address, :phone, :whatsapp, :email, :website, :status,

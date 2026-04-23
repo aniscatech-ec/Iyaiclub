@@ -14,6 +14,7 @@ import PurchaseFormController from "./purchase_form_controller"
 import PasswordToggleController from "./password_toggle_controller"
 import FreeEntryController from "./free_entry_controller"
 import RegistrationRoleController from "./registration_role_controller"
+import LocationSelectController from "./location_select_controller"
 
 application.register("dropdown-hover", DropdownHoverController)
 application.register("affiliate", AffiliateController)
@@ -29,3 +30,4 @@ application.register("purchase-form", PurchaseFormController)
 application.register("password-toggle", PasswordToggleController)
 application.register("free-entry", FreeEntryController)
 application.register("registration-role", RegistrationRoleController)
+application.register("location-select", LocationSelectController)

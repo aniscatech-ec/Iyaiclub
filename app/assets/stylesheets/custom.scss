@@ -202,6 +202,30 @@
   background: rgba(33, 193, 136, 0.08);
 }
 
+// ── Nested form items (habitaciones, vehículos, paquetes) ────────────────────
+.nested-fields,
+.tour-package-item {
+  .package-header,
+  > .d-flex:first-child {
+    border-radius: 0.375rem 0.375rem 0 0;
+    transition: background 0.15s ease;
+    user-select: none;
+  }
+  // Separador visual entre header y body cuando está expandido
+  &:has(.collapse.show) > .d-flex:first-child,
+  &:has(.collapse.show) .package-header {
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+}
+
+.nested-collapse-toggle {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  transition: transform 0.2s ease;
+  &:focus { box-shadow: none; }
+}
+
 /* Show dropdown on hover */
 .category-card-wrapper.is-open .category-dropdown {
   opacity: 1;
