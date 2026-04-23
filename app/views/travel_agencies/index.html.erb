@@ -1,0 +1,97 @@
+<!-- app/views/travel_agencies/index.html.erb -->
+<div class="container-fluid pt-4 px-4 pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="mb-0 fw-bold" style="color: #2c3e50;">
+        <i class="fas fa-suitcase-rolling me-2 text-primary"></i> Agencias Turísticas
+      </h3>
+      <p class="text-muted mb-0">Gestione las agencias turísticas y guías</p>
+    </div>
+    <div>
+      <%= link_to new_travel_agency_path, class: "btn btn-primary rounded-pill px-4 shadow-sm fw-semibold" do %>
+        <i class="fas fa-plus me-1"></i> Nueva Agencia
+      <% end %>
+    </div>
+  </div>
+
+  <% if @travel_agencies.empty? %>
+    <div class="card border-0 shadow-sm rounded-4 mt-4">
+      <div class="card-body p-5 text-center">
+        <div class="mb-4">
+          <i class="fas fa-route fa-4x text-muted" style="opacity: 0.5;"></i>
+        </div>
+        <h4 class="fw-bold text-dark">No hay agencias registradas</h4>
+        <p class="text-muted mb-4">Comienza registrando tu primera agencia turística o guía.</p>
+        <%= link_to new_travel_agency_path, class: "btn btn-primary rounded-pill px-4 fw-semibold" do %>
+          <i class="fas fa-plus me-1"></i> Añadir mi primera Agencia
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="row g-4">
+      <% @travel_agencies.each do |agency| %>
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 border-0 shadow-sm hover-shadow rounded-4 overflow-hidden position-relative">
+            <% if agency.establishment.images.attached? %>
+              <%= image_tag agency.establishment.images.first.variant(resize_to_fill: [400, 250]), class: "card-img-top", style: "height: 200px; object-fit: cover;" %>
+            <% else %>
+              <div class="card-img-top bg-light d-flex align-items-center justify-content-center border-bottom" style="height: 200px;">
+                <i class="fas fa-image fa-3x text-muted opacity-50"></i>
+              </div>
+            <% end %>
+            
+            <div class="position-absolute top-0 end-0 m-3">
+              <span class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">
+                <i class="fas <%= agency.subcategory == 'guia' ? 'fa-user' : 'fa-building' %> me-1 text-primary"></i>
+                <%= agency.subcategory.humanize %>
+              </span>
+            </div>
+
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-2"><%= agency.establishment.name %></h5>
+              <p class="text-muted small mb-3 text-truncate-2">
+                <i class="fas fa-map-marker-alt me-1"></i> <%= agency.establishment.address %>, <%= agency.establishment.city&.name %>
+              </p>
+              
+              <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+                <div class="text-muted small">
+                  <i class="fas fa-box-open me-1"></i> <%= agency.tour_packages.count %> Paquetes
+                </div>
+                <div>
+                  <span class="badge bg-<%= agency.establishment.status == 'active' ? 'success' : 'secondary' %> rounded-pill">
+                    <%= agency.establishment.status == 'active' ? 'Activo' : 'Inactivo' %>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer bg-white border-top-0 p-4 pt-0 d-flex gap-2">
+              <%= link_to travel_agency_path(agency), class: "btn btn-outline-primary btn-sm rounded-pill flex-grow-1 fw-semibold" do %>
+                <i class="fas fa-eye me-1"></i> Ver
+              <% end %>
+              <%= link_to edit_travel_agency_path(agency), class: "btn btn-outline-secondary btn-sm rounded-pill flex-grow-1 fw-semibold" do %>
+                <i class="fas fa-edit me-1"></i> Editar
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @pagy && @pagy.pages > 1 %>
+      <div class="d-flex justify-content-center mt-5">
+        <%== pagy_bootstrap_nav(@pagy) %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<style>
+  .hover-shadow { transition: box-shadow 0.3s ease; }
+  .hover-shadow:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

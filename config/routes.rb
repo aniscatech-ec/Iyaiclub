@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   resources :restaurants
   resources :transports
   resources :temporary_lodgings
+  resources :travel_agencies do
+    resources :tour_packages
+  end
   resources :getaways, only: [:index, :show] do
     resources :bookings, only: [:index, :new, :create, :show, :update, :destroy]
     resources :experiences, only: [:index, :new, :create], shallow: false
