@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_23_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_23_200000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -528,6 +528,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_23_100000) do
     t.datetime "updated_at", null: false
     t.index ["referred_id"], name: "index_referrals_on_referred_id"
     t.index ["referrer_id"], name: "index_referrals_on_referrer_id"
+    t.index ["source_type", "source_id"], name: "index_referrals_on_source_unique", unique: true
   end
 
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

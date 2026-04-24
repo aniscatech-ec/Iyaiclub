@@ -89,84 +89,157 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg py-1">
-  <div class="container-fluid">
-    <a class="navbar-brand py-0" href="/">
-      <%= image_tag("logo.jpeg", size: "80x68") %></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-      <ul class="navbar-nav mb-0">
-        <li class="nav-item mx-2">
-          <%= link_to "Inicio", root_path, class: "nav-link fw-bold", "aria-current": "page" %>
-          <%#= link_to "Inicio", root_path, class: "nav-link"%>
+<nav class="navbar navbar-expand-lg iyai-navbar">
+  <div class="container-fluid px-3">
 
-        </li>
-        <li class="nav-item mx-2">
-          <%= link_to "Club Iyai", "#", class: "nav-link fw-bold" %>
+    <%# ── Logo ── %>
+    <a class="navbar-brand py-0 me-3" href="/">
+      <%= image_tag("logo.jpeg", height: 52, alt: "IyaiClub") %>
+    </a>
 
-        </li>
+    <%# ── Zona derecha en móvil: emergencia + panel + toggler ── %>
+    <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
 
-        <!-- Botón de Asistencia -->
-        <li class="nav-item mx-2">
-          <%= link_to root_path, class: "btn btn-danger btn-sm d-flex align-items-center gap-1", title: "Asistencia de Emergencia" do %>
-            <i class="fas fa-kit-medical"></i>
-            <span class="d-none d-md-inline">Asistencia</span>
-          <% end %>
-        </li>
+      <%# Asistencia de emergencia %>
+      <%= link_to root_path,
+            class: "iyai-icon-btn iyai-icon-btn--danger",
+            title: "Asistencia de Emergencia" do %>
+        <i class="fas fa-kit-medical"></i>
+      <% end %>
 
-        <% if user_signed_in? %>
-        <%else %>
-          <li class="nav-item mx-2">
-            <%= link_to "Suscribirse", new_user_registration_path, class: "nav-link fw-bold" %>
-          </li>
+      <%# Mi Panel / avatar según rol %>
+      <% if user_signed_in? %>
+        <%
+          mob_panel_path = if current_user.administrador?
+            admin_dashboard_index_path
+          elsif current_user.afiliado?
+            afiliado_dashboard_index_path
+          else
+            turista_dashboard_index_path
+          end
+          mob_panel_icon = current_user.administrador? ? "fa-shield-alt" :
+                           current_user.afiliado?      ? "fa-store"      : "fa-compass"
+        %>
+        <%= link_to mob_panel_path, class: "iyai-btn-panel btn btn-sm d-flex align-items-center gap-1", title: "Mi Panel" do %>
+          <i class="fas <%= mob_panel_icon %>"></i>
+          <span style="font-size:0.75rem;">Mi Panel</span>
         <% end %>
+      <% else %>
+        <%= link_to new_user_session_path, class: "iyai-icon-btn iyai-icon-btn--primary", title: "Iniciar sesión" do %>
+          <i class="fas fa-user"></i>
+        <% end %>
+      <% end %>
+
+      <%# Toggler personalizado %>
+      <button class="iyai-toggler" type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <%# ── Menú colapsable ── %>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-1">
+
+        <li class="nav-item">
+          <%= link_to root_path, class: "nav-link iyai-nav-link", "aria-current": "page" do %>
+            <i class="fas fa-home d-lg-none me-2"></i>Inicio
+          <% end %>
+        </li>
+
+        <li class="nav-item">
+          <%= link_to "#", class: "nav-link iyai-nav-link" do %>
+            <i class="fas fa-star d-lg-none me-2"></i>Club Iyai
+          <% end %>
+        </li>
+
+        <%# ── Asistencia: solo en desktop (en móvil ya aparece como ícono) ── %>
+        <li class="nav-item d-none d-lg-block">
+          <%= link_to root_path,
+                class: "btn iyai-btn-emergency btn-sm d-flex align-items-center gap-2",
+                title: "Asistencia de Emergencia" do %>
+            <i class="fas fa-kit-medical"></i>
+            <span>Asistencia</span>
+          <% end %>
+        </li>
 
         <% if user_signed_in? %>
+
+          <%# ── Separador visual desktop ── %>
+          <li class="nav-item d-none d-lg-block"><span class="iyai-nav-divider"></span></li>
+
+          <%# ── Panel según rol ── %>
           <% if current_user.administrador? %>
-            <li class="nav-item mx-2">
-              <%= link_to admin_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
-                <i class="fas fa-shield-alt"></i> Panel Admin
+            <li class="nav-item">
+              <%= link_to admin_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
+                <i class="fas fa-shield-alt"></i>
+                <span>Panel Admin</span>
               <% end %>
             </li>
-            <li class="nav-item mx-2 d-flex align-items-center">
-              <span class="nav-link fw-bold mb-0"><i class="fas fa-user-shield me-1"></i><%= current_user.name %></span>
-            </li>
-          <% elsif current_user.afiliado?%>
-            <li class="nav-item mx-2">
-              <%= link_to afiliado_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
-                <i class="fas fa-store"></i> Mi Panel
+          <% elsif current_user.afiliado? %>
+            <li class="nav-item">
+              <%= link_to afiliado_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
+                <i class="fas fa-store"></i>
+                <span>Mi Panel</span>
               <% end %>
             </li>
-            <li class="nav-item mx-2 d-flex align-items-center">
-              <span class="nav-link fw-bold mb-0"><%= current_user.name %></span>
-            </li>
-          <% elsif current_user.turista?%>
-            <li class="nav-item mx-2">
-              <%= link_to turista_dashboard_index_path, class: "btn btn-outline-success btn-sm fw-bold d-flex align-items-center gap-1" do %>
-                <i class="fas fa-compass"></i> Mi Panel
+          <% elsif current_user.turista? %>
+            <li class="nav-item">
+              <%= link_to turista_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
+                <i class="fas fa-compass"></i>
+                <span>Mi Panel</span>
               <% end %>
-            </li>
-            <li class="nav-item mx-2 d-flex align-items-center">
-              <span class="nav-link fw-bold mb-0"><%= current_user.name %></span>
             </li>
           <% end %>
 
-          <li class="nav-item mx-2">
-            <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-danger" do %>
-              <i class="bi bi-box-arrow-right"></i>
+          <%# ── Usuario + logout (desktop) ── %>
+          <li class="nav-item d-none d-lg-flex align-items-center gap-2">
+            <div class="iyai-avatar iyai-avatar--sm" title="<%= current_user.name %>">
+              <%= current_user.name.first.upcase %>
+            </div>
+            <span class="iyai-username"><%= current_user.name.split.first %></span>
+          </li>
+
+          <%# ── Logout ── %>
+          <li class="nav-item">
+            <%= link_to destroy_user_session_path,
+                  data: { turbo_method: :delete },
+                  class: "iyai-icon-btn iyai-icon-btn--ghost d-none d-lg-flex",
+                  title: "Cerrar sesión" do %>
+              <i class="fas fa-sign-out-alt"></i>
+            <% end %>
+            <%# En móvil: link de texto %>
+            <%= link_to destroy_user_session_path,
+                  data: { turbo_method: :delete },
+                  class: "nav-link iyai-nav-link iyai-nav-link--danger d-flex d-lg-none align-items-center gap-2" do %>
+              <i class="fas fa-sign-out-alt"></i> Cerrar sesión
             <% end %>
           </li>
+
         <% else %>
-          <li class="nav-item mx-2">
-            <%= link_to "Iniciar sesion", new_user_session_path, class: "btn btn-primary" %>
+          <%# ── No autenticado ── %>
+          <li class="nav-item d-lg-none">
+            <%= link_to new_user_registration_path, class: "nav-link iyai-nav-link" do %>
+              <i class="fas fa-user-plus me-2"></i>Suscribirse
+            <% end %>
+          </li>
+          <li class="nav-item d-none d-lg-flex align-items-center gap-2">
+            <%= link_to "Suscribirse", new_user_registration_path,
+                  class: "btn iyai-btn-outline btn-sm" %>
+            <%= link_to "Iniciar sesión", new_user_session_path,
+                  class: "btn iyai-btn-primary btn-sm" %>
           </li>
         <% end %>
 
-
       </ul>
-    </div>
+    </div><%# /collapse %>
+
   </div>
 </nav>
 <%#= render "shared/search_hotels" %>
@@ -265,5 +338,134 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer data-turbo-track="reload"></script>
+
+<%# ── Bottom sheets (fuera del nav, position:fixed funciona sin clip) ── %>
+<% category_catalog.each do |cat| %>
+  <% next unless cat[:subtypes].present? %>
+  <%
+    cat_color  = cat[:color]
+    cat_icon   = cat[:icon]
+    cat_name   = cat[:name]
+    cat_path   = cat[:path]
+    is_grouped = cat[:grouped]
+    sheet_id   = "bnav-sheet-#{cat_name.parameterize}"
+  %>
+  <div id="<%= sheet_id %>" class="bnav-sheet d-lg-none">
+    <%# Overlay %>
+    <div class="bnav-sheet__overlay" data-sheet-id="<%= sheet_id %>"></div>
+    <%# Panel deslizante %>
+    <div class="bnav-sheet__panel">
+      <div class="bnav-sheet__handle"></div>
+      <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom flex-shrink-0">
+        <span class="fw-bold" style="color:<%= cat_color %>;">
+          <i class="fas <%= cat_icon %> me-2"></i><%= cat_name %>
+        </span>
+        <button type="button" class="btn-close btn-sm" data-sheet-id="<%= sheet_id %>" aria-label="Cerrar"></button>
+      </div>
+      <div class="list-group list-group-flush bnav-sheet__list">
+        <%= link_to cat_path,
+              class: "list-group-item list-group-item-action px-3 py-2 fw-semibold",
+              style: "font-size:0.9rem; color:#{cat_color};" do %>
+          <i class="fas fa-th-list me-2"></i> Ver todos
+        <% end %>
+        <% if is_grouped %>
+          <% cat[:subtypes].each do |group| %>
+            <div class="dropdown-section-header px-3 py-1" style="background:<%= cat_color %>15;">
+              <small class="fw-bold text-uppercase" style="font-size:0.7rem; color:<%= cat_color %>; letter-spacing:0.5px;">
+                <%= group[:group] %>
+              </small>
+            </div>
+            <% group[:items].each do |sub| %>
+              <%= link_to sub[:path], class: "list-group-item list-group-item-action px-4 py-2", style: "font-size:0.9rem;" do %>
+                <i class="fas fa-angle-right me-2" style="color:<%= cat_color %>;"></i><%= sub[:label] %>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% else %>
+          <% cat[:subtypes].each do |sub| %>
+            <%= link_to sub[:path], class: "list-group-item list-group-item-action px-3 py-2", style: "font-size:0.9rem;" do %>
+              <i class="fas fa-angle-right me-2" style="color:<%= cat_color %>;"></i><%= sub[:label] %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%# ── Bottom Nav Bar (solo móvil) ── %>
+<nav class="iyai-bottom-nav d-lg-none" aria-label="Navegación principal">
+
+  <%# Tab fijo: Inicio %>
+  <div class="iyai-bottom-nav__fixed">
+    <%= link_to root_path, class: "iyai-bottom-nav__item #{current_page?(root_path) ? 'is-active' : ''}" do %>
+      <i class="fas fa-home"></i>
+      <span>Inicio</span>
+    <% end %>
+  </div>
+
+  <%# Zona scrollable: categorías %>
+  <div class="iyai-bottom-nav__scroll">
+    <% category_catalog.each do |cat| %>
+      <%
+        has_sub   = cat[:subtypes].present?
+        cat_color = cat[:color]
+        cat_icon  = cat[:icon]
+        cat_name  = cat[:name]
+        cat_path  = cat[:path]
+        sheet_id  = "bnav-sheet-#{cat_name.parameterize}"
+      %>
+      <% if has_sub %>
+        <button type="button"
+                class="iyai-bottom-nav__item iyai-bottom-nav__tab-btn"
+                style="--tab-color: <%= cat_color %>;"
+                data-open-sheet="<%= sheet_id %>">
+          <i class="fas <%= cat_icon %>"></i>
+          <span><%= cat_name.split.first %></span>
+        </button>
+      <% else %>
+        <%= link_to cat_path,
+              class: "iyai-bottom-nav__item",
+              style: "--tab-color: #{cat_color};" do %>
+          <i class="fas <%= cat_icon %>"></i>
+          <span><%= cat_name.split.first %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+</nav>
+
+<script>
+(function() {
+  function openSheet(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.add('is-open');
+  }
+  function closeSheet(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('is-open');
+  }
+  document.addEventListener('click', function(e) {
+    // Abrir
+    var btn = e.target.closest('[data-open-sheet]');
+    if (btn) {
+      // Cerrar cualquier otro abierto
+      document.querySelectorAll('.bnav-sheet.is-open').forEach(function(s) {
+        s.classList.remove('is-open');
+      });
+      openSheet(btn.dataset.openSheet);
+      return;
+    }
+    // Cerrar por overlay o btn-close
+    var closer = e.target.closest('[data-sheet-id]');
+    if (closer) {
+      closeSheet(closer.dataset.sheetId);
+      return;
+    }
+  });
+})();
+</script>
+
 </body>
 </html>

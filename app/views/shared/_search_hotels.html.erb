@@ -1,52 +1,114 @@
-<section class="search-hotels bg-white p-2 rounded-3 shadow-sm" data-controller="modal">
+<%# ── Desktop: layout horizontal original ── %>
+<section class="search-hotels bg-white p-2 rounded-3 shadow-sm d-none d-md-block" data-controller="modal">
   <form action="/establishments" method="get" class="row g-2 align-items-end">
-
-    <!-- Ciudad -->
     <div class="col-md-2" data-controller="autocomplete">
       <label class="form-label fw-semibold small mb-1">¿A dónde quieres ir?</label>
-      <input type="text"
-             name="city"
-             class="form-control"
-             placeholder="Ej: Quito, Cuenca..."
-             data-autocomplete-target="input"
-             data-action="input->autocomplete#search">
+      <input type="text" name="city" class="form-control" placeholder="Ej: Quito, Cuenca..."
+             data-autocomplete-target="input" data-action="input->autocomplete#search">
       <div class="list-group position-absolute" data-autocomplete-target="results"></div>
     </div>
-
-
-    <!-- Check-in -->
     <div class="col-md-2">
       <label class="form-label fw-semibold small mb-1">Check-in</label>
       <input type="date" name="checkin" class="form-control">
     </div>
-
-    <!-- Check-out -->
     <div class="col-md-2">
       <label class="form-label fw-semibold small mb-1">Check-out</label>
       <input type="date" name="checkout" class="form-control">
     </div>
-
-    <!-- Huéspedes -->
     <div class="col-md-2">
       <label class="form-label fw-semibold small mb-1 d-block">Huéspedes</label>
-      <button id="guestsSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
+      <button id="guestsSummaryBtnDesktop" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#guestsModal">
         <i class="bi bi-people me-2"></i> Seleccionar
       </button>
     </div>
-
-    <!-- Comodidades -->
     <div class="col-md-2">
       <label class="form-label fw-semibold small mb-1 d-block">Comodidades</label>
-      <button id="amenitiesSummaryBtn" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#amenitiesModal">
+      <button id="amenitiesSummaryBtnDesktop" type="button" class="btn btn-outline-primary w-100 text-start" data-bs-toggle="modal" data-bs-target="#amenitiesModal">
         <i class="bi bi-star me-2"></i> Seleccionar
       </button>
     </div>
-    <!-- dentro del form -->
-    <div id="selectedAmenities" hidden></div>
-    <!-- Botón Buscar -->
+    <div id="selectedAmenitiesDesktop" hidden></div>
     <div class="col-md-2 d-grid">
       <button type="submit" class="btn btn-primary">Buscar</button>
     </div>
+  </form>
+</section>
+
+<%# ── Móvil: tarjeta compacta ── %>
+<section class="search-compact d-md-none mx-3 my-2" data-controller="modal">
+  <form action="/establishments" method="get">
+
+    <%# Tarjeta unificada %>
+    <div class="search-compact__card">
+
+      <%# Fila 1: Destino %>
+      <div class="search-compact__row" data-controller="autocomplete">
+        <i class="fas fa-map-marker-alt search-compact__icon" style="color: var(--brand-green);"></i>
+        <input type="text" name="city" class="search-compact__input"
+               placeholder="¿A dónde vas?"
+               data-autocomplete-target="input"
+               data-action="input->autocomplete#search">
+        <div class="list-group position-absolute" style="top:100%;left:0;right:0;z-index:200;"
+             data-autocomplete-target="results"></div>
+      </div>
+
+      <div class="search-compact__divider"></div>
+
+      <%# Fila 2: Fechas (check-in y check-out en la misma fila) %>
+      <div class="search-compact__row search-compact__row--split">
+        <div class="search-compact__half">
+          <i class="fas fa-calendar search-compact__icon" style="color:#888;"></i>
+          <div class="search-compact__field">
+            <span class="search-compact__label">Entrada</span>
+            <input type="date" name="checkin" class="search-compact__input search-compact__input--date">
+          </div>
+        </div>
+        <div class="search-compact__split-divider"></div>
+        <div class="search-compact__half">
+          <i class="fas fa-calendar-check search-compact__icon" style="color:#888;"></i>
+          <div class="search-compact__field">
+            <span class="search-compact__label">Salida</span>
+            <input type="date" name="checkout" class="search-compact__input search-compact__input--date">
+          </div>
+        </div>
+      </div>
+
+      <div class="search-compact__divider"></div>
+
+      <%# Fila 3: Huéspedes %>
+      <button id="guestsSummaryBtn" type="button"
+              class="search-compact__row search-compact__row--btn"
+              data-bs-toggle="modal" data-bs-target="#guestsModal">
+        <i class="fas fa-user-friends search-compact__icon" style="color:#888;"></i>
+        <div class="search-compact__field">
+          <span class="search-compact__label">Huéspedes</span>
+          <span class="search-compact__value" id="guestsSummaryText">1 adulto · 1 habitación</span>
+        </div>
+        <i class="fas fa-chevron-right search-compact__chevron"></i>
+      </button>
+
+      <div class="search-compact__divider"></div>
+
+      <%# Fila 4: Comodidades %>
+      <button id="amenitiesSummaryBtn" type="button"
+              class="search-compact__row search-compact__row--btn"
+              data-bs-toggle="modal" data-bs-target="#amenitiesModal">
+        <i class="fas fa-star search-compact__icon" style="color:#888;"></i>
+        <div class="search-compact__field">
+          <span class="search-compact__label">Comodidades</span>
+          <span class="search-compact__value" id="amenitiesSummaryText">Cualquiera</span>
+        </div>
+        <i class="fas fa-chevron-right search-compact__chevron"></i>
+      </button>
+
+    </div><%# /card %>
+
+    <div id="selectedAmenities" hidden></div>
+
+    <%# Botón buscar %>
+    <button type="submit" class="search-compact__submit">
+      <i class="fas fa-search me-2"></i>Buscar
+    </button>
 
   </form>
 </section>
@@ -127,58 +189,60 @@
 </div>
 
 <script>
+  function updateGuests(type, change) {
+    const input = document.getElementById(type);
+    let value = parseInt(input.value) + change;
+    if (type === 'adults' || type === 'rooms') { if (value < 1) value = 1; }
+    else if (value < 0) value = 0;
+    input.value = value;
+  }
 
-    // Huéspedes
-    function updateGuests(type, change) {
-        const input = document.getElementById(type);
-        let value = parseInt(input.value) + change;
-        if (type === 'adults' || type === 'rooms') {
-            if (value < 1) value = 1;
-        } else if (value < 0) value = 0;
-        input.value = value;
-    }
+  function applyGuests() {
+    const adults   = document.getElementById("adults").value;
+    const children = document.getElementById("children").value;
+    const rooms    = document.getElementById("rooms").value;
 
-    function applyGuests() {
-        const adults = document.getElementById("adults").value;
-        const children = document.getElementById("children").value;
-        const rooms = document.getElementById("rooms").value;
+    let summary = `${adults} adulto${adults != 1 ? "s" : ""}`;
+    if (children > 0) summary += ` · ${children} niño${children != 1 ? "s" : ""}`;
+    summary += ` · ${rooms} habitación${rooms != 1 ? "es" : ""}`;
 
-        let summary = `${adults} adulto${adults != 1 ? "s" : ""}`;
-        if (children > 0) summary += ` · ${children} niño${children != 1 ? "s" : ""}`;
-        summary += ` · ${rooms} habitación${rooms != 1 ? "es" : ""}`;
+    // Desktop
+    const desktopBtn = document.getElementById("guestsSummaryBtnDesktop");
+    if (desktopBtn) desktopBtn.innerHTML = `<i class="bi bi-people me-2"></i> ${summary}`;
 
-        document.getElementById("guestsSummaryBtn").innerHTML = `<i class="bi bi-people me-2"></i> ${summary}`;
-    }
+    // Móvil
+    const mobileText = document.getElementById("guestsSummaryText");
+    if (mobileText) mobileText.textContent = summary;
+  }
 
-    // Comodidades
-    function applyAmenities() {
-        const checkboxes = document.querySelectorAll('.amenity:checked');
-        const selected = Array.from(checkboxes).map(cb => cb.value);
+  function applyAmenities() {
+    const checkboxes = document.querySelectorAll('.amenity:checked');
+    const selected   = Array.from(checkboxes).map(cb => cb.value);
 
-        // Limpiar los hidden inputs anteriores
-        const container = document.getElementById("selectedAmenities");
-        container.innerHTML = "";
+    // Hidden inputs (móvil y desktop comparten el mismo form en cada versión)
+    ['selectedAmenities', 'selectedAmenitiesDesktop'].forEach(id => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      container.innerHTML = "";
+      selected.forEach(value => {
+        const hidden = document.createElement("input");
+        hidden.type  = "hidden";
+        hidden.name  = "amenities[]";
+        hidden.value = value;
+        container.appendChild(hidden);
+      });
+    });
 
-        // Crear un hidden input por cada amenity seleccionado
-        selected.forEach(value => {
-            const hidden = document.createElement("input");
-            hidden.type = "hidden";
-            hidden.name = "amenities[]";   // 👈 clave para que Rails lo reciba como array
-            hidden.value = value;
-            container.appendChild(hidden);
-        });
+    const label = selected.length === 0       ? "Cualquiera"
+                : selected.length <= 2        ? selected.join(" · ")
+                : `${selected.length} seleccionadas`;
 
-        // Actualizar el botón resumen
-        let summary = `<i class="bi bi-star me-2"></i> Seleccionar`;
-        if (selected.length > 0) {
-            if (selected.length <= 3) {
-                summary = `<i class="bi bi-star me-2"></i> ${selected.join(" · ")}`;
-            } else {
-                summary = `<i class="bi bi-star me-2"></i> ${selected.length} comodidades seleccionadas`;
-            }
-        }
+    // Desktop
+    const desktopBtn = document.getElementById("amenitiesSummaryBtnDesktop");
+    if (desktopBtn) desktopBtn.innerHTML = `<i class="bi bi-star me-2"></i> ${selected.length > 0 ? label : "Seleccionar"}`;
 
-        document.getElementById("amenitiesSummaryBtn").innerHTML = summary;
-    }
-
+    // Móvil
+    const mobileText = document.getElementById("amenitiesSummaryText");
+    if (mobileText) mobileText.textContent = label;
+  }
 </script>

@@ -56,13 +56,12 @@
 <div class="d-flex flex-column">
 
 <!-- Explora por Categorías - Arriba de todo -->
-<div class="container-fluid py-2 order-3 order-md-1" style="background-color: #f2f7f8;">
-  <div class="container-fluid text-center">
-    <!-- Título -->
+<div class="order-1 order-md-1 categories-section" style="background-color: #f2f7f8;">
+
+  <%# ── Desktop: título + grid ── %>
+  <div class="d-none d-md-block container-fluid py-2 text-center">
     <h6 class="fw-bold mb-0" style="color: #7B3F00; font-size: 0.85rem;">Explora por Categorías</h6>
     <p class="mb-1" style="color: #7B3F00; font-size: 0.7rem;">Encuentra lo que buscas para tu próxima aventura</p>
-
-    <!-- Grid de categorías -->
     <section class="categories">
       <div class="container-fluid px-2">
         <div class="row row-cols-2 row-cols-md-6 g-2">
@@ -75,10 +74,14 @@
       </div>
     </section>
   </div>
+
+  <%# ── Móvil: carrusel de íconos circulares (sólo se muestra si no hay bottom nav) ── %>
+  <%# Reemplazado por la bottom nav bar global en el layout %>
+
 </div>
 
 <!-- Banner publicitario -->
-<div class="order-1 order-md-2">
+<div class="order-2 order-md-2">
 <% if @advertisements.any? %>
 <div id="adsBanner" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
   <div class="carousel-inner">
@@ -149,12 +152,12 @@
 </div><%# /order-1 order-md-2 %>
 
 <!-- Buscador solo en móvil (en desktop ya se muestra desde el layout) -->
-<div class="d-block d-md-none order-2">
+<div class="d-block d-md-none order-3 order-md-0">
   <%= render "shared/search_hotels" %>
 </div>
 
 <!-- Fragmento dentro del body -->
-<div class="container-fluid py-3 order-1 order-md-3"
+<div class="container-fluid py-3 order-4 order-md-3"
      style="background: linear-gradient(90deg, #21C188, #FF9800); color: white;">
   <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
