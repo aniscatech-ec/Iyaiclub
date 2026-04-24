@@ -607,6 +607,9 @@
           por <strong><%= @pending_membership.vendedor&.name || "tu asesor" %></strong>.
           Una vez que confirmen tu pago, tu membresía se activará automáticamente.
         </p>
+        <%# Cuentas bancarias para transferencia %>
+        <%= render "shared/bank_accounts" %>
+
         <% if @pending_membership.vendedor&.try(:whatsapp).present? || @pending_membership.vendedor&.try(:phone).present? %>
           <% phone = @pending_membership.vendedor.try(:whatsapp) || @pending_membership.vendedor.try(:phone) %>
           <% plan_price = PlanPrice.find_by(id: @pending_membership.plan_type) %>

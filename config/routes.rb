@@ -258,6 +258,12 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :bank_accounts do
+      member do
+        patch :toggle_active
+      end
+    end
+
     resources :users do
       get :establishments, on: :member
       collection do

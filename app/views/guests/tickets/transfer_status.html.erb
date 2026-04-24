@@ -42,8 +42,11 @@
         </div>
       </div>
 
+      <!-- Cuentas bancarias para transferencia -->
+      <%= render "shared/bank_accounts" %>
+
       <!-- WhatsApp button -->
-      <div class="d-grid mb-3">
+      <div class="d-grid mb-3 mt-4">
         <a href="<%= @whatsapp_url %>" target="_blank" class="btn btn-success btn-lg">
           <i class="fab fa-whatsapp me-2"></i> Contactar Vendedor por WhatsApp
         </a>

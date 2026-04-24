@@ -1,68 +1,114 @@
-<div class="container-fluid px-3 px-md-4 py-4">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
-      <div data-controller="transfer-status"
-           data-transfer-status-ticket-id-value="<%= @ticket.id %>"
-           data-transfer-status-check-url-value="<%= check_status_turista_ticket_path(@ticket) %>"
-           data-transfer-status-tickets-url-value="<%= turista_tickets_path %>">
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width:560px; margin:0 auto;">
+  <div data-controller="transfer-status"
+       data-transfer-status-ticket-id-value="<%= @ticket.id %>"
+       data-transfer-status-check-url-value="<%= check_status_turista_ticket_path(@ticket) %>"
+       data-transfer-status-tickets-url-value="<%= turista_tickets_path %>">
 
-        <!-- Header -->
-        <div class="text-center mb-4">
-          <div class="display-1 text-warning mb-3">
-            <i class="fas fa-hourglass-half"></i>
+    <!-- Status messages -->
+    <div data-transfer-status-target="status"></div>
+
+    <!-- Hero status card -->
+    <div class="text-center rounded-4 py-4 px-3 mb-4"
+         style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1.5px solid #bbf7d0;">
+      <div class="mb-3">
+        <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+              style="width:64px;height:64px;background:#fff;box-shadow:0 4px 16px rgba(46,125,50,0.15);">
+          <i class="fas fa-hourglass-half fa-xl" style="color:#f59e0b;"></i>
+        </span>
+      </div>
+      <h4 class="fw-bold mb-1" style="color:#14532d;">Ticket Reservado</h4>
+      <p class="mb-0 text-muted" style="font-size:0.875rem;">
+        Tu ticket se acreditará cuando el vendedor confirme tu pago.
+      </p>
+    </div>
+
+    <!-- Ticket details -->
+    <div class="card border-0 shadow-sm rounded-4 mb-3" style="overflow:hidden;">
+      <div class="card-header border-0 px-4 pt-3 pb-2"
+           style="background:#f8fafc;">
+        <span class="fw-bold text-dark" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:.05em;">
+          <i class="fas fa-ticket-alt me-2" style="color:var(--brand-green,#3FBD02);"></i>Detalle del ticket
+        </span>
+      </div>
+      <div class="card-body px-4 pb-3 pt-2">
+
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+          <span class="text-muted" style="font-size:0.875rem;">Código</span>
+          <span class="fw-bold font-monospace" style="color:#2E7D32; font-size:1rem; letter-spacing:.04em;">
+            <%= @ticket.ticket_code %>
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-start py-2 border-bottom">
+          <span class="text-muted" style="font-size:0.875rem;">Evento</span>
+          <span class="fw-semibold text-end ms-3" style="font-size:0.875rem; max-width:60%;">
+            <%= @event.name %>
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+          <span class="text-muted" style="font-size:0.875rem;">Monto a transferir</span>
+          <span class="fw-bold text-success" style="font-size:1.1rem;">
+            $<%= number_with_precision(@ticket.total_price, precision: 2) %>
+          </span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center py-2">
+          <span class="text-muted" style="font-size:0.875rem;">Vendedor</span>
+          <div class="d-flex align-items-center gap-2">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
+                  style="width:28px;height:28px;background:var(--brand-green,#3FBD02);font-size:0.75rem;">
+              <%= @vendedor.name.first.upcase %>
+            </span>
+            <span class="fw-semibold" style="font-size:0.875rem;"><%= @vendedor.name %></span>
           </div>
-          <h3 class="fw-bold">Ticket Reservado</h3>
-          <p class="text-muted">Tu ticket se acreditará una vez que el vendedor confirme tu pago. No hay límite de tiempo.</p>
         </div>
 
-        <!-- Status messages -->
-        <div data-transfer-status-target="status"></div>
-
-        <!-- Ticket info -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-          <div class="card-body p-4">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between px-0">
-                <span>Código de Ticket</span>
-                <strong style="color: #2E7D32;"><%= @ticket.ticket_code %></strong>
-              </li>
-              <li class="list-group-item d-flex justify-content-between px-0">
-                <span>Evento</span>
-                <strong><%= @event.name %></strong>
-              </li>
-              <li class="list-group-item d-flex justify-content-between px-0">
-                <span>Monto a transferir</span>
-                <strong class="text-success">$<%= number_with_precision(@ticket.total_price, precision: 2) %></strong>
-              </li>
-              <li class="list-group-item d-flex justify-content-between px-0">
-                <span>Vendedor</span>
-                <strong><%= @vendedor.name %></strong>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- WhatsApp button -->
-        <div class="d-grid mb-3">
-          <a href="<%= @whatsapp_url %>" target="_blank" class="btn btn-success btn-lg">
-            <i class="fab fa-whatsapp me-2"></i> Contactar Vendedor por WhatsApp
-          </a>
-        </div>
-
-        <!-- Loader -->
-        <div class="text-center py-3" data-transfer-status-target="loader">
-          <div class="spinner-border text-warning" role="status">
-            <span class="visually-hidden">Esperando confirmación...</span>
-          </div>
-          <p class="text-muted mt-2">Esperando confirmación del vendedor...</p>
-        </div>
-
-        <div class="text-center mt-3">
-          <%= link_to turista_tickets_path, class: "text-muted" do %>
-            <i class="fas fa-arrow-left me-1"></i> Ir a mis tickets
-          <% end %>
-        </div>
       </div>
     </div>
+
+    <!-- Instrucciones -->
+    <div class="rounded-4 px-4 py-3 mb-3 d-flex gap-3 align-items-start"
+         style="background:#fffbeb; border:1.5px solid #fde68a;">
+      <i class="fas fa-info-circle mt-1 flex-shrink-0" style="color:#d97706;"></i>
+      <p class="mb-0" style="font-size:0.825rem; color:#92400e; line-height:1.5;">
+        Realiza la transferencia a cualquiera de las cuentas indicadas abajo y luego
+        <strong>contacta al vendedor por WhatsApp</strong> para confirmar tu pago.
+      </p>
+    </div>
+
+    <!-- Cuentas bancarias -->
+    <%= render "shared/bank_accounts" %>
+
+    <!-- WhatsApp CTA -->
+    <div class="d-grid mb-3 mt-4">
+      <a href="<%= @whatsapp_url %>" target="_blank"
+         class="btn btn-lg fw-bold rounded-pill"
+         style="background:#25D366;color:#fff;border:none;padding:.85rem 1.5rem;font-size:1rem;
+                box-shadow:0 4px 16px rgba(37,211,102,0.35);">
+        <i class="fab fa-whatsapp me-2" style="font-size:1.2rem;"></i>
+        Contactar Vendedor por WhatsApp
+      </a>
+    </div>
+
+    <!-- Loader -->
+    <div class="text-center py-3" data-transfer-status-target="loader">
+      <div class="d-inline-flex align-items-center gap-2 rounded-pill px-4 py-2"
+           style="background:#f8fafc; border:1px solid #e2e8f0;">
+        <div class="spinner-border spinner-border-sm text-warning" role="status">
+          <span class="visually-hidden">Esperando...</span>
+        </div>
+        <span class="text-muted" style="font-size:0.825rem;">Esperando confirmación del vendedor…</span>
+      </div>
+    </div>
+
+    <!-- Back link -->
+    <div class="text-center mt-3 mb-5">
+      <%= link_to turista_tickets_path, class: "text-muted d-inline-flex align-items-center gap-1",
+            style: "font-size:0.875rem; text-decoration:none;" do %>
+        <i class="fas fa-arrow-left"></i> Ir a mis tickets
+      <% end %>
+    </div>
+
   </div>
 </div>

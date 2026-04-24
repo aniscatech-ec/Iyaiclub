@@ -1,0 +1,23 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <%= link_to admin_bank_accounts_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
+          <i class="fas fa-arrow-left me-1"></i> Volver
+        <% end %>
+        <div>
+          <h3 class="fw-bold mb-0">Nueva cuenta bancaria</h3>
+          <p class="text-muted small mb-0">Esta cuenta será visible para usuarios que paguen por transferencia</p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+          <%= render "form", bank_account: @bank_account %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

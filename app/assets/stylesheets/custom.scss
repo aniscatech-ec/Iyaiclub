@@ -235,6 +235,56 @@
   }
 }
 
+// ── Avatar con dropdown ──────────────────────────────────
+.iyai-avatar--dropdown {
+  cursor: pointer;
+  padding: 0;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+
+  &:hover, &:focus {
+    box-shadow: 0 0 0 3px rgba(63, 189, 2, 0.25);
+    transform: scale(1.06);
+    outline: none;
+  }
+
+  &[aria-expanded="true"] {
+    box-shadow: 0 0 0 3px rgba(63, 189, 2, 0.35);
+  }
+}
+
+.iyai-user-dropdown {
+  min-width: 210px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 4px 0;
+  margin-top: 8px !important;
+
+  &__header {
+    padding: 10px 16px 8px;
+    pointer-events: none;
+
+    p { font-size: 0.88rem; color: #1a1a1a; }
+    small { font-size: 0.72rem; }
+  }
+
+  .dropdown-item {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin: 0 4px;
+    width: calc(100% - 8px);
+    transition: background 0.15s ease;
+
+    i { font-size: 0.85rem; }
+
+    &:hover { background: rgba(63, 189, 2, 0.07); }
+    &.text-danger:hover { background: rgba(220, 53, 69, 0.07); }
+  }
+
+  .dropdown-divider { border-color: rgba(0,0,0,0.06); }
+}
+
 // ── Toggler hamburguesa custom ────────────────────────────
 .iyai-toggler {
   width: 36px;
@@ -793,6 +843,97 @@
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* ======================================
+   Bank Account Cards
+   ====================================== */
+.bank-account-card {
+  background: #fff;
+  border: 1.5px solid rgba(63, 189, 2, 0.2);
+  border-radius: 14px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 8px;
+    background: rgba(63, 189, 2, 0.06);
+    border-bottom: 1px solid rgba(63, 189, 2, 0.12);
+  }
+
+  &__institution {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #1a1a1a;
+  }
+
+  &__type {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--brand-green);
+    background: rgba(63, 189, 2, 0.12);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  &__body {
+    padding: 10px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    color: #999;
+    font-weight: 500;
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
+  &__value-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: right;
+  }
+
+  &__copy-btn {
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    color: #bbb;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: color 0.15s ease;
+    line-height: 1;
+
+    &:hover { color: var(--brand-green); }
+  }
+
+  &__notes {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: #666;
+    background: rgba(63, 189, 2, 0.05);
+    border-radius: 8px;
+    padding: 6px 10px;
   }
 }
 

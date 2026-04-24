@@ -1,0 +1,268 @@
+<%= form_with model: [:admin, bank_account], class: "row g-3" do |f| %>
+
+  <% if bank_account.errors.any? %>
+    <div class="col-12">
+      <div class="alert alert-danger rounded-3">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong><%= bank_account.errors.count %> error(es):</strong>
+        <ul class="mb-0 mt-1">
+          <% bank_account.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Institución %>
+  <div class="col-12 col-md-6">
+    <%= f.label :institution, "Institución bancaria", class: "form-label fw-semibold required-field" %>
+    <%= f.select :institution,
+          options_for_select(BankAccount::INSTITUTIONS, bank_account.institution),
+          { prompt: "Selecciona una institución" },
+          class: "form-select #{'is-invalid' if bank_account.errors[:institution].any?}" %>
+    <div class="invalid-feedback"><%= bank_account.errors[:institution].first %></div>
+  </div>
+
+  <%# Tipo de cuenta %>
+  <div class="col-12 col-md-6">
+    <%= f.label :account_type, "Tipo de cuenta", class: "form-label fw-semibold required-field" %>
+    <%= f.select :account_type,
+          options_for_select([["Ahorros", "ahorros"], ["Corriente", "corriente"]], bank_account.account_type),
+          { prompt: "Selecciona el tipo" },
+          class: "form-select #{'is-invalid' if bank_account.errors[:account_type].any?}" %>
+    <div class="invalid-feedback"><%= bank_account.errors[:account_type].first %></div>
+  </div>
+
+  <%# Número de cuenta %>
+  <div class="col-12 col-md-6">
+    <%= f.label :account_number, "Número de cuenta", class: "form-label fw-semibold required-field" %>
+    <div class="position-relative">
+      <%= f.text_field :account_number,
+            id: "account_number_field",
+            class: "form-control font-monospace #{'is-invalid' if bank_account.errors[:account_number].any?}",
+            placeholder: "Selecciona primero la institución",
+            inputmode: "numeric",
+            autocomplete: "off" %>
+      <span id="account_number_hint"
+            class="position-absolute end-0 top-50 translate-middle-y pe-3 text-muted"
+            style="font-size:0.72rem; pointer-events:none;"></span>
+    </div>
+    <div id="account_number_feedback" class="form-text text-muted" style="font-size:0.75rem;"></div>
+    <div class="invalid-feedback"><%= bank_account.errors[:account_number].first %></div>
+  </div>
+
+  <%# Propietario %>
+  <div class="col-12 col-md-6">
+    <%= f.label :owner_name, "Nombre del propietario", class: "form-label fw-semibold required-field" %>
+    <%= f.text_field :owner_name,
+          class: "form-control #{'is-invalid' if bank_account.errors[:owner_name].any?}",
+          placeholder: "Ej: IyaiClub S.A.S." %>
+    <div class="invalid-feedback"><%= bank_account.errors[:owner_name].first %></div>
+  </div>
+
+  <%# Tipo de identificador %>
+  <div class="col-12 col-md-4">
+    <%= f.label :identifier_type, "Tipo de identificador", class: "form-label fw-semibold required-field" %>
+    <%= f.select :identifier_type,
+          options_for_select([["Cédula", "cedula"], ["RUC", "ruc"]], bank_account.identifier_type),
+          {},
+          class: "form-select #{'is-invalid' if bank_account.errors[:identifier_type].any?}" %>
+    <div class="invalid-feedback"><%= bank_account.errors[:identifier_type].first %></div>
+  </div>
+
+  <%# Número de identificador %>
+  <div class="col-12 col-md-4">
+    <%= f.label :identifier, "Número de cédula / RUC", class: "form-label fw-semibold required-field" %>
+    <div class="position-relative">
+      <%= f.text_field :identifier,
+            id: "identifier_field",
+            class: "form-control font-monospace #{'is-invalid' if bank_account.errors[:identifier].any?}",
+            placeholder: "10 dígitos (cédula)",
+            inputmode: "numeric",
+            autocomplete: "off" %>
+      <span id="identifier_hint"
+            class="position-absolute end-0 top-50 translate-middle-y pe-3 text-muted"
+            style="font-size:0.72rem; pointer-events:none;"></span>
+    </div>
+    <div id="identifier_feedback" class="form-text text-muted" style="font-size:0.75rem;"></div>
+    <div class="invalid-feedback"><%= bank_account.errors[:identifier].first %></div>
+  </div>
+
+  <%# Activa %>
+  <div class="col-12 col-md-4 d-flex align-items-end pb-1">
+    <div class="form-check form-switch">
+      <%= f.check_box :active, class: "form-check-input", role: "switch", id: "bank_account_active" %>
+      <%= f.label :active, "Cuenta activa (visible para usuarios)", class: "form-check-label fw-semibold" %>
+    </div>
+  </div>
+
+  <%# Notas opcionales %>
+  <div class="col-12">
+    <%= f.label :notes, "Notas adicionales (opcional)", class: "form-label fw-semibold" %>
+    <%= f.text_area :notes,
+          class: "form-control",
+          rows: 2,
+          placeholder: "Ej: Usar este número de referencia al transferir..." %>
+  </div>
+
+  <%# Script: control de longitud por institución %>
+  <script>
+  (function() {
+    // Longitud exacta de número de cuenta por institución ecuatoriana
+    const ACCOUNT_LENGTHS = {
+      "Banco Pichincha":              10,
+      "Banco Guayaquil":              10,
+      "Banco Pacífico":               10,
+      "Banco Internacional":          10,
+      "Banco Bolivariano":            10,
+      "Banco del Austro":             10,
+      "Produbanco":                   10,
+      "Bancodesarrollo":              10,
+      "Cooperativa JEP":              13,
+      "Cooperativa Jardín Azuayo":    13,
+      "Cooperativa 29 de Octubre":    13,
+      "Cooperativa Policía Nacional": 13,
+      "Biess":                        14,
+      "Otro":                         null   // sin restricción
+    };
+
+    const institutionSel = document.getElementById("bank_account_institution");
+    const accountInput   = document.getElementById("account_number_field");
+    const hint           = document.getElementById("account_number_hint");
+    const feedback       = document.getElementById("account_number_feedback");
+
+    if (!institutionSel || !accountInput) return;
+
+    function applyRule() {
+      const institution = institutionSel.value;
+      const length      = ACCOUNT_LENGTHS[institution] ?? null;
+
+      if (!institution || institution === "") {
+        accountInput.placeholder = "Selecciona primero la institución";
+        accountInput.maxLength   = 20;
+        accountInput.pattern     = "";
+        hint.textContent         = "";
+        feedback.textContent     = "";
+        return;
+      }
+
+      if (length) {
+        accountInput.maxLength   = length;
+        accountInput.pattern     = `\\d{${length}}`;
+        accountInput.placeholder = "0".repeat(length);
+        hint.textContent         = `${length} dígitos`;
+        feedback.textContent     = `${institution} usa exactamente ${length} dígitos.`;
+      } else {
+        accountInput.maxLength   = 20;
+        accountInput.pattern     = "\\d+";
+        accountInput.placeholder = "Número de cuenta";
+        hint.textContent         = "";
+        feedback.textContent     = "Ingresa solo dígitos.";
+      }
+
+      validateField();
+    }
+
+    function validateField() {
+      const length = ACCOUNT_LENGTHS[institutionSel.value] ?? null;
+      const val    = accountInput.value.replace(/\D/g, "");
+
+      // Forzar solo dígitos
+      if (accountInput.value !== val) accountInput.value = val;
+
+      if (!val) {
+        accountInput.classList.remove("is-valid", "is-invalid");
+        return;
+      }
+
+      if (length && val.length !== length) {
+        accountInput.classList.add("is-invalid");
+        accountInput.classList.remove("is-valid");
+        feedback.textContent = `Faltan ${length - val.length} dígito(s) — necesitas exactamente ${length}.`;
+        feedback.className   = "form-text text-danger";
+      } else {
+        accountInput.classList.add("is-valid");
+        accountInput.classList.remove("is-invalid");
+        feedback.textContent = length ? `✓ Longitud correcta (${length} dígitos)` : "✓ Formato válido";
+        feedback.className   = "form-text text-success";
+      }
+    }
+
+    institutionSel.addEventListener("change", applyRule);
+    accountInput.addEventListener("input",    validateField);
+
+    // Inicializar si ya hay un valor seleccionado (modo edición)
+    applyRule();
+  })();
+
+  // ── Identificador (cédula / RUC) ──────────────────────────────────────────
+  (function() {
+    const IDENTIFIER_LENGTHS = { cedula: 10, ruc: 13 };
+    const IDENTIFIER_LABELS  = { cedula: "Cédula", ruc: "RUC" };
+
+    const typeSel   = document.getElementById("bank_account_identifier_type");
+    const idInput   = document.getElementById("identifier_field");
+    const hint      = document.getElementById("identifier_hint");
+    const feedback  = document.getElementById("identifier_feedback");
+
+    if (!typeSel || !idInput) return;
+
+    function applyIdentifierRule() {
+      const type   = typeSel.value;
+      const length = IDENTIFIER_LENGTHS[type] ?? 10;
+      const label  = IDENTIFIER_LABELS[type]  ?? "identificador";
+
+      idInput.maxLength   = length;
+      idInput.pattern     = `\\d{${length}}`;
+      idInput.placeholder = `${length} dígitos (${label.toLowerCase()})`;
+      hint.textContent    = `${length} díg.`;
+      feedback.textContent = `${label} ecuatoriana: exactamente ${length} dígitos.`;
+      feedback.className  = "form-text text-muted";
+
+      validateIdentifier();
+    }
+
+    function validateIdentifier() {
+      const type   = typeSel.value;
+      const length = IDENTIFIER_LENGTHS[type] ?? 10;
+      const val    = idInput.value.replace(/\D/g, "");
+
+      if (idInput.value !== val) idInput.value = val;
+
+      if (!val) {
+        idInput.classList.remove("is-valid", "is-invalid");
+        return;
+      }
+
+      if (val.length !== length) {
+        idInput.classList.add("is-invalid");
+        idInput.classList.remove("is-valid");
+        feedback.textContent = `Faltan ${length - val.length} dígito(s) — necesitas exactamente ${length}.`;
+        feedback.className   = "form-text text-danger";
+      } else {
+        idInput.classList.add("is-valid");
+        idInput.classList.remove("is-invalid");
+        feedback.textContent = `✓ Longitud correcta (${length} dígitos)`;
+        feedback.className   = "form-text text-success";
+      }
+    }
+
+    typeSel.addEventListener("change", applyIdentifierRule);
+    idInput.addEventListener("input",  validateIdentifier);
+
+    // Inicializar
+    applyIdentifierRule();
+  })();
+  </script>
+
+  <%# Botones %>
+  <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+    <%= link_to admin_bank_accounts_path, class: "btn btn-outline-secondary rounded-pill px-4" do %>
+      <i class="fas fa-arrow-left me-1"></i> Cancelar
+    <% end %>
+    <%= f.submit bank_account.new_record? ? "Guardar cuenta" : "Actualizar cuenta",
+          class: "btn btn-primary rounded-pill px-4 fw-bold" %>
+  </div>
+
+<% end %>

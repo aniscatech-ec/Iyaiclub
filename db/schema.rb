@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_23_200000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_24_100000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -55,6 +55,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_23_200000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "establishment_type"
+  end
+
+  create_table "bank_accounts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "institution", null: false
+    t.string "account_type", null: false
+    t.string "account_number", null: false
+    t.string "owner_name", null: false
+    t.string "identifier", null: false
+    t.string "identifier_type", default: "cedula", null: false
+    t.boolean "active", default: true, null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "booking_requests", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

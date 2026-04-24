@@ -107,23 +107,45 @@
         <i class="fas fa-kit-medical"></i>
       <% end %>
 
-      <%# Mi Panel / avatar según rol %>
+      <%# Avatar dropdown (móvil) %>
       <% if user_signed_in? %>
         <%
-          mob_panel_path = if current_user.administrador?
-            admin_dashboard_index_path
-          elsif current_user.afiliado?
-            afiliado_dashboard_index_path
-          else
-            turista_dashboard_index_path
-          end
-          mob_panel_icon = current_user.administrador? ? "fa-shield-alt" :
-                           current_user.afiliado?      ? "fa-store"      : "fa-compass"
+          panel_path = current_user.administrador? ? admin_dashboard_index_path :
+                       current_user.afiliado?      ? afiliado_dashboard_index_path :
+                                                     turista_dashboard_index_path
+          panel_label = current_user.administrador? ? "Panel Admin" : "Mi Panel"
+          panel_icon  = current_user.administrador? ? "fa-shield-alt" :
+                        current_user.afiliado?      ? "fa-store" : "fa-compass"
         %>
-        <%= link_to mob_panel_path, class: "iyai-btn-panel btn btn-sm d-flex align-items-center gap-1", title: "Mi Panel" do %>
-          <i class="fas <%= mob_panel_icon %>"></i>
-          <span style="font-size:0.75rem;">Mi Panel</span>
-        <% end %>
+        <div class="dropdown">
+          <button class="iyai-avatar iyai-avatar--dropdown border-0"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+            <%= current_user.name.first.upcase %>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end iyai-user-dropdown shadow-sm">
+            <li class="iyai-user-dropdown__header">
+              <p class="fw-bold mb-0 lh-sm"><%= current_user.name.split.first(2).join(" ") %></p>
+              <small class="text-muted"><%= current_user.email %></small>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <%= link_to panel_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+                <i class="fas <%= panel_icon %> fa-fw" style="color:var(--brand-green);"></i>
+                <%= panel_label %>
+              <% end %>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <%= link_to destroy_user_session_path,
+                    data: { turbo_method: :delete },
+                    class: "dropdown-item d-flex align-items-center gap-2 text-danger" do %>
+                <i class="fas fa-sign-out-alt fa-fw"></i> Cerrar sesión
+              <% end %>
+            </li>
+          </ul>
+        </div>
       <% else %>
         <%= link_to new_user_session_path, class: "iyai-icon-btn iyai-icon-btn--primary", title: "Iniciar sesión" do %>
           <i class="fas fa-user"></i>
@@ -174,52 +196,44 @@
           <%# ── Separador visual desktop ── %>
           <li class="nav-item d-none d-lg-block"><span class="iyai-nav-divider"></span></li>
 
-          <%# ── Panel según rol ── %>
-          <% if current_user.administrador? %>
-            <li class="nav-item">
-              <%= link_to admin_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
-                <i class="fas fa-shield-alt"></i>
-                <span>Panel Admin</span>
-              <% end %>
-            </li>
-          <% elsif current_user.afiliado? %>
-            <li class="nav-item">
-              <%= link_to afiliado_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
-                <i class="fas fa-store"></i>
-                <span>Mi Panel</span>
-              <% end %>
-            </li>
-          <% elsif current_user.turista? %>
-            <li class="nav-item">
-              <%= link_to turista_dashboard_index_path, class: "btn iyai-btn-panel btn-sm d-flex align-items-center gap-2" do %>
-                <i class="fas fa-compass"></i>
-                <span>Mi Panel</span>
-              <% end %>
-            </li>
-          <% end %>
-
-          <%# ── Usuario + logout (desktop) ── %>
-          <li class="nav-item d-none d-lg-flex align-items-center gap-2">
-            <div class="iyai-avatar iyai-avatar--sm" title="<%= current_user.name %>">
+          <%# ── Avatar dropdown (desktop) ── %>
+          <%
+            panel_path  = current_user.administrador? ? admin_dashboard_index_path :
+                          current_user.afiliado?      ? afiliado_dashboard_index_path :
+                                                        turista_dashboard_index_path
+            panel_label = current_user.administrador? ? "Panel Admin" : "Mi Panel"
+            panel_icon  = current_user.administrador? ? "fa-shield-alt" :
+                          current_user.afiliado?      ? "fa-store" : "fa-compass"
+          %>
+          <li class="nav-item dropdown">
+            <button class="iyai-avatar iyai-avatar--dropdown border-0"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="<%= current_user.name %>">
               <%= current_user.name.first.upcase %>
-            </div>
-            <span class="iyai-username"><%= current_user.name.split.first %></span>
-          </li>
-
-          <%# ── Logout ── %>
-          <li class="nav-item">
-            <%= link_to destroy_user_session_path,
-                  data: { turbo_method: :delete },
-                  class: "iyai-icon-btn iyai-icon-btn--ghost d-none d-lg-flex",
-                  title: "Cerrar sesión" do %>
-              <i class="fas fa-sign-out-alt"></i>
-            <% end %>
-            <%# En móvil: link de texto %>
-            <%= link_to destroy_user_session_path,
-                  data: { turbo_method: :delete },
-                  class: "nav-link iyai-nav-link iyai-nav-link--danger d-flex d-lg-none align-items-center gap-2" do %>
-              <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-            <% end %>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end iyai-user-dropdown shadow-sm">
+              <li class="iyai-user-dropdown__header">
+                <p class="fw-bold mb-0 lh-sm"><%= current_user.name.split.first(2).join(" ") %></p>
+                <small class="text-muted"><%= current_user.email %></small>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li>
+                <%= link_to panel_path, class: "dropdown-item d-flex align-items-center gap-2" do %>
+                  <i class="fas <%= panel_icon %> fa-fw" style="color:var(--brand-green);"></i>
+                  <%= panel_label %>
+                <% end %>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li>
+                <%= link_to destroy_user_session_path,
+                      data: { turbo_method: :delete },
+                      class: "dropdown-item d-flex align-items-center gap-2 text-danger" do %>
+                  <i class="fas fa-sign-out-alt fa-fw"></i> Cerrar sesión
+                <% end %>
+              </li>
+            </ul>
           </li>
 
         <% else %>
