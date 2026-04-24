@@ -1,0 +1,90 @@
+<%= form_with model: [:admin, activity], class: "row g-3" do |f| %>
+
+  <% if activity.errors.any? %>
+    <div class="col-12">
+      <div class="alert alert-danger rounded-3">
+        <strong><%= activity.errors.count %> error(es):</strong>
+        <ul class="mb-0 mt-1">
+          <% activity.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Nombre %>
+  <div class="col-12 col-md-6">
+    <%= f.label :name, "Nombre de la actividad", class: "form-label fw-semibold" %>
+    <%= f.text_field :name,
+          class: "form-control #{'is-invalid' if activity.errors[:name].any?}",
+          placeholder: "Ej: Senderismo, Escalada, Kayak..." %>
+    <div class="invalid-feedback"><%= activity.errors[:name].first %></div>
+  </div>
+
+  <%# Ícono %>
+  <div class="col-12 col-md-4">
+    <%= f.label :icon, "Ícono (FontAwesome)", class: "form-label fw-semibold" %>
+    <div class="input-group">
+      <span class="input-group-text" id="icon-preview">
+        <i id="icon-preview-el" class="fas fa-star text-muted"></i>
+      </span>
+      <%= f.text_field :icon,
+            id: "icon_field",
+            class: "form-control font-monospace",
+            placeholder: "fa-hiking",
+            oninput: "document.getElementById('icon-preview-el').className = 'fas ' + this.value" %>
+    </div>
+    <div class="form-text">Clase FontAwesome sin el prefijo <code>fas</code>. Ej: <code>fa-hiking</code></div>
+  </div>
+
+  <%# Posición %>
+  <div class="col-12 col-md-2">
+    <%= f.label :position, "Orden", class: "form-label fw-semibold" %>
+    <%= f.number_field :position, class: "form-control", min: 0, value: activity.position || 0 %>
+  </div>
+
+  <%# Preview de íconos comunes %>
+  <div class="col-12">
+    <p class="form-label fw-semibold mb-2">Íconos sugeridos <span class="text-muted fw-normal">(clic para usar)</span></p>
+    <div class="d-flex flex-wrap gap-2">
+      <% [
+        ["fa-hiking","Senderismo"], ["fa-campground","Acampada"], ["fa-bicycle","Ciclismo"],
+        ["fa-mountain","Escalada"], ["fa-swimming-pool","Natación"], ["fa-fish","Pesca"],
+        ["fa-water","Kayak"], ["fa-wind","Tirolesa"], ["fa-feather-alt","Aves"],
+        ["fa-camera","Fotografía"], ["fa-landmark","Cultural"], ["fa-futbol","Juegos"],
+        ["fa-parachute-box","Extremos"], ["fa-anchor","Rappel"], ["fa-utensils","Picnic"],
+        ["fa-binoculars","Avistamiento"], ["fa-tree","Naturaleza"], ["fa-sun","Outdoor"]
+      ].each do |icon_class, label| %>
+        <button type="button"
+                onclick="document.getElementById('icon_field').value='<%= icon_class %>'; document.getElementById('icon-preview-el').className='fas <%= icon_class %>';"
+                class="btn btn-outline-secondary btn-sm rounded-3 d-flex align-items-center gap-1"
+                title="<%= label %>">
+          <i class="fas <%= icon_class %>"></i>
+          <span style="font-size:0.75rem;"><%= label %></span>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Botones %>
+  <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+    <%= link_to admin_getaway_activities_path, class: "btn btn-outline-secondary rounded-pill px-4" do %>
+      <i class="fas fa-arrow-left me-1"></i> Cancelar
+    <% end %>
+    <%= f.submit activity.new_record? ? "Guardar actividad" : "Actualizar actividad",
+          class: "btn btn-success rounded-pill px-4 fw-bold" %>
+  </div>
+
+<% end %>
+
+<script>
+  // Inicializar preview si ya hay valor (modo edición)
+  (function() {
+    var field = document.getElementById('icon_field');
+    var preview = document.getElementById('icon-preview-el');
+    if (field && preview && field.value) {
+      preview.className = 'fas ' + field.value;
+    }
+  })();
+</script>

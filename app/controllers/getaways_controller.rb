@@ -104,6 +104,7 @@ class GetawaysController < ApplicationController
   def getaway_params
     params.require(:getaway).permit(
       :subcategory, :entry_price, :free_entry, :recommendations, :rules, :establishment_id,
+      getaway_activity_ids: [],
       experiences_attributes: [:id, :name, :description, :duration, :price, :requirements, :_destroy],
       establishment_attributes: [
         :id, :name, :description, :short_description, :address, :phone, :whatsapp, :email, :website,

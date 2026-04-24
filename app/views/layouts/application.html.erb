@@ -2,7 +2,7 @@
 <html>
 <head>
   <title><%= content_for(:title) || "Iyaib Club App" %></title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <%= csrf_meta_tags %>
@@ -478,6 +478,24 @@
       return;
     }
   });
+
+  // Ocultar bottom nav cuando el teclado virtual aparece en móvil
+  // (evita pantallazzo blanco / contenido tapado en Android/iOS)
+  var bottomNav = document.querySelector('.iyai-bottom-nav');
+  if (bottomNav) {
+    document.addEventListener('focusin', function(e) {
+      var tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        bottomNav.style.display = 'none';
+      }
+    });
+    document.addEventListener('focusout', function() {
+      // Pequeño delay para que el teclado cierre antes de mostrar el nav
+      setTimeout(function() {
+        bottomNav.style.display = '';
+      }, 150);
+    });
+  }
 })();
 </script>
 

@@ -342,12 +342,51 @@
 
   <% end %>
 
-  <!-- ═══════════════ 8. ATRACCIONES CON COSTO ═══════════════ -->
+  <!-- ═══════════════ 8. ACTIVIDADES ═══════════════ -->
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header fw-bold rounded-top-3" style="background: var(--brand-orange); color: white;">
+      <i class="fas fa-hiking me-2"></i> 8. Actividades disponibles
+    </div>
+    <div class="card-body">
+      <% activities = GetawayActivity.ordered %>
+      <% if activities.empty? %>
+        <p class="text-muted mb-0" style="font-size:0.875rem;">
+          No hay actividades registradas.
+          <%= link_to "Agregar actividades desde el admin", admin_getaway_activities_path, target: "_blank", class: "text-success fw-semibold" %>.
+        </p>
+      <% else %>
+        <div class="row g-2">
+          <% activities.each do |activity| %>
+            <div class="col-6 col-md-4 col-lg-3">
+              <div class="form-check p-3 border rounded-3 h-100 d-flex align-items-center gap-2"
+                   style="cursor:pointer; transition: all 0.2s ease;"
+                   onmouseover="this.style.borderColor='var(--brand-orange)'; this.style.background='#fff8f0';"
+                   onmouseout="this.style.borderColor=''; this.style.background='';">
+                <%= check_box_tag "getaway[getaway_activity_ids][]", activity.id,
+                      getaway.getaway_activity_ids.include?(activity.id),
+                      id: "getaway_activity_#{activity.id}",
+                      class: "form-check-input flex-shrink-0" %>
+                <label for="getaway_activity_<%= activity.id %>"
+                       class="form-check-label d-flex align-items-center gap-2 w-100"
+                       style="cursor:pointer;">
+                  <i class="fas <%= activity.icon.presence || 'fa-star' %>"
+                     style="color:var(--brand-orange); font-size:1rem; width:16px; text-align:center;"></i>
+                  <span><%= activity.name %></span>
+                </label>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 9. ATRACCIONES CON COSTO ═══════════════ -->
   <div class="card shadow-sm border-0 rounded-3 mb-4"
        data-controller="nested-form">
     <div class="card-header fw-bold rounded-top-3 d-flex justify-content-between align-items-center"
          style="background: linear-gradient(135deg, #8e44ad, #6c3483); color: white;">
-      <span><i class="fas fa-star me-2"></i> 8. Atracciones y actividades (con costo adicional)</span>
+      <span><i class="fas fa-star me-2"></i> 9. Atracciones y actividades (con costo adicional)</span>
       <button type="button" class="btn btn-sm btn-light fw-semibold rounded-pill"
               data-action="click->nested-form#add">
         <i class="fas fa-plus me-1"></i> Agregar atracción

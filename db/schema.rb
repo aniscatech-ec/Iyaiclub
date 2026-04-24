@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_24_100000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_24_110001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -266,6 +266,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_24_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["gallery_id"], name: "index_gallery_images_on_gallery_id"
+  end
+
+  create_table "getaway_activities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "icon"
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "getaway_activity_assignments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "getaway_id", null: false
+    t.bigint "getaway_activity_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["getaway_activity_id"], name: "index_getaway_activity_assignments_on_getaway_activity_id"
+    t.index ["getaway_id", "getaway_activity_id"], name: "index_getaway_activity_assignments_unique", unique: true
+    t.index ["getaway_id"], name: "index_getaway_activity_assignments_on_getaway_id"
   end
 
   create_table "getaways", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -901,6 +919,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_24_100000) do
   add_foreign_key "experiences", "establishments"
   add_foreign_key "galleries", "establishments"
   add_foreign_key "gallery_images", "galleries"
+  add_foreign_key "getaway_activity_assignments", "getaway_activities"
+  add_foreign_key "getaway_activity_assignments", "getaways"
   add_foreign_key "getaways", "establishments"
   add_foreign_key "hotels", "establishments"
   add_foreign_key "invoice_claims", "establishments"

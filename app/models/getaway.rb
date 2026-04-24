@@ -17,6 +17,9 @@ class Getaway < ApplicationRecord
   has_many :experiences, dependent: :destroy
   accepts_nested_attributes_for :experiences, allow_destroy: true, reject_if: :all_blank
 
+  has_many :getaway_activity_assignments, dependent: :destroy
+  has_many :getaway_activities, through: :getaway_activity_assignments
+
   validates :subcategory, presence: true
   validates :entry_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
 

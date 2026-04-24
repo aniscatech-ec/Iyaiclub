@@ -264,6 +264,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :getaway_activities
+
     resources :users do
       get :establishments, on: :member
       collection do

@@ -1,0 +1,60 @@
+<div class="container py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h4 class="fw-bold mb-0">
+        <i class="fas fa-hiking me-2" style="color:var(--brand-green);"></i>
+        Actividades de Escapadas
+      </h4>
+      <p class="text-muted mb-0 mt-1" style="font-size:0.85rem;">
+        Estas actividades aparecerán en el formulario de creación/edición de escapadas.
+      </p>
+    </div>
+    <%= link_to new_admin_getaway_activity_path,
+          class: "btn btn-success rounded-pill px-4 fw-bold" do %>
+      <i class="fas fa-plus me-1"></i> Nueva actividad
+    <% end %>
+  </div>
+
+  <% if @activities.empty? %>
+    <div class="text-center py-5 text-muted">
+      <i class="fas fa-hiking fa-3x mb-3 opacity-25"></i>
+      <p>No hay actividades registradas aún.</p>
+    </div>
+  <% else %>
+    <div class="row g-3">
+      <% @activities.each do |activity| %>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+              <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                   style="width:44px;height:44px;background:rgba(63,189,2,0.1);">
+                <i class="fas <%= activity.icon.presence || 'fa-star' %>"
+                   style="color:var(--brand-green);font-size:1.1rem;"></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <p class="fw-semibold mb-0 text-truncate"><%= activity.name %></p>
+                <small class="text-muted font-monospace"><%= activity.icon.presence || "—" %></small>
+              </div>
+              <div class="d-flex gap-1 flex-shrink-0">
+                <%= link_to edit_admin_getaway_activity_path(activity),
+                      class: "btn btn-sm btn-outline-secondary rounded-3",
+                      title: "Editar" do %>
+                  <i class="fas fa-pencil-alt"></i>
+                <% end %>
+                <%= button_to admin_getaway_activity_path(activity),
+                      method: :delete,
+                      data: { turbo_confirm: "¿Eliminar \"#{activity.name}\"?" },
+                      class: "btn btn-sm btn-outline-danger rounded-3",
+                      title: "Eliminar" do %>
+                  <i class="fas fa-trash"></i>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
