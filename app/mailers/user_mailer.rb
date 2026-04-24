@@ -142,6 +142,23 @@ class UserMailer < ApplicationMailer
     )
   end
 
+  # Bienvenida masiva con enlace de creación de contraseña (para usuarios migrados desde encuesta)
+  def welcome_with_reset(user, reset_token)
+    @user        = user
+    @reset_token = reset_token
+    @reset_url   = edit_user_password_url(
+      @user,
+      reset_password_token: reset_token,
+      host: Rails.application.config.action_mailer.default_url_options[:host]
+    )
+
+    mail(
+      to:      user.email,
+      subject: "🎉 ¡Bienvenido a IyaiClub! Configura tu contraseña",
+      from:    email_from(:info)
+    )
+  end
+
   private
 
   # Método helper para diferentes remitentes

@@ -163,6 +163,31 @@
           <% end %>
         </div>
       </div>
+
+      <%# Notificación masiva — solo visible al crear %>
+      <% if @event.new_record? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4"
+             style="border-left: 4px solid #EB633B !important;">
+          <div class="card-body px-4 py-3">
+            <div class="form-check form-switch d-flex align-items-start gap-3">
+              <%= check_box_tag :notify_users, "1", false,
+                    id:    "notify_users_switch",
+                    class: "form-check-input mt-1 flex-shrink-0",
+                    role:  "switch",
+                    style: "width:2.5em; height:1.4em; cursor:pointer;" %>
+              <label for="notify_users_switch" class="form-check-label" style="cursor:pointer;">
+                <span class="fw-bold d-block" style="font-size:0.9rem;">
+                  <i class="fas fa-bell me-1" style="color:#EB633B;"></i>
+                  Avisar a usuarios por correo
+                </span>
+                <span class="text-muted d-block" style="font-size:0.78rem; line-height:1.4; margin-top:2px;">
+                  Se enviará un email de anuncio a todos los usuarios registrados en lotes. No afecta la velocidad de guardado.
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 

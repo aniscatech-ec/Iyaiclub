@@ -1,0 +1,111 @@
+<%# Preheader %>
+<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f4f4f7;opacity:0;">
+  Tu cuenta en IyaiClub ya está lista — solo necesitas crear tu contraseña para ingresar.
+</div>
+
+<%# Saludo %>
+<h2 style="margin:0 0 16px 0; color:#EB633B; font-size:24px; font-weight:bold;
+           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  ¡Hola <%= @user.name.presence&.split&.first || "viajero" %>! 👋
+</h2>
+
+<p style="margin:0 0 16px 0; color:#333; font-size:16px; line-height:1.6;">
+  Tu cuenta en <strong>IyaiClub</strong> ya está creada y lista para usarse.
+  Solo necesitas crear tu contraseña para empezar a explorar.
+</p>
+
+<%# Info de acceso %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+       style="margin:0 0 24px 0; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 4px 0; font-size:12px; color:#888; text-transform:uppercase; letter-spacing:.05em;">
+        Tu usuario (email)
+      </p>
+      <p style="margin:0; font-size:16px; font-weight:bold; color:#1e293b;">
+        <%= @user.email %>
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px 0; color:#444; font-size:15px; line-height:1.6;">
+  Haz clic en el botón de abajo para crear tu contraseña. El enlace es personal y seguro:
+</p>
+
+<%# CTA Button %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+       style="margin:0 0 24px 0;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+        href="<%= @reset_url %>"
+        style="height:54px;v-text-anchor:middle;width:280px;" arcsize="15%"
+        strokecolor="#c94a28" fillcolor="#EB633B">
+        <w:anchorlock/>
+        <center style="color:#fff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">
+          Crear mi contraseña
+        </center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <a href="<%= @reset_url %>"
+         style="background-color:#EB633B; border:2px solid #c94a28; border-radius:8px;
+                color:#fff; display:inline-block;
+                font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+                font-size:16px; font-weight:bold; line-height:1; padding:16px 40px;
+                text-align:center; text-decoration:none; -webkit-text-size-adjust:none; mso-hide:all;">
+        🔑 Crear mi contraseña
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px 0; color:#888; font-size:13px; text-align:center;">
+  Este enlace es personal, intransferible y expira en <strong>7 días</strong>.
+</p>
+
+<%# Qué te espera %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+       style="margin:0 0 24px 0; background:#fff8f5; border-left:4px solid #EB633B; border-radius:6px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <h3 style="margin:0 0 12px 0; color:#EB633B; font-size:16px; font-weight:bold;">
+        ¿Qué puedes hacer en IyaiClub?
+      </h3>
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr><td style="padding:5px 0; color:#555; font-size:14px; line-height:1.5;">
+          <strong style="color:#EB633B;">✓</strong> &nbsp; Reservar hoteles, restaurantes y experiencias únicas
+        </td></tr>
+        <tr><td style="padding:5px 0; color:#555; font-size:14px; line-height:1.5;">
+          <strong style="color:#EB633B;">✓</strong> &nbsp; Acceder a precios exclusivos para miembros
+        </td></tr>
+        <tr><td style="padding:5px 0; color:#555; font-size:14px; line-height:1.5;">
+          <strong style="color:#EB633B;">✓</strong> &nbsp; Acumular puntos y canjearlos por recompensas
+        </td></tr>
+        <tr><td style="padding:5px 0; color:#555; font-size:14px; line-height:1.5;">
+          <strong style="color:#EB633B;">✓</strong> &nbsp; Comprar tickets para eventos y escapadas
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<%# Enlace de respaldo %>
+<p style="margin:0 0 6px 0; color:#555; font-size:13px; line-height:1.5;">
+  Si el botón no funciona, copia y pega este enlace en tu navegador:
+</p>
+<p style="margin:0 0 24px 0; word-break:break-all;">
+  <a href="<%= @reset_url %>" style="color:#EB633B; font-size:12px; text-decoration:underline;">
+    <%= @reset_url %>
+  </a>
+</p>
+
+<p style="margin:24px 0 0 0; padding-top:20px; border-top:1px solid #eee;
+          color:#888; font-size:13px; line-height:1.5;">
+  ¿Tienes dudas? Escríbenos a
+  <a href="mailto:info@iyaiclub.com" style="color:#EB633B; text-decoration:none;">info@iyaiclub.com</a>.<br>
+  Si no esperabas este correo, puedes ignorarlo con total seguridad.
+</p>

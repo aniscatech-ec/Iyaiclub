@@ -1,28 +1,204 @@
-<h1>Cities</h1>
-<%= link_to "New City", new_city_path, class: "btn btn-primary mb-3" %>
+<div class="container-fluid px-4 py-4">
 
-<table class="table table-striped">
-  <thead>
-  <tr>
-    <th>Nombre</th>
-    <th>Provincia</th>
-    <th>País</th>
-    <th>Acciones</th>
-  </tr>
-  </thead>
-  <tbody>
-  <% @cities.each do |city| %>
-    <tr>
-      <td><%= city.name %></td>
-      <td><%= city.province.name %></td>
-      <td><%= city.province.country.name %></td>
-      <td>
-        <%= link_to "Show", city_path(city), class: "btn btn-info btn-sm" %>
-        <%= link_to "Edit", edit_city_path(city), class: "btn btn-warning btn-sm" %>
-        <%= link_to "Delete", city_path(city), data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este país?" }, class: "btn btn-danger btn-sm" %>
+  <%# Header %>
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+      <h4 class="fw-bold mb-0">
+        <i class="fas fa-map-marker-alt me-2" style="color:var(--brand-green,#3FBD02);"></i>
+        Ciudades del Ecuador
+      </h4>
+      <p class="text-muted mb-0 mt-1" style="font-size:0.85rem;">
+        <% total = @cities_by_province.sum { |p| p.cities.size } %>
+        <%= @cities_by_province.count %> provincias · <%= total %> ciudades
+      </p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <%# Búsqueda rápida %>
+      <div class="input-group" style="width:220px;">
+        <span class="input-group-text bg-white border-end-0" style="border-radius:50px 0 0 50px;">
+          <i class="fas fa-search text-muted" style="font-size:0.8rem;"></i>
+        </span>
+        <input type="text" id="city-search" class="form-control border-start-0 ps-0"
+               placeholder="Buscar ciudad o provincia..."
+               style="border-radius:0 50px 50px 0; font-size:0.875rem;">
+      </div>
+      <%= link_to new_city_path,
+            class: "btn btn-success rounded-pill px-4 fw-bold",
+            style: "font-size:0.875rem;" do %>
+        <i class="fas fa-plus me-1"></i> Nueva ciudad
+      <% end %>
+    </div>
+  </div>
 
-      </td>
-    </tr>
-  <% end %>
-  </tbody>
-</table>
+  <%# Stats rápidas %>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="rounded-4 p-3 text-center" style="background:#f0fdf4; border:1px solid #bbf7d0;">
+        <p class="fw-bold mb-0" style="font-size:1.5rem; color:#15803d;"><%= @cities_by_province.count %></p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;">Provincias</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="rounded-4 p-3 text-center" style="background:#eff6ff; border:1px solid #bfdbfe;">
+        <p class="fw-bold mb-0" style="font-size:1.5rem; color:#1d4ed8;"><%= total %></p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;">Ciudades</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="rounded-4 p-3 text-center" style="background:#fefce8; border:1px solid #fde68a;">
+        <p class="fw-bold mb-0" style="font-size:1.5rem; color:#92400e;">
+          <%= (@cities_by_province.sum { |p| p.cities.size }.to_f / @cities_by_province.count).round(1) rescue 0 %>
+        </p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;">Ciudades / provincia</p>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="rounded-4 p-3 text-center" style="background:#fdf4ff; border:1px solid #e9d5ff;">
+        <p class="fw-bold mb-0" style="font-size:1.5rem; color:#7e22ce;">
+          <%= @cities_by_province.max_by { |p| p.cities.size }&.cities&.size || 0 %>
+        </p>
+        <p class="text-muted mb-0" style="font-size:0.78rem;">Máx. ciudades en una provincia</p>
+      </div>
+    </div>
+  </div>
+
+  <%# Grupos por provincia %>
+  <div id="provinces-container">
+    <% @cities_by_province.each do |province| %>
+      <div class="province-group mb-3" data-province="<%= province.name.downcase %>">
+        <%# Header de provincia (colapsable) %>
+        <div class="d-flex align-items-center justify-content-between px-4 py-3 rounded-4"
+             style="background:linear-gradient(90deg,#f0fdf4,#f8fafc); border:1.5px solid #e2e8f0;
+                    cursor:pointer;"
+             data-bs-toggle="collapse"
+             data-bs-target="#province-<%= province.id %>"
+             aria-expanded="false">
+          <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                 style="width:36px;height:36px;background:rgba(63,189,2,0.12);">
+              <i class="fas fa-map-signs" style="color:var(--brand-green,#3FBD02);font-size:0.85rem;"></i>
+            </div>
+            <div>
+              <span class="fw-bold" style="font-size:0.95rem;"><%= province.name %></span>
+              <span class="badge rounded-pill ms-2 fw-normal"
+                    style="background:#dcfce7;color:#15803d;font-size:0.7rem;">
+                <%= province.cities.size %> ciudades
+              </span>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down text-muted" style="font-size:0.75rem; transition:transform .2s;"></i>
+        </div>
+
+        <%# Ciudades de la provincia %>
+        <div class="collapse" id="province-<%= province.id %>">
+          <div class="pt-2 pb-1 px-1">
+            <% if province.cities.any? %>
+              <div class="row g-2">
+                <% province.cities.sort_by(&:name).each do |city| %>
+                  <div class="col-12 col-sm-6 col-md-4 col-lg-3 city-item"
+                       data-city="<%= city.name.downcase %>">
+                    <div class="d-flex align-items-center justify-content-between px-3 py-2 rounded-3"
+                         style="background:#fff; border:1px solid #f1f5f9;
+                                transition:box-shadow .15s, border-color .15s;"
+                         onmouseenter="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)';this.style.borderColor='#e2e8f0';"
+                         onmouseleave="this.style.boxShadow='';this.style.borderColor='#f1f5f9';">
+                      <div class="d-flex align-items-center gap-2 min-w-0">
+                        <i class="fas fa-circle flex-shrink-0"
+                           style="font-size:0.4rem; color:var(--brand-green,#3FBD02);"></i>
+                        <span class="text-truncate" style="font-size:0.875rem; font-weight:500;">
+                          <%= city.name %>
+                        </span>
+                      </div>
+                      <div class="d-flex gap-1 flex-shrink-0 ms-2">
+                        <%= link_to edit_city_path(city),
+                              class: "btn btn-sm p-1 rounded-2",
+                              style: "color:#64748b; background:none; border:none; line-height:1;",
+                              title: "Editar",
+                              onmouseenter: "this.style.background='#f1f5f9'",
+                              onmouseleave: "this.style.background='none'" do %>
+                          <i class="fas fa-pencil-alt" style="font-size:0.7rem;"></i>
+                        <% end %>
+                        <%= button_to city_path(city),
+                              method: :delete,
+                              data: { turbo_confirm: "¿Eliminar #{city.name}?" },
+                              class: "btn btn-sm p-1 rounded-2",
+                              style: "color:#ef4444; background:none; border:none; line-height:1;",
+                              title: "Eliminar",
+                              onmouseenter: "this.style.background='#fef2f2'",
+                              onmouseleave: "this.style.background='none'" do %>
+                          <i class="fas fa-trash" style="font-size:0.7rem;"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-muted ps-4 mb-2" style="font-size:0.825rem;">Sin ciudades registradas.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Mensaje vacío cuando no hay resultados de búsqueda %>
+  <div id="no-results" class="text-center py-5 d-none">
+    <i class="fas fa-search fa-2x text-muted mb-3 opacity-50"></i>
+    <p class="text-muted">No se encontraron resultados.</p>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var searchInput = document.getElementById('city-search');
+  if (!searchInput) return;
+
+  searchInput.addEventListener('input', function() {
+    var q = this.value.trim().toLowerCase();
+    var groups = document.querySelectorAll('.province-group');
+    var anyVisible = false;
+
+    groups.forEach(function(group) {
+      var provinceName = group.dataset.province || '';
+      var cities = group.querySelectorAll('.city-item');
+      var matchCount = 0;
+
+      cities.forEach(function(item) {
+        var cityName = item.dataset.city || '';
+        var match = !q || cityName.includes(q) || provinceName.includes(q);
+        item.style.display = match ? '' : 'none';
+        if (match) matchCount++;
+      });
+
+      var visible = matchCount > 0 || (!q);
+      group.style.display = visible ? '' : 'none';
+
+      // Auto-expandir cuando hay búsqueda
+      if (q && matchCount > 0) {
+        var collapseEl = group.querySelector('.collapse');
+        if (collapseEl && !collapseEl.classList.contains('show')) {
+          new bootstrap.Collapse(collapseEl, { toggle: false }).show();
+        }
+      }
+
+      if (visible) anyVisible = true;
+    });
+
+    document.getElementById('no-results').classList.toggle('d-none', anyVisible || !q);
+  });
+
+  // Rotar chevron al colapsar/expandir
+  document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function(btn) {
+    var target = document.querySelector(btn.dataset.bsTarget);
+    if (!target) return;
+    target.addEventListener('show.bs.collapse',  function() {
+      btn.querySelector('.fa-chevron-down').style.transform = 'rotate(180deg)';
+    });
+    target.addEventListener('hide.bs.collapse', function() {
+      btn.querySelector('.fa-chevron-down').style.transform = 'rotate(0deg)';
+    });
+  });
+})();
+</script>

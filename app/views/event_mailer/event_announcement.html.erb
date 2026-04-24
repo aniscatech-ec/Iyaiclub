@@ -1,0 +1,140 @@
+<%# Preheader (preview text in inbox) %>
+<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f4f4f7;opacity:0;">
+  ¡Hay un nuevo evento en IyaiClub! <%= @event.name %> — <%= @event.event_date&.strftime('%d/%m/%Y') %>. ¡Asegura tu lugar!
+</div>
+
+<%# Saludo %>
+<p style="margin:0 0 20px 0; font-size:17px; color:#333;">
+  Hola <strong><%= @user.name.split.first %></strong> 👋
+</p>
+
+<p style="margin:0 0 24px 0; font-size:16px; color:#444; line-height:1.6;">
+  Tenemos excelentes noticias — hay un nuevo evento esperándote:
+</p>
+
+<%# Card del evento %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+       style="margin:0 0 28px 0; border-radius:12px; overflow:hidden; border:1px solid #e8e8e8;">
+
+  <%# Banner / imagen del evento %>
+  <% if @event.image.attached? %>
+    <tr>
+      <td style="padding:0;">
+        <img src="<%= url_for(@event.image) %>"
+             alt="<%= @event.name %>"
+             width="100%"
+             style="display:block; width:100%; max-height:220px; object-fit:cover; border-radius:12px 12px 0 0;" />
+      </td>
+    </tr>
+  <% end %>
+
+  <%# Header naranja con nombre %>
+  <tr>
+    <td style="background:linear-gradient(135deg,#EB633B,#c94a28); padding:20px 24px;">
+      <h2 style="margin:0; color:#fff; font-size:22px; font-weight:bold; line-height:1.3;">
+        <%= @event.name %>
+      </h2>
+    </td>
+  </tr>
+
+  <%# Datos del evento %>
+  <tr>
+    <td style="background:#fafafa; padding:20px 24px;">
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+
+        <tr>
+          <td width="32" valign="top" style="padding-bottom:14px;">
+            <span style="font-size:18px;">📅</span>
+          </td>
+          <td style="padding-bottom:14px; padding-left:10px;">
+            <span style="font-size:13px; color:#888; display:block;">Fecha y hora</span>
+            <strong style="font-size:15px; color:#222;">
+              <%= @event.event_date&.strftime('%A %d de %B de %Y, %H:%M') %> hrs
+            </strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td width="32" valign="top" style="padding-bottom:14px;">
+            <span style="font-size:18px;">📍</span>
+          </td>
+          <td style="padding-bottom:14px; padding-left:10px;">
+            <span style="font-size:13px; color:#888; display:block;">Lugar</span>
+            <strong style="font-size:15px; color:#222;"><%= @event.location %></strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td width="32" valign="top">
+            <span style="font-size:18px;">🎟️</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:13px; color:#888; display:block;">Precio del ticket</span>
+            <% member_price     = @event.member_price %>
+            <% non_member_price = @event.non_member_price || @event.price_for(nil) %>
+            <% if member_price.present? && member_price > 0 %>
+              <strong style="font-size:16px; color:#2E7D32;">
+                Desde $<%= number_with_precision(member_price, precision: 2) %> USD
+              </strong>
+              <span style="font-size:13px; color:#888; display:block; margin-top:2px;">
+                Precio afiliado. Precio normal: $<%= number_with_precision(non_member_price, precision: 2) %> USD
+              </span>
+            <% elsif non_member_price.to_f > 0 %>
+              <strong style="font-size:16px; color:#2E7D32;">
+                $<%= number_with_precision(non_member_price, precision: 2) %> USD
+              </strong>
+            <% else %>
+              <strong style="font-size:16px; color:#2E7D32;">¡Entrada libre!</strong>
+            <% end %>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+
+  <%# Descripción %>
+  <% if @event.description.present? %>
+    <tr>
+      <td style="padding:16px 24px 20px; border-top:1px solid #eee;">
+        <p style="margin:0; font-size:14px; color:#555; line-height:1.7;">
+          <%= @event.description %>
+        </p>
+      </td>
+    </tr>
+  <% end %>
+
+</table>
+
+<%# CTA Button %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 28px 0;">
+  <tr>
+    <td align="center">
+      <a href="<%= event_url(@event, host: Rails.application.config.action_mailer.default_url_options[:host]) %>"
+         style="display:inline-block; background:linear-gradient(135deg,#EB633B,#c94a28); color:#fff;
+                text-decoration:none; font-size:16px; font-weight:bold; padding:14px 40px;
+                border-radius:50px; letter-spacing:0.02em; box-shadow:0 4px 14px rgba(235,99,59,0.35);">
+        🎟️ Ver evento y comprar ticket
+      </a>
+    </td>
+  </tr>
+</table>
+
+<%# Beneficio membresía %>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+       style="margin:0 0 24px 0; background:#fff8f0; border-radius:10px; border:1px solid #fde8d8;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0; font-size:14px; color:#c94a28; line-height:1.6;">
+        <strong>💡 ¿Sabías que?</strong> Los afiliados IyaiClub obtienen precios exclusivos y acceso anticipado a eventos.
+        Si aún no tienes membresía, <a href="<%= subscriptions_url(host: Rails.application.config.action_mailer.default_url_options[:host]) %>"
+           style="color:#EB633B; font-weight:bold; text-decoration:underline;">¡actívala aquí!</a>
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 8px 0; font-size:14px; color:#888; line-height:1.6;">
+  ¡Nos vemos allá! 🎉<br>
+  <strong style="color:#333;">El equipo de IyaiClub</strong>
+</p>

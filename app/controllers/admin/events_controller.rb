@@ -23,7 +23,13 @@ class Admin::EventsController < ApplicationController
     @event = Event.new(event_params)
 
     if @event.save
-      redirect_to admin_event_path(@event), notice: "Evento creado correctamente."
+      if params[:notify_users] == "1"
+        BroadcastEventJob.perform_later(@event.id)
+        notice = "Evento creado. Se están enviando notificaciones por correo a todos los usuarios."
+      else
+        notice = "Evento creado correctamente."
+      end
+      redirect_to admin_event_path(@event), notice: notice
     else
       render :new, status: :unprocessable_entity
     end

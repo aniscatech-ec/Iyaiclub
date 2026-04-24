@@ -24,7 +24,9 @@ class CitiesController < ApplicationController
         format.json { render json: @cities.map { |c| { id: c.id, name: c.name } } }
       end
     else
-      @cities = City.includes(province: :country).all
+      @cities_by_province = Province.includes(:cities, :country)
+                                    .where(countries: { name: "Ecuador" })
+                                    .order(:name)
     end
   end
 
