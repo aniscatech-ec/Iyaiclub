@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   namespace :locations do
     get 'provinces/:country_id', to: 'locations#provinces'
     get 'cities/:province_id', to: 'locations#cities'
+    get 'country_cities/:country_id', to: 'locations#country_cities'
   end
   # resources :countries do
   #   resources :provinces do

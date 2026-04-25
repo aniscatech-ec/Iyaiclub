@@ -34,13 +34,17 @@ class GetawaysController < ApplicationController
   end
 
   def create
+    activity_ids = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?)
+    safe_params  = getaway_params.except(:getaway_activity_ids)
+
     if @establishment
-      @getaway = @establishment.getaways.build(getaway_params)
+      @getaway = @establishment.getaways.build(safe_params)
     else
-      @getaway = Getaway.new(getaway_params)
+      @getaway = Getaway.new(safe_params)
     end
 
     if @getaway.save
+      @getaway.getaway_activity_ids = activity_ids if activity_ids
       redirect_to @getaway, notice: 'La escapada ha sido creada correctamente.'
     else
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar la escapada. Revisa los campos marcados en rojo."
@@ -55,7 +59,11 @@ class GetawaysController < ApplicationController
 
   def update
     @establishment = @getaway.establishment
-    if @getaway.update(getaway_params)
+    activity_ids   = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?) || []
+    safe_params    = getaway_params.except(:getaway_activity_ids)
+
+    if @getaway.update(safe_params)
+      @getaway.getaway_activity_ids = activity_ids
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."

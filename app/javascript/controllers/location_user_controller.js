@@ -1,39 +1,47 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="location-user"
+// Handles country → city dependent dropdowns (no province step).
+// Pass data-location-user-saved-city-id-value on the wrapper to restore a pre-selected city.
 export default class extends Controller {
     static targets = ["country", "city"]
+    static values  = { savedCityId: String }
 
     connect() {
-        console.log("Location-User controller conectado ✅")
+        // Pre-load cities if a country is already selected (edit forms)
+        const countryId = this.countryTarget.value
+        if (countryId) {
+            this._loadCities(countryId, this.savedCityIdValue || null)
+        }
     }
 
-    // Método que se llama cuando cambia el país
+    // Fired when the country select changes
     updateCities(event) {
         const countryId = event.target.value
 
         if (!countryId) {
-            // Si no hay país seleccionado, limpiamos el select de ciudades
             this.cityTarget.innerHTML = "<option value=''>Seleccionar ciudad</option>"
             return
         }
-        console.log("update cities " + countryId)
 
-        // URL para obtener las ciudades del país
-        const url = `/countries/${countryId}/cities.json`
+        this._loadCities(countryId, null)
+    }
+
+    _loadCities(countryId, restoreCityId) {
+        const url = `/locations/country_cities/${countryId}`
 
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                return response.json()
+            })
             .then(data => {
-                // Limpiar opciones previas
-                this.cityTarget.innerHTML = "<option value=''>Seleccionar ciudad</option>"
-                // Agregar las nuevas ciudades
+                const options = ['<option value="">Seleccionar ciudad</option>']
                 data.forEach(city => {
-                    const option = document.createElement("option")
-                    option.value = city.id
-                    option.textContent = city.name
-                    this.cityTarget.appendChild(option)
+                    const selected = restoreCityId && String(city.id) === String(restoreCityId) ? " selected" : ""
+                    options.push(`<option value="${city.id}"${selected}>${city.name}</option>`)
                 })
+                this.cityTarget.innerHTML = options.join("")
             })
             .catch(error => console.error("Error cargando ciudades:", error))
     }

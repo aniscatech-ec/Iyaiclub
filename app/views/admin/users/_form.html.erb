@@ -114,7 +114,8 @@
               </div>
             </div>
 
-            <div data-controller="location-user">
+            <div data-controller="location-user"
+                 data-location-user-saved-city-id-value="<%= @user.city_id %>">
 
               <div class="mb-3">
                 <%= f.label :country_id, "País" %>

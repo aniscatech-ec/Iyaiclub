@@ -14,4 +14,12 @@ class Locations::LocationsController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render json: [], status: :not_found
   end
+
+  def country_cities
+    country = Country.find(params[:country_id])
+    cities = City.joins(:province).where(provinces: { country_id: country.id }).order(:name)
+    render json: cities.as_json(only: [:id, :name])
+  rescue ActiveRecord::RecordNotFound
+    render json: [], status: :not_found
+  end
 end
