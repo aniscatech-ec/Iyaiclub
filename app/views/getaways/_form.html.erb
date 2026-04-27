@@ -138,9 +138,9 @@
     <!-- ═══════════════ 3. UBICACIÓN ═══════════════ -->
     <div class="card shadow-sm border-0 rounded-3 mb-4"
          data-controller="location-select"
-         data-location-select-country-id-value="getaway_country_id"
-         data-location-select-province-id-value="getaway_province_id"
-         data-location-select-city-id-value="getaway_city_id">
+         data-location-select-country-id-value="getaway_establishment_attributes_country_id"
+         data-location-select-province-id-value="getaway_establishment_attributes_province_id"
+         data-location-select-city-id-value="getaway_establishment_attributes_city_id">
       <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
         <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
       </div>
@@ -157,19 +157,19 @@
           <div class="col-md-4">
             <%= est.label :country_id, "País", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :country_id, Country.order(:name), :id, :name,
-                { prompt: "Seleccione país" }, class: "form-select", required: true, id: "getaway_country_id" %>
+                { prompt: "Seleccione país" }, class: "form-select", required: true, id: "getaway_establishment_attributes_country_id" %>
           </div>
 
           <div class="col-md-4">
             <%= est.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :province_id, Province.order(:name), :id, :name,
-                { prompt: "Seleccione provincia" }, class: "form-select", required: true, id: "getaway_province_id" %>
+                { prompt: "Seleccione provincia" }, class: "form-select", required: true, id: "getaway_establishment_attributes_province_id" %>
           </div>
 
           <div class="col-md-4">
             <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
             <%= est.collection_select :city_id, City.order(:name), :id, :name,
-                { prompt: "Seleccione ciudad" }, class: "form-select", required: true, id: "getaway_city_id" %>
+                { prompt: "Seleccione ciudad" }, class: "form-select", required: true, id: "getaway_establishment_attributes_city_id" %>
           </div>
 
           <div class="col-12">
