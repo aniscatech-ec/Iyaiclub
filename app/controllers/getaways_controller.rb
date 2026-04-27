@@ -35,7 +35,9 @@ class GetawaysController < ApplicationController
 
   def create
     activity_ids = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?)
+    amenity_ids  = params.dig(:getaway, :establishment_attributes, :amenity_ids)&.reject(&:blank?)
     safe_params  = getaway_params.except(:getaway_activity_ids)
+    safe_params[:establishment_attributes]&.delete(:amenity_ids)
 
     if @establishment
       @getaway = @establishment.getaways.build(safe_params)
@@ -44,7 +46,8 @@ class GetawaysController < ApplicationController
     end
 
     if @getaway.save
-      @getaway.getaway_activity_ids = activity_ids if activity_ids
+      @getaway.getaway_activity_ids      = activity_ids if activity_ids
+      @getaway.establishment.amenity_ids = amenity_ids  if amenity_ids
       redirect_to @getaway, notice: 'La escapada ha sido creada correctamente.'
     else
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar la escapada. Revisa los campos marcados en rojo."
@@ -60,10 +63,14 @@ class GetawaysController < ApplicationController
   def update
     @establishment = @getaway.establishment
     activity_ids   = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?) || []
+    amenity_ids    = params.dig(:getaway, :establishment_attributes, :amenity_ids)&.reject(&:blank?) || []
     safe_params    = getaway_params.except(:getaway_activity_ids)
+    # Remove amenity_ids from nested params so Rails doesn't try to handle it via accepts_nested_attributes_for
+    safe_params[:establishment_attributes]&.delete(:amenity_ids)
 
     if @getaway.update(safe_params)
-      @getaway.getaway_activity_ids = activity_ids
+      @getaway.getaway_activity_ids        = activity_ids
+      @getaway.establishment.amenity_ids   = amenity_ids
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."

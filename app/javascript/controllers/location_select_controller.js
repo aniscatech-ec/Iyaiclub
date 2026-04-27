@@ -4,37 +4,36 @@ import { Controller } from "@hotwired/stimulus"
 //
 // Uso en HTML:
 //   <div data-controller="location-select"
-//        data-location-select-country-id="establishment_country_id"
-//        data-location-select-province-id="establishment_province_id"
-//        data-location-select-city-id="establishment_city_id">
-//
-// El controller detecta los valores pre-seleccionados y restaura la cadena
-// completa al cargar, sin disparar el evento change entre pasos intermedios.
+//        data-location-select-country-id-value="el_id_del_select_pais"
+//        data-location-select-province-id-value="el_id_del_select_provincia"
+//        data-location-select-city-id-value="el_id_del_select_ciudad"
+//        data-location-select-saved-province-id-value="<%= record.province_id %>"
+//        data-location-select-saved-city-id-value="<%= record.city_id %>">
 
 export default class extends Controller {
   static values = {
-    countryId:  String,
-    provinceId: String,
-    cityId:     String
+    countryId:       String,
+    provinceId:      String,
+    cityId:          String,
+    savedProvinceId: String,
+    savedCityId:     String
   }
 
   connect() {
-    this._loading = false   // flag para suprimir el listener de change durante la carga
-
     this.countryEl  = document.getElementById(this.countryIdValue)
     this.provinceEl = document.getElementById(this.provinceIdValue)
     this.cityEl     = document.getElementById(this.cityIdValue)
 
     if (!this.countryEl || !this.provinceEl || !this.cityEl) return
 
-    // Guardar los valores pre-seleccionados ANTES de que el JS los toque
-    this._savedProvinceId = this.provinceEl.value || null
-    this._savedCityId     = this.cityEl.value     || null
+    // Los IDs guardados vienen de data-values (server-side), no del DOM
+    this._savedProvinceId = this.savedProvinceIdValue || null
+    this._savedCityId     = this.savedCityIdValue     || null
 
     this.countryEl.addEventListener("change",  this._onCountryChange.bind(this))
     this.provinceEl.addEventListener("change", this._onProvinceChange.bind(this))
 
-    // Si ya hay un país seleccionado, restaurar la cadena completa
+    // Si ya hay un país seleccionado, cargar provincias y restaurar selección
     if (this.countryEl.value) {
       this._loadProvinces(this.countryEl.value, this._savedProvinceId)
     }
@@ -43,14 +42,12 @@ export default class extends Controller {
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   _onCountryChange(e) {
-    if (this._loading) return
     this._savedProvinceId = null
     this._savedCityId     = null
     this._loadProvinces(e.target.value, null)
   }
 
   _onProvinceChange(e) {
-    if (this._loading) return
     this._savedCityId = null
     this._loadCities(e.target.value, null)
   }
@@ -64,23 +61,21 @@ export default class extends Controller {
       return
     }
 
-    this._loading = true
     fetch(`/locations/provinces/${countryId}`)
       .then(r => r.json())
       .then(data => {
         this._setOptions(this.provinceEl, data, "Seleccione provincia", restoreProvinceId)
-        this._setOptions(this.cityEl,     [],   "Seleccione ciudad")
-
-        if (restoreProvinceId) {
-          // Verificar que la opción quedó seleccionada antes de cargar ciudades
-          const selected = this.provinceEl.value
-          if (selected) this._loadCities(selected, this._savedCityId)
+        // Solo cargar ciudades si hay una provincia a restaurar
+        if (restoreProvinceId && this.provinceEl.value) {
+          this._loadCities(this.provinceEl.value, this._savedCityId)
+        } else {
+          this._setOptions(this.cityEl, [], "Seleccione ciudad")
         }
       })
       .catch(() => {
         this._setOptions(this.provinceEl, [], "Error al cargar provincias")
+        this._setOptions(this.cityEl,     [], "Seleccione ciudad")
       })
-      .finally(() => { this._loading = false })
   }
 
   _loadCities(provinceId, restoreCityId) {
@@ -99,9 +94,7 @@ export default class extends Controller {
       })
   }
 
-  // ── Helper: reemplaza las opciones en UNA sola asignación ─────────────────
-  // Usar innerHTML += en un loop destruye y recrea el DOM en cada iteración,
-  // lo que puede disparar eventos "change" espurios y resetear el valor.
+  // ── Helper ────────────────────────────────────────────────────────────────
 
   _setOptions(selectEl, items, placeholder, selectedId = null) {
     const options = [`<option value="">${placeholder}</option>`]

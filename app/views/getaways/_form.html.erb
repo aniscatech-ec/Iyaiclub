@@ -140,7 +140,9 @@
          data-controller="location-select"
          data-location-select-country-id-value="getaway_establishment_attributes_country_id"
          data-location-select-province-id-value="getaway_establishment_attributes_province_id"
-         data-location-select-city-id-value="getaway_establishment_attributes_city_id">
+         data-location-select-city-id-value="getaway_establishment_attributes_city_id"
+         data-location-select-saved-province-id-value="<%= getaway.establishment&.province_id %>"
+         data-location-select-saved-city-id-value="<%= getaway.establishment&.city_id %>">
       <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
         <i class="fas fa-map-marker-alt me-2"></i> 3. Ubicación
       </div>
@@ -162,14 +164,28 @@
 
           <div class="col-md-4">
             <%= est.label :province_id, "Provincia", class: "form-label fw-semibold required-field" %>
-            <%= est.collection_select :province_id, Province.order(:name), :id, :name,
-                { prompt: "Seleccione provincia" }, class: "form-select", required: true, id: "getaway_establishment_attributes_province_id" %>
+            <select name="getaway[establishment_attributes][province_id]" id="getaway_establishment_attributes_province_id"
+                    class="form-select" required>
+              <option value="">Seleccione provincia</option>
+              <% if getaway.establishment&.province_id.present? %>
+                <option value="<%= getaway.establishment.province_id %>" selected>
+                  <%= getaway.establishment.province&.name %>
+                </option>
+              <% end %>
+            </select>
           </div>
 
           <div class="col-md-4">
             <%= est.label :city_id, "Ciudad", class: "form-label fw-semibold required-field" %>
-            <%= est.collection_select :city_id, City.order(:name), :id, :name,
-                { prompt: "Seleccione ciudad" }, class: "form-select", required: true, id: "getaway_establishment_attributes_city_id" %>
+            <select name="getaway[establishment_attributes][city_id]" id="getaway_establishment_attributes_city_id"
+                    class="form-select" required>
+              <option value="">Seleccione ciudad</option>
+              <% if getaway.establishment&.city_id.present? %>
+                <option value="<%= getaway.establishment.city_id %>" selected>
+                  <%= getaway.establishment.city&.name %>
+                </option>
+              <% end %>
+            </select>
           </div>
 
           <div class="col-12">
@@ -319,6 +335,7 @@
         <i class="fas fa-concierge-bell me-2"></i> 7. Comodidades y servicios
       </div>
       <div class="card-body">
+        <input type="hidden" name="getaway[establishment_attributes][amenity_ids][]" value="">
         <div class="row g-2">
           <% Amenity.with_attached_custom_icon.each do |amenity| %>
             <div class="col-6 col-md-4 col-lg-3">
@@ -355,6 +372,7 @@
           <%= link_to "Agregar actividades desde el admin", admin_getaway_activities_path, target: "_blank", class: "text-success fw-semibold" %>.
         </p>
       <% else %>
+        <input type="hidden" name="getaway[getaway_activity_ids][]" value="">
         <div class="row g-2">
           <% activities.each do |activity| %>
             <div class="col-6 col-md-4 col-lg-3">
