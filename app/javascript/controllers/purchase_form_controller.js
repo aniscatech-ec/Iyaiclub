@@ -1,11 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["vendedorSection", "quantityInput", "totalPrice", "submitButton", "comboBadge", "unitPriceDisplay"]
+  static targets = ["vendedorSection", "vendedorSelect", "quantityInput", "totalPrice", "submitButton", "comboBadge", "unitPriceDisplay"]
 
   connect() {
     this.toggleVendedores()
-    this.basePrice     = parseFloat(this.data.get("unitPrice"))     || 0
+    this.normalPrice   = parseFloat(this.data.get("unitPrice"))     || 0
+    this.standPrice    = parseFloat(this.data.get("standPrice"))    || 0
+    this.basePrice     = this.normalPrice
     this.comboQuantity = parseInt(this.data.get("comboQuantity"))   || 0
     this.comboDiscount = parseFloat(this.data.get("comboDiscount")) || 0
     this.updateTotal()
@@ -21,7 +23,24 @@ export default class extends Controller {
     } else {
       this.vendedorSectionTarget.style.display = "none"
       this.vendedorSectionTarget.querySelectorAll('select[name="vendedor_id"]').forEach(s => s.required = false)
+      // Al desmarcar transferencia, restaurar precio normal
+      this.basePrice = this.normalPrice
+      this.updateTotal()
     }
+  }
+
+  onVendedorChange() {
+    if (!this.hasVendedorSelectTarget) return
+    const select = this.vendedorSelectTarget
+    const selectedOption = select.options[select.selectedIndex]
+    const isStand = selectedOption && selectedOption.dataset.stand === "1"
+
+    if (isStand && this.standPrice > 0) {
+      this.basePrice = this.standPrice
+    } else {
+      this.basePrice = this.normalPrice
+    }
+    this.updateTotal()
   }
 
   incrementQuantity() {

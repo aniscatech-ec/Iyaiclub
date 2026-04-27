@@ -3,11 +3,15 @@ class EventVendedor < ApplicationRecord
   belongs_to :event
   belongs_to :user
 
+  enum :vendor_type, { normal: 0, stand: 1 }, prefix: true
+
   validates :user_id, uniqueness: { scope: :event_id, message: "ya está asignado a este evento" }
   validates :quota, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validate :user_must_be_vendedor
 
-  scope :active, -> { where(active: true) }
+  scope :active,      -> { where(active: true) }
+  scope :stand_type,  -> { where(vendor_type: :stand) }
+  scope :normal_type, -> { where(vendor_type: :normal) }
 
   # Tickets acreditados (activos+usados) vendidos por este vendedor en este evento
   def tickets_sold

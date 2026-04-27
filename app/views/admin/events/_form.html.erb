@@ -72,21 +72,31 @@
         </div>
         <div class="card-body px-4 pb-4">
           <div class="row g-3 mb-3">
-            <div class="col-12 col-sm-6">
+            <div class="col-12 col-sm-4">
               <%= form.label :member_price, "Precio Afiliado (USD)", class: "form-label fw-bold" %>
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <%= form.number_field :member_price, class: "form-control", step: 0.01, min: 0, placeholder: "0.00" %>
               </div>
-              <div class="form-text">Para usuarios con cuenta registrada.</div>
+              <div class="form-text">Usuarios con cuenta registrada.</div>
             </div>
-            <div class="col-12 col-sm-6">
+            <div class="col-12 col-sm-4">
               <%= form.label :non_member_price, "Precio No Afiliado (USD)", class: "form-label fw-bold" %>
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <%= form.number_field :non_member_price, class: "form-control", step: 0.01, min: 0, placeholder: "0.00" %>
               </div>
-              <div class="form-text">Para visitantes sin cuenta.</div>
+              <div class="form-text">Visitantes sin cuenta.</div>
+            </div>
+            <div class="col-12 col-sm-4">
+              <%= form.label :stand_price, "Precio Stand (USD)", class: "form-label fw-bold" %>
+              <div class="input-group">
+                <span class="input-group-text" style="background:#fff3e0;">
+                  <i class="fas fa-store text-warning"></i>
+                </span>
+                <%= form.number_field :stand_price, class: "form-control", step: 0.01, min: 0, placeholder: "0.00" %>
+              </div>
+              <div class="form-text">Vendedores de stand (independiente del rol).</div>
             </div>
           </div>
 
@@ -299,6 +309,50 @@
                   <% end %>
                 </select>
               </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Tipo de vendedor</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <input type="radio" class="btn-check" name="event_vendedor[vendor_type]"
+                           id="form_av_vtype_normal" value="normal" checked autocomplete="off">
+                    <label class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3"
+                           for="form_av_vtype_normal">
+                      <i class="fas fa-user mb-1"></i>
+                      <span class="fw-semibold">Normal</span>
+                      <small class="text-muted fw-normal" style="font-size:.72rem;">Precio afiliado / no afiliado</small>
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <input type="radio" class="btn-check" name="event_vendedor[vendor_type]"
+                           id="form_av_vtype_stand" value="stand" autocomplete="off">
+                    <label class="btn btn-outline-warning w-100 d-flex flex-column align-items-center py-3"
+                           for="form_av_vtype_stand">
+                      <i class="fas fa-store mb-1"></i>
+                      <span class="fw-semibold">Stand</span>
+                      <small class="text-muted fw-normal" style="font-size:.72rem;">
+                        Precio stand
+                        <% if @event.stand_price? %>
+                          ($<%= '%.2f' % @event.stand_price %>)
+                        <% else %>
+                          <span class="text-danger">(no configurado)</span>
+                        <% end %>
+                      </small>
+                    </label>
+                  </div>
+                </div>
+                <% unless @event.stand_price? %>
+                  <div class="mt-2 alert alert-warning py-2 px-3 small mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    El evento no tiene precio de stand.
+                    <%= link_to "Configurar", edit_admin_event_path(@event), class: "fw-semibold" %>.
+                  </div>
+                <% end %>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Cupo de tickets <small class="text-muted fw-normal">(opcional)</small></label>
+                <input type="number" name="event_vendedor[quota]" class="form-control" min="1" placeholder="Ej: 50 — dejar vacío para sin límite">
+                <small class="text-muted">Al alcanzar el cupo se marcará como "cupo cumplido", pero podrá seguir vendiendo.</small>
+              </div>
             </div>
             <div class="modal-footer border-0">
               <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -354,9 +408,53 @@
                 <%= collection_select(:user, :city_id, City.all.limit(50), :id, :name, { prompt: "Seleccione..." }, class: "form-select", required: true) %>
               </div>
             </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tipo de vendedor</label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="radio" class="btn-check" name="vendor_type"
+                         id="form_cv_vtype_normal" value="normal" checked autocomplete="off">
+                  <label class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3"
+                         for="form_cv_vtype_normal">
+                    <i class="fas fa-user mb-1"></i>
+                    <span class="fw-semibold">Normal</span>
+                    <small class="text-muted fw-normal" style="font-size:.72rem;">Precio afiliado / no afiliado</small>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <input type="radio" class="btn-check" name="vendor_type"
+                         id="form_cv_vtype_stand" value="stand" autocomplete="off">
+                  <label class="btn btn-outline-warning w-100 d-flex flex-column align-items-center py-3"
+                         for="form_cv_vtype_stand">
+                    <i class="fas fa-store mb-1"></i>
+                    <span class="fw-semibold">Stand</span>
+                    <small class="text-muted fw-normal" style="font-size:.72rem;">
+                      Precio stand
+                      <% if @event.stand_price? %>
+                        ($<%= '%.2f' % @event.stand_price %>)
+                      <% else %>
+                        <span class="text-danger">(no configurado)</span>
+                      <% end %>
+                    </small>
+                  </label>
+                </div>
+              </div>
+              <% unless @event.stand_price? %>
+                <div class="mt-2 alert alert-warning py-2 px-3 small mb-0">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  El evento no tiene precio de stand.
+                  <%= link_to "Configurar", edit_admin_event_path(@event), class: "fw-semibold" %>.
+                </div>
+              <% end %>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Cupo de tickets <small class="text-muted fw-normal">(opcional)</small></label>
+              <input type="number" name="quota" class="form-control" min="1" placeholder="Ej: 50 — dejar vacío para sin límite">
+              <small class="text-muted">Al alcanzar el cupo se marcará como "cupo cumplido".</small>
+            </div>
             <div class="form-check">
-              <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="autoAssignCheck" checked>
-              <label class="form-check-label" for="autoAssignCheck">Asignar automáticamente a este evento</label>
+              <input type="checkbox" name="auto_assign" value="1" class="form-check-input" id="form_autoAssignCheck" checked>
+              <label class="form-check-label" for="form_autoAssignCheck">Asignar automáticamente a este evento</label>
             </div>
           </div>
           <div class="modal-footer border-0">

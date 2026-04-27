@@ -25,12 +25,64 @@
 
           <% if @vendedores.any? %>
             <%= form_with model: @event_vendedor, url: admin_event_vendedores_path(@event), class: "needs-validation" do |f| %>
-              <div class="mb-4">
+              <div class="mb-3">
                 <label class="form-label fw-bold">Seleccionar Vendedor</label>
                 <%= f.select :user_id,
                     @vendedores.map { |v| ["#{v.name} - #{v.phone || 'Sin teléfono'}", v.id] },
                     { prompt: "Seleccione un vendedor..." },
                     class: "form-select" %>
+              </div>
+
+              <%# Tipo de vendedor %>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Tipo de vendedor</label>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <input type="radio" class="btn-check" name="event_vendedor[vendor_type]"
+                           id="vtype_normal" value="normal" checked autocomplete="off">
+                    <label class="btn btn-outline-primary w-100 d-flex flex-column align-items-center py-3"
+                           for="vtype_normal">
+                      <i class="fas fa-user mb-1"></i>
+                      <span class="fw-semibold">Normal</span>
+                      <small class="text-muted fw-normal" style="font-size:.72rem;">
+                        Precio afiliado / no afiliado
+                      </small>
+                    </label>
+                  </div>
+                  <div class="col-6">
+                    <input type="radio" class="btn-check" name="event_vendedor[vendor_type]"
+                           id="vtype_stand" value="stand" autocomplete="off">
+                    <label class="btn btn-outline-warning w-100 d-flex flex-column align-items-center py-3"
+                           for="vtype_stand">
+                      <i class="fas fa-store mb-1"></i>
+                      <span class="fw-semibold">Stand</span>
+                      <small class="text-muted fw-normal" style="font-size:.72rem;">
+                        Precio stand
+                        <% if @event.stand_price? %>
+                          ($<%= '%.2f' % @event.stand_price %>)
+                        <% else %>
+                          <span class="text-danger">(no configurado)</span>
+                        <% end %>
+                      </small>
+                    </label>
+                  </div>
+                </div>
+                <% unless @event.stand_price? %>
+                  <div class="mt-2 alert alert-warning py-2 px-3 small mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    El evento no tiene precio de stand configurado.
+                    <%= link_to "Configúralo aquí", edit_admin_event_path(@event), class: "fw-semibold" %>.
+                  </div>
+                <% end %>
+              </div>
+
+              <%# Cupo opcional %>
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  Cupo máximo de tickets <span class="fw-normal text-muted">(opcional)</span>
+                </label>
+                <%= f.number_field :quota, class: "form-control", min: 1, placeholder: "Sin límite" %>
+                <div class="form-text">Deja vacío si el vendedor no tiene límite de ventas.</div>
               </div>
 
               <div class="d-grid">

@@ -97,9 +97,9 @@ class Admin::EventsController < ApplicationController
   def event_params
     params.require(:event).permit(
       :name, :description, :event_date, :location, :maps_url,
-      :member_price, :non_member_price,
+      :member_price, :non_member_price, :stand_price,
       :combo_quantity, :combo_discount,
-      :total_tickets, :available_tickets, :status, :image
+      :total_tickets, :available_tickets, :status, :image, :notify_users
     )
   end
 end

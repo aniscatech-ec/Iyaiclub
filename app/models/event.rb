@@ -10,6 +10,7 @@ class Event < ApplicationRecord
   validates :name, presence: true
   validates :member_price,     numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :non_member_price, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :stand_price,      numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :total_tickets,    numericality: { greater_than: 0 }, allow_nil: true
   validates :available_tickets, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :combo_quantity, numericality: { greater_than: 1, only_integer: true }, allow_nil: true
@@ -22,8 +23,14 @@ class Event < ApplicationRecord
   scope :upcoming, -> { where("event_date >= ?", Date.current) }
   scope :past, -> { where("event_date < ?", Date.current) }
 
-  # Precio unitario base según tipo de usuario. No incluye descuento combo.
-  def price_for(user, quantity = 1)
+  # Precio unitario base según contexto.
+  # vendedor_id: si se pasa y ese vendedor es de tipo stand, devuelve stand_price.
+  def price_for(user, quantity = 1, vendedor_id: nil)
+    if vendedor_id.present?
+      ev = event_vendedores.find_by(user_id: vendedor_id)
+      return (stand_price || ticket_price || 0).to_f if ev&.vendor_type_stand?
+    end
+
     if user.present?
       (member_price || ticket_price || 0).to_f
     else
@@ -31,19 +38,29 @@ class Event < ApplicationRecord
     end
   end
 
-  # Total a cobrar por N tickets, aplicando el descuento combo por cada lote completo.
-  # El combo es exclusivo para usuarios afiliados (user presente).
-  # Ejemplo: combo_quantity=3, combo_discount=$2, quantity=7
-  #   → 2 lotes completos → $2 × 2 = $4 de descuento → $140 - $4 = $136
-  def total_price_for(user, quantity)
+  # Total a cobrar por N tickets, aplicando el descuento combo si aplica.
+  # El combo no aplica para tickets de stand.
+  def total_price_for(user, quantity, vendedor_id: nil)
     quantity = quantity.to_i
-    subtotal = price_for(user) * quantity
+    subtotal = price_for(user, quantity, vendedor_id: vendedor_id) * quantity
+
+    # Sin combo para tickets de stand
+    if vendedor_id.present?
+      ev = event_vendedores.find_by(user_id: vendedor_id)
+      return subtotal if ev&.vendor_type_stand?
+    end
+
     if combo_active? && user.present? && quantity >= combo_quantity
       complete_lots = quantity / combo_quantity
       [subtotal - combo_discount.to_f * complete_lots, 0].max
     else
       subtotal
     end
+  end
+
+  # true si el precio de stand está configurado
+  def stand_price?
+    stand_price.present? && stand_price > 0
   end
 
   # true si el combo está configurado y activo

@@ -107,6 +107,7 @@ class Turista::TicketsController < ApplicationController
     end
 
     @vendedores = @event.active_vendedores
+    @event.event_vendedores.load
   end
 
   def create_purchase
@@ -235,8 +236,8 @@ class Turista::TicketsController < ApplicationController
       return
     end
 
-    unit_price  = @event.price_for(current_user)
-    total_price = @event.total_price_for(current_user, quantity)
+    unit_price  = @event.price_for(current_user, vendedor_id: vendedor&.id)
+    total_price = @event.total_price_for(current_user, quantity, vendedor_id: vendedor&.id)
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do

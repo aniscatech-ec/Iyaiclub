@@ -79,7 +79,8 @@ class Admin::VendedoresController < ApplicationController
     if @user.save
       if params[:auto_assign] == "1"
         ev = @event.event_vendedores.create!(user: @user, active: true)
-        ev.update(quota: params[:quota].presence&.to_i)
+        ev.update(quota: params[:quota].presence&.to_i,
+                  vendor_type: params[:vendor_type].presence || :normal)
       end
       redirect_to admin_event_path(@event),
                   notice: "Vendedor #{@user.name} creado exitosamente."
@@ -96,7 +97,7 @@ class Admin::VendedoresController < ApplicationController
   end
 
   def event_vendedor_params
-    params.require(:event_vendedor).permit(:user_id, :active, :quota)
+    params.require(:event_vendedor).permit(:user_id, :active, :quota, :vendor_type)
   end
 
   def vendedor_user_params

@@ -13,6 +13,7 @@ class Guests::TicketsController < ApplicationController
     end
 
     @vendedores = @event.active_vendedores
+    @event.event_vendedores.load
   end
 
   def create_purchase
@@ -163,8 +164,8 @@ class Guests::TicketsController < ApplicationController
     end
 
     guest_name_full = formatted_guest_name(gp[:name], gp[:cedula])
-    unit_price      = @event.price_for(nil)
-    total_price     = @event.total_price_for(nil, quantity)
+    unit_price      = @event.price_for(nil, vendedor_id: vendedor&.id)
+    total_price     = @event.total_price_for(nil, quantity, vendedor_id: vendedor&.id)
     tickets         = []
 
     ActiveRecord::Base.transaction do
