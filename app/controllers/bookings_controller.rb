@@ -133,7 +133,9 @@ class BookingsController < ApplicationController
                elsif @parent
                  @parent.bookings.find(params[:id])
                else
-                 Booking.find(params[:id])
+                 # Sin contexto de establecimiento, restringir al usuario actual
+                 # para evitar que turistas accedan o eliminen reservas ajenas
+                 current_user.bookings.find(params[:id])
                end
   end
 

@@ -33,7 +33,7 @@ class Guests::TicketsController < ApplicationController
   end
 
   def transfer_status
-    @ticket = Ticket.find_by!(id: params[:ticket_id], user_id: nil)
+    @ticket = Ticket.find_by!(ticket_code: params[:ticket_code], user_id: nil)
     @vendedor = @ticket.vendedor
 
     message = "Hola, soy #{@ticket.guest_name.split('·').first.strip}. " \
@@ -195,7 +195,7 @@ class Guests::TicketsController < ApplicationController
 
     tickets.each { |t| ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(t.id) }
 
-    redirect_to guests_transfer_status_event_tickets_path(@event, ticket_id: tickets.first.id),
+    redirect_to guests_transfer_status_event_tickets_path(@event, ticket_code: tickets.first.ticket_code),
                 notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', total_price)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to guests_new_purchase_event_tickets_path(@event),

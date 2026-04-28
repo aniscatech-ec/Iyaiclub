@@ -25,6 +25,7 @@ class User < ApplicationRecord
   has_many :referrals_received, class_name: "Referral", foreign_key: :referred_id, dependent: :nullify
 
   before_create :generate_referral_code
+  before_create :enforce_self_registration_role
 
   has_one_attached :avatar
   has_one_attached :cover_photo
@@ -84,6 +85,14 @@ class User < ApplicationRecord
       source: :welcome,
       description: "Puntos de bienvenida por confirmar tu cuenta"
     )
+  end
+
+  # Solo afiliado y turista son roles auto-asignables en registro público.
+  # Previene escalada de privilegios si :role llegara en los params.
+  SELF_REGISTRABLE_ROLES = %w[afiliado turista].freeze
+
+  def enforce_self_registration_role
+    self.role = "turista" unless SELF_REGISTRABLE_ROLES.include?(role.to_s)
   end
 
   def generate_referral_code

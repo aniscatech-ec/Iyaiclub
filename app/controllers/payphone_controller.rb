@@ -43,6 +43,12 @@ class PayphoneController < ApplicationController
 
     @transaction = PayphoneTransaction.find_by!(client_transaction_id: client_tx_id)
 
+    # Idempotencia: no reprocesar transacciones ya finalizadas.
+    # Previene replay attacks y cancelaciones maliciosas por terceros.
+    if @transaction.aprobado? || @transaction.cancelado?
+      redirect_to after_payment_path(@transaction) and return
+    end
+
     service = PayphoneService.new
     result = service.confirm(id: transaction_id.to_i, client_tx_id: client_tx_id)
 

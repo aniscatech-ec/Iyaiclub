@@ -211,6 +211,12 @@ class EstablishmentsController < ApplicationController
   def create_type
     type = params[:type] # "hotel", "restaurante", etc.
 
+    # Solo admins pueden especificar un user_id diferente al suyo
+    if params[:user_id].present? && !current_user.administrador?
+      redirect_to root_path, alert: "No tienes permiso para crear establecimientos para otros usuarios."
+      return
+    end
+
     # Creamos el registro según tipo
     case type
     when "hotel"
@@ -267,7 +273,11 @@ class EstablishmentsController < ApplicationController
   # Los administradores pueden crear establecimientos para cualquier afiliado sin restricción.
   def require_afiliado_docs_and_approval!
     return if current_user.administrador?
-    return unless current_user.afiliado?
+
+    unless current_user.afiliado?
+      redirect_to root_path, alert: "Solo afiliados pueden crear establecimientos."
+      return
+    end
 
     unless current_user.cedula_front.attached? &&
            current_user.cedula_back.attached? &&
