@@ -436,6 +436,128 @@
     </div>
   </div>
 
+  <!-- Sorteos Multi-Evento -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-globe me-2" style="color: var(--brand-orange);"></i>
+        Sorteos Multi-Evento (<%= @shared_raffles_assigned.count %>)
+      </h5>
+      <% if @shared_raffles_available.any? %>
+        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#assignSharedRaffleModal">
+          <i class="fas fa-link me-1"></i> Asignar sorteo
+        </button>
+      <% end %>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <% if @shared_raffles_assigned.any? %>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>Premio</th>
+                <th>Tickets de este evento</th>
+                <th>Estado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @shared_raffles_assigned.each do |sr| %>
+                <tr>
+                  <td>
+                    <%= link_to sr.name, admin_shared_raffle_path(sr), class: "fw-semibold text-decoration-none" %>
+                  </td>
+                  <td><small><%= sr.prize %></small></td>
+                  <td>
+                    <span class="badge bg-primary">
+                      <%= sr.tickets_for_event(@event).count %> tickets
+                    </span>
+                  </td>
+                  <td>
+                    <% if sr.pendiente? %>
+                      <span class="badge bg-warning text-dark">Pendiente</span>
+                    <% elsif sr.realizado? %>
+                      <span class="badge bg-success">Realizado</span>
+                    <% else %>
+                      <span class="badge bg-secondary">Cancelado</span>
+                    <% end %>
+                  </td>
+                  <td class="text-end">
+                    <%= link_to admin_shared_raffle_path(sr), class: "btn btn-outline-info btn-sm", title: "Ver sorteo" do %>
+                      <i class="fas fa-eye"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-globe fa-2x mb-2 opacity-50"></i>
+          <p class="mb-0">Este evento no está asignado a ningún sorteo multi-evento.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Modal: Asignar Sorteo Multi-Evento -->
+  <% if @shared_raffles_available.any? %>
+    <div class="modal fade" id="assignSharedRaffleModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold">
+              <i class="fas fa-globe me-2" style="color: var(--brand-orange);"></i>
+              Asignar a Sorteo Multi-Evento
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with url: assign_event_admin_shared_raffle_path(0), method: :post, local: true, id: "assignSharedRaffleForm" do |f| %>
+            <input type="hidden" name="event_id" value="<%= @event.id %>">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Seleccionar sorteo</label>
+                <select name="shared_raffle_id_redirect" id="sharedRaffleSelect" class="form-select" required>
+                  <option value="">Seleccione un sorteo...</option>
+                  <% @shared_raffles_available.each do |sr| %>
+                    <option value="<%= sr.id %>"
+                            data-url="<%= assign_event_admin_shared_raffle_path(sr) %>">
+                      <%= sr.name %> — <%= sr.prize %>
+                      (<%= sr.participating_count %> tickets en total)
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <p class="text-muted small mb-0">
+                <i class="fas fa-info-circle me-1"></i>
+                Los tickets actuales de este evento quedarán incluidos automáticamente en el sorteo.
+              </p>
+            </div>
+            <div class="modal-footer border-0">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-warning text-white" id="assignSharedRaffleBtn">
+                <i class="fas fa-link me-1"></i> Asignar
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.getElementById('assignSharedRaffleForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const select = document.getElementById('sharedRaffleSelect');
+        const option = select.options[select.selectedIndex];
+        if (!option || !option.dataset.url) return;
+        const form = e.target;
+        form.action = option.dataset.url;
+        form.submit();
+      });
+    </script>
+  <% end %>
+
   <!-- Tickets vendidos -->
   <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">

@@ -13,6 +13,8 @@ class Admin::EventsController < ApplicationController
     @tickets = @event.tickets.order(created_at: :desc)
     @raffles = @event.raffles.order(created_at: :desc)
     @event_vendedores = @event.event_vendedores.includes(:user).order(created_at: :desc)
+    @shared_raffles_assigned = @event.shared_raffles.order(created_at: :desc)
+    @shared_raffles_available = SharedRaffle.pendiente.where.not(id: @shared_raffles_assigned.select(:id))
   end
 
   def new

@@ -339,6 +339,15 @@ Rails.application.routes.draw do
         end
       end
     end
+
+    # Sorteos multi-evento — panel global independiente de eventos
+    resources :shared_raffles do
+      member do
+        patch :draw_winner
+        post  :assign_event
+        delete :remove_event
+      end
+    end
   end
 
 end

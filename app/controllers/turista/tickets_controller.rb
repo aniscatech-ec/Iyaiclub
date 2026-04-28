@@ -9,7 +9,7 @@ class Turista::TicketsController < ApplicationController
 
     # Filtros
     @tickets = @tickets.where(status: params[:status]) if params[:status].present?
-    @tickets = @tickets.for_event(params[:event]) if params[:event].present?
+    @tickets = @tickets.where("event_name LIKE ?", "%#{params[:event]}%") if params[:event].present?
   end
 
   def show

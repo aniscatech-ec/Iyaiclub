@@ -1,0 +1,373 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <%# Cabecera %>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-globe me-2" style="color: var(--brand-orange);"></i>
+        <%= @shared_raffle.name %>
+      </h3>
+      <div class="d-flex gap-2 align-items-center flex-wrap">
+        <% if @shared_raffle.pendiente? %>
+          <span class="badge bg-warning text-dark fs-6">Pendiente</span>
+        <% elsif @shared_raffle.realizado? %>
+          <span class="badge bg-success fs-6">Realizado</span>
+        <% else %>
+          <span class="badge bg-secondary fs-6">Cancelado</span>
+        <% end %>
+        <span class="text-muted small">
+          <i class="fas fa-calendar me-1"></i>
+          <% if @shared_raffle.draw_date? %>
+            Sorteo: <%= @shared_raffle.draw_date.strftime('%d/%m/%Y %H:%M') %>
+          <% else %>
+            Sin fecha programada
+          <% end %>
+        </span>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <% if @shared_raffle.pendiente? %>
+        <button class="btn btn-success fw-semibold" data-bs-toggle="modal" data-bs-target="#drawModal">
+          <i class="fas fa-random me-1"></i> Realizar Sorteo
+        </button>
+        <%= link_to edit_admin_shared_raffle_path(@shared_raffle), class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-edit me-1"></i> Editar
+        <% end %>
+      <% end %>
+      <%= link_to admin_shared_raffles_path, class: "btn btn-outline-secondary" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <%# Columna izquierda: info + ganador %>
+    <div class="col-12 col-lg-4">
+
+      <%# Datos del sorteo %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Detalles</h6>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <dl class="mb-0">
+            <dt class="text-muted small">Premio</dt>
+            <dd class="fw-semibold mb-3"><%= @shared_raffle.prize %></dd>
+
+            <dt class="text-muted small">Eventos asignados</dt>
+            <dd class="fw-semibold mb-3"><%= @assigned_events.count %></dd>
+
+            <dt class="text-muted small">Tickets participantes</dt>
+            <dd class="fw-semibold mb-3">
+              <span class="badge bg-primary fs-6"><%= @shared_raffle.participating_count %></span>
+            </dd>
+
+            <% if @shared_raffle.description? %>
+              <dt class="text-muted small">Descripción</dt>
+              <dd class="mb-0"><%= @shared_raffle.description %></dd>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+
+      <%# Ganador %>
+      <% if @shared_raffle.realizado? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #FFF8E1, #FFE082); border-left: 5px solid #F57F17 !important;">
+          <div class="card-body px-4 py-4">
+            <div class="text-center mb-3">
+              <i class="fas fa-trophy fa-3x mb-2" style="color: #F57F17;"></i>
+              <h5 class="fw-bold mb-0" style="color: #E65100;">¡Ganador del Sorteo!</h5>
+            </div>
+            <div class="text-center mb-3">
+              <small class="text-muted d-block">Número ganador</small>
+              <div class="fw-bold" style="font-size:52px; color:#E65100; line-height:1;">#<%= @shared_raffle.winning_number %></div>
+            </div>
+            <% if @winner %>
+              <div class="card border-0 shadow-sm rounded-3 p-3">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                       style="width:44px;height:44px;background:var(--brand-orange);font-size:1.1rem;flex-shrink:0;">
+                    <%= @winner.guest_name.first.upcase %>
+                  </div>
+                  <div>
+                    <div class="fw-bold"><%= @winner.guest_name %></div>
+                    <div class="text-muted small"><%= @winner.guest_email %></div>
+                  </div>
+                </div>
+                <hr class="my-2">
+                <div class="row g-2 small">
+                  <div class="col-6">
+                    <span class="text-muted">Código ticket</span>
+                    <div class="fw-semibold" style="color:#2E7D32;"><%= @winner.ticket_code %></div>
+                  </div>
+                  <div class="col-6">
+                    <span class="text-muted">Evento</span>
+                    <div class="fw-semibold"><%= @winner.event_name %></div>
+                  </div>
+                  <% if @winner.user.present? %>
+                    <div class="col-12">
+                      <span class="text-muted">Usuario registrado</span>
+                      <div class="fw-semibold"><%= @winner.user.email %></div>
+                    </div>
+                    <% if @winner.user.try(:phone).present? %>
+                      <div class="col-12">
+                        <span class="text-muted">Teléfono</span>
+                        <div class="fw-semibold"><%= @winner.user.phone %></div>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <p class="text-center text-muted small mb-0">Ticket no encontrado (posiblemente cancelado).</p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+    <%# Columna derecha: eventos + asignar %>
+    <div class="col-12 col-lg-8">
+
+      <%# Eventos asignados %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-calendar-alt me-2 text-info"></i>
+            Eventos Asignados (<%= @assigned_events.count %>)
+          </h6>
+          <% if @shared_raffle.pendiente? && @available_events.any? %>
+            <button class="btn btn-sm btn-outline-info" data-bs-toggle="collapse"
+                    data-bs-target="#addEventForm">
+              <i class="fas fa-plus me-1"></i> Agregar evento
+            </button>
+          <% end %>
+        </div>
+
+        <%# Form para agregar evento %>
+        <% if @shared_raffle.pendiente? && @available_events.any? %>
+          <div class="collapse px-4 pb-3" id="addEventForm">
+            <div class="bg-light rounded-3 p-3">
+              <%= form_with url: assign_event_admin_shared_raffle_path(@shared_raffle),
+                            method: :post, local: true, class: "d-flex gap-2 align-items-end" do |f| %>
+                <div class="flex-grow-1">
+                  <label class="form-label small fw-bold mb-1">Seleccionar evento</label>
+                  <select name="event_id" class="form-select form-select-sm" required>
+                    <option value="">Seleccione un evento...</option>
+                    <% @available_events.each do |event| %>
+                      <option value="<%= event.id %>">
+                        <%= event.name %> — <%= event.event_date&.strftime('%d/%m/%Y') %>
+                        (<%= event.tickets.participantes.count %> tickets activos)
+                      </option>
+                    <% end %>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-info btn-sm text-white">
+                  <i class="fas fa-link me-1"></i> Asignar
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="card-body px-4 pb-4">
+          <% if @assigned_events.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Evento</th>
+                    <th>Fecha</th>
+                    <th>Tickets activos</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @assigned_events.each do |event| %>
+                    <tr>
+                      <td>
+                        <strong><%= event.name %></strong>
+                      </td>
+                      <td>
+                        <small class="text-muted">
+                          <%= event.event_date&.strftime('%d/%m/%Y') %>
+                        </small>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">
+                          <%= @shared_raffle.tickets_for_event(event).count %> tickets
+                        </span>
+                      </td>
+                      <td class="text-end">
+                        <% if @shared_raffle.pendiente? %>
+                          <%= link_to remove_event_admin_shared_raffle_path(@shared_raffle, event_id: event.id),
+                              data: { turbo_method: :delete,
+                                      turbo_confirm: "¿Quitar '#{event.name}' de este sorteo? Sus tickets dejarán de participar." },
+                              class: "btn btn-outline-danger btn-sm" do %>
+                            <i class="fas fa-unlink"></i>
+                          <% end %>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-calendar-times fa-2x mb-2 opacity-50"></i>
+              <p class="mb-0">No hay eventos asignados todavía.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Tickets participantes %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-ticket-alt me-2 text-success"></i>
+            Tickets Participantes (<%= @shared_raffle.participating_count %>)
+          </h6>
+        </div>
+        <div class="card-body px-4 pb-4">
+          <% participations = @shared_raffle.shared_raffle_participations
+                                            .includes(ticket: :event)
+                                            .order(:participation_number)
+                                            .limit(50) %>
+          <% if participations.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>N° Sorteo Multi-Evento</th>
+                    <th>Asistente</th>
+                    <th>Código</th>
+                    <th>Evento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% participations.each do |p| %>
+                    <tr class="<%= 'table-success fw-bold' if @shared_raffle.realizado? && p.participation_number == @shared_raffle.winning_number %>">
+                      <td>
+                        <% if @shared_raffle.realizado? && p.participation_number == @shared_raffle.winning_number %>
+                          <i class="fas fa-trophy text-warning me-1"></i>
+                        <% end %>
+                        <span class="badge bg-secondary"><%= p.participation_number %></span>
+                      </td>
+                      <td><%= p.ticket.guest_name %></td>
+                      <td><code class="small"><%= p.ticket.ticket_code %></code></td>
+                      <td><small class="text-muted"><%= p.ticket.event_name %></small></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <% if @shared_raffle.participating_count > 50 %>
+              <p class="text-muted small text-center mb-0 mt-2">
+                Mostrando 50 de <%= @shared_raffle.participating_count %> tickets.
+              </p>
+            <% end %>
+          <% else %>
+            <div class="text-center text-muted py-4">
+              <i class="fas fa-ticket-alt fa-2x mb-2 opacity-50"></i>
+              <p class="mb-0">No hay tickets activos en los eventos asignados.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal de sorteo con animación -->
+<% if @shared_raffle.pendiente? %>
+  <div class="modal fade" id="drawModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 rounded-4 overflow-hidden">
+
+        <%# Paso 1: confirmación %>
+        <div id="drawStep1">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold">
+              <i class="fas fa-globe me-2" style="color:var(--brand-orange);"></i>
+              Realizar Sorteo Multi-Evento
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <i class="fas fa-ticket-alt fa-3x mb-3 text-muted"></i>
+            <p class="mb-1">Se sortearán <strong><%= @shared_raffle.participating_count %> tickets</strong> de <strong><%= @assigned_events.count %> eventos</strong>.</p>
+            <p class="text-muted small mb-0">Premio: <strong><%= @shared_raffle.prize %></strong></p>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success fw-semibold" onclick="startDraw()">
+              <i class="fas fa-play me-1"></i> ¡Iniciar Sorteo!
+            </button>
+          </div>
+        </div>
+
+        <%# Paso 2: animación %>
+        <div id="drawStep2" style="display:none;">
+          <div class="modal-body text-center py-5" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+            <p class="text-white mb-2 fw-semibold">Sorteando entre <%= @shared_raffle.participating_count %> participantes...</p>
+            <div id="rouletteDisplay"
+                 style="font-size:72px; font-weight:900; font-family:monospace; color:#F57F17;
+                        text-shadow: 0 0 20px #F57F17; letter-spacing:4px; min-height:100px;
+                        display:flex; align-items:center; justify-content:center;">
+              ?????
+            </div>
+            <p class="text-muted small mt-2">🎰 Eligiendo el número ganador...</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function startDraw() {
+      document.getElementById('drawStep1').style.display = 'none';
+      document.getElementById('drawStep2').style.display = 'block';
+
+      const display = document.getElementById('rouletteDisplay');
+      let speed = 50;
+      let elapsed = 0;
+      const total = 3500;
+
+      function tick() {
+        display.textContent = String(Math.floor(Math.random() * 90000) + 10000);
+        elapsed += speed;
+        if (elapsed > total * 0.65) speed = Math.min(speed + 18, 500);
+        if (elapsed < total) {
+          setTimeout(tick, speed);
+        } else {
+          submitDraw();
+        }
+      }
+      tick();
+    }
+
+    function submitDraw() {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '<%= draw_winner_admin_shared_raffle_path(@shared_raffle) %>';
+      const method = document.createElement('input');
+      method.type  = 'hidden';
+      method.name  = '_method';
+      method.value = 'PATCH';
+      const token  = document.createElement('input');
+      token.type   = 'hidden';
+      token.name   = '<%= request_forgery_protection_token %>';
+      token.value  = '<%= form_authenticity_token %>';
+      form.appendChild(method);
+      form.appendChild(token);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
+<% end %>

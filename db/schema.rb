@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_27_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_28_200000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -664,6 +664,40 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_27_120000) do
     t.index ["temporary_lodging_id"], name: "index_rooms_on_temporary_lodging_id"
   end
 
+  create_table "shared_raffle_events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "shared_raffle_id", null: false
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_shared_raffle_events_on_event_id"
+    t.index ["shared_raffle_id", "event_id"], name: "index_shared_raffle_events_on_shared_raffle_id_and_event_id", unique: true
+    t.index ["shared_raffle_id"], name: "index_shared_raffle_events_on_shared_raffle_id"
+  end
+
+  create_table "shared_raffle_participations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "shared_raffle_id", null: false
+    t.bigint "ticket_id", null: false
+    t.integer "participation_number", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shared_raffle_id", "participation_number"], name: "idx_srp_on_shared_raffle_and_number", unique: true
+    t.index ["shared_raffle_id", "ticket_id"], name: "idx_srp_on_shared_raffle_and_ticket", unique: true
+    t.index ["shared_raffle_id"], name: "index_shared_raffle_participations_on_shared_raffle_id"
+    t.index ["ticket_id"], name: "index_shared_raffle_participations_on_ticket_id"
+  end
+
+  create_table "shared_raffles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "prize", null: false
+    t.text "description"
+    t.datetime "draw_date"
+    t.integer "winning_number"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_shared_raffles_on_status"
+  end
+
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "plan_type"
     t.integer "status", default: 0
@@ -958,6 +992,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_27_120000) do
   add_foreign_key "room_beds", "rooms"
   add_foreign_key "rooms", "hotels"
   add_foreign_key "rooms", "temporary_lodgings"
+  add_foreign_key "shared_raffle_events", "events"
+  add_foreign_key "shared_raffle_events", "shared_raffles"
+  add_foreign_key "shared_raffle_participations", "shared_raffles"
+  add_foreign_key "shared_raffle_participations", "tickets"
   add_foreign_key "subscriptions", "users", column: "vendedor_id"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "tickets", "events"

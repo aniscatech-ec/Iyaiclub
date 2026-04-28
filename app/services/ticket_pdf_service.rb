@@ -4,12 +4,15 @@ class TicketPdfService
   end
 
   def generate
-    Prawn::Document.new(page_size: [400, 600], margin: 20) do |pdf|
+    participations = @ticket.shared_raffle_participations.includes(:shared_raffle).order("shared_raffles.created_at DESC")
+    page_height = participations.any? ? (600 + participations.count * 50) : 600
+    Prawn::Document.new(page_size: [400, page_height], margin: 20) do |pdf|
       render_header(pdf)
       render_event_info(pdf)
       render_guest_info(pdf)
       render_qr_code(pdf)
       render_raffle_section(pdf)
+      render_shared_raffles_section(pdf, participations) if participations.any?
       render_footer(pdf)
     end.render
   end
@@ -79,6 +82,38 @@ class TicketPdfService
     pdf.move_down 8
     pdf.text "Con este numero participas en el sorteo oficial del evento", size: 8, align: :center, color: "555555"
     pdf.move_down 10
+  end
+
+  def render_shared_raffles_section(pdf, participations)
+    pdf.move_down 8
+    pdf.text "SORTEOS MULTI-EVENTO", size: 9, style: :bold, align: :center, color: "E65100"
+    pdf.move_down 5
+
+    participations.each do |p|
+      sr        = p.shared_raffle
+      is_winner = sr.realizado? && sr.winning_number == p.participation_number
+      bg_color  = is_winner ? "E8F5E9" : "FFF8E1"
+
+      pdf.fill_color bg_color
+      pdf.fill_rounded_rectangle [0, pdf.cursor], 360, 42, 5
+      pdf.fill_color "000000"
+
+      pdf.move_down 6
+      pdf.indent(10) do
+        status_label = if is_winner
+          "GANADOR!"
+        elsif sr.pendiente?
+          "Pendiente"
+        elsif sr.realizado?
+          "Realizado - Ganador: ##{sr.winning_number}"
+        else
+          "Cancelado"
+        end
+        pdf.text "##{p.participation_number}  #{sr.name}", size: 10, style: :bold, color: is_winner ? "2E7D32" : "E65100"
+        pdf.text "Premio: #{sr.prize}  |  #{status_label}", size: 8, color: "555555"
+      end
+      pdf.move_down 8
+    end
   end
 
   def render_footer(pdf)

@@ -1,0 +1,96 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-globe me-2" style="color: var(--brand-orange);"></i>
+      Sorteos Multi-Evento
+    </h3>
+    <%= link_to new_admin_shared_raffle_path, class: "btn btn-primary" do %>
+      <i class="fas fa-plus me-1"></i> Nuevo Sorteo Multi-Evento
+    <% end %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body px-4 pb-4">
+      <% if @shared_raffles.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>Premio</th>
+                <th>Eventos</th>
+                <th>Tickets</th>
+                <th>Estado</th>
+                <th>Ganador</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @shared_raffles.each do |sr| %>
+                <tr>
+                  <td><strong><%= sr.name %></strong></td>
+                  <td><%= sr.prize %></td>
+                  <td>
+                    <span class="badge bg-info text-dark"><%= sr.events.count %> eventos</span>
+                  </td>
+                  <td>
+                    <span class="text-muted small"><%= sr.participating_count %> tickets</span>
+                  </td>
+                  <td>
+                    <% if sr.pendiente? %>
+                      <span class="badge bg-warning text-dark">Pendiente</span>
+                    <% elsif sr.realizado? %>
+                      <span class="badge bg-success">Realizado</span>
+                    <% else %>
+                      <span class="badge bg-secondary">Cancelado</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if sr.realizado? && sr.winner %>
+                      <small class="text-success fw-semibold">
+                        <i class="fas fa-trophy me-1"></i>
+                        #<%= sr.winning_number %> — <%= sr.winner.guest_name %>
+                      </small>
+                    <% else %>
+                      <span class="text-muted">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <%= link_to admin_shared_raffle_path(sr), class: "btn btn-outline-info", title: "Ver" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                      <% if sr.pendiente? %>
+                        <%= link_to edit_admin_shared_raffle_path(sr), class: "btn btn-outline-secondary", title: "Editar" do %>
+                          <i class="fas fa-edit"></i>
+                        <% end %>
+                        <%= link_to draw_winner_admin_shared_raffle_path(sr),
+                            data: { turbo_method: :patch, turbo_confirm: "¿Realizar el sorteo '#{sr.name}' ahora? Esta acción no se puede deshacer." },
+                            class: "btn btn-outline-success", title: "Sortear" do %>
+                          <i class="fas fa-random"></i>
+                        <% end %>
+                      <% end %>
+                      <%= link_to admin_shared_raffle_path(sr),
+                          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el sorteo '#{sr.name}'?" },
+                          class: "btn btn-outline-danger", title: "Eliminar" do %>
+                        <i class="fas fa-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="fas fa-globe fa-3x mb-3" style="color: var(--brand-orange); opacity:.4;"></i>
+          <p class="mb-3">No hay sorteos multi-evento creados aún.</p>
+          <%= link_to new_admin_shared_raffle_path, class: "btn btn-primary" do %>
+            <i class="fas fa-plus me-1"></i> Crear primer sorteo
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

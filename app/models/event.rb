@@ -1,6 +1,8 @@
 class Event < ApplicationRecord
   has_many :tickets, dependent: :nullify
   has_many :raffles, dependent: :destroy
+  has_many :shared_raffle_events, dependent: :destroy
+  has_many :shared_raffles, through: :shared_raffle_events
   has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
   has_many :vendedores, through: :event_vendedores, source: :user
   has_one_attached :image

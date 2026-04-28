@@ -4,6 +4,8 @@ class Ticket < ApplicationRecord
   belongs_to :payphone_transaction, optional: true
   belongs_to :vendedor, class_name: "User", optional: true
 
+  has_many :shared_raffle_participations, dependent: :destroy
+
   enum :status, { activo: 0, usado: 1, cancelado: 2, reservado: 3 }
   enum :payment_method, { payphone: 0, transferencia: 1, gratis: 2 }, prefix: true
 
@@ -14,6 +16,7 @@ class Ticket < ApplicationRecord
   before_validation :generate_ticket_code, on: :create
   before_validation :generate_raffle_number, on: :create
   after_validation :generate_qr_data, on: :create
+  after_create :enroll_in_shared_raffles
 
   scope :for_event, ->(name) { where(event_name: name) if name.present? }
   scope :participantes, -> { where(status: :activo) }
@@ -60,6 +63,11 @@ class Ticket < ApplicationRecord
   end
 
   private
+
+  def enroll_in_shared_raffles
+    return unless event.present?
+    event.shared_raffles.pendiente.each { |sr| sr.enroll_ticket!(self) }
+  end
 
   def generate_ticket_code
     return if ticket_code.present?

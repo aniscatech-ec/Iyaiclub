@@ -77,20 +77,116 @@
         </div>
       </div>
 
-      <!-- Información de rifa -->
-      <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #FFF8E1, #FFE082);">
-        <div class="card-body text-center py-4">
-          <h5 class="fw-bold mb-3" style="color: #F57F17;">
-            <i class="fas fa-trophy me-2"></i> Número de Rifa
-          </h5>
-          <div class="fw-bold mb-3" style="font-size: 48px; color: #E65100;">
-            <%= @ticket.raffle_number %>
+      <!-- Información de rifa interna -->
+      <% internal_raffle = @ticket.event&.raffles&.completed&.first %>
+      <% internal_winner = internal_raffle&.winning_number == @ticket.raffle_number %>
+      <% if internal_raffle && internal_winner %>
+        <%# Ganador del sorteo interno %>
+        <div class="card border-0 rounded-4 mb-4"
+             style="background: linear-gradient(135deg, #1B5E20, #2E7D32); box-shadow: 0 0 30px rgba(46,125,50,0.4);">
+          <div class="card-body text-center py-4 px-4">
+            <div style="font-size: 3rem;">🏆</div>
+            <h4 class="fw-bold text-white mt-2 mb-1">¡Eres el ganador!</h4>
+            <p class="text-white mb-3" style="opacity:.9;">
+              Tu número <strong>#<%= @ticket.raffle_number %></strong> ganó el sorteo del evento.
+            </p>
+            <div class="alert border-0 rounded-3 py-2 px-3 mb-0" style="background:rgba(255,255,255,0.15); color:#fff;">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              Acércate al stand del evento para reclamar tu premio: <strong><%= internal_raffle.prize %></strong>
+            </div>
           </div>
-          <p class="mb-0" style="color: #555;">
-            🎱 Con este número participas en el sorteo oficial del evento
-          </p>
         </div>
-      </div>
+      <% elsif internal_raffle && !internal_winner %>
+        <%# Perdedor del sorteo interno %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body text-center py-4 px-4">
+            <div style="font-size: 2.5rem;">🎱</div>
+            <h5 class="fw-bold mt-2 mb-1">Sorteo realizado</h5>
+            <p class="text-muted mb-1">Tu número: <strong style="color:#F57F17;">#<%= @ticket.raffle_number %></strong></p>
+            <p class="text-muted small mb-3">Número ganador: <strong>#<%= internal_raffle.winning_number %></strong></p>
+            <p class="text-muted small mb-0">
+              Esta vez no fue, ¡mejor suerte la próxima! En un futuro habrán más eventos donde puedes ser el ganador. 🍀
+            </p>
+          </div>
+        </div>
+      <% else %>
+        <%# Sorteo pendiente %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #FFF8E1, #FFE082);">
+          <div class="card-body text-center py-4">
+            <h5 class="fw-bold mb-3" style="color: #F57F17;">
+              <i class="fas fa-trophy me-2"></i> Número de Rifa
+            </h5>
+            <div class="fw-bold mb-3" style="font-size: 48px; color: #E65100;">
+              <%= @ticket.raffle_number %>
+            </div>
+            <p class="mb-0" style="color: #555;">
+              🎱 Con este número participas en el sorteo oficial del evento
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Sorteos Multi-Evento -->
+      <% participations = @ticket.shared_raffle_participations.includes(:shared_raffle).order("shared_raffles.created_at DESC") %>
+      <% if participations.any? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-0" style="color: var(--brand-orange);">
+              <i class="fas fa-globe me-2"></i> Sorteos Multi-Evento
+            </h5>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <% participations.each do |p| %>
+              <% sr = p.shared_raffle %>
+              <% is_winner = sr.realizado? && sr.winning_number == p.participation_number %>
+              <% if sr.realizado? && is_winner %>
+                <%# Ganador del sorteo multi-evento %>
+                <div class="rounded-4 mb-3 p-3"
+                     style="background: linear-gradient(135deg, #1B5E20, #2E7D32); box-shadow: 0 0 20px rgba(46,125,50,0.35);">
+                  <div class="text-center text-white mb-2">
+                    <div style="font-size:2rem;">🏆</div>
+                    <div class="fw-bold">¡Ganador: <%= sr.name %>!</div>
+                    <div class="small" style="opacity:.9;">Tu número <strong>#<%= p.participation_number %></strong> ganó este sorteo</div>
+                  </div>
+                  <div class="rounded-3 p-2 text-center text-white small" style="background:rgba(255,255,255,0.15);">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    Acércate a reclamar tu premio: <strong><%= sr.prize %></strong>
+                  </div>
+                </div>
+              <% elsif sr.realizado? && !is_winner %>
+                <%# Perdedor del sorteo multi-evento %>
+                <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-3 bg-light">
+                  <div class="text-center" style="min-width:56px;">
+                    <div class="fw-bold" style="font-size:1.4rem; color:#E65100;">#<%= p.participation_number %></div>
+                    <div class="small text-muted">N° Sorteo</div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold mb-1"><%= sr.name %></div>
+                    <div class="small text-muted mb-1">Premio: <%= sr.prize %></div>
+                    <div class="small text-muted">Ganador: <strong>#<%= sr.winning_number %></strong></div>
+                    <div class="small text-muted mt-1">
+                      Esta vez no fue, ¡mejor suerte la próxima! 🍀 En un futuro habrán más eventos donde puedes ser el ganador.
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <%# Sorteo multi-evento pendiente %>
+                <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3 bg-light">
+                  <div class="text-center" style="min-width:56px;">
+                    <div class="fw-bold" style="font-size:1.4rem; color:#E65100;">#<%= p.participation_number %></div>
+                    <div class="small text-muted">N° Sorteo</div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold"><%= sr.name %></div>
+                    <div class="small text-muted">Premio: <%= sr.prize %></div>
+                    <span class="badge bg-warning text-dark mt-1">Pendiente</span>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
 
     <div class="col-12 col-lg-6">
