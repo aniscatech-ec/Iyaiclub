@@ -77,6 +77,13 @@ class GetawaysController < ApplicationController
     est_attrs.delete("amenity_ids")   # manejado manualmente abajo
     raw.delete("getaway_activity_ids") # manejado manualmente abajo
 
+    # Si legal_info_attributes viene sin id (nueva) y todos sus campos están vacíos,
+    # descartarla para evitar que validaciones de LegalInfo bloqueen el update
+    if (li = est_attrs["legal_info_attributes"]).present? && li["id"].blank?
+      li_values = li.except("id")
+      est_attrs.delete("legal_info_attributes") if li_values.values.all?(&:blank?)
+    end
+
     # 3. Actualizar establishment directamente (evita recargas de instancia por nested attrs)
     est_ok = @establishment.update(est_attrs)
 
