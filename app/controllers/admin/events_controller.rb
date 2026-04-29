@@ -25,6 +25,7 @@ class Admin::EventsController < ApplicationController
     @event = Event.new(event_params)
 
     if @event.save
+      sync_stands(@event)
       if params[:notify_users] == "1"
         BroadcastEventJob.perform_later(@event.id)
         notice = "Evento creado. Se están enviando notificaciones por correo a todos los usuarios."
@@ -42,6 +43,7 @@ class Admin::EventsController < ApplicationController
 
   def update
     if @event.update(event_params)
+      sync_stands(@event)
       redirect_to admin_event_path(@event), notice: "Evento actualizado correctamente."
     else
       render :edit, status: :unprocessable_entity
@@ -103,5 +105,13 @@ class Admin::EventsController < ApplicationController
       :combo_quantity, :combo_discount,
       :total_tickets, :available_tickets, :status, :image, :notify_users
     )
+  end
+
+  # Sincroniza stands seleccionados. Solo actúa si el form los envió
+  # (campo oculto stand_ids_submitted presente).
+  def sync_stands(event)
+    return unless params[:stand_ids_submitted].present?
+    ids = Array(params[:stand_ids]).map(&:to_i).select(&:positive?)
+    event.stand_ids = ids
   end
 end

@@ -34,20 +34,22 @@ class GetawaysController < ApplicationController
   end
 
   def create
-    activity_ids = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?)
-    amenity_ids  = params.dig(:getaway, :establishment_attributes, :amenity_ids)&.reject(&:blank?)
-    safe_params  = getaway_params.except(:getaway_activity_ids)
-    safe_params[:establishment_attributes]&.delete(:amenity_ids)
+    activity_ids = Array(params.dig(:getaway, :getaway_activity_ids)).reject(&:blank?).map(&:to_i)
+    amenity_ids  = Array(params.dig(:getaway, :establishment_attributes, :amenity_ids)).reject(&:blank?).map(&:to_i)
+
+    raw = getaway_params.to_unsafe_h.deep_dup
+    raw.dig("establishment_attributes")&.delete("amenity_ids")
+    raw.delete("getaway_activity_ids")
 
     if @establishment
-      @getaway = @establishment.getaways.build(safe_params)
+      @getaway = @establishment.getaways.build(raw)
     else
-      @getaway = Getaway.new(safe_params)
+      @getaway = Getaway.new(raw)
     end
 
     if @getaway.save
-      @getaway.getaway_activity_ids      = activity_ids if activity_ids
-      @getaway.establishment.amenity_ids = amenity_ids  if amenity_ids
+      @getaway.getaway_activity_ids        = activity_ids if activity_ids.any?
+      @getaway.establishment.amenity_ids   = amenity_ids  if amenity_ids.any?
       redirect_to @getaway, notice: 'La escapada ha sido creada correctamente.'
     else
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar la escapada. Revisa los campos marcados en rojo."
@@ -62,17 +64,32 @@ class GetawaysController < ApplicationController
 
   def update
     @establishment = @getaway.establishment
-    activity_ids   = params.dig(:getaway, :getaway_activity_ids)&.reject(&:blank?) || []
-    amenity_ids    = params.dig(:getaway, :establishment_attributes, :amenity_ids)&.reject(&:blank?) || []
-    safe_params    = getaway_params.except(:getaway_activity_ids)
-    # Remove amenity_ids from nested params so Rails doesn't try to handle it via accepts_nested_attributes_for
-    safe_params[:establishment_attributes]&.delete(:amenity_ids)
 
-    if @getaway.update(safe_params)
-      @getaway.getaway_activity_ids        = activity_ids
-      @getaway.establishment.amenity_ids   = amenity_ids
+    # 1. Extraer ids manualmente desde params raw (antes de cualquier conversión)
+    activity_ids = Array(params.dig(:getaway, :getaway_activity_ids)).reject(&:blank?).map(&:to_i)
+    amenity_ids  = Array(params.dig(:getaway, :establishment_attributes, :amenity_ids)).reject(&:blank?).map(&:to_i)
+
+    # 2. Separar params del establishment de los del getaway
+    #    Usamos to_unsafe_h para garantizar un Hash Ruby puro (no ActionController::Parameters)
+    raw = getaway_params.to_unsafe_h.deep_dup
+
+    est_attrs = raw.delete("establishment_attributes") || {}
+    est_attrs.delete("amenity_ids")   # manejado manualmente abajo
+    raw.delete("getaway_activity_ids") # manejado manualmente abajo
+
+    # 3. Actualizar establishment directamente (evita recargas de instancia por nested attrs)
+    est_ok = @establishment.update(est_attrs)
+
+    # 4. Actualizar getaway sin establishment_attributes
+    getaway_ok = @getaway.update(raw)
+
+    if est_ok && getaway_ok
+      # 5. Asignar has_many :through — el setter llama replace() que hace save en DB
+      @getaway.getaway_activity_ids      = activity_ids
+      @establishment.amenity_ids         = amenity_ids
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
+      @getaway.errors.merge!(@establishment.errors) unless est_ok
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end

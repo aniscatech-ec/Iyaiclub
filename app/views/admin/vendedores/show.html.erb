@@ -181,13 +181,38 @@
                 </span>
               </div>
             </li>
-            <li class="d-flex align-items-center py-2">
+            <li class="d-flex align-items-center py-2 border-bottom">
               <i class="fas fa-calendar-plus text-muted me-3" style="width:16px;"></i>
               <div>
                 <small class="text-muted d-block">Asignado el</small>
                 <span class="fw-semibold"><%= @event_vendedor.created_at.strftime("%d/%m/%Y") %></span>
               </div>
             </li>
+            <% if @event_vendedor.stand.present? %>
+              <li class="d-flex align-items-start py-2">
+                <i class="fas fa-store text-warning me-3 mt-1" style="width:16px;"></i>
+                <div>
+                  <small class="text-muted d-block">Stand asignado</small>
+                  <span class="fw-semibold"><%= @event_vendedor.stand.name %></span>
+                  <code class="ms-2 small" style="color:var(--brand-orange);">
+                    <%= @event_vendedor.stand.stand_code %>
+                  </code>
+                  <% if @event_vendedor.stand.location.present? %>
+                    <div class="text-muted small mt-1">
+                      <i class="fas fa-map-marker-alt me-1"></i><%= @event_vendedor.stand.location %>
+                    </div>
+                  <% end %>
+                </div>
+              </li>
+            <% else %>
+              <li class="d-flex align-items-center py-2">
+                <i class="fas fa-store text-muted me-3" style="width:16px;"></i>
+                <div>
+                  <small class="text-muted d-block">Stand asignado</small>
+                  <span class="text-muted">—</span>
+                </div>
+              </li>
+            <% end %>
           </ul>
         </div>
       </div>

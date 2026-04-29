@@ -2,6 +2,10 @@ class EventVendedor < ApplicationRecord
   self.table_name = 'event_vendedores'
   belongs_to :event
   belongs_to :user
+  belongs_to :stand, optional: true
+
+  validate :stand_required_for_stand_type
+  validate :stand_must_belong_to_event
 
   enum :vendor_type, { normal: 0, stand: 1 }, prefix: true
 
@@ -58,5 +62,18 @@ class EventVendedor < ApplicationRecord
 
   def user_must_be_vendedor
     errors.add(:user, "debe tener rol vendedor") unless user&.vendedor?
+  end
+
+  def stand_required_for_stand_type
+    if vendor_type_stand? && stand_id.blank?
+      errors.add(:stand, "debe seleccionarse para vendedores de tipo stand")
+    end
+  end
+
+  def stand_must_belong_to_event
+    return unless stand.present? && event.present?
+    unless event.stands.include?(stand)
+      errors.add(:stand, "no está asignado a este evento")
+    end
   end
 end

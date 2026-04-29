@@ -348,6 +348,8 @@ Rails.application.routes.draw do
         delete :remove_event
       end
     end
+
+    resources :stands
   end
 
 end

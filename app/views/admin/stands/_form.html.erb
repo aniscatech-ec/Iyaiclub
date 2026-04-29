@@ -1,0 +1,48 @@
+<%= form_with model: [:admin, stand], local: true do |f| %>
+  <% if stand.errors.any? %>
+    <div class="alert alert-danger mb-4">
+      <ul class="mb-0">
+        <% stand.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 pt-4 px-4">
+      <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Información del Stand</h6>
+    </div>
+    <div class="card-body px-4 pb-4">
+      <div class="mb-3">
+        <%= f.label :name, "Nombre del stand", class: "form-label fw-semibold" %>
+        <%= f.text_field :name, class: "form-control", placeholder: "Ej: Stand Central A", required: true %>
+      </div>
+      <div class="mb-3">
+        <%= f.label :location, "Ubicación", class: "form-label fw-semibold" %>
+        <%= f.text_field :location, class: "form-control", placeholder: "Ej: Pasillo 3, Puerta Norte" %>
+        <div class="form-text">Descripción del lugar físico del stand (opcional).</div>
+      </div>
+      <% unless stand.new_record? %>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Código del stand</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+            <input type="text" class="form-control" value="<%= stand.stand_code %>" disabled>
+          </div>
+          <div class="form-text">El código se genera automáticamente y no puede modificarse.</div>
+        </div>
+      <% end %>
+      <div class="form-check form-switch mb-0">
+        <%= f.check_box :active, class: "form-check-input", role: "switch", id: "stand_active" %>
+        <%= f.label :active, "Stand activo", class: "form-check-label fw-semibold", for: "stand_active" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit stand.new_record? ? "Crear Stand" : "Guardar Cambios",
+        class: "btn btn-primary btn-lg" %>
+    <%= link_to "Cancelar", admin_stands_path, class: "btn btn-outline-secondary btn-lg" %>
+  </div>
+<% end %>

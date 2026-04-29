@@ -1,0 +1,73 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
+      Stands
+    </h3>
+    <%= link_to new_admin_stand_path, class: "btn btn-primary" do %>
+      <i class="fas fa-plus me-1"></i> Nuevo Stand
+    <% end %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body px-4 pb-4">
+      <% if @stands.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Eventos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @stands.each do |stand| %>
+                <tr>
+                  <td>
+                    <code class="fw-semibold" style="color: var(--brand-orange);"><%= stand.stand_code %></code>
+                  </td>
+                  <td><strong><%= stand.name %></strong></td>
+                  <td><small class="text-muted"><%= stand.location.presence || "—" %></small></td>
+                  <td>
+                    <span class="badge bg-info text-dark"><%= stand.events.count %> eventos</span>
+                  </td>
+                  <td>
+                    <% if stand.active? %>
+                      <span class="badge bg-success">Activo</span>
+                    <% else %>
+                      <span class="badge bg-secondary">Inactivo</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <%= link_to edit_admin_stand_path(stand), class: "btn btn-outline-secondary", title: "Editar" do %>
+                        <i class="fas fa-edit"></i>
+                      <% end %>
+                      <%= link_to admin_stand_path(stand),
+                          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el stand '#{stand.name}'?" },
+                          class: "btn btn-outline-danger", title: "Eliminar" do %>
+                        <i class="fas fa-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="fas fa-store fa-3x mb-3" style="color: var(--brand-orange); opacity:.4;"></i>
+          <p class="mb-3">No hay stands creados aún.</p>
+          <%= link_to new_admin_stand_path, class: "btn btn-primary" do %>
+            <i class="fas fa-plus me-1"></i> Crear primer stand
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

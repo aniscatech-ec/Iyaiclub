@@ -174,6 +174,49 @@
         </div>
       </div>
 
+      <%# Stands del evento %>
+      <% all_stands = Stand.active.order(:name) %>
+      <% if all_stands.any? %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-0">
+              <i class="fas fa-store me-2 text-warning"></i>
+              Stands del Evento
+            </h5>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <p class="text-muted small mb-3">
+              Selecciona los stands disponibles para este evento. Los vendedores de tipo stand podrán asignarse a uno de estos.
+            </p>
+            <div class="row g-2">
+              <% assigned_stand_ids = @event.persisted? ? @event.stand_ids : [] %>
+              <% all_stands.each do |stand| %>
+                <div class="col-12 col-md-6">
+                  <div class="form-check border rounded-3 p-3">
+                    <input type="checkbox"
+                           name="stand_ids[]"
+                           value="<%= stand.id %>"
+                           id="stand_<%= stand.id %>"
+                           class="form-check-input"
+                           <%= "checked" if assigned_stand_ids.include?(stand.id) %>>
+                    <label class="form-check-label w-100" for="stand_<%= stand.id %>">
+                      <strong><%= stand.name %></strong>
+                      <span class="ms-2">
+                        <code class="small" style="color:var(--brand-orange);"><%= stand.stand_code %></code>
+                      </span>
+                      <% if stand.location.present? %>
+                        <br><small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i><%= stand.location %></small>
+                      <% end %>
+                    </label>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            <input type="hidden" name="stand_ids_submitted" value="1">
+          </div>
+        </div>
+      <% end %>
+
       <%# Notificación masiva — solo visible al crear %>
       <% if @event.new_record? %>
         <div class="card border-0 shadow-sm rounded-4 mb-4"

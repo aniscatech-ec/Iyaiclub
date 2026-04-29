@@ -5,6 +5,8 @@ class Event < ApplicationRecord
   has_many :shared_raffles, through: :shared_raffle_events
   has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
   has_many :vendedores, through: :event_vendedores, source: :user
+  has_many :event_stands, dependent: :destroy
+  has_many :stands, through: :event_stands
   has_one_attached :image
 
   enum :status, { borrador: 0, publicado: 1, cancelado: 2, finalizado: 3 }
