@@ -57,4 +57,12 @@ export default class extends Controller {
       document.removeEventListener("click", this.handleOutsideClick)
     }
   }
+
+  // Cierre explícito desde el botón X del bottom sheet (móvil)
+  closeSheet(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    this.element.classList.remove("is-open")
+    document.removeEventListener("click", this.handleOutsideClick)
+  }
 }

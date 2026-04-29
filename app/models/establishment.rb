@@ -11,17 +11,18 @@ class Establishment < ApplicationRecord
 
   # enum :category, hotel: 0, restaurante: 1
   enum :category, EstablishmentTypes::TYPES
-  enum :status, { active: 0, inactive: 1 }, default: :active
+  enum :status, { active: 0, inactive: 1 }, default: :inactive
   enum :tipo_gestion_reserva, { autogestion: 0, iyaiclub: 1 }, default: :autogestion
+  enum :approval_status, { pending: 0, approved: 1, rejected: 2 }, default: :pending, prefix: :approval
 
   # ── Validaciones obligatorias según documento de requerimientos ──
   validates :name, presence: { message: "El nombre del establecimiento es obligatorio" }
   validates :category, presence: { message: "Debe seleccionar una categoria" }
   validates :address, presence: { message: "La direccion es obligatoria" }
-  validates :phone, presence: { message: "El telefono de contacto es obligatorio" }
-  validates :whatsapp, presence: { message: "El enlace de WhatsApp es obligatorio" }
-  validates :email, presence: { message: "El correo electronico es obligatorio" },
-                    format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo no es valido", allow_blank: true }
+  validates :phone, presence: { message: "El telefono de contacto es obligatorio" }, unless: :escapada?
+  validates :whatsapp, presence: { message: "El enlace de WhatsApp es obligatorio" }, unless: :escapada?
+  validates :email, presence: { message: "El correo electronico es obligatorio" }, unless: :escapada?
+  validates :email, format: { with: URI::MailTo::EMAIL_REGEXP, message: "El correo no es valido" }, allow_blank: true
   validates :latitude, presence: { message: "La latitud es obligatoria (ubicacion en Google Maps)" }
   validates :longitude, presence: { message: "La longitud es obligatoria (ubicacion en Google Maps)" }
   validates :country_id, presence: { message: "Debe seleccionar un pais" }
@@ -68,19 +69,56 @@ class Establishment < ApplicationRecord
   accepts_nested_attributes_for :pricing_policy
 
   has_one_attached :video
+
   # Devuelve [] si policies es nil
   def policies_array
-    policies || []
+    val = policies
+    return [] if val.blank?
+    val.is_a?(Array) ? val : (Array(JSON.parse(val)) rescue [])
   end
 
   has_many :getaways, dependent: :destroy
   has_many :lodgings, dependent: :destroy
   has_many :experiences, dependent: :destroy
   has_many :promotions, dependent: :destroy
+<<<<<<< HEAD
   has_many :reviews, dependent: :destroy
 
   def average_rating
     (reviews.average(:rating) || 0.0).to_f
+=======
+
+  # ── Foto de portada ──────────────────────────────────────────────────────────
+  # Devuelve la imagen de portada seleccionada (por blob_id) o la primera disponible.
+  # Busca primero en `images` (has_many_attached) y luego en galleries como fallback.
+  def cover_image
+    if cover_image_blob_id.present? && images.attached?
+      chosen = images.find { |img| img.blob_id == cover_image_blob_id }
+      return chosen if chosen
+    end
+    images.attached? ? images.first : nil
+  end
+
+  # Todas las imágenes directas (has_many_attached :images), ordenando la portada primero
+  def ordered_images
+    return [] unless images.attached?
+    all = images.to_a
+    if cover_image_blob_id.present?
+      cover = all.find { |img| img.blob_id == cover_image_blob_id }
+      rest  = all.reject { |img| img.blob_id == cover_image_blob_id }
+      cover ? [cover] + rest : all
+    else
+      all
+    end
+  end
+
+  # Todas las imágenes para el carousel del hero:
+  # primero directas (images), luego las de galleries
+  def all_hero_images
+    direct = ordered_images
+    gallery_imgs = galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
+    { direct: direct, gallery: gallery_imgs }
+>>>>>>> 29500970ce08c5023f64e23c30cf693470162f6f
   end
 
   private

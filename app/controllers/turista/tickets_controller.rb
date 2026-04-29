@@ -1,5 +1,4 @@
 class Turista::TicketsController < ApplicationController
-  include VendedorCodeLookup
   before_action :authenticate_user!
   before_action :set_ticket, only: [:show, :download, :mark_as_used, :check_status]
   before_action :set_event, only: [:new_free, :create_free, :new_purchase, :create_purchase, :new_transfer, :create_transfer, :transfer_status]
@@ -183,7 +182,9 @@ class Turista::TicketsController < ApplicationController
     end
 
     # NO crear tickets aún — se crean solo cuando PayPhone confirma el pago
-    @amount_cents = (@event.price_for(current_user) * 100 * quantity).to_i
+    unit_price  = @event.price_for(current_user)
+    total_price = @event.total_price_for(current_user, quantity)
+    @amount_cents = (total_price * 100).to_i
     @client_transaction_id = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     @reference = "#{quantity} ticket(s) - #{@event.name}"
 
@@ -202,7 +203,9 @@ class Turista::TicketsController < ApplicationController
         guest_name: guest_name,
         guest_email: guest_email,
         guest_phone: current_user.phone,
-        unit_price: @event.price_for(current_user)
+        unit_price: unit_price,
+        total_price: total_price,
+        referral_code: params[:referral_code].to_s.strip.upcase.presence
       }
     )
 
@@ -216,10 +219,10 @@ class Turista::TicketsController < ApplicationController
   end
 
   def create_transfer_ticket
-    vendedor = resolve_vendedor_by_code(params[:vendor_code], @event)
+    vendedor = User.find_by(id: params[:vendedor_id], role: :vendedor)
     unless vendedor
       redirect_to new_purchase_turista_event_tickets_path(@event),
-                  alert: vendedor_code_error(params[:vendor_code], @event)
+                  alert: "Por favor selecciona un vendedor."
       return
     end
 
@@ -232,6 +235,8 @@ class Turista::TicketsController < ApplicationController
       return
     end
 
+    unit_price  = @event.price_for(current_user)
+    total_price = @event.total_price_for(current_user, quantity)
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
@@ -242,14 +247,15 @@ class Turista::TicketsController < ApplicationController
           event_name: @event.name,
           event_date: @event.event_date,
           event_location: @event.location,
-          unit_price: @event.price_for(current_user),
-          total_price: @event.price_for(current_user) * quantity,
+          unit_price: unit_price,
+          total_price: total_price,
           guest_name: params[:guest_name].presence || current_user.name,
           guest_email: params[:guest_email].presence || current_user.email,
           guest_phone: current_user.phone,
           status: :reservado,
           payment_method: :transferencia,
-          reserved_at: Time.current
+          reserved_at: Time.current,
+          referral_code: params[:referral_code].to_s.strip.upcase.presence
         )
         tickets << ticket
       end
@@ -257,13 +263,12 @@ class Turista::TicketsController < ApplicationController
       @event.decrement!(:available_tickets, quantity) if @event.available_tickets.present?
     end
 
-    # Programar expiración para todos los tickets
     tickets.each do |ticket|
       ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(ticket.id)
     end
 
     redirect_to transfer_status_turista_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.price_for(current_user) * quantity)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', total_price)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to new_purchase_turista_event_tickets_path(@event),
                 alert: "Error al crear tickets: #{e.message}"

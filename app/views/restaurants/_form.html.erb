@@ -219,7 +219,11 @@
     </div>
 
     <!-- ═══════════════ 4. CONTACTO ═══════════════ -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card border-0 shadow-sm rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="establishment_country_id"
+         data-location-select-province-id-value="establishment_province_id"
+         data-location-select-city-id-value="establishment_city_id">
       <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, var(--brand-cofee), #6b5320); color: white; border-radius: 0.5rem 0.5rem 0 0;">
         <h5 class="mb-0 fw-bold"><i class="fas fa-address-book me-2"></i> 4. Contacto y ubicación</h5>
       </div>
@@ -616,72 +620,6 @@
 <% end %>
 
 <script>
-    function initLocationScript() {
-        const countrySelect = document.getElementById('establishment_country_id');
-        const provinceSelect = document.getElementById('establishment_province_id');
-        const citySelect = document.getElementById('establishment_city_id');
-
-        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-        const selectedCityId = citySelect ? citySelect.value : null;
-
-        function loadProvinces(countryId, restoreProvinceId) {
-            if (!countryId) {
-                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/provinces/${countryId}`)
-                .then(r => r.json())
-                .then(data => {
-                    provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                    data.forEach(province => {
-                        const selected = restoreProvinceId && province.id == restoreProvinceId ? ' selected' : '';
-                        provinceSelect.innerHTML += `<option value="${province.id}"${selected}>${province.name}</option>`;
-                    });
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
-                })
-                .catch(() => { provinceSelect.innerHTML = '<option value="">Error al cargar provincias</option>'; });
-        }
-
-        function loadCities(provinceId, restoreCityId) {
-            if (!provinceId) {
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                return;
-            }
-            fetch(`/locations/cities/${provinceId}`)
-                .then(r => r.json())
-                .then(data => {
-                    citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                    data.forEach(city => {
-                        const selected = restoreCityId && city.id == restoreCityId ? ' selected' : '';
-                        citySelect.innerHTML += `<option value="${city.id}"${selected}>${city.name}</option>`;
-                    });
-                })
-                .catch(() => { citySelect.innerHTML = '<option value="">Error al cargar ciudades</option>'; });
-        }
-
-        if (countrySelect) {
-            countrySelect.addEventListener('change', function() {
-                loadProvinces(this.value, null);
-            });
-            if (countrySelect.value) {
-                loadProvinces(countrySelect.value, selectedProvinceId);
-            }
-        }
-
-        if (provinceSelect) {
-            provinceSelect.addEventListener('change', function() {
-                loadCities(this.value, null);
-            });
-        }
-    }
-
-    initLocationScript();
-    document.addEventListener('DOMContentLoaded', initLocationScript);
-    document.addEventListener('turbo:load', initLocationScript);
-    setTimeout(initLocationScript, 500);
-
     (function() {
         const typeSelect = document.getElementById('restaurant_document_type_select');
         const numberInput = document.getElementById('restaurant_document_number_input');

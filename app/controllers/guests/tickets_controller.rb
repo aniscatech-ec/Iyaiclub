@@ -1,7 +1,5 @@
 class Guests::TicketsController < ApplicationController
-  include VendedorCodeLookup
   before_action :set_event, only: [:new_purchase, :create_purchase, :transfer_status]
-  before_action :set_ticket_by_code, only: [:show, :check_status]
 
   def new_purchase
     if @event.price_for(nil) == 0
@@ -47,25 +45,15 @@ class Guests::TicketsController < ApplicationController
     redirect_to events_path, alert: "Ticket no encontrado."
   end
 
-  def check_status
-    render json: {
-      status: @ticket.status,
-      time_remaining: @ticket.time_remaining
-    }
-  end
-
-  def show
-  end
-
   def lookup
-    if request.post? || params[:code].present?
+    if params[:code].present?
       code   = params[:code].to_s.strip.upcase
       cedula = params[:cedula].to_s.strip
 
-      @ticket = Ticket.find_by(ticket_code: code)
+      ticket = Ticket.find_by(ticket_code: code)
 
-      if @ticket && @ticket.guest_name.to_s.include?(cedula)
-        redirect_to guests_ticket_path(@ticket.ticket_code)
+      if ticket && ticket.guest_name.to_s.include?(cedula)
+        @ticket = ticket
       else
         @error = "No se encontró un ticket con ese código y cédula."
       end
@@ -76,12 +64,6 @@ class Guests::TicketsController < ApplicationController
 
   def set_event
     @event = Event.find(params[:event_id])
-  end
-
-  def set_ticket_by_code
-    @ticket = Ticket.find_by!(ticket_code: params[:code])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to guests_ticket_lookup_path, alert: "Ticket no encontrado."
   end
 
   def guest_params
@@ -123,7 +105,9 @@ class Guests::TicketsController < ApplicationController
     end
 
     guest_name_full = formatted_guest_name(gp[:name], gp[:cedula])
-    amount_cents    = (@event.price_for(nil) * 100 * quantity).to_i
+    unit_price      = @event.price_for(nil)
+    total_price     = @event.total_price_for(nil, quantity)
+    amount_cents    = (total_price * 100).to_i
     client_tx_id    = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     formatted_phone = format_phone_for_payphone(gp[:phone])
 
@@ -136,14 +120,16 @@ class Guests::TicketsController < ApplicationController
       phone_number:          formatted_phone,
       status:                :pendiente,
       metadata: {
-        type:        "ticket",
-        guest:       true,
-        event_id:    @event.id,
-        quantity:    quantity,
-        guest_name:  guest_name_full,
-        guest_email: gp[:email],
-        guest_phone: gp[:phone],
-        unit_price:  @event.price_for(nil)
+        type:          "ticket",
+        guest:         true,
+        event_id:      @event.id,
+        quantity:      quantity,
+        guest_name:    guest_name_full,
+        guest_email:   gp[:email],
+        guest_phone:   gp[:phone],
+        unit_price:    unit_price,
+        total_price:   total_price,
+        referral_code: params[:referral_code].to_s.strip.upcase.presence
       }
     )
 
@@ -162,11 +148,11 @@ class Guests::TicketsController < ApplicationController
   def create_transfer_ticket
     gp       = guest_params
     quantity = [params[:quantity].to_i, 1].max
-    vendedor = resolve_vendedor_by_code(params[:vendor_code], @event)
+    vendedor = User.find_by(id: params[:vendedor_id], role: :vendedor)
 
     unless vendedor
       redirect_to guests_new_purchase_event_tickets_path(@event),
-                  alert: vendedor_code_error(params[:vendor_code], @event)
+                  alert: "Por favor selecciona un vendedor."
       return
     end
 
@@ -177,6 +163,8 @@ class Guests::TicketsController < ApplicationController
     end
 
     guest_name_full = formatted_guest_name(gp[:name], gp[:cedula])
+    unit_price      = @event.price_for(nil)
+    total_price     = @event.total_price_for(nil, quantity)
     tickets         = []
 
     ActiveRecord::Base.transaction do
@@ -188,14 +176,15 @@ class Guests::TicketsController < ApplicationController
           event_name:     @event.name,
           event_date:     @event.event_date,
           event_location: @event.location,
-          unit_price:     @event.price_for(nil),
-          total_price:    @event.price_for(nil) * quantity,
+          unit_price:     unit_price,
+          total_price:    total_price,
           guest_name:     guest_name_full,
           guest_email:    gp[:email],
           guest_phone:    gp[:phone],
           status:         :reservado,
           payment_method: :transferencia,
-          reserved_at:    Time.current
+          reserved_at:    Time.current,
+          referral_code:  params[:referral_code].to_s.strip.upcase.presence
         )
         tickets << ticket
       end
@@ -206,7 +195,7 @@ class Guests::TicketsController < ApplicationController
     tickets.each { |t| ExpireReservedTicketsJob.set(wait: 10.minutes).perform_later(t.id) }
 
     redirect_to guests_transfer_status_event_tickets_path(@event, ticket_id: tickets.first.id),
-                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', @event.price_for(nil) * quantity)}"
+                notice: "Has reservado #{quantity} ticket(s). Total a pagar: $#{format('%.2f', total_price)}"
   rescue ActiveRecord::RecordInvalid => e
     redirect_to guests_new_purchase_event_tickets_path(@event),
                 alert: "Error al crear la reserva: #{e.message}"

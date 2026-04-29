@@ -1,0 +1,54 @@
+<%#
+  Partial reutilizable para seleccionar la foto de portada de un establecimiento.
+  Requiere:
+    - establishment: el objeto Establishment (con images adjuntas)
+  Opcional:
+    - heading: texto del encabezado (default: "Foto de portada")
+%>
+<% est = local_assigns[:establishment] %>
+<% heading = local_assigns[:heading] || "Foto de portada" %>
+
+<% if est&.images&.attached? %>
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-transparent border-0 p-4 pb-2">
+      <h6 class="fw-bold mb-0">
+        <i class="fas fa-image me-2" style="color: var(--brand-orange);"></i>
+        <%= heading %>
+      </h6>
+      <p class="text-muted small mb-0 mt-1">
+        Haz clic en una foto para establecerla como portada. La portada es la primera imagen que verán los visitantes.
+      </p>
+    </div>
+    <div class="card-body p-4 pt-2">
+      <div class="row g-2">
+        <% est.images.each do |img| %>
+          <% is_cover = est.cover_image_blob_id == img.blob_id ||
+                        (est.cover_image_blob_id.nil? && est.images.first.blob_id == img.blob_id) %>
+          <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <%= button_to set_cover_image_establishment_path(est, blob_id: img.blob_id),
+                          method: :patch,
+                          class: "btn p-0 w-100 border-0 position-relative cover-img-btn",
+                          data: { turbo: false } do %>
+              <%= image_tag img.variant(resize_to_fill: [200, 140]),
+                            class: "rounded-3 w-100",
+                            style: "height: 90px; object-fit: cover; #{'outline: 3px solid var(--brand-orange); outline-offset: 2px;' if is_cover}",
+                            alt: "Imagen #{img.blob_id}" %>
+              <% if is_cover %>
+                <span class="position-absolute top-0 start-0 m-1 badge rounded-pill"
+                      style="background: var(--brand-orange); font-size: 0.65rem;">
+                  <i class="fas fa-star me-1"></i>Portada
+                </span>
+              <% else %>
+                <span class="position-absolute top-0 start-0 m-1 badge bg-dark bg-opacity-50 rounded-pill"
+                      style="font-size: 0.65rem; opacity: 0; transition: opacity 0.2s;"
+                      class="cover-hover-label">
+                  <i class="fas fa-image me-1"></i>Usar como portada
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

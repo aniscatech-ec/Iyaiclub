@@ -69,6 +69,7 @@ class PayphoneController < ApplicationController
         end
 
         activate_payable(@transaction.payable)
+        process_referral_reward(@transaction)
         redirect_to after_payment_path(@transaction), notice: "Pago realizado exitosamente. #{payment_summary(@transaction)}"
       else
         redirect_to after_payment_path(@transaction), alert: "El pago fue rechazado o cancelado. Intenta nuevamente."
@@ -162,7 +163,8 @@ class PayphoneController < ApplicationController
       subscribable_id:   subscribable_id,
       plan_type:         plan_price.id,
       payment_method:    :tarjeta,
-      status:            :pendiente
+      status:            :pendiente,
+      referral_code:     params[:referral_code].to_s.strip.upcase.presence
     )
 
     subscription.save!
@@ -218,7 +220,8 @@ class PayphoneController < ApplicationController
     event    = Event.find(meta["event_id"])
     quantity = (meta["quantity"] || 1).to_i
 
-    unit_price = meta["unit_price"].to_f
+    unit_price  = meta["unit_price"].to_f
+    total_price = meta["total_price"].present? ? meta["total_price"].to_f : unit_price * quantity
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
@@ -229,7 +232,7 @@ class PayphoneController < ApplicationController
           event_date:     event.event_date,
           event_location: event.location,
           unit_price:     unit_price,
-          total_price:    unit_price,
+          total_price:    total_price,
           guest_name:     meta["guest_name"],
           guest_email:    meta["guest_email"],
           guest_phone:    meta["guest_phone"],
@@ -301,7 +304,7 @@ class PayphoneController < ApplicationController
       if payable.user.present?
         turista_ticket_path(payable)
       else
-        guests_ticket_path(payable.ticket_code)
+        events_path
       end
     when nil
       # Transacción sin payable (pago rechazado/cancelado para ticket)
@@ -336,5 +339,40 @@ class PayphoneController < ApplicationController
 
   def payment_summary(transaction)
     "Transacción ##{transaction.transaction_id} - $#{'%.2f' % transaction.amount_dollars} USD"
+  end
+
+  def process_referral_reward(transaction)
+    payable = transaction.payable
+    meta    = transaction.metadata || {}
+
+    referral_code = case payable
+                    when Subscription
+                      payable.referral_code
+                    when Ticket
+                      payable.referral_code.presence || meta["referral_code"]
+                    else
+                      meta["referral_code"]
+                    end
+
+    return if referral_code.blank?
+
+    reward_type = case payable
+                  when Subscription then "membership"
+                  when Ticket       then "ticket"
+                  else return
+                  end
+
+    referred_user  = transaction.user
+    referred_email = payable.is_a?(Ticket) ? payable.guest_email : referred_user&.email
+
+    Referral.process(
+      referral_code:  referral_code,
+      reward_type:    reward_type,
+      referred_user:  referred_user,
+      referred_email: referred_email,
+      source:         payable
+    )
+  rescue => e
+    Rails.logger.error("[Referral] Error en process_referral_reward: #{e.message}")
   end
 end

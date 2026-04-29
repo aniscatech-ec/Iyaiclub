@@ -15,52 +15,82 @@ class Vendedor::TicketsController < ApplicationController
     @tickets = @tickets.where(status: params[:status])         if params[:status].present?
     @tickets = @tickets.where(guest_name: params[:buyer])      if params[:buyer].present?
     @tickets = @tickets.where(ticket_code: params[:code])      if params[:code].present?
+    @tickets = @tickets.to_a
   end
 
   def acreditar
-    if @ticket.reservado?
-      @ticket.acreditar!
-      begin
-        send_acreditado_email(@ticket)
-      rescue => e
-        Rails.logger.error("Error enviando email de acreditación: #{e.message}")
-      end
-      redirect_to vendedor_event_tickets_path(@event),
-                  notice: "Ticket #{@ticket.ticket_code} acreditado exitosamente."
-    else
+    unless @ticket.reservado?
       redirect_to vendedor_event_tickets_path(@event),
                   alert: "Este ticket no puede ser acreditado (estado: #{@ticket.status})."
+      return
     end
+
+    group = same_buyer_pending(@ticket)
+    group.each(&:acreditar!)
+
+    # Verificar cupo del vendedor
+    @event.event_vendedores.find_by(user: current_user)&.check_and_mark_quota!
+
+    # Procesar referido: solo el primer ticket del grupo lleva el código
+    process_ticket_referral(@ticket)
+
+    begin
+      send_acreditado_email(group)
+    rescue => e
+      Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
+    end
+
+    msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} acreditados exitosamente." \
+                         : "Ticket #{@ticket.ticket_code} acreditado exitosamente."
+    redirect_to vendedor_event_tickets_path(@event), notice: msg
   end
 
   def rechazar
-    if @ticket.reservado?
-      @ticket.rechazar!
-      begin
-        send_rechazado_email(@ticket)
-      rescue => e
-        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
-      end
-      redirect_to vendedor_event_tickets_path(@event),
-                  notice: "Ticket #{@ticket.ticket_code} rechazado."
-    else
+    unless @ticket.reservado?
       redirect_to vendedor_event_tickets_path(@event),
                   alert: "Este ticket no puede ser rechazado (estado: #{@ticket.status})."
+      return
     end
+
+    group = same_buyer_pending(@ticket)
+    group.each(&:rechazar!)
+
+    begin
+      send_rechazado_email(group.first)
+    rescue => e
+      Rails.logger.error("[TicketMailer] Error enviando email de rechazo: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
+    end
+
+    msg = group.size > 1 ? "#{group.size} tickets de #{@ticket.guest_name.split('·').first.strip} rechazados." \
+                         : "Ticket #{@ticket.ticket_code} rechazado."
+    redirect_to vendedor_event_tickets_path(@event), notice: msg
   end
 
   def bulk_acreditar
     acreditados = 0
+    # Acreditar todos primero
     @bulk_tickets.each do |ticket|
       next unless ticket.reservado?
       ticket.acreditar!
-      begin
-        send_acreditado_email(ticket)
-      rescue => e
-        Rails.logger.error("Error enviando email de acreditación: #{e.message}")
-      end
       acreditados += 1
     end
+
+    # Procesar referidos para tickets acreditados
+    @bulk_tickets.reload.select(&:activo?).each { |t| process_ticket_referral(t) }
+
+    # Verificar cupo del vendedor
+    @event.event_vendedores.find_by(user: current_user)&.check_and_mark_quota!
+
+    # Enviar un email por comprador (agrupa por email o nombre)
+    acreditados_tickets = @bulk_tickets.reload.select(&:activo?)
+    acreditados_tickets.group_by { |t| t.guest_email.presence || t.guest_name }.each do |_, group|
+      begin
+        send_acreditado_email(group)
+      rescue => e
+        Rails.logger.error("[TicketMailer] Error enviando email de acreditación: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
+      end
+    end
+
     redirect_to vendedor_event_tickets_path(@event),
                 notice: "#{acreditados} #{'ticket'.pluralize(acreditados)} acreditado#{'s' if acreditados != 1} exitosamente."
   end
@@ -73,7 +103,7 @@ class Vendedor::TicketsController < ApplicationController
       begin
         send_rechazado_email(ticket)
       rescue => e
-        Rails.logger.error("Error enviando email de rechazo: #{e.message}")
+        Rails.logger.error("[TicketMailer] Error enviando email de rechazo: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}")
       end
       rechazados += 1
     end
@@ -100,12 +130,43 @@ class Vendedor::TicketsController < ApplicationController
     @bulk_tickets = @event.tickets.where(vendedor: current_user, id: ids)
   end
 
-  def send_acreditado_email(ticket)
-    TicketMailer.ticket_acreditado(ticket.user, ticket).deliver_later
+  # Todos los tickets pendientes del mismo comprador en este evento.
+  # Agrupa por guest_email si está presente, o por guest_name como fallback.
+  # Siempre incluye el ticket original aunque la query no lo encuentre.
+  def same_buyer_pending(ticket)
+    scope = @event.tickets.where(vendedor: current_user, status: :reservado)
+
+    scope = if ticket.guest_email.present?
+              scope.where(guest_email: ticket.guest_email)
+            else
+              scope.where(guest_name: ticket.guest_name)
+            end
+
+    results = scope.to_a
+    # Garantizar que el ticket original siempre esté incluido
+    results << ticket unless results.map(&:id).include?(ticket.id)
+    results
+  end
+
+  def send_acreditado_email(tickets)
+    tickets = Array(tickets)
+    TicketMailer.ticket_acreditado(tickets.first.user, tickets).deliver_now
   end
 
   def send_rechazado_email(ticket)
-    return if ticket.user.present?
-    TicketMailer.ticket_rechazado_guest(ticket).deliver_later
+    TicketMailer.ticket_rechazado_guest(ticket).deliver_now
+  end
+
+  def process_ticket_referral(ticket)
+    return if ticket.referral_code.blank?
+    Referral.process(
+      referral_code:  ticket.referral_code,
+      reward_type:    "ticket",
+      referred_user:  ticket.user,
+      referred_email: ticket.guest_email,
+      source:         ticket
+    )
+  rescue => e
+    Rails.logger.error("[Referral] Error en ticket referral: #{e.message}")
   end
 end

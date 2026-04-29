@@ -1,4 +1,4 @@
-class Turista::ProfileController < ApplicationController
+class Turista::ProfilesController < ApplicationController
   before_action :authenticate_turista!
   layout "dashboard"
 
@@ -27,6 +27,6 @@ class Turista::ProfileController < ApplicationController
   private
 
   def profile_params
-    params.require(:user).permit(:name, :phone, :birth_date, :marketing_consent)
+    params.require(:user).permit(:name, :phone, :birth_date, :marketing_consent, :avatar, :cover_photo)
   end
 end

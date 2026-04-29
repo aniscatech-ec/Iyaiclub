@@ -406,7 +406,11 @@
       </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card shadow-sm border-0 rounded-3 mb-4"
+         data-controller="location-select"
+         data-location-select-country-id-value="establishment_country_id"
+         data-location-select-province-id-value="establishment_province_id"
+         data-location-select-city-id-value="establishment_city_id">
       <div class="card-header text-white fw-bold rounded-top-3" style="background: var(--brand-cofee);">
         <i class="fas fa-map-marker-alt me-2"></i> 5. Ubicacion
       </div>
@@ -560,45 +564,6 @@
 <% end %>
 
 <script>
-    // Intentar múltiples eventos para asegurar que el script se ejecute
-    function initLocationScript() {
-        // ═══════════════ UBICACIÓN DINÁMICA ═══════════════
-        const countrySelect = document.getElementById('establishment_country_id');
-        const provinceSelect = document.getElementById('establishment_province_id');
-        const citySelect = document.getElementById('establishment_city_id');
-
-        const selectedProvinceId = provinceSelect ? provinceSelect.value : null;
-        const selectedCityId = citySelect ? citySelect.value : null;
-
-        function loadProvinces(countryId, restoreProvinceId) {
-            if (!countryId) { provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>'; citySelect.innerHTML = '<option value="">Seleccione ciudad</option>'; return; }
-            fetch(`/locations/provinces/${countryId}`).then(r => r.json()).then(data => {
-                provinceSelect.innerHTML = '<option value="">Seleccione provincia</option>';
-                data.forEach(p => { const s = restoreProvinceId && p.id == restoreProvinceId ? ' selected' : ''; provinceSelect.innerHTML += `<option value="${p.id}"${s}>${p.name}</option>`; });
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                if (restoreProvinceId) loadCities(restoreProvinceId, selectedCityId);
-            }).catch(e => console.error(e));
-        }
-
-        function loadCities(provinceId, restoreCityId) {
-            if (!provinceId) { citySelect.innerHTML = '<option value="">Seleccione ciudad</option>'; return; }
-            fetch(`/locations/cities/${provinceId}`).then(r => r.json()).then(data => {
-                citySelect.innerHTML = '<option value="">Seleccione ciudad</option>';
-                data.forEach(c => { const s = restoreCityId && c.id == restoreCityId ? ' selected' : ''; citySelect.innerHTML += `<option value="${c.id}"${s}>${c.name}</option>`; });
-            }).catch(e => console.error(e));
-        }
-
-        if (countrySelect) {
-            countrySelect.addEventListener('change', function() { loadProvinces(this.value, null); });
-            if (countrySelect.value) loadProvinces(countrySelect.value, selectedProvinceId);
-        }
-        if (provinceSelect) provinceSelect.addEventListener('change', function() { loadCities(this.value, null); });
-    }
-
-    initLocationScript();
-    document.addEventListener('DOMContentLoaded', initLocationScript);
-    document.addEventListener('turbo:load', initLocationScript);
-
     (function() {
         const typeSelect = document.getElementById('lodging_document_type_select');
         const numberInput = document.getElementById('lodging_document_number_input');

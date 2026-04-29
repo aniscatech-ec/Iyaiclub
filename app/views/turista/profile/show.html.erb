@@ -67,6 +67,45 @@
     </div>
   </div>
 
+  <%# ── Código de referido ── %>
+  <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #f0fff4, #dcfce7); border: 1.5px solid #86efac !important;">
+    <div class="card-body p-4">
+      <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+             style="width:52px; height:52px; background:#16a34a; color:white; font-size:1.4rem;">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-bold mb-1" style="color:#15803d;">Tu código de referido</div>
+          <p class="mb-2 small text-muted">
+            Comparte este código con tus amigos. Cuando compren una membresía o ticket usando tu código,
+            <strong>ganarás puntos automáticamente</strong>.
+          </p>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <% if @user.referral_code.present? %>
+              <span class="px-4 py-2 rounded-3 fw-bold fs-5"
+                    style="background:white; border: 2px dashed #16a34a; letter-spacing: 0.2em; color:#15803d; font-family: monospace;"
+                    id="referral-code-display"><%= @user.referral_code %></span>
+              <button type="button" class="btn btn-sm btn-outline-success rounded-pill"
+                      onclick="navigator.clipboard.writeText('<%= @user.referral_code %>').then(() => { this.innerHTML='<i class=\'fas fa-check me-1\'></i>¡Copiado!'; setTimeout(() => this.innerHTML='<i class=\'fas fa-copy me-1\'></i>Copiar', 2000); })">
+                <i class="fas fa-copy me-1"></i>Copiar
+              </button>
+            <% else %>
+              <span class="text-muted small">Tu código aún no ha sido generado. Cierra sesión y vuelve a ingresar para generarlo.</span>
+            <% end %>
+          </div>
+          <% referrals_count = @user.referrals_given.where(status: "acreditado").count %>
+          <% if referrals_count > 0 %>
+            <small class="text-success mt-2 d-block">
+              <i class="fas fa-check-circle me-1"></i>
+              Has referido exitosamente a <strong><%= referrals_count %></strong> persona<%= referrals_count > 1 ? "s" : "" %>.
+            </small>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row g-4">
     <%# ── Columna izquierda: info personal + membresía ── %>
     <div class="col-12 col-lg-4">

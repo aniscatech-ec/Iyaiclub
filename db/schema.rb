@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_23_100000) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "advertisements", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "description"
+    t.string "tags"
+    t.string "link_url"
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "amenities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -165,6 +176,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.time "closing_time"
     t.integer "status", default: 0, null: false
     t.integer "tipo_gestion_reserva", default: 0, null: false
+    t.bigint "cover_image_blob_id"
+    t.integer "approval_status", default: 0, null: false, comment: "0=pending, 1=approved, 2=rejected"
+    t.string "approval_notes", comment: "Motivo del rechazo si aplica"
+    t.datetime "approved_at"
+    t.bigint "approved_by_id"
+    t.index ["approval_status"], name: "index_establishments_on_approval_status"
     t.index ["category"], name: "index_establishments_on_category"
     t.index ["city_id"], name: "index_establishments_on_city_id"
     t.index ["country_id"], name: "index_establishments_on_country_id"
@@ -179,6 +196,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "quota", comment: "Cupo asignado de tickets a vender (nil = sin límite)"
+    t.datetime "quota_met_at", comment: "Timestamp cuando se alcanzó el cupo"
     t.index ["event_id", "user_id"], name: "index_event_vendedores_on_event_id_and_user_id", unique: true
     t.index ["event_id"], name: "index_event_vendedores_on_event_id"
     t.index ["user_id"], name: "index_event_vendedores_on_user_id"
@@ -199,6 +218,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.datetime "updated_at", null: false
     t.decimal "member_price", precision: 10, scale: 2
     t.decimal "non_member_price", precision: 10, scale: 2
+    t.integer "combo_quantity", comment: "Mínimo de tickets para activar precio combo (nil = desactivado)"
+    t.decimal "combo_discount", precision: 10, scale: 2, comment: "Descuento por ticket cuando se compra en combo"
     t.index ["event_date"], name: "index_events_on_event_date"
     t.index ["status"], name: "index_events_on_status"
   end
@@ -242,6 +263,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.bigint "establishment_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "free_entry", default: false, null: false
     t.index ["establishment_id"], name: "index_getaways_on_establishment_id"
   end
 
@@ -484,6 +506,30 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.index ["user_id"], name: "index_redemptions_on_user_id"
   end
 
+  create_table "referral_reward_configs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "reward_type", null: false
+    t.integer "points", default: 0, null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reward_type"], name: "index_referral_reward_configs_on_reward_type", unique: true
+  end
+
+  create_table "referrals", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "referrer_id", null: false
+    t.bigint "referred_id"
+    t.string "referred_email"
+    t.string "reward_type", null: false
+    t.integer "points_awarded", default: 0, null: false
+    t.string "status", default: "pendiente", null: false
+    t.integer "source_id"
+    t.string "source_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["referred_id"], name: "index_referrals_on_referred_id"
+    t.index ["referrer_id"], name: "index_referrals_on_referrer_id"
+  end
+
   create_table "reservations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "unit_id", null: false
     t.bigint "user_id", null: false
@@ -601,6 +647,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.bigint "vendedor_id"
     t.datetime "reserved_at"
     t.datetime "suspended_at"
+    t.string "referral_code", limit: 12
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
     t.index ["vendedor_id"], name: "index_subscriptions_on_vendedor_id"
   end
@@ -639,6 +686,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.integer "payment_method", default: 0, null: false
     t.bigint "vendedor_id"
     t.datetime "reserved_at"
+    t.string "referral_code", limit: 12
     t.index ["event_id"], name: "index_tickets_on_event_id"
     t.index ["event_name"], name: "index_tickets_on_event_name"
     t.index ["payment_method"], name: "index_tickets_on_payment_method"
@@ -648,6 +696,36 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.index ["ticket_code"], name: "index_tickets_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_tickets_on_user_id"
     t.index ["vendedor_id"], name: "index_tickets_on_vendedor_id"
+  end
+
+  create_table "tour_packages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "travel_agency_id", null: false
+    t.string "name"
+    t.string "duration"
+    t.text "itinerary"
+    t.decimal "price", precision: 10, scale: 2
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "package_type"
+    t.string "destination"
+    t.integer "days"
+    t.integer "nights"
+    t.integer "min_group", default: 1
+    t.integer "max_group", default: 15
+    t.string "difficulty"
+    t.string "departure_point"
+    t.decimal "member_price", precision: 10, scale: 2
+    t.text "includes"
+    t.text "excludes"
+    t.text "next_departures"
+    t.string "season"
+    t.boolean "includes_transport", default: false
+    t.boolean "includes_food", default: false
+    t.boolean "includes_lodging", default: false
+    t.boolean "includes_guide", default: false
+    t.boolean "active", default: true
+    t.index ["travel_agency_id"], name: "index_tour_packages_on_travel_agency_id"
   end
 
   create_table "transports", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -667,6 +745,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.index ["establishment_id"], name: "index_transports_on_establishment_id"
     t.index ["subcategory"], name: "index_transports_on_subcategory"
     t.index ["transport_type"], name: "index_transports_on_transport_type"
+  end
+
+  create_table "travel_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "establishment_id", null: false
+    t.integer "subcategory", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["establishment_id"], name: "index_travel_agencies_on_establishment_id"
   end
 
   create_table "unit_availabilities", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -738,10 +824,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.string "vendor_code"
+    t.string "referral_code", limit: 12
     t.index ["city_id"], name: "index_users_on_city_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["country_id"], name: "index_users_on_country_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["referral_code"], name: "index_users_on_referral_code", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["vendor_code"], name: "index_users_on_vendor_code", unique: true
   end
@@ -821,6 +909,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
   add_foreign_key "raffles", "events"
   add_foreign_key "redemptions", "rewards"
   add_foreign_key "redemptions", "users"
+  add_foreign_key "referrals", "users", column: "referred_id"
+  add_foreign_key "referrals", "users", column: "referrer_id"
   add_foreign_key "reservations", "units"
   add_foreign_key "reservations", "users"
   add_foreign_key "restaurant_hours", "restaurants"
@@ -838,7 +928,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_20_120000) do
   add_foreign_key "tickets", "payphone_transactions"
   add_foreign_key "tickets", "users"
   add_foreign_key "tickets", "users", column: "vendedor_id"
+  add_foreign_key "tour_packages", "travel_agencies"
   add_foreign_key "transports", "establishments"
+  add_foreign_key "travel_agencies", "establishments"
   add_foreign_key "unit_availabilities", "units"
   add_foreign_key "unit_prices", "units"
   add_foreign_key "units", "hotels", column: "establishment_id"

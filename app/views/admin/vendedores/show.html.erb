@@ -1,0 +1,268 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <%# ── Breadcrumb ── %>
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><%= link_to "Eventos", admin_events_path %></li>
+      <li class="breadcrumb-item"><%= link_to @event.name, admin_event_path(@event) %></li>
+      <li class="breadcrumb-item active">Vendedor: <%= @vendedor.name %></li>
+    </ol>
+  </nav>
+
+  <%# ── Header ── %>
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1"><%= @vendedor.name %></h3>
+      <p class="text-muted mb-0 small">
+        <i class="fas fa-calendar me-1"></i><%= @event.name %> &bull;
+        <i class="fas fa-calendar-day ms-2 me-1"></i><%= @event.event_date.strftime("%d/%m/%Y") rescue "—" %>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to toggle_active_admin_event_vendedor_path(@event, @event_vendedor),
+          data: { turbo_method: :patch },
+          class: "btn btn-sm btn-outline-#{@event_vendedor.active? ? 'secondary' : 'success'} rounded-pill" do %>
+        <i class="fas fa-<%= @event_vendedor.active? ? 'pause' : 'play' %> me-1"></i>
+        <%= @event_vendedor.active? ? 'Desactivar' : 'Activar' %>
+      <% end %>
+      <%= link_to admin_event_path(@event), class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+        <i class="fas fa-arrow-left me-1"></i> Volver al evento
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Stats ── %>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1 fw-bold" style="font-size:1.8rem; color: var(--brand-orange);">
+          <%= @tickets_sold %>
+        </div>
+        <small class="text-muted fw-semibold">Tickets vendidos</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1 fw-bold text-warning" style="font-size:1.8rem;">
+          <%= @tickets_pending %>
+        </div>
+        <small class="text-muted fw-semibold">Pendientes</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1 fw-bold text-danger" style="font-size:1.8rem;">
+          <%= @tickets_rejected %>
+        </div>
+        <small class="text-muted fw-semibold">Rechazados</small>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3">
+        <div class="mb-1 fw-bold text-success" style="font-size:1.8rem;">
+          $<%= number_with_delimiter(@revenue.to_f.round(2)) %>
+        </div>
+        <small class="text-muted fw-semibold">Recaudado</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <%# ── Columna izquierda: cupo + info ── %>
+    <div class="col-12 col-lg-4">
+
+      <%# Cupo %>
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-bullseye me-2" style="color: var(--brand-orange);"></i>
+            Cupo asignado
+          </h6>
+          <button class="btn btn-sm btn-outline-secondary rounded-pill"
+                  data-bs-toggle="collapse" data-bs-target="#editQuotaForm">
+            <i class="fas fa-pen"></i>
+          </button>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @event_vendedor.has_quota? %>
+            <%# Barra de progreso grande %>
+            <div class="text-center mb-3">
+              <% pct = @event_vendedor.quota_progress_percent %>
+              <div class="position-relative d-inline-block" style="width: 120px; height: 120px;">
+                <svg viewBox="0 0 36 36" style="transform: rotate(-90deg); width:120px; height:120px;">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e9ecef" stroke-width="2.5"/>
+                  <circle cx="18" cy="18" r="15.9" fill="none"
+                          stroke="<%= pct >= 100 ? '#198754' : (pct >= 60 ? '#ffc107' : '#0dcaf0') %>"
+                          stroke-width="2.5"
+                          stroke-dasharray="<%= (pct * 100.0 / 100).round(1) %>, 100"
+                          stroke-linecap="round"/>
+                </svg>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                  <div class="fw-bold fs-4"><%= pct %>%</div>
+                </div>
+              </div>
+            </div>
+            <div class="text-center">
+              <span class="fs-5 fw-bold"><%= @tickets_sold %></span>
+              <span class="text-muted"> / <%= @event_vendedor.quota %> tickets</span>
+            </div>
+            <% if @event_vendedor.quota_met? %>
+              <div class="alert alert-success rounded-3 mt-3 py-2 text-center small mb-0">
+                <i class="fas fa-check-circle me-1"></i>
+                <strong>¡Cupo cumplido!</strong>
+                <span class="text-muted d-block">
+                  <%= @event_vendedor.quota_met_at.strftime("%d/%m/%Y a las %H:%M") %>
+                </span>
+              </div>
+            <% else %>
+              <div class="text-center mt-2">
+                <small class="text-muted">
+                  Faltan <strong><%= @event_vendedor.quota_remaining %></strong> tickets para completar el cupo
+                </small>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-3 text-muted">
+              <i class="fas fa-infinity fa-2x mb-2"></i>
+              <p class="mb-0 small">Sin cupo asignado</p>
+            </div>
+          <% end %>
+
+          <%# Editar cupo inline %>
+          <div class="collapse mt-3" id="editQuotaForm">
+            <hr class="my-2">
+            <%= form_with url: admin_event_vendedor_path(@event, @event_vendedor), method: :patch, local: true do |f| %>
+              <div class="mb-2">
+                <label class="form-label fw-semibold small">Nuevo cupo</label>
+                <input type="number" name="event_vendedor[quota]" class="form-control form-control-sm rounded-3"
+                       min="1" value="<%= @event_vendedor.quota %>" placeholder="Dejar vacío para sin límite">
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary rounded-pill w-100">Guardar cupo</button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Info del vendedor %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-user me-2" style="color: var(--brand-cofee);"></i>
+            Info del vendedor
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <ul class="list-unstyled mb-0">
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-envelope text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Email</small>
+                <span class="fw-semibold small"><%= @vendedor.email %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-phone text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Teléfono</small>
+                <% if @vendedor.phone.present? %>
+                  <%= link_to @vendedor.phone, whatsapp_link(@vendedor.phone), target: "_blank",
+                      class: "fw-semibold text-success text-decoration-none" %>
+                <% else %>
+                  <span class="fw-semibold">—</span>
+                <% end %>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-toggle-on text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Estado en evento</small>
+                <span class="badge <%= @event_vendedor.active? ? 'bg-success' : 'bg-secondary' %>">
+                  <%= @event_vendedor.active? ? 'Activo' : 'Inactivo' %>
+                </span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2">
+              <i class="fas fa-calendar-plus text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Asignado el</small>
+                <span class="fw-semibold"><%= @event_vendedor.created_at.strftime("%d/%m/%Y") %></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <%# ── Columna derecha: tickets ── %>
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-ticket-alt me-2" style="color: var(--brand-green);"></i>
+            Tickets gestionados
+          </h6>
+          <span class="badge bg-secondary rounded-pill"><%= @tickets_all.count %> total</span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @tickets_all.any? %>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Código</th>
+                    <th>Comprador</th>
+                    <th>Estado</th>
+                    <th>Método</th>
+                    <th>Precio</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @tickets_all.each do |ticket| %>
+                    <tr>
+                      <td>
+                        <code class="small"><%= ticket.ticket_code %></code>
+                      </td>
+                      <td>
+                        <div class="fw-semibold small"><%= ticket.guest_name.to_s.split("·").first.strip.presence || "—" %></div>
+                        <small class="text-muted"><%= ticket.guest_email %></small>
+                      </td>
+                      <td>
+                        <% badge_class = case ticket.status
+                           when "activo"    then "bg-success"
+                           when "usado"     then "bg-secondary"
+                           when "cancelado" then "bg-danger"
+                           when "reservado" then "bg-warning text-dark"
+                           else "bg-light text-dark"
+                           end %>
+                        <span class="badge <%= badge_class %> rounded-pill">
+                          <%= ticket.status.capitalize %>
+                        </span>
+                      </td>
+                      <td>
+                        <small class="text-muted"><%= ticket.payment_method&.capitalize || "—" %></small>
+                      </td>
+                      <td>
+                        <span class="fw-semibold small">$<%= ticket.total_price %></span>
+                      </td>
+                      <td>
+                        <small class="text-muted"><%= ticket.created_at.strftime("%d/%m/%y") %></small>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4 text-muted">
+              <i class="fas fa-ticket-alt fa-2x mb-2"></i>
+              <p class="mb-0 small">Este vendedor aún no tiene tickets asignados</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

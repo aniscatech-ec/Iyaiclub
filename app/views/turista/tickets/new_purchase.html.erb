@@ -23,14 +23,26 @@
             </li>
             <li class="list-group-item d-flex justify-content-between px-0">
               <span><i class="fas fa-tag me-1"></i> Precio unitario</span>
-              <strong class="text-success">$<%= number_with_precision(@event.price_for(current_user), precision: 2) %></strong>
+              <strong class="text-success" data-purchase-form-target="unitPriceDisplay">$<%= number_with_precision(@event.price_for(current_user), precision: 2) %></strong>
             </li>
+            <% if @event.combo_active? %>
+              <li class="list-group-item px-0">
+                <div class="d-flex align-items-center gap-2 text-warning">
+                  <i class="fas fa-tags"></i>
+                  <small><strong>Precio combo:</strong> comprando <%= @event.combo_quantity %>+ tickets, $<%= number_with_precision(@event.combo_discount, precision: 2) %> de descuento sobre el total</small>
+                </div>
+              </li>
+            <% end %>
           </ul>
         </div>
       </div>
 
       <!-- Formulario unificado -->
-      <%= form_with url: create_purchase_turista_event_tickets_path(@event), method: :post, data: { controller: "purchase-form", turbo: false, "purchase-form-unit-price": @event.price_for(current_user) } do |f| %>
+      <%= form_with url: create_purchase_turista_event_tickets_path(@event), method: :post,
+            data: { controller: "purchase-form", turbo: false,
+                    "purchase-form-unit-price":     @event.price_for(current_user),
+                    "purchase-form-combo-quantity": @event.combo_quantity.to_i,
+                    "purchase-form-combo-discount": @event.combo_discount.to_f } do |f| %>
 
         <!-- Datos del asistente -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -74,6 +86,14 @@
               </div>
               <small class="text-muted">Disponibles: <%= @event.available_tickets || "Sin límite" %></small>
             </div>
+            <% if @event.combo_active? %>
+              <div class="alert alert-warning py-2 px-3 mb-2" data-purchase-form-target="comboBadge" style="display:none;">
+                <i class="fas fa-tags me-1"></i>
+                <strong>¡Precio combo activo!</strong>
+                <span data-combo-lots>0</span> lote(s) × $<%= number_with_precision(@event.combo_discount, precision: 2) %> =
+                <strong><span data-combo-saving>$0.00</span> de descuento</strong> sobre el total.
+              </div>
+            <% end %>
             <div class="d-flex justify-content-between align-items-center pt-2 border-top">
               <span class="fw-bold">Total a pagar:</span>
               <span class="text-success fs-4 fw-bold" data-purchase-form-target="totalPrice">
@@ -112,34 +132,48 @@
             </div>
 
             <!-- Transferencia bancaria -->
-            <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="transferenciaOption">
-              <input type="radio" name="payment_method" value="transferencia"
-                     class="form-check-input" id="payment_transferencia"
-                     data-action="change->purchase-form#toggleVendedores">
-              <label class="form-check-label w-100 ms-2" for="payment_transferencia">
-                <strong><i class="fas fa-exchange-alt me-2 text-success"></i> Transferencia Bancaria</strong>
-                <br><small class="text-muted">Paga por transferencia usando el código de tu vendedor</small>
-              </label>
-            </div>
+            <% if @vendedores.any? %>
+              <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="transferenciaOption">
+                <input type="radio" name="payment_method" value="transferencia"
+                       class="form-check-input" id="payment_transferencia"
+                       data-action="change->purchase-form#toggleVendedores">
+                <label class="form-check-label w-100 ms-2" for="payment_transferencia">
+                  <strong><i class="fas fa-exchange-alt me-2 text-success"></i> Transferencia Bancaria</strong>
+                  <br><small class="text-muted">Paga por transferencia a través de un vendedor</small>
+                </label>
+              </div>
 
-            <!-- Código de vendedor (solo visible cuando elige transferencia) -->
-            <div id="vendedor-section" class="ms-4 mt-2" style="display: none;" data-purchase-form-target="vendedorSection">
-              <label class="form-label fw-bold">Código del vendedor</label>
-              <div class="input-group mb-2">
-                <span class="input-group-text"><i class="fas fa-user-tag text-muted"></i></span>
-                <input type="text" name="vendor_code" class="form-control"
-                       placeholder="Ej: VND-ABC123"
-                       style="text-transform: uppercase; letter-spacing: 1px;"
-                       maxlength="10">
+              <!-- Selector de vendedor (solo visible cuando elige transferencia) -->
+              <div id="vendedor-section" class="ms-4 mt-2" style="display: none;" data-purchase-form-target="vendedorSection">
+                <label class="form-label fw-bold">Selecciona tu vendedor</label>
+                <select name="vendedor_id" class="form-select mb-3" required>
+                  <option value="">Seleccione un vendedor...</option>
+                  <% @vendedores.each do |v| %>
+                    <option value="<%= v.id %>"><%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %></option>
+                  <% end %>
+                </select>
+                <div class="alert alert-warning mb-0">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <small><strong>Importante:</strong> Tienes <strong>10 minutos</strong> para completar la transferencia. Si no se confirma, la reserva se cancela automáticamente.</small>
+                </div>
               </div>
-              <small class="text-muted d-block mb-3">
-                Solicita este código a tu vendedor o asesor de ventas.
-              </small>
-              <div class="alert alert-warning mb-0">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <small><strong>Importante:</strong> Tienes <strong>10 minutos</strong> para completar la transferencia. Si no se confirma, la reserva se cancela automáticamente.</small>
-              </div>
-            </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Código de referido -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body px-4 py-3">
+            <label class="form-label fw-semibold mb-1">
+              <i class="fas fa-user-plus me-1 text-success"></i>
+              Código de referido
+              <span class="text-muted fw-normal small ms-1">(opcional)</span>
+            </label>
+            <input type="text" name="referral_code" class="form-control text-uppercase"
+                   maxlength="8" placeholder="Ej. AB12CD34"
+                   style="letter-spacing: 0.15em; font-weight: 600;"
+                   oninput="this.value = this.value.toUpperCase()">
+            <small class="text-muted">Si alguien te recomendó el evento, ingresa su código. Él recibirá puntos.</small>
           </div>
         </div>
 

@@ -107,6 +107,7 @@ Rails.application.routes.draw do
     resources :reviews, only: [:create, :destroy]
     member do
       get :dashboard  # /establishments/:id/dashboard
+      patch :set_cover_image
     end
   end
   namespace :turista do
@@ -189,6 +190,7 @@ Rails.application.routes.draw do
   end
   namespace :afiliado do
     get "dashboard/index"
+    resource :profile, only: [:show, :edit, :update], controller: "profiles"
   end
   devise_for :users, controllers: {
     confirmations: 'users/confirmations',
@@ -225,8 +227,6 @@ Rails.application.routes.draw do
     post "events/:event_id/tickets",          to: "tickets#create_purchase",   as: :guests_create_purchase_event_tickets
     get  "events/:event_id/tickets/transfer", to: "tickets#transfer_status",   as: :guests_transfer_status_event_tickets
     get  "tickets/lookup",                    to: "tickets#lookup",            as: :guests_ticket_lookup
-    get  "tickets/:code/check",               to: "tickets#check_status",      as: :guests_check_ticket_status
-    get  "tickets/:code",                     to: "tickets#show",              as: :guests_ticket
   end
 
   # authenticated :user do
@@ -238,6 +238,7 @@ Rails.application.routes.draw do
   # end
   namespace :admin do
     get "dashboard/index"
+    resource :profile, only: [:show, :edit, :update], controller: "profiles"
     resources :invoice_claims, only: [:index, :show] do
       member do
         patch :approve
@@ -249,6 +250,12 @@ Rails.application.routes.draw do
       member do
         patch :approve
         patch :reject
+      end
+    end
+
+    resources :advertisements do
+      member do
+        patch :toggle_active
       end
     end
 
@@ -294,6 +301,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :referral_settings, only: [:show, :update], controller: "referral_settings"
+
     resources :events do
       member do
         get :scanner
@@ -312,7 +321,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :vendedores do
+      resources :vendedores, only: [:index, :show, :create, :update, :destroy] do
         member do
           patch :toggle_active
         end

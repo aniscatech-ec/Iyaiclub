@@ -21,14 +21,30 @@ class User < ApplicationRecord
   has_many :assigned_custom_requests, class_name: "CustomRequest",
            foreign_key: :assigned_to_id, dependent: :nullify
   has_many :tickets, dependent: :destroy
+  has_many :referrals_given,    class_name: "Referral", foreign_key: :referrer_id, dependent: :destroy
+  has_many :referrals_received, class_name: "Referral", foreign_key: :referred_id, dependent: :nullify
+
+  before_create :generate_referral_code
+
+  has_one_attached :avatar
+  has_one_attached :cover_photo
+
+  # Documentos de identidad requeridos para afiliados
+  has_one_attached :cedula_front  # Cédula anverso
+  has_one_attached :cedula_back   # Cédula reverso
+  has_one_attached :ruc_document  # RUC (foto o PDF)
+
+  validate :identity_documents_required_for_afiliado, on: :create
+
+  private_class_method def self.afiliado_doc_content_types
+    %w[image/jpeg image/png image/webp application/pdf]
+  end
 
   # Vendedor associations
   has_many :event_vendedores, class_name: 'EventVendedor', dependent: :destroy
   has_many :vendedor_events, through: :event_vendedores, source: :event
   has_many :handled_tickets, class_name: "Ticket", foreign_key: :vendedor_id, dependent: :nullify
   has_many :handled_subscriptions, class_name: "Subscription", foreign_key: :vendedor_id, dependent: :nullify
-
-  before_create :generate_vendor_code
 
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)
@@ -44,6 +60,13 @@ class User < ApplicationRecord
   after_commit :on_account_confirmed, on: :update, if: :just_confirmed?
 
   private
+
+  def identity_documents_required_for_afiliado
+    return unless afiliado?
+    errors.add(:cedula_front,  "Cédula (anverso) es obligatoria para afiliados") unless cedula_front.attached?
+    errors.add(:cedula_back,   "Cédula (reverso) es obligatoria para afiliados") unless cedula_back.attached?
+    errors.add(:ruc_document,  "Documento RUC es obligatorio para afiliados") unless ruc_document.attached?
+  end
 
   def just_confirmed?
     saved_change_to_confirmed_at? && confirmed_at.present? && confirmed_at_before_last_save.nil?
@@ -63,15 +86,15 @@ class User < ApplicationRecord
     )
   end
 
-  def generate_vendor_code
-    return if vendor_code.present?
-
+  def generate_referral_code
+    return if referral_code.present?
     loop do
-      code = "VND-#{SecureRandom.alphanumeric(6).upcase}"
-      unless self.class.exists?(vendor_code: code)
-        self.vendor_code = code
+      code = SecureRandom.alphanumeric(8).upcase
+      unless User.exists?(referral_code: code)
+        self.referral_code = code
         break
       end
     end
   end
+
 end

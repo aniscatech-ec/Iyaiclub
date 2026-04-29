@@ -5,6 +5,18 @@ export default class extends Controller {
 
   connect() {
     this.updateEmptyMessage()
+    this._onCollapseHide = this._onCollapse.bind(this, false)
+    this._onCollapseShow = this._onCollapse.bind(this, true)
+    this.element.addEventListener("hide.bs.collapse", this._onCollapseHide)
+    this.element.addEventListener("show.bs.collapse", this._onCollapseShow)
+    // Actualizar título en header cuando el usuario escribe el nombre
+    this.element.addEventListener("input", this._onInput.bind(this))
+  }
+
+  disconnect() {
+    this.element.removeEventListener("hide.bs.collapse", this._onCollapseHide)
+    this.element.removeEventListener("show.bs.collapse", this._onCollapseShow)
+    this.element.removeEventListener("input", this._onInput.bind(this))
   }
 
   add(e) {
@@ -19,7 +31,6 @@ export default class extends Controller {
 
   remove(e) {
     e.preventDefault()
-    // e.currentTarget es siempre el elemento con data-action, aunque se haga click en un hijo (ej: <i>)
     const wrapper = e.currentTarget.closest('.nested-fields')
     if (!wrapper) return
 
@@ -36,17 +47,39 @@ export default class extends Controller {
   }
 
   updateEmptyMessage() {
-    // Buscar el mensaje de "no hay habitaciones"
     const emptyMessage = this.element.querySelector('.empty-rooms-message')
     if (emptyMessage) {
-      // Contar habitaciones visibles (no marcadas para destruir y no ocultas)
       const visibleRooms = this.targetTarget.querySelectorAll('.nested-fields:not([style*="display: none"])')
-      
-      if (visibleRooms.length > 0) {
-        emptyMessage.style.display = 'none'
-      } else {
-        emptyMessage.style.display = 'block'
-      }
+      emptyMessage.style.display = visibleRooms.length > 0 ? 'none' : 'block'
+    }
+  }
+
+  _onInput(event) {
+    // Actualizar el span.nested-item-title con el primer input de texto del item
+    const input = event.target
+    if (!input.matches('input[type="text"], input:not([type])')) return
+    const wrapper = input.closest('.nested-fields')
+    if (!wrapper) return
+    // Solo si es el primer input de texto (campo "nombre")
+    const firstText = wrapper.querySelector('input[type="text"], input:not([type])')
+    if (firstText !== input) return
+    const titleEl = wrapper.querySelector('.nested-item-title')
+    if (titleEl) titleEl.textContent = input.value.trim() || titleEl.dataset.default || 'Sin nombre'
+  }
+
+  _onCollapse(expanding, event) {
+    // Actualizar ícono chevron del botón toggle de este collapse
+    const collapseEl = event.target
+    const wrapper = collapseEl.closest('.nested-fields')
+    if (!wrapper) return
+    const toggle = wrapper.querySelector('.nested-collapse-toggle i')
+    if (toggle) {
+      toggle.className = expanding ? 'fas fa-chevron-up' : 'fas fa-chevron-down'
+    }
+    // También actualizar el título del header cuando se colapsa
+    const titleSpan = wrapper.querySelector('.nested-item-title')
+    if (titleSpan && !expanding) {
+      // El título ya está visible en el header, no necesita resumen extra
     }
   }
 }

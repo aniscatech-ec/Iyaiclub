@@ -1,0 +1,46 @@
+<div class="nested-fields border rounded-3 p-3 mb-3 position-relative" style="border-color: #e2d9f3 !important; background: #faf7ff;">
+  <%= exp_f.hidden_field :id %>
+  <%= exp_f.hidden_field :_destroy, value: "0" %>
+
+  <div class="row g-2 align-items-start">
+    <div class="col-md-5">
+      <%= exp_f.label :name, "Nombre de la atracción", class: "form-label fw-semibold required-field small mb-1" %>
+      <%= exp_f.text_field :name, class: "form-control form-control-sm",
+            placeholder: "Ej. Subida al mirador", required: true %>
+    </div>
+
+    <div class="col-md-2">
+      <%= exp_f.label :price, "Precio ($)", class: "form-label fw-semibold required-field small mb-1" %>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+        <%= exp_f.number_field :price, step: 0.01, min: 0.01, class: "form-control",
+              placeholder: "0.00", required: true %>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <%= exp_f.label :duration, "Duración", class: "form-label fw-semibold small mb-1" %>
+      <%= exp_f.text_field :duration, class: "form-control form-control-sm",
+            placeholder: "Ej. 30 min" %>
+    </div>
+
+    <div class="col-md-3">
+      <%= exp_f.label :description, "Descripción", class: "form-label fw-semibold small mb-1" %>
+      <%= exp_f.text_area :description, rows: 2, class: "form-control form-control-sm",
+            placeholder: "Breve descripción..." %>
+    </div>
+
+    <div class="col-12">
+      <%= exp_f.label :requirements, "Requisitos", class: "form-label fw-semibold small mb-1" %>
+      <%= exp_f.text_field :requirements, class: "form-control form-control-sm",
+            placeholder: "Edad mínima, restricciones, ropa, etc." %>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-sm btn-outline-danger rounded-circle position-absolute top-0 end-0 mt-2 me-2"
+          style="width:28px; height:28px; padding:0; line-height:1;"
+          data-action="click->nested-form#remove"
+          title="Eliminar atracción">
+    <i class="fas fa-times" style="font-size:0.75rem;"></i>
+  </button>
+</div>

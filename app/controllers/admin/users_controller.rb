@@ -103,6 +103,9 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :phone, :email, :password, :password_confirmation, :role, :country_id, :city_id, :birth_date, :terms_accepted, :marketing_consent)
+    params.require(:user).permit(:name, :phone, :email, :password, :password_confirmation,
+                                 :role, :country_id, :city_id, :birth_date,
+                                 :terms_accepted, :marketing_consent,
+                                 :cedula_front, :cedula_back, :ruc_document)
   end
 end

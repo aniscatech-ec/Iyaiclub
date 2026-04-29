@@ -1,0 +1,202 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <%= link_to admin_advertisements_path, class: "btn btn-outline-secondary btn-sm rounded-pill" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver
+    <% end %>
+    <h3 class="fw-bold mb-0"><%= advertisement.new_record? ? "Nueva publicidad" : "Editar publicidad" %></h3>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <% if advertisement.errors.any? %>
+        <div class="alert alert-danger rounded-4 mb-4">
+          <ul class="mb-0">
+            <% advertisement.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with model: [:admin, advertisement], local: true, multipart: true do |f| %>
+
+        <%# Preview del banner %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+          <div class="card-header bg-transparent border-0 p-4 pb-2">
+            <h6 class="fw-bold mb-0"><i class="fas fa-eye me-2" style="color:var(--brand-orange);"></i>Vista previa del banner</h6>
+          </div>
+          <div class="card-body p-4 pt-0">
+            <div id="bannerPreview" class="position-relative rounded-3 overflow-hidden"
+                 style="height: 220px; background: #1a1a2e;">
+              <% if advertisement.image.attached? %>
+                <img id="previewImg"
+                     src="<%= url_for(advertisement.image) %>"
+                     class="position-absolute top-0 start-0 w-100 h-100"
+                     style="object-fit: cover;">
+              <% else %>
+                <img id="previewImg" src="" class="position-absolute top-0 start-0 w-100 h-100 d-none"
+                     style="object-fit: cover;">
+              <% end %>
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center px-4"
+                   style="background: linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.05) 100%);">
+                <div class="text-white">
+                  <div class="d-flex align-items-center gap-2 mb-2" id="previewTags">
+                    <span class="badge bg-warning text-dark">
+                      <i class="fas fa-bullhorn me-1"></i> PUBLICIDAD
+                    </span>
+                  </div>
+                  <h4 class="fw-bold mb-1" id="previewTitle"><%= advertisement.title.presence || "Título del banner" %></h4>
+                  <p class="mb-0 small" id="previewDesc"><%= advertisement.description.presence || "" %></p>
+                </div>
+              </div>
+            </div>
+            <p class="text-muted small mt-2 mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Así se verá el banner en la página de inicio (220px de alto).
+            </p>
+          </div>
+        </div>
+
+        <%# Datos del anuncio %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 p-4 pb-2">
+            <h6 class="fw-bold mb-0"><i class="fas fa-pen me-2" style="color:var(--brand-green);"></i>Información</h6>
+          </div>
+          <div class="card-body p-4 pt-2">
+
+            <div class="mb-4">
+              <%= f.label :title, "Título *", class: "form-label fw-semibold" %>
+              <%= f.text_field :title,
+                    class: "form-control rounded-3",
+                    placeholder: "Ej: Oferta de verano — 30% en hoteles",
+                    id: "adTitle" %>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :description, "Descripción corta", class: "form-label fw-semibold" %>
+              <%= f.text_field :description,
+                    class: "form-control rounded-3",
+                    placeholder: "Ej: Válido hasta el 31 de agosto",
+                    id: "adDesc" %>
+              <small class="text-muted">Se muestra debajo del título en el banner.</small>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :tags, "Tags", class: "form-label fw-semibold" %>
+              <%= f.text_field :tags,
+                    class: "form-control rounded-3",
+                    placeholder: "Ej: oferta, hotel, descuento",
+                    id: "adTags" %>
+              <small class="text-muted">Separados por coma. Se muestran como etiquetas en el banner.</small>
+            </div>
+
+            <div class="mb-4">
+              <%= f.label :link_url, "URL de destino", class: "form-label fw-semibold" %>
+              <div class="input-group">
+                <span class="input-group-text rounded-start-3"><i class="fas fa-link"></i></span>
+                <%= f.url_field :link_url,
+                      class: "form-control rounded-end-3",
+                      placeholder: "https://..." %>
+              </div>
+              <small class="text-muted">Al hacer clic en el banner, se redirigirá a esta URL.</small>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-6">
+                <%= f.label :position, "Posición (orden)", class: "form-label fw-semibold" %>
+                <%= f.number_field :position, class: "form-control rounded-3", min: 0, value: advertisement.position || 0 %>
+                <small class="text-muted">Menor número = aparece primero.</small>
+              </div>
+              <div class="col-6 d-flex align-items-end pb-1">
+                <div class="form-check form-switch ms-1">
+                  <%= f.check_box :active, class: "form-check-input", role: "switch", id: "adActive" %>
+                  <%= f.label :active, "Publicidad activa", class: "form-check-label fw-semibold" %>
+                  <div><small class="text-muted">Solo los activos aparecen en el inicio.</small></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <%# Imagen %>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-header bg-transparent border-0 p-4 pb-2">
+            <h6 class="fw-bold mb-0"><i class="fas fa-image me-2" style="color:var(--brand-cofee);"></i>Imagen del banner</h6>
+          </div>
+          <div class="card-body p-4 pt-2">
+            <% if advertisement.image.attached? %>
+              <div class="mb-3 rounded-3 overflow-hidden" style="height: 120px;">
+                <%= image_tag advertisement.image.variant(resize_to_fill: [800, 240]),
+                      class: "w-100 h-100", style: "object-fit: cover;" %>
+              </div>
+            <% end %>
+            <%= f.file_field :image,
+                  class: "form-control rounded-3",
+                  accept: "image/jpeg,image/png,image/webp",
+                  id: "adImage" %>
+            <small class="text-muted">JPG, PNG o WEBP. Recomendado: 1200×440 px (proporción 16:6).</small>
+          </div>
+        </div>
+
+        <div class="d-grid">
+          <%= f.submit advertisement.new_record? ? "Crear publicidad" : "Guardar cambios",
+                class: "btn btn-primary rounded-pill fw-bold btn-lg" %>
+        </div>
+
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const titleInput = document.getElementById("adTitle");
+    const descInput  = document.getElementById("adDesc");
+    const tagsInput  = document.getElementById("adTags");
+    const imgInput   = document.getElementById("adImage");
+    const previewTitle = document.getElementById("previewTitle");
+    const previewDesc  = document.getElementById("previewDesc");
+    const previewTags  = document.getElementById("previewTags");
+    const previewImg   = document.getElementById("previewImg");
+
+    if (titleInput) {
+      titleInput.addEventListener("input", function() {
+        previewTitle.textContent = this.value || "Título del banner";
+      });
+    }
+
+    if (descInput) {
+      descInput.addEventListener("input", function() {
+        previewDesc.textContent = this.value || "";
+      });
+    }
+
+    if (tagsInput) {
+      tagsInput.addEventListener("input", function() {
+        const tags = this.value.split(",").map(t => t.trim()).filter(Boolean);
+        const base = '<span class="badge bg-warning text-dark"><i class="fas fa-bullhorn me-1"></i> PUBLICIDAD</span>';
+        const tagBadges = tags.slice(0, 3).map(t =>
+          `<span class="badge bg-white text-dark">${t}</span>`
+        ).join("");
+        previewTags.innerHTML = base + tagBadges;
+      });
+    }
+
+    if (imgInput) {
+      imgInput.addEventListener("change", function() {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewImg.classList.remove("d-none");
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>

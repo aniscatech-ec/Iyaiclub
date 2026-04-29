@@ -1,31 +1,11 @@
 <div class="container-fluid px-3 px-md-4 py-4">
   <div class="mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
-      <div>
-        <h3 class="fw-bold mb-1">
-          <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
-          Portal de Vendedor
-        </h3>
-        <p class="text-muted mb-0">Bienvenido, <%= current_user.name %></p>
-      </div>
-      <!-- Código de vendedor -->
-      <div class="card border-0 shadow-sm rounded-4 px-3 py-2 text-center">
-        <small class="text-muted d-block mb-1">Tu código de vendedor</small>
-        <div class="d-flex align-items-center gap-2">
-          <span class="fw-bold font-monospace fs-5" style="color: var(--brand-orange);">
-            <%= current_user.vendor_code %>
-          </span>
-          <button type="button"
-                  class="btn btn-sm btn-outline-secondary p-1"
-                  onclick="navigator.clipboard.writeText('<%= current_user.vendor_code %>').then(() => { this.innerHTML='<i class=\\'fas fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fas fa-copy\\'></i>', 1500) })"
-                  title="Copiar código">
-            <i class="fas fa-copy"></i>
-          </button>
-        </div>
-        <small class="text-muted" style="font-size: 0.7rem;">
-          Comparte este código con tus clientes
-        </small>
-      </div>
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
+        Portal de Vendedor
+      </h3>
+      <p class="text-muted mb-0">Bienvenido, <%= current_user.name %></p>
     </div>
   </div>
 
