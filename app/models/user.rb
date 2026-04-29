@@ -46,6 +46,7 @@ class User < ApplicationRecord
   has_many :vendedor_events, through: :event_vendedores, source: :event
   has_many :handled_tickets, class_name: "Ticket", foreign_key: :vendedor_id, dependent: :nullify
   has_many :handled_subscriptions, class_name: "Subscription", foreign_key: :vendedor_id, dependent: :nullify
+  has_many :plan_vendedores, class_name: 'PlanVendedor', foreign_key: :vendedor_id, dependent: :destroy
 
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)
@@ -59,6 +60,8 @@ class User < ApplicationRecord
 
   # Callback para enviar correo de bienvenida y acreditar puntos al confirmar cuenta
   after_commit :on_account_confirmed, on: :update, if: :just_confirmed?
+
+  attr_accessor :skip_role_enforcement
 
   private
 
@@ -92,6 +95,7 @@ class User < ApplicationRecord
   SELF_REGISTRABLE_ROLES = %w[afiliado turista].freeze
 
   def enforce_self_registration_role
+    return if skip_role_enforcement
     self.role = "turista" unless SELF_REGISTRABLE_ROLES.include?(role.to_s)
   end
 

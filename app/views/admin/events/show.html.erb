@@ -337,33 +337,6 @@
                 <% end %>
               </div>
 
-              <%# Selector de stand — solo visible cuando vendor_type=stand %>
-              <% event_stands = @event.stands.active.order(:name) %>
-              <div class="mb-3" id="av_stand_selector" style="display:none;">
-                <label class="form-label fw-bold">
-                  <i class="fas fa-store me-1 text-warning"></i>
-                  Stand asignado
-                </label>
-                <% if event_stands.any? %>
-                  <select name="event_vendedor[stand_id]" class="form-select">
-                    <option value="">Seleccionar stand...</option>
-                    <% event_stands.each do |stand| %>
-                      <option value="<%= stand.id %>">
-                        <%= stand.name %>
-                        <% if stand.location.present? %> — <%= stand.location %><% end %>
-                        (<%= stand.stand_code %>)
-                      </option>
-                    <% end %>
-                  </select>
-                <% else %>
-                  <div class="alert alert-warning py-2 px-3 small mb-0">
-                    <i class="fas fa-exclamation-triangle me-1"></i>
-                    Este evento no tiene stands asignados.
-                    <%= link_to "Asignar stands", edit_admin_event_path(@event), class: "fw-semibold" %>.
-                  </div>
-                <% end %>
-              </div>
-
               <div class="mb-3">
                 <label class="form-label fw-bold">Cupo de tickets <small class="text-muted fw-normal">(opcional)</small></label>
                 <input type="number" name="event_vendedor[quota]" class="form-control" min="1" placeholder="Ej: 50 — dejar vacío para sin límite">
@@ -379,21 +352,6 @@
       </div>
     </div>
   <% end %>
-  <script>
-    document.querySelectorAll('input[name="event_vendedor[vendor_type]"]').forEach(function(radio) {
-      radio.addEventListener('change', function() {
-        var selector = document.getElementById('av_stand_selector');
-        if (selector) selector.style.display = this.value === 'stand' ? 'block' : 'none';
-      });
-    });
-    document.querySelectorAll('input[name="vendor_type"]').forEach(function(radio) {
-      radio.addEventListener('change', function() {
-        var selector = document.getElementById('cv_stand_selector');
-        if (selector) selector.style.display = this.value === 'stand' ? 'block' : 'none';
-      });
-    });
-  </script>
-
   <!-- Modal: Crear nuevo vendedor -->
   <div class="modal fade" id="createVendedorModal" tabindex="-1">
     <div class="modal-dialog">
@@ -474,33 +432,6 @@
                   <i class="fas fa-exclamation-triangle me-1"></i>
                   El evento no tiene precio de stand.
                   <%= link_to "Configurar", edit_admin_event_path(@event), class: "fw-semibold" %>.
-                </div>
-              <% end %>
-            </div>
-
-            <%# Selector de stand — solo visible cuando vendor_type=stand %>
-            <div class="mb-3" id="cv_stand_selector" style="display:none;">
-              <label class="form-label fw-bold">
-                <i class="fas fa-store me-1 text-warning"></i>
-                Stand asignado
-              </label>
-              <% cv_event_stands = @event.stands.active.order(:name) %>
-              <% if cv_event_stands.any? %>
-                <select name="stand_id" class="form-select">
-                  <option value="">Seleccionar stand...</option>
-                  <% cv_event_stands.each do |stand| %>
-                    <option value="<%= stand.id %>">
-                      <%= stand.name %>
-                      <% if stand.location.present? %> — <%= stand.location %><% end %>
-                      (<%= stand.stand_code %>)
-                    </option>
-                  <% end %>
-                </select>
-              <% else %>
-                <div class="alert alert-warning py-2 px-3 small mb-0">
-                  <i class="fas fa-exclamation-triangle me-1"></i>
-                  Este evento no tiene stands asignados.
-                  <%= link_to "Asignar stands", edit_admin_event_path(@event), class: "fw-semibold" %>.
                 </div>
               <% end %>
             </div>

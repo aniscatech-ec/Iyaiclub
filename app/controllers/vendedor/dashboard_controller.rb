@@ -4,6 +4,7 @@ class Vendedor::DashboardController < ApplicationController
   layout "dashboard"
 
   def index
+    @stand = Stand.find_by(email: current_user.email)
     @events = current_user.vendedor_events
                           .where(status: :publicado)
                           .order(event_date: :asc)

@@ -36,8 +36,12 @@ class Admin::StandsController < ApplicationController
   end
 
   def destroy
-    @stand.destroy
+    @stand.destroy!
     redirect_to admin_stands_path, notice: "Stand eliminado."
+  rescue ActiveRecord::InvalidForeignKey
+    redirect_to admin_stands_path, alert: "No se puede eliminar este stand porque tiene registros asociados."
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to admin_stands_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private
@@ -47,6 +51,6 @@ class Admin::StandsController < ApplicationController
   end
 
   def stand_params
-    params.require(:stand).permit(:name, :location, :active)
+    params.require(:stand).permit(:name, :owner_name, :owner_lastname, :location, :ruc, :email, :country_id, :city_id, :active)
   end
 end

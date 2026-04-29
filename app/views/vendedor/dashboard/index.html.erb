@@ -43,6 +43,63 @@
     </div>
   </div>
 
+  <!-- Mi Stand -->
+  <% if @stand %>
+    <div class="card border-0 shadow-sm rounded-4 mb-4" style="border-left: 4px solid #ffc107 !important;">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="fw-bold mb-0">
+          <i class="fas fa-store me-2 text-warning"></i>
+          Mi Stand
+        </h5>
+      </div>
+      <div class="card-body px-4 pb-4">
+        <div class="row g-3 align-items-center">
+          <div class="col-12 col-md-8">
+            <div class="d-flex flex-wrap gap-4">
+              <div>
+                <small class="text-muted d-block">Nombre</small>
+                <span class="fw-bold fs-5"><%= @stand.name %></span>
+              </div>
+              <div>
+                <small class="text-muted d-block">Código</small>
+                <code class="fw-semibold" style="color: var(--brand-orange); font-size: 1rem;">
+                  <%= @stand.stand_code %>
+                </code>
+              </div>
+              <% if @stand.location.present? %>
+                <div>
+                  <small class="text-muted d-block">Ubicación</small>
+                  <span class="fw-semibold">
+                    <i class="fas fa-map-marker-alt me-1 text-muted"></i><%= @stand.location %>
+                  </span>
+                </div>
+              <% end %>
+              <div>
+                <small class="text-muted d-block">Estado</small>
+                <span class="badge <%= @stand.active? ? 'bg-success' : 'bg-secondary' %>">
+                  <%= @stand.active? ? 'Activo' : 'Inactivo' %>
+                </span>
+              </div>
+            </div>
+          </div>
+          <% if @stand.events.any? %>
+            <div class="col-12 col-md-4">
+              <small class="text-muted d-block mb-2">Eventos asignados</small>
+              <div class="d-flex flex-wrap gap-2">
+                <% @stand.events.order(event_date: :desc).limit(3).each do |event| %>
+                  <span class="badge rounded-pill fw-normal px-3 py-2"
+                        style="background:#e8f4fd; color:#0369a1; border:1px solid #bae6fd; font-size:.8rem;">
+                    <i class="fas fa-calendar-day me-1"></i><%= event.name %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Membresías -->
   <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">

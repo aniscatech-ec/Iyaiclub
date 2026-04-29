@@ -142,6 +142,24 @@ class UserMailer < ApplicationMailer
     )
   end
 
+  # Bienvenida al vendedor creado automáticamente al registrar un Stand
+  def welcome_stand_vendor(user, stand, reset_token)
+    @user        = user
+    @stand       = stand
+    @reset_token = reset_token
+    @reset_url   = edit_user_password_url(
+      @user,
+      reset_password_token: reset_token,
+      host: Rails.application.config.action_mailer.default_url_options[:host]
+    )
+
+    mail(
+      to:      user.email,
+      subject: "🎉 ¡Bienvenido a IyaiClub! Tu stand #{stand.stand_code} ya está activo",
+      from:    email_from(:info)
+    )
+  end
+
   # Bienvenida masiva con enlace de creación de contraseña (para usuarios migrados desde encuesta)
   def welcome_with_reset(user, reset_token)
     @user        = user
