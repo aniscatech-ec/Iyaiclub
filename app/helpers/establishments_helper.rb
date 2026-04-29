@@ -69,6 +69,27 @@ module EstablishmentsHelper
     end
   end
 
+  # Devuelve la ruta de vista específica según la categoría del establecimiento
+  def show_specific_establishment_path(est)
+    case est.category
+    when "hotel"
+      est.hotel ? hotel_path(est.hotel) : establishment_path(est)
+    when "restaurante"
+      est.restaurant ? restaurant_path(est.restaurant) : establishment_path(est)
+    when "transporte"
+      est.transport ? transport_path(est.transport) : establishment_path(est)
+    when "alojamiento_temporal"
+      est.temporary_lodging ? temporary_lodging_path(est.temporary_lodging) : establishment_path(est)
+    when "escapada"
+      g = est.getaways.first
+      g ? getaway_path(g) : establishment_path(est)
+    when "agencia"
+      est.travel_agency ? travel_agency_path(est.travel_agency) : establishment_path(est)
+    else
+      establishment_path(est)
+    end
+  end
+
   # Devuelve la ruta de edición específica según la categoría del establecimiento
   def edit_specific_establishment_path(est)
     case est.category

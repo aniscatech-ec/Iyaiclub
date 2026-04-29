@@ -77,17 +77,25 @@ class GetawaysController < ApplicationController
     est_attrs.delete("amenity_ids")   # manejado manualmente abajo
     raw.delete("getaway_activity_ids") # manejado manualmente abajo
 
-    # Si legal_info_attributes viene sin id (nueva) y todos sus campos están vacíos,
-    # descartarla para evitar que validaciones de LegalInfo bloqueen el update
+    # Si legal_info_attributes viene sin id (nueva sin persistir) y ningún campo
+    # tiene valor real, descartarla para evitar que sus validaciones bloqueen el update.
     if (li = est_attrs["legal_info_attributes"]).present? && li["id"].blank?
-      li_values = li.except("id")
-      est_attrs.delete("legal_info_attributes") if li_values.values.all?(&:blank?)
+      meaningful_fields = li.except("id", "_destroy")
+      est_attrs.delete("legal_info_attributes") if meaningful_fields.values.all? { |v| v.to_s.strip.blank? }
+    end
+
+    # Si free_entry está marcado, saltar validaciones del legal_info en esta instancia
+    free_entry = raw["free_entry"].in?(["1", "true", true])
+    if free_entry && @establishment.legal_info
+      @establishment.legal_info.skip_validations = true
     end
 
     # 3. Actualizar establishment directamente (evita recargas de instancia por nested attrs)
     est_ok = @establishment.update(est_attrs)
 
     # 4. Actualizar getaway sin establishment_attributes
+    # Asociar el mismo establishment para que apply_free_entry opere sobre la instancia correcta
+    @getaway.association(:establishment).target = @establishment
     getaway_ok = @getaway.update(raw)
 
     if est_ok && getaway_ok
@@ -96,6 +104,9 @@ class GetawaysController < ApplicationController
       @establishment.amenity_ids         = amenity_ids
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
+      Rails.logger.error "[Getaway#update] est_ok=#{est_ok} getaway_ok=#{getaway_ok}"
+      Rails.logger.error "[Getaway#update] establishment errors: #{@establishment.errors.full_messages}"
+      Rails.logger.error "[Getaway#update] getaway errors: #{@getaway.errors.full_messages}"
       @getaway.errors.merge!(@establishment.errors) unless est_ok
       flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity

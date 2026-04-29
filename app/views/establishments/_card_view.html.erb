@@ -11,7 +11,7 @@
 <!--            <strong>Administrador:</strong> <%#= est.legal_info.legal_representative %>-->
           </p>
           <div class="d-flex justify-content-between">
-            <%= link_to est, class: "btn btn-outline-info btn-sm" do %>
+            <%= link_to show_specific_establishment_path(est), class: "btn btn-outline-info btn-sm" do %>
               <i class="fa-solid fa-eye"></i>
             <% end %>
             <%= link_to edit_specific_establishment_path(est), class: "btn btn-outline-warning btn-sm" do %>
