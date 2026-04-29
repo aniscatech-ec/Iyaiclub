@@ -81,7 +81,8 @@ module EstablishmentsHelper
     when "alojamiento_temporal"
       est.temporary_lodging ? edit_temporary_lodging_path(est.temporary_lodging) : edit_establishment_path(est)
     when "escapada"
-      est.getaway ? edit_getaway_path(est.getaway) : edit_establishment_path(est)
+      g = est.getaways.first
+      g ? edit_getaway_path(g) : edit_establishment_path(est)
     when "agencia"
       est.travel_agency ? edit_travel_agency_path(est.travel_agency) : edit_establishment_path(est)
     else
