@@ -120,7 +120,7 @@ class GetawaysController < ApplicationController
 
   def set_getaway
     @getaway = Getaway.includes(
-      :experiences,
+      :experiences, :getaway_activities,
       establishment: [:legal_info, :user, :country, :city, :province, :amenities,
                        { galleries: { gallery_images: { file_attachment: :blob } } }]
     ).find(params[:id])

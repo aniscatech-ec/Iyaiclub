@@ -152,6 +152,27 @@
         </div>
       <% end %>
 
+      <!-- ACTIVIDADES DISPONIBLES -->
+      <% if @getaway.getaway_activities.any? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #2980b9, #1a5276); color: white; border-radius: 0.5rem 0.5rem 0 0;">
+            <h5 class="mb-0 fw-bold"><i class="fas fa-running me-2"></i> Actividades disponibles</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-2">
+              <% @getaway.getaway_activities.ordered.each do |activity| %>
+                <div class="col-6 col-md-4">
+                  <div class="d-flex align-items-center p-2 rounded-3" style="background: rgba(41,128,185,0.07);">
+                    <i class="fas <%= activity.icon.presence || 'fa-check' %> me-2" style="color: #2980b9; width: 16px; text-align: center;"></i>
+                    <span class="small fw-semibold"><%= activity.name %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
       <!-- ATRACCIONES CON COSTO -->
       <% if @getaway.experiences.any? || can_edit %>
         <div class="card border-0 shadow-sm rounded-3 mb-4">
