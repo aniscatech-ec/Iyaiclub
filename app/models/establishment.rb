@@ -77,6 +77,12 @@ class Establishment < ApplicationRecord
   has_many :lodgings, dependent: :destroy
   has_many :experiences, dependent: :destroy
   has_many :promotions, dependent: :destroy
+  has_many :reviews, dependent: :destroy
+
+  def average_rating
+    (reviews.average(:rating) || 0.0).to_f
+  end
+
   private
 
   def create_verification_record
