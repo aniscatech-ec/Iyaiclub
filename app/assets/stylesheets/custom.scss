@@ -1091,6 +1091,10 @@
   display: flex;
   align-items: stretch;
 
+  @media (min-width: 992px) {
+    display: none !important;
+  }
+
   &__fixed {
     flex-shrink: 0;
     display: flex;
