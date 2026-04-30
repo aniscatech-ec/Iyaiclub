@@ -77,25 +77,23 @@ class GetawaysController < ApplicationController
     est_attrs.delete("amenity_ids")   # manejado manualmente abajo
     raw.delete("getaway_activity_ids") # manejado manualmente abajo
 
-    # Si legal_info_attributes viene sin id (nueva sin persistir) y ningún campo
-    # tiene valor real, descartarla para evitar que sus validaciones bloqueen el update.
+    # Solo procesar legal_info_attributes si ya existe en BD (tiene id).
+    # Si no tiene id, es una instancia nueva sin datos — descartarla siempre
+    # para evitar que sus validaciones de presencia bloqueen el update.
     if (li = est_attrs["legal_info_attributes"]).present? && li["id"].blank?
-      meaningful_fields = li.except("id", "_destroy")
-      est_attrs.delete("legal_info_attributes") if meaningful_fields.values.all? { |v| v.to_s.strip.blank? }
+      est_attrs.delete("legal_info_attributes")
     end
 
-    # Si free_entry está marcado, saltar validaciones del legal_info en esta instancia
+    # Si free_entry está marcado y legal_info ya existe, saltear sus validaciones
     free_entry = raw["free_entry"].in?(["1", "true", true])
     if free_entry && @establishment.legal_info
       @establishment.legal_info.skip_validations = true
     end
 
-    # 3. Actualizar establishment directamente (evita recargas de instancia por nested attrs)
+    # 3. Actualizar establishment directamente
     est_ok = @establishment.update(est_attrs)
 
-    # 4. Actualizar getaway sin establishment_attributes
-    # Asociar el mismo establishment para que apply_free_entry opere sobre la instancia correcta
-    @getaway.association(:establishment).target = @establishment
+    # 4. Actualizar getaway (sin establishment_attributes ni getaway_activity_ids)
     getaway_ok = @getaway.update(raw)
 
     if est_ok && getaway_ok
