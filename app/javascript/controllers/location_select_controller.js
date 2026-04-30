@@ -73,8 +73,11 @@ export default class extends Controller {
         }
       })
       .catch(() => {
-        this._setOptions(this.provinceEl, [], "Error al cargar provincias")
-        this._setOptions(this.cityEl,     [], "Seleccione ciudad")
+        // Si falla la carga, conservar los valores actuales para no romper el form
+        if (!this.provinceEl.value) {
+          this._setOptions(this.provinceEl, [], "Error al cargar provincias")
+          this._setOptions(this.cityEl,     [], "Seleccione ciudad")
+        }
       })
   }
 
@@ -90,7 +93,9 @@ export default class extends Controller {
         this._setOptions(this.cityEl, data, "Seleccione ciudad", restoreCityId)
       })
       .catch(() => {
-        this._setOptions(this.cityEl, [], "Error al cargar ciudades")
+        if (!this.cityEl.value) {
+          this._setOptions(this.cityEl, [], "Error al cargar ciudades")
+        }
       })
   }
 

@@ -65,48 +65,50 @@ class GetawaysController < ApplicationController
   def update
     @establishment = @getaway.establishment
 
-    # 1. Extraer ids manualmente desde params raw (antes de cualquier conversión)
     activity_ids = Array(params.dig(:getaway, :getaway_activity_ids)).reject(&:blank?).map(&:to_i)
     amenity_ids  = Array(params.dig(:getaway, :establishment_attributes, :amenity_ids)).reject(&:blank?).map(&:to_i)
 
-    # 2. Separar params del establishment de los del getaway
-    #    Usamos to_unsafe_h para garantizar un Hash Ruby puro (no ActionController::Parameters)
     raw = getaway_params.to_unsafe_h.deep_dup
-
     est_attrs = raw.delete("establishment_attributes") || {}
-    est_attrs.delete("amenity_ids")   # manejado manualmente abajo
-    raw.delete("getaway_activity_ids") # manejado manualmente abajo
+    est_attrs.delete("amenity_ids")
+    raw.delete("getaway_activity_ids")
 
-    # Solo procesar legal_info_attributes si ya existe en BD (tiene id).
-    # Si no tiene id, es una instancia nueva sin datos — descartarla siempre
-    # para evitar que sus validaciones de presencia bloqueen el update.
+    # Descartar legal_info_attributes si no tiene id (sin persistir) — evita validaciones de presencia
     if (li = est_attrs["legal_info_attributes"]).present? && li["id"].blank?
       est_attrs.delete("legal_info_attributes")
     end
 
-    # Si free_entry está marcado y legal_info ya existe, saltear sus validaciones
-    free_entry = raw["free_entry"].in?(["1", "true", true])
-    if free_entry && @establishment.legal_info
+    # Si free_entry, saltear validaciones de legal_info existente
+    if raw["free_entry"].in?(["1", "true", true]) && @establishment.legal_info
       @establishment.legal_info.skip_validations = true
     end
 
-    # 3. Actualizar establishment directamente
-    est_ok = @establishment.update(est_attrs)
+    saved = ActiveRecord::Base.transaction do
+      unless @establishment.update(est_attrs)
+        raise ActiveRecord::Rollback
+      end
+      unless @getaway.update(raw)
+        raise ActiveRecord::Rollback
+      end
+      true
+    end
 
-    # 4. Actualizar getaway (sin establishment_attributes ni getaway_activity_ids)
-    getaway_ok = @getaway.update(raw)
-
-    if est_ok && getaway_ok
-      # 5. Asignar has_many :through — el setter llama replace() que hace save en DB
-      @getaway.getaway_activity_ids      = activity_ids
-      @establishment.amenity_ids         = amenity_ids
+    if saved
+      @getaway.getaway_activity_ids = activity_ids
+      @establishment.amenity_ids    = amenity_ids
       redirect_to @getaway, notice: 'La escapada ha sido actualizada correctamente.'
     else
-      Rails.logger.error "[Getaway#update] est_ok=#{est_ok} getaway_ok=#{getaway_ok}"
+      # Propagar errores del establishment al getaway para mostrarlos en el form
+      @establishment.errors.each do |error|
+        @getaway.errors.add(:base, "#{error.attribute.to_s.humanize}: #{error.message}")
+      end
+
       Rails.logger.error "[Getaway#update] establishment errors: #{@establishment.errors.full_messages}"
       Rails.logger.error "[Getaway#update] getaway errors: #{@getaway.errors.full_messages}"
-      @getaway.errors.merge!(@establishment.errors) unless est_ok
-      flash.now[:alert] = helpers.validation_summary_text(@getaway) || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
+
+      @establishment.build_legal_info unless @establishment.legal_info
+      all_msgs = (@establishment.errors.full_messages + @getaway.errors.full_messages).uniq
+      flash.now[:alert] = all_msgs.first(3).join(" · ").presence || "No pudimos guardar los cambios. Revisa los campos marcados en rojo."
       render :edit, status: :unprocessable_entity
     end
   end
