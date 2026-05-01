@@ -480,7 +480,6 @@
   });
 
   // Ocultar bottom nav cuando el teclado virtual aparece en móvil
-  // (evita pantallazzo blanco / contenido tapado en Android/iOS)
   var bottomNav = document.querySelector('.iyai-bottom-nav');
   if (bottomNav) {
     document.addEventListener('focusin', function(e) {
@@ -489,10 +488,14 @@
         bottomNav.style.display = 'none';
       }
     });
-    document.addEventListener('focusout', function() {
-      // Pequeño delay para que el teclado cierre antes de mostrar el nav
+    document.addEventListener('focusout', function(e) {
+      // Solo restaurar si el nuevo foco NO es otro campo de formulario
       setTimeout(function() {
-        bottomNav.style.display = '';
+        var active = document.activeElement;
+        var tag = active ? active.tagName : '';
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+          bottomNav.style.display = '';
+        }
       }, 150);
     });
   }

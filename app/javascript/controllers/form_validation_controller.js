@@ -79,8 +79,14 @@ export default class extends Controller {
     // 1. Label asociado por atributo "for"
     const id = input.id
     if (id) {
-      const label = document.querySelector(`label[for="${CSS.escape(id)}"]`)
-      if (label) return this.cleanLabel(label.textContent)
+      try {
+        const escaped = (typeof CSS !== "undefined" && CSS.escape) ? CSS.escape(id) : id.replace(/([^\w-])/g, '\\$1')
+        const label = document.querySelector(`label[for="${escaped}"]`)
+        if (label) return this.cleanLabel(label.textContent)
+      } catch(e) {
+        const label = document.querySelector(`label[for="${id}"]`)
+        if (label) return this.cleanLabel(label.textContent)
+      }
     }
 
     // 2. Label padre inmediato
