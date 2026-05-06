@@ -109,6 +109,7 @@ Rails.application.routes.draw do
     member do
       get :dashboard  # /establishments/:id/dashboard
       patch :set_cover_image
+      delete :destroy_image
     end
   end
   namespace :turista do

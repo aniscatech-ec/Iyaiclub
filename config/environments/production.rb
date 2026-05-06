@@ -60,6 +60,9 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "iyaiclub.com", protocol: "https" }
 
+  # URLs para Active Storage (blobs, variantes de imagen)
+  config.action_controller.default_url_options = { host: "iyaiclub.com", protocol: "https" }
+
   # Configuración SMTP con Brevo (o variables de entorno)
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {

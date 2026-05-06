@@ -265,12 +265,6 @@
       <i class="fas fa-images me-2"></i> 5. Imágenes
     </div>
     <div class="card-body">
-      <%# Selector de foto de portada (solo si ya hay imágenes subidas) %>
-      <% if establishment.images.attached? %>
-        <%= render "shared/cover_image_selector", establishment: establishment %>
-        <hr class="my-3">
-      <% end %>
-
       <div class="mb-0">
         <%= form.label :images, "Subir nuevas imágenes", class: "form-label fw-semibold" %>
         <%= form.file_field :images, multiple: true, class: "form-control",

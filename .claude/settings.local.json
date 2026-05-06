@@ -11,7 +11,8 @@
       "Bash(rails routes *)",
       "Bash(find app/views/turista -name \"_booking_card*\")",
       "Bash(find app/views -name \"_booking_card*\")",
-      "Bash(awk ' *)"
+      "Bash(awk ' *)",
+      "Bash(xargs grep *)"
     ]
   }
 }

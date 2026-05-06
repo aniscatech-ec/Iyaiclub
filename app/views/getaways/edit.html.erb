@@ -11,5 +11,9 @@
     </div>
   </div>
 
+  <% if @getaway.establishment&.images&.attached? %>
+    <%= render "shared/cover_image_selector", establishment: @getaway.establishment %>
+  <% end %>
+
   <%= render "form", getaway: @getaway %>
 </div>

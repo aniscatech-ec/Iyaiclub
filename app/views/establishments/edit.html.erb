@@ -10,5 +10,9 @@
     <% end %>
   </div>
 
+  <% if @establishment.images.attached? %>
+    <%= render "shared/cover_image_selector", establishment: @establishment %>
+  <% end %>
+
   <%= render 'form', establishment: @establishment %>
 </div>

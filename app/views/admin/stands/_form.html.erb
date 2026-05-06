@@ -100,18 +100,28 @@
         <% end %>
       </div>
       <% if stand.new_record? %>
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
+        <div class="row g-3"
+             data-controller="location-select"
+             data-location-select-country-id-value="stand_country_id"
+             data-location-select-province-id-value="stand_province_id"
+             data-location-select-city-id-value="stand_city_id">
+          <div class="col-12 col-md-4">
             <%= f.label :country_id, "País", class: "form-label fw-semibold" %>
-            <%= f.collection_select :country_id, Country.all, :id, :name,
-                { prompt: "Seleccione..." },
-                class: "form-select", required: true %>
+            <%= f.collection_select :country_id, Country.order(:name), :id, :name,
+                { prompt: "Seleccione país..." },
+                class: "form-select", required: true, id: "stand_country_id" %>
           </div>
-          <div class="col-12 col-md-6">
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold">Provincia</label>
+            <select id="stand_province_id" class="form-select" required>
+              <option value="">Seleccione provincia...</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4">
             <%= f.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
-            <%= f.collection_select :city_id, City.all, :id, :name,
-                { prompt: "Seleccione..." },
-                class: "form-select", required: true %>
+            <select name="stand[city_id]" id="stand_city_id" class="form-select" required>
+              <option value="">Seleccione ciudad...</option>
+            </select>
           </div>
         </div>
       <% end %>

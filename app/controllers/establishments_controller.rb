@@ -1,7 +1,7 @@
 class EstablishmentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_establishment, only: %i[show edit update destroy dashboard]
-  before_action :authorize_admin_or_owner!, only: %i[show edit update destroy dashboard]
+  before_action :set_establishment, only: %i[show edit update destroy dashboard set_cover_image destroy_image]
+  before_action :authorize_admin_or_owner!, only: %i[show edit update destroy dashboard set_cover_image destroy_image]
   before_action :require_afiliado_docs_and_approval!, only: %i[choose_type create_type create]
   layout "dashboard"
 
@@ -190,6 +190,21 @@ class EstablishmentsController < ApplicationController
     else
       redirect_back fallback_location: edit_establishment_path(@establishment),
                     alert: "No se pudo establecer la portada."
+    end
+  end
+
+  def destroy_image
+    blob_id = params[:blob_id].to_i
+    image = @establishment.images.find { |img| img.blob_id == blob_id } if blob_id > 0
+
+    if image
+      @establishment.update_column(:cover_image_blob_id, nil) if @establishment.cover_image_blob_id == blob_id
+      image.purge
+      redirect_back fallback_location: edit_establishment_path(@establishment),
+                    notice: "Imagen eliminada correctamente."
+    else
+      redirect_back fallback_location: edit_establishment_path(@establishment),
+                    alert: "No se pudo eliminar la imagen."
     end
   end
 
