@@ -47,6 +47,7 @@ class User < ApplicationRecord
   has_many :handled_tickets, class_name: "Ticket", foreign_key: :vendedor_id, dependent: :nullify
   has_many :handled_subscriptions, class_name: "Subscription", foreign_key: :vendedor_id, dependent: :nullify
   has_many :plan_vendedores, class_name: 'PlanVendedor', foreign_key: :vendedor_id, dependent: :destroy
+  has_many :reviews, dependent: :destroy
 
   def total_points
     user_points.sum(:points_earned) - redemptions.sum(:points_used)

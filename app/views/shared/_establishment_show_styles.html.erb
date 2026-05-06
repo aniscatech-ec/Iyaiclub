@@ -128,8 +128,17 @@
     .sticky-top-actions {
       position: sticky;
       top: 1rem;
-      z-index: 10;
+      z-index: 1000;
     }
+  }
+
+  /* Evitar que el mapa Leaflet tape la card sticky */
+  .map-display-container,
+  .map-display-container .leaflet-container,
+  .map-display-container .leaflet-pane,
+  .map-display-container .leaflet-top,
+  .map-display-container .leaflet-bottom {
+    z-index: 1 !important;
   }
 
   .long-desc {

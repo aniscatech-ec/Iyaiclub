@@ -1,31 +1,29 @@
-<%= form_with(model: [@establishment, Review.new], local: true, class: "needs-validation") do |form| %>
-  <% if form.object.errors.any? %>
-    <div id="error_explanation" class="alert alert-danger">
-      <h4><%= pluralize(form.object.errors.count, "error") %> impidió guardar esta reseña:</h4>
-      <ul>
-        <% form.object.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
+<% if user_signed_in? && current_user.turista? %>
+  <% already_reviewed = current_user.reviews.exists?(establishment_id: establishment.id) %>
+  <% if already_reviewed %>
+    <div class="alert alert-info py-2 mb-0 small">
+      <i class="fas fa-check-circle me-1"></i> Ya dejaste una reseña en este establecimiento.
     </div>
+  <% else %>
+    <%= form_with(model: [establishment, Review.new], local: true) do |form| %>
+      <div class="mb-3">
+        <%= form.label :rating, "Calificación", class: "form-label fw-semibold" %>
+        <div class="d-flex gap-2 align-items-center">
+          <%= form.number_field :rating, in: 1..5, step: 1, class: "form-control", style: "max-width: 80px;", required: true, placeholder: "1-5" %>
+          <span class="text-muted small">de 5 estrellas</span>
+        </div>
+      </div>
+      <div class="mb-3">
+        <%= form.label :comment, "Comentario", class: "form-label fw-semibold" %>
+        <%= form.text_area :comment, rows: 3, class: "form-control", required: true,
+            placeholder: "Comparte tu experiencia (mínimo 10 caracteres)...",
+            minlength: 10, maxlength: 1000 %>
+      </div>
+      <%= form.submit "Publicar reseña", class: "btn btn-primary btn-sm rounded-pill" %>
+    <% end %>
   <% end %>
-
-  <div class="form-group mb-3">
-    <%= form.label :user_name, "Nombre de Usuario", class: "form-label" %>
-    <%= form.text_field :user_name, class: "form-control", required: true %>
-  </div>
-
-  <div class="form-group mb-3">
-    <%= form.label :rating, "Calificación (1 a 5)", class: "form-label" %>
-    <%= form.number_field :rating, in: 1..5, class: "form-control", required: true %>
-  </div>
-
-  <div class="form-group mb-3">
-    <%= form.label :comment, "Comentario", class: "form-label" %>
-    <%= form.text_area :comment, rows: 4, class: "form-control", required: true %>
-  </div>
-
-  <div class="form-group mt-3">
-    <%= form.submit "Publicar Reseña", class: "btn btn-primary" %>
-  </div>
+<% elsif !user_signed_in? %>
+  <p class="text-muted small mb-0">
+    <a href="<%= new_user_session_path %>">Inicia sesión</a> para dejar una reseña.
+  </p>
 <% end %>

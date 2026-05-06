@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_29_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_05_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -626,6 +626,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_29_000001) do
     t.index ["establishment_id"], name: "index_restaurants_on_establishment_id"
   end
 
+  create_table "reviews", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "rating"
+    t.text "comment"
+    t.bigint "establishment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["establishment_id"], name: "index_reviews_on_establishment_id"
+    t.index ["user_id", "establishment_id"], name: "index_reviews_on_user_id_and_establishment_id", unique: true
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
   create_table "rewards", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -1021,6 +1033,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_29_000001) do
   add_foreign_key "restaurant_hours", "restaurants"
   add_foreign_key "restaurant_tables", "restaurants"
   add_foreign_key "restaurants", "establishments"
+  add_foreign_key "reviews", "establishments"
+  add_foreign_key "reviews", "users"
   add_foreign_key "rewards", "establishments"
   add_foreign_key "room_amenities", "amenities"
   add_foreign_key "room_amenities", "rooms"

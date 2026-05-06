@@ -81,12 +81,11 @@ class Establishment < ApplicationRecord
   has_many :lodgings, dependent: :destroy
   has_many :experiences, dependent: :destroy
   has_many :promotions, dependent: :destroy
-<<<<<<< HEAD
   has_many :reviews, dependent: :destroy
 
   def average_rating
     (reviews.average(:rating) || 0.0).to_f
-=======
+  end
 
   # ── Foto de portada ──────────────────────────────────────────────────────────
   # Devuelve la imagen de portada seleccionada (por blob_id) o la primera disponible.
@@ -118,7 +117,6 @@ class Establishment < ApplicationRecord
     direct = ordered_images
     gallery_imgs = galleries.flat_map { |g| g.gallery_images.select { |gi| gi.file.attached? } }
     { direct: direct, gallery: gallery_imgs }
->>>>>>> 29500970ce08c5023f64e23c30cf693470162f6f
   end
 
   private
