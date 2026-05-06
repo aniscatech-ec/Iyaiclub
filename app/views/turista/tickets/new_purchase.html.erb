@@ -116,8 +116,8 @@
             <!-- Tarjeta de crédito/débito -->
             <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="tarjetaOption">
               <input type="radio" name="payment_method" value="tarjeta"
-                     class="form-check-input" id="payment_tarjeta" required checked
-                     data-action="change->purchase-form#toggleVendedores">
+                     class="form-check-input" id="payment_tarjeta" checked
+                     data-action="change->purchase-form#toggleVendedores click->purchase-form#toggleVendedores">
               <label class="form-check-label w-100 ms-2" for="payment_tarjeta">
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
@@ -137,7 +137,7 @@
               <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="transferenciaOption">
                 <input type="radio" name="payment_method" value="transferencia"
                        class="form-check-input" id="payment_transferencia"
-                       data-action="change->purchase-form#toggleVendedores">
+                       data-action="change->purchase-form#toggleVendedores click->purchase-form#toggleVendedores">
                 <label class="form-check-label w-100 ms-2" for="payment_transferencia">
                   <strong><i class="fas fa-exchange-alt me-2 text-success"></i> Transferencia Bancaria</strong>
                   <br><small class="text-muted">Paga por transferencia a través de un vendedor</small>
