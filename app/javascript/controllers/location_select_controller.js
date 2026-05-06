@@ -65,19 +65,15 @@ export default class extends Controller {
       .then(r => r.json())
       .then(data => {
         this._setOptions(this.provinceEl, data, "Seleccione provincia", restoreProvinceId)
-        // Solo cargar ciudades si hay una provincia a restaurar
-        if (restoreProvinceId && this.provinceEl.value) {
-          this._loadCities(this.provinceEl.value, this._savedCityId)
+        const provinceVal = this.provinceEl.value
+        if (provinceVal) {
+          this._loadCities(provinceVal, this._savedCityId)
         } else {
           this._setOptions(this.cityEl, [], "Seleccione ciudad")
         }
       })
       .catch(() => {
         // Si falla la carga, conservar los valores actuales para no romper el form
-        if (!this.provinceEl.value) {
-          this._setOptions(this.provinceEl, [], "Error al cargar provincias")
-          this._setOptions(this.cityEl,     [], "Seleccione ciudad")
-        }
       })
   }
 
@@ -93,9 +89,7 @@ export default class extends Controller {
         this._setOptions(this.cityEl, data, "Seleccione ciudad", restoreCityId)
       })
       .catch(() => {
-        if (!this.cityEl.value) {
-          this._setOptions(this.cityEl, [], "Error al cargar ciudades")
-        }
+        // Si falla la carga, conservar los valores actuales para no romper el form
       })
   }
 

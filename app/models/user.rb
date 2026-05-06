@@ -8,7 +8,7 @@ class User < ApplicationRecord
          :confirmable
 
   enum :role, administrador: 0, afiliado: 1, turista: 2, vendedor: 3
-  has_many :establishments
+  has_many :establishments, dependent: :nullify
   has_many :subscriptions, as: :subscribable, dependent: :destroy
   belongs_to :country
   belongs_to :city

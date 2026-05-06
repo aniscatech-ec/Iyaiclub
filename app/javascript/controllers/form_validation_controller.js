@@ -31,6 +31,8 @@ export default class extends Controller {
       if (input.type === "hidden" || input.disabled) return
       // Ignorar inputs dentro de <template> (no visibles)
       if (input.closest("template")) return
+      // Ignorar inputs cuyo contenedor esté oculto (display:none)
+      if (!input.offsetParent && input.type !== "radio" && input.type !== "checkbox") return
 
       const value = input.value ? input.value.trim() : ""
       let invalid = false
