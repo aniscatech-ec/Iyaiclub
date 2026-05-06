@@ -1,4 +1,4 @@
-<%= form_with(model: establishment, local: true, html: { class: "establishment-form", data: { controller: "form-validation" } }) do |form| %>
+<%= form_with(model: establishment, local: true, html: { class: "establishment-form", novalidate: true, data: { controller: "form-validation" } }) do |form| %>
   <%= render_validation_errors(establishment) %>
 
   <% if current_user.administrador? %>

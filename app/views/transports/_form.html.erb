@@ -1,4 +1,4 @@
-<%= form_with(model: transport, local: true, html: { class: "transport-form", multipart: true, data: { controller: "form-validation" } }) do |form| %>
+<%= form_with(model: transport, local: true, html: { class: "transport-form", multipart: true, novalidate: true, data: { controller: "form-validation" } }) do |form| %>
   <%= render_validation_errors(transport) %>
 
   <%= form.fields_for :establishment do |est| %>

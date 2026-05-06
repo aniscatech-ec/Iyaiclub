@@ -1,4 +1,4 @@
-<%= form_with(model: [@establishment, promotion].compact, local: true, class: 'card shadow-sm border-danger', data: { controller: "form-validation" }) do |form| %>
+<%= form_with(model: [@establishment, promotion].compact, local: true, class: 'card shadow-sm border-danger', html: { novalidate: true }, data: { controller: "form-validation" }) do |form| %>
   <div class="card-body">
     <% if promotion.errors.any? %>
       <div class="alert alert-danger">

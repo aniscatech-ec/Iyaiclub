@@ -1,4 +1,4 @@
-<%= form_with(model: hotel, local: true, html: { multipart: true, data: { controller: "form-validation" } }) do |f| %>
+<%= form_with(model: hotel, local: true, html: { multipart: true, novalidate: true, data: { controller: "form-validation" } }) do |f| %>
   <%= render_validation_errors(hotel) %>
 
   <%= f.fields_for :establishment do |e| %>
