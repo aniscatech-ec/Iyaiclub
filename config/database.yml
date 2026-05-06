@@ -13,8 +13,8 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: rails
-  password: RMdf2&/snfgney
+  username: iyaib_club_user
+  password: <%= ENV["IYAIB_CLUB_APP_DATABASE_PASSWORD"] %>
   host: 127.0.0.1
   port: 3307
 
@@ -53,7 +53,7 @@ production:
   primary: &primary_production
     <<: *default
     database: iyaib_club_app_production
-    username: iyaib_club_app
+    username: iyaib_club_user
     password: <%= ENV["IYAIB_CLUB_APP_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
