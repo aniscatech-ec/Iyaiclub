@@ -604,18 +604,20 @@
         <h6 class="fw-bold mb-1">Membresía pendiente de acreditación</h6>
         <p class="mb-1 small">
           Tu solicitud de <strong><%= @pending_membership.plan_name %></strong> por transferencia está siendo procesada
-          por <strong><%= @pending_membership.vendedor&.name || "tu asesor" %></strong>.
+          por <strong><%= @pending_membership.stand&.name || @pending_membership.vendedor&.name || "tu asesor" %></strong>.
           Una vez que confirmen tu pago, tu membresía se activará automáticamente.
         </p>
         <%# Cuentas bancarias para transferencia %>
         <%= render "shared/bank_accounts" %>
 
-        <% if @pending_membership.vendedor&.try(:whatsapp).present? || @pending_membership.vendedor&.try(:phone).present? %>
-          <% phone = @pending_membership.vendedor.try(:whatsapp) || @pending_membership.vendedor.try(:phone) %>
+        <% contact_user = @pending_membership.vendedor || @pending_membership.stand&.owner_user %>
+        <% contact_name = @pending_membership.stand&.name || contact_user&.name %>
+        <% if contact_user&.try(:whatsapp).present? || contact_user&.try(:phone).present? %>
+          <% phone = contact_user.try(:whatsapp) || contact_user.try(:phone) %>
           <% plan_price = PlanPrice.find_by(id: @pending_membership.plan_type) %>
-          <% wa_message = "Hola #{@pending_membership.vendedor.name}, soy #{current_user.name} y acabo de solicitar una membresía #{@pending_membership.plan_name}#{plan_price ? " (#{plan_price.display_duration} - $#{plan_price.price})" : ""} por transferencia bancaria a través de IyaiClub. Quedo pendiente de sus instrucciones para realizar el pago. Gracias." %>
+          <% wa_message = "Hola #{contact_name}, soy #{current_user.name} y acabo de solicitar una membresía #{@pending_membership.plan_name}#{plan_price ? " (#{plan_price.display_duration} - $#{plan_price.price})" : ""} por transferencia bancaria a través de IyaiClub. Quedo pendiente de sus instrucciones para realizar el pago. Gracias." %>
           <%= link_to whatsapp_link(phone, wa_message), target: "_blank", class: "btn btn-sm btn-success mt-1" do %>
-            <i class="fab fa-whatsapp me-1"></i> Contactar a <%= @pending_membership.vendedor.name %>
+            <i class="fab fa-whatsapp me-1"></i> Contactar a <%= contact_name %>
           <% end %>
         <% end %>
       </div>

@@ -2,6 +2,7 @@ class Subscription < ApplicationRecord
   # belongs_to :establishment
   belongs_to :subscribable, polymorphic: true
   belongs_to :vendedor, class_name: "User", optional: true
+  belongs_to :stand, optional: true
 
   # enum :plan_type, basico: 0, vip: 1
   # enum :duration,  mensual: 0, anual: 2

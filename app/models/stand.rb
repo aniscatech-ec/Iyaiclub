@@ -7,7 +7,7 @@ class Stand < ApplicationRecord
   belongs_to :owner_user, class_name: "User", optional: true
 
   # Virtual attributes for user creation in the form
-  attr_accessor :user_assignment_type,  # "owner" | "vendor"
+  attr_accessor :user_assignment_type,  # "owner" | "vendor" | ""
                 :user_source,           # "new" | "existing"
                 :new_user_name,
                 :new_user_lastname,
@@ -23,10 +23,29 @@ class Stand < ApplicationRecord
   before_validation :generate_stand_code, on: :create
   after_create      :assign_stand_user, if: -> { user_assignment_type.present? }
 
-  scope :active, -> { where(active: true) }
+  scope :active,          -> { where(active: true) }
+  scope :with_owner,      -> { where.not(owner_user_id: nil) }
+  scope :autonomous,      -> { with_owner }
+
+  # ¿Opera como entidad vendedora autónoma?
+  def autonomous?
+    owner_user_id.present?
+  end
+
+  # Registra el stand como vendedor autónomo en un evento (idempotente)
+  def register_as_autonomo_in(event)
+    return unless autonomous?
+    return if event.event_vendedores.exists?(stand: self, vendor_type: :stand_autonomo)
+    event.event_vendedores.create!(
+      stand:       self,
+      user:        nil,
+      vendor_type: :stand_autonomo,
+      active:      true
+    )
+  end
 
   def vendor_users
-    event_vendedores.includes(:user).map(&:user).uniq
+    event_vendedores.where.not(vendor_type: :stand_autonomo).includes(:user).map(&:user).compact.uniq
   end
 
   private
@@ -54,6 +73,8 @@ class Stand < ApplicationRecord
     user = resolve_user(role: :afiliado, skip_docs: true)
     return unless user
     update_columns(owner_user_id: user.id)
+    # Registrar como autónomo en eventos existentes
+    events.each { |ev| register_as_autonomo_in(ev) }
   end
 
   def assign_vendor_user

@@ -1,5 +1,5 @@
 class Establishment < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   has_many_attached :images
   # has_many :establishment_amenities #da error por elimincacion
   # has_many :amenities, through: :establishment_amenities #error por eliminacion

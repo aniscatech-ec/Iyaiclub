@@ -106,7 +106,8 @@ class Turista::TicketsController < ApplicationController
       return
     end
 
-    @vendedores = @event.active_vendedores
+    @vendedores        = @event.active_vendedores
+    @stands_autonomos  = @event.event_vendedores.stand_autonomo.includes(:stand).map(&:stand)
     @event.event_vendedores.load
   end
 
@@ -137,15 +138,15 @@ class Turista::TicketsController < ApplicationController
   end
 
   def transfer_status
-    @ticket = current_user.tickets.find(params[:ticket_id])
-    @vendedor = @ticket.vendedor
+    @ticket   = current_user.tickets.find(params[:ticket_id])
+    @vendedor = @ticket.vendedor || @ticket.stand&.owner_user
 
     message = "Hola, soy #{current_user.name}. " \
               "Acabo de reservar un ticket para el evento #{@event.name} " \
               "(Código: #{@ticket.ticket_code}). " \
               "Precio: $#{@event.price_for(current_user)}. " \
               "Por favor confirmar el pago por transferencia."
-    @whatsapp_url = helpers.whatsapp_link(@vendedor.phone, message)
+    @whatsapp_url = @vendedor&.phone.present? ? helpers.whatsapp_link(@vendedor.phone, message) : nil
   end
 
   def check_status
@@ -171,20 +172,20 @@ class Turista::TicketsController < ApplicationController
 
 
   def create_payphone_ticket
-    guest_name = params[:guest_name].presence || current_user.name
+    guest_name  = params[:guest_name].presence  || current_user.name
     guest_email = params[:guest_email].presence || current_user.email
-    quantity = [params[:quantity].to_i, 1].max
+    quantity    = [params[:quantity].to_i, 1].max
+    stand_id    = params[:stand_id].presence&.to_i
+    vendedor_id = params[:vendedor_id].presence&.to_i
 
-    # Verificar disponibilidad
     if @event.available_tickets.present? && quantity > @event.available_tickets
       redirect_to new_purchase_turista_event_tickets_path(@event),
                   alert: "No hay suficientes tickets disponibles. Solo quedan #{@event.available_tickets}."
       return
     end
 
-    # NO crear tickets aún — se crean solo cuando PayPhone confirma el pago
-    unit_price  = @event.price_for(current_user)
-    total_price = @event.total_price_for(current_user, quantity)
+    unit_price  = @event.price_for(current_user, vendedor_id: vendedor_id, stand_id: stand_id)
+    total_price = @event.total_price_for(current_user, quantity, vendedor_id: vendedor_id, stand_id: stand_id)
     @amount_cents = (total_price * 100).to_i
     @client_transaction_id = "IYAI-#{Time.current.to_i}-#{SecureRandom.hex(4).upcase}"
     @reference = "#{quantity} ticket(s) - #{@event.name}"
@@ -198,20 +199,22 @@ class Turista::TicketsController < ApplicationController
       phone_number: current_user.phone,
       status: :pendiente,
       metadata: {
-        type: "ticket",
-        event_id: @event.id,
-        quantity: quantity,
-        guest_name: guest_name,
-        guest_email: guest_email,
-        guest_phone: current_user.phone,
-        unit_price: unit_price,
-        total_price: total_price,
-        referral_code: params[:referral_code].to_s.strip.upcase.presence
+        type:           "ticket",
+        event_id:       @event.id,
+        quantity:       quantity,
+        guest_name:     guest_name,
+        guest_email:    guest_email,
+        guest_phone:    current_user.phone,
+        unit_price:     unit_price,
+        total_price:    total_price,
+        vendedor_id:    vendedor_id,
+        stand_id:       stand_id,
+        referral_code:  params[:referral_code].to_s.strip.upcase.presence
       }
     )
 
     @payphone_token = ENV.fetch("PAYPHONE_TOKEN")
-    @store_id = ENV.fetch("PAYPHONE_STORE_ID")
+    @store_id       = ENV.fetch("PAYPHONE_STORE_ID")
 
     render "payphone/checkout"
   rescue => e
@@ -220,10 +223,15 @@ class Turista::TicketsController < ApplicationController
   end
 
   def create_transfer_ticket
-    vendedor = User.find_by(id: params[:vendedor_id], role: :vendedor)
-    unless vendedor
+    stand_id    = params[:stand_id].presence&.to_i
+    vendedor_id = params[:vendedor_id].presence&.to_i
+
+    stand    = stand_id    ? Stand.find_by(id: stand_id)                             : nil
+    vendedor = vendedor_id ? User.find_by(id: vendedor_id, role: :vendedor)          : nil
+
+    unless stand || vendedor
       redirect_to new_purchase_turista_event_tickets_path(@event),
-                  alert: "Por favor selecciona un vendedor."
+                  alert: "Por favor selecciona un vendedor o stand."
       return
     end
 
@@ -236,27 +244,36 @@ class Turista::TicketsController < ApplicationController
       return
     end
 
-    unit_price  = @event.price_for(current_user, vendedor_id: vendedor&.id)
-    total_price = @event.total_price_for(current_user, quantity, vendedor_id: vendedor&.id)
+    quantity    = [params[:quantity].to_i, 1].max
+
+    if @event.available_tickets.present? && quantity > @event.available_tickets
+      redirect_to new_purchase_turista_event_tickets_path(@event),
+                  alert: "No hay suficientes tickets disponibles. Solo quedan #{@event.available_tickets}."
+      return
+    end
+
+    unit_price  = @event.price_for(current_user, vendedor_id: vendedor&.id, stand_id: stand&.id)
+    total_price = @event.total_price_for(current_user, quantity, vendedor_id: vendedor&.id, stand_id: stand&.id)
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
         ticket = Ticket.create!(
-          user: current_user,
-          event: @event,
-          vendedor: vendedor,
-          event_name: @event.name,
-          event_date: @event.event_date,
+          user:           current_user,
+          event:          @event,
+          vendedor:       vendedor,
+          stand:          stand,
+          event_name:     @event.name,
+          event_date:     @event.event_date,
           event_location: @event.location,
-          unit_price: unit_price,
-          total_price: total_price,
-          guest_name: params[:guest_name].presence || current_user.name,
-          guest_email: params[:guest_email].presence || current_user.email,
-          guest_phone: current_user.phone,
-          status: :reservado,
+          unit_price:     unit_price,
+          total_price:    total_price,
+          guest_name:     params[:guest_name].presence  || current_user.name,
+          guest_email:    params[:guest_email].presence || current_user.email,
+          guest_phone:    current_user.phone,
+          status:         :reservado,
           payment_method: :transferencia,
-          reserved_at: Time.current,
-          referral_code: params[:referral_code].to_s.strip.upcase.presence
+          reserved_at:    Time.current,
+          referral_code:  params[:referral_code].to_s.strip.upcase.presence
         )
         tickets << ticket
       end

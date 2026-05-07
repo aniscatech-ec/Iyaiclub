@@ -41,6 +41,10 @@ export default class extends Controller {
     this._debounceTimer = setTimeout(() => this._fetchUsers(), 300)
   }
 
+  onSearchFocus() {
+    this._fetchUsers()
+  }
+
   async _fetchUsers() {
     const q    = this.searchInputTarget.value.trim()
     const role = this._type() === "owner" ? "afiliado" : "vendedor"

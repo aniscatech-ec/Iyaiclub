@@ -164,12 +164,15 @@ class PayphoneController < ApplicationController
       status: :pendiente
     ).destroy_all
 
+    stand = Stand.find_by(id: params[:stand_id])
+
     subscription = Subscription.new(
       subscribable_type: subscribable_type,
       subscribable_id:   subscribable_id,
       plan_type:         plan_price.id,
       payment_method:    :tarjeta,
       status:            :pendiente,
+      stand:             stand,
       referral_code:     params[:referral_code].to_s.strip.upcase.presence
     )
 
@@ -228,12 +231,16 @@ class PayphoneController < ApplicationController
 
     unit_price  = meta["unit_price"].to_f
     total_price = meta["total_price"].present? ? meta["total_price"].to_f : unit_price * quantity
+    stand       = meta["stand_id"].present? ? Stand.find_by(id: meta["stand_id"]) : nil
+    vendedor    = meta["vendedor_id"].present? ? User.find_by(id: meta["vendedor_id"]) : nil
     tickets = []
     ActiveRecord::Base.transaction do
       quantity.times do
         ticket = Ticket.create!(
           user:           transaction.user,
           event:          event,
+          stand:          stand,
+          vendedor:       vendedor,
           event_name:     event.name,
           event_date:     event.event_date,
           event_location: event.location,

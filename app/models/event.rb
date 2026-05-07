@@ -28,8 +28,13 @@ class Event < ApplicationRecord
   scope :past, -> { where("event_date < ?", Date.current) }
 
   # Precio unitario base según contexto.
-  # vendedor_id: si se pasa y ese vendedor es de tipo stand, devuelve stand_price.
-  def price_for(user, quantity = 1, vendedor_id: nil)
+  # Acepta vendedor_id (user) o stand_id (stand autónomo); stand_id tiene precedencia.
+  def price_for(user, quantity = 1, vendedor_id: nil, stand_id: nil)
+    if stand_id.present?
+      ev = event_vendedores.find_by(stand_id: stand_id, vendor_type: :stand_autonomo)
+      return (stand_price || ticket_price || 0).to_f if ev.present?
+    end
+
     if vendedor_id.present?
       ev = event_vendedores.find_by(user_id: vendedor_id)
       return (stand_price || ticket_price || 0).to_f if ev&.vendor_type_stand?
@@ -44,11 +49,16 @@ class Event < ApplicationRecord
 
   # Total a cobrar por N tickets, aplicando el descuento combo si aplica.
   # El combo no aplica para tickets de stand.
-  def total_price_for(user, quantity, vendedor_id: nil)
+  def total_price_for(user, quantity, vendedor_id: nil, stand_id: nil)
     quantity = quantity.to_i
-    subtotal = price_for(user, quantity, vendedor_id: vendedor_id) * quantity
+    subtotal = price_for(user, quantity, vendedor_id: vendedor_id, stand_id: stand_id) * quantity
 
-    # Sin combo para tickets de stand
+    # Sin combo para stands
+    if stand_id.present?
+      ev = event_vendedores.find_by(stand_id: stand_id, vendor_type: :stand_autonomo)
+      return subtotal if ev.present?
+    end
+
     if vendedor_id.present?
       ev = event_vendedores.find_by(user_id: vendedor_id)
       return subtotal if ev&.vendor_type_stand?
@@ -60,6 +70,11 @@ class Event < ApplicationRecord
     else
       subtotal
     end
+  end
+
+  # EventVendedor de stand autónomo para este evento
+  def stand_autonomo_vendedor(stand)
+    event_vendedores.find_by(stand: stand, vendor_type: :stand_autonomo)
   end
 
   # true si el precio de stand está configurado

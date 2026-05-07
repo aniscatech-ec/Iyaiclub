@@ -199,7 +199,12 @@
                 <% pending_count = ev.tickets_pending %>
                 <tr>
                   <td>
-                    <strong><%= ev.user.name %></strong>
+                    <strong><%= ev.display_name %></strong>
+                    <% if ev.vendor_type_stand_autonomo? %>
+                      <span class="badge bg-warning text-dark ms-1" style="font-size:.65rem;">
+                        <i class="fas fa-store me-1"></i>Stand
+                      </span>
+                    <% end %>
                     <% if ev.quota_met? %>
                       <span class="badge bg-success ms-1" title="Cupo alcanzado el <%= ev.quota_met_at.strftime('%d/%m/%Y') %>">
                         <i class="fas fa-check-circle me-1"></i>Cupo cumplido
@@ -207,10 +212,11 @@
                     <% end %>
                   </td>
                   <td>
-                    <% if ev.user.phone.present? %>
-                      <%= link_to ev.user.phone, whatsapp_link(ev.user.phone), target: "_blank", class: "text-success text-decoration-none d-block small" %>
+                    <% contact = ev.seller %>
+                    <% if contact&.phone.present? %>
+                      <%= link_to contact.phone, whatsapp_link(contact.phone), target: "_blank", class: "text-success text-decoration-none d-block small" %>
                     <% end %>
-                    <small class="text-muted"><%= ev.user.email %></small>
+                    <small class="text-muted"><%= contact&.email %></small>
                   </td>
                   <td>
                     <span class="badge <%= ev.active? ? 'bg-success' : 'bg-secondary' %>">
@@ -257,7 +263,7 @@
                         <i class="fas fa-<%= ev.active? ? 'pause' : 'play' %>"></i>
                       <% end %>
                       <%= link_to admin_event_vendedor_path(@event, ev),
-                          data: { turbo_method: :delete, turbo_confirm: "¿Remover a #{ev.user.name} de este evento?" },
+                          data: { turbo_method: :delete, turbo_confirm: "¿Remover a #{ev.display_name} de este evento?" },
                           class: "btn btn-outline-danger", title: "Remover" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>

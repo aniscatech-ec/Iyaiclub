@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_07_000002) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -215,7 +215,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
 
   create_table "event_vendedores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -762,6 +762,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
     t.datetime "reserved_at"
     t.datetime "suspended_at"
     t.string "referral_code", limit: 12
+    t.bigint "stand_id"
+    t.index ["stand_id"], name: "index_subscriptions_on_stand_id"
     t.index ["subscribable_type", "subscribable_id"], name: "index_subscriptions_on_subscribable"
     t.index ["vendedor_id"], name: "index_subscriptions_on_vendedor_id"
   end
@@ -801,11 +803,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
     t.bigint "vendedor_id"
     t.datetime "reserved_at"
     t.string "referral_code", limit: 12
+    t.bigint "stand_id"
     t.index ["event_id"], name: "index_tickets_on_event_id"
     t.index ["event_name"], name: "index_tickets_on_event_name"
     t.index ["payment_method"], name: "index_tickets_on_payment_method"
     t.index ["payphone_transaction_id"], name: "index_tickets_on_payphone_transaction_id"
     t.index ["raffle_number"], name: "index_tickets_on_raffle_number", unique: true
+    t.index ["stand_id"], name: "index_tickets_on_stand_id"
     t.index ["status"], name: "index_tickets_on_status"
     t.index ["ticket_code"], name: "index_tickets_on_ticket_code", unique: true
     t.index ["user_id"], name: "index_tickets_on_user_id"
@@ -1050,10 +1054,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
   add_foreign_key "stands", "cities"
   add_foreign_key "stands", "countries"
   add_foreign_key "stands", "users", column: "owner_user_id"
+  add_foreign_key "subscriptions", "stands"
   add_foreign_key "subscriptions", "users", column: "vendedor_id"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "tickets", "events"
   add_foreign_key "tickets", "payphone_transactions"
+  add_foreign_key "tickets", "stands"
   add_foreign_key "tickets", "users"
   add_foreign_key "tickets", "users", column: "vendedor_id"
   add_foreign_key "tour_packages", "travel_agencies"

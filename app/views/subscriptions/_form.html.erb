@@ -530,22 +530,39 @@
           </label>
         </div>
 
-        <!-- Panel transferencia: selector de vendedor -->
+        <!-- Panel transferencia: selector de vendedor/stand -->
         <div id="transfer-panel" style="display:none;">
           <div class="mb-3">
             <label class="field-label">
               <i class="fas fa-user-tag me-1 text-success"></i>
-              Selecciona tu asesor de ventas
+              Selecciona tu asesor o stand
             </label>
-            <select name="vendedor_id" id="vendedor_select" class="form-select">
-              <option value="">Seleccione un vendedor...</option>
-              <% User.where(role: :vendedor).each do |v| %>
-                <option value="<%= v.id %>"><%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %></option>
+            <select id="vendedor_select" class="form-select">
+              <option value="">Seleccione...</option>
+              <% vendedores_plan = User.where(role: :vendedor) %>
+              <% stands_autonomos = Stand.with_owner.active %>
+              <% if vendedores_plan.any? %>
+                <optgroup label="Vendedores">
+                  <% vendedores_plan.each do |v| %>
+                    <option data-vendedor-id="<%= v.id %>" data-stand-id="">
+                      <%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %>
+                    </option>
+                  <% end %>
+                </optgroup>
+              <% end %>
+              <% if stands_autonomos.any? %>
+                <optgroup label="Stands">
+                  <% stands_autonomos.each do |s| %>
+                    <option data-vendedor-id="" data-stand-id="<%= s.id %>">
+                      <%= s.name %><% if s.location.present? %> — <%= s.location %><% end %>
+                    </option>
+                  <% end %>
+                </optgroup>
               <% end %>
             </select>
             <small class="text-muted mt-1 d-block">
               <i class="fas fa-info-circle me-1"></i>
-              Selecciona al asesor que te está atendiendo. Él confirmará tu pago.
+              Selecciona el vendedor o stand que te está atendiendo. Confirmará tu pago.
             </small>
           </div>
         </div>
@@ -612,6 +629,7 @@
     <%= tf.hidden_field :subscribable_type,  value: subscribable_type %>
     <%= tf.hidden_field :subscribable_id,    value: subscribable_id %>
     <input type="hidden" name="vendedor_id" id="transfer-vendedor-id" value="">
+    <input type="hidden" name="stand_id"    id="transfer-stand-id"    value="">
     <input type="hidden" name="referral_code" id="transfer-referral-code" value="">
   <% end %>
 </div>
@@ -632,12 +650,15 @@
 
   radios.forEach(r => r.addEventListener('change', toggle));
 
-  // Sincronizar vendedor_id del select al hidden field del form de transferencia
-  const vendedorSelect = document.getElementById('vendedor_select');
-  const vendedorHidden = document.getElementById('transfer-vendedor-id');
-  if (vendedorSelect && vendedorHidden) {
+  // Sincronizar vendedor/stand del select a los hidden fields del form de transferencia
+  const vendedorSelect  = document.getElementById('vendedor_select');
+  const vendedorHidden  = document.getElementById('transfer-vendedor-id');
+  const standHidden     = document.getElementById('transfer-stand-id');
+  if (vendedorSelect) {
     vendedorSelect.addEventListener('change', function() {
-      vendedorHidden.value = this.value;
+      const opt = this.options[this.selectedIndex];
+      if (vendedorHidden) vendedorHidden.value = opt.dataset.vendedorId || '';
+      if (standHidden)    standHidden.value    = opt.dataset.standId    || '';
     });
   }
 

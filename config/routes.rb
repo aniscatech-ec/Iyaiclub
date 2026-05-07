@@ -366,6 +366,30 @@ Rails.application.routes.draw do
   namespace :owner do
     resource :stand, only: [:show] do
       resources :vendedores, only: [:index, :new, :create, :destroy], controller: "stand_vendedores"
+      resources :events, only: [] do
+        resources :tickets, only: [:index] do
+          member do
+            patch :acreditar
+            patch :rechazar
+          end
+          collection do
+            patch :bulk_acreditar
+            patch :bulk_rechazar
+          end
+        end
+      end
+    end
+    resources :memberships, only: [:index, :destroy] do
+      member do
+        patch :acreditar
+        patch :rechazar
+        patch :suspender
+        patch :reactivar
+      end
+      collection do
+        patch :bulk_acreditar
+        patch :bulk_rechazar
+      end
     end
   end
 

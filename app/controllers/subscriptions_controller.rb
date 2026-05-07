@@ -74,18 +74,20 @@ class SubscriptionsController < ApplicationController
   # POST /subscriptions/reservar_transferencia
   # Crea una suscripción en estado :reservada asignada al vendedor elegido.
   def reservar_transferencia
-    plan_price = PlanPrice.find(params[:plan_id])
-    vendedor   = User.find_by(id: params[:vendedor_id], role: :vendedor)
+    plan_price  = PlanPrice.find(params[:plan_id])
+    vendedor    = User.find_by(id: params[:vendedor_id], role: :vendedor)
+    stand       = Stand.find_by(id: params[:stand_id])
 
-    unless vendedor
+    unless vendedor || stand
       redirect_back fallback_location: turista_memberships_path,
-                    alert: "Por favor selecciona un vendedor."
+                    alert: "Por favor selecciona un vendedor o stand."
       return
     end
 
     subscribable_type = params[:subscribable_type].presence || "User"
     subscribable_id   = params[:subscribable_id].presence&.to_i || current_user.id
 
+    contact = vendedor || stand.owner_user
     subscription = Subscription.new(
       subscribable_type: subscribable_type,
       subscribable_id:   subscribable_id,
@@ -93,13 +95,15 @@ class SubscriptionsController < ApplicationController
       payment_method:    :transferencia,
       status:            :reservada,
       vendedor:          vendedor,
+      stand:             stand,
       reserved_at:       Time.current,
       referral_code:     params[:referral_code].to_s.strip.upcase.presence
     )
 
     if subscription.save
+      nombre_contacto = stand ? stand.name : vendedor.name
       redirect_to turista_memberships_path,
-                  notice: "Tu solicitud fue enviada a #{vendedor.name}. Te contactará para confirmar el pago."
+                  notice: "Tu solicitud fue enviada a #{nombre_contacto}. Te contactarán para confirmar el pago."
     else
       redirect_back fallback_location: turista_memberships_path,
                     alert: "No se pudo crear la reserva: #{subscription.errors.full_messages.join(', ')}"

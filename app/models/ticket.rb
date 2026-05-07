@@ -3,6 +3,7 @@ class Ticket < ApplicationRecord
   belongs_to :event, optional: true
   belongs_to :payphone_transaction, optional: true
   belongs_to :vendedor, class_name: "User", optional: true
+  belongs_to :stand, optional: true
 
   has_many :shared_raffle_participations, dependent: :destroy
 

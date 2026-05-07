@@ -1,0 +1,251 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-4">
+    <h3 class="fw-bold mb-0">
+      <i class="fas fa-ticket-alt me-2" style="color: var(--brand-orange);"></i>
+      Tickets — <%= @event.name %>
+    </h3>
+    <%= link_to owner_stand_path, class: "btn btn-outline-secondary" do %>
+      <i class="fas fa-arrow-left me-1"></i> Volver a Mi Stand
+    <% end %>
+  </div>
+
+  <!-- Filtros -->
+  <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+    <div class="btn-group btn-group-sm">
+      <%= link_to "Todos", owner_stand_event_tickets_path(@event),
+          class: "btn #{params[:status].blank? ? 'btn-primary' : 'btn-outline-primary'}" %>
+      <%= link_to "Pendientes", owner_stand_event_tickets_path(@event, status: :reservado),
+          class: "btn #{params[:status] == 'reservado' ? 'btn-warning' : 'btn-outline-warning'}" %>
+      <%= link_to "Acreditados", owner_stand_event_tickets_path(@event, status: :activo),
+          class: "btn #{params[:status] == 'activo' ? 'btn-success' : 'btn-outline-success'}" %>
+      <%= link_to "Rechazados", owner_stand_event_tickets_path(@event, status: :cancelado),
+          class: "btn #{params[:status] == 'cancelado' ? 'btn-danger' : 'btn-outline-danger'}" %>
+    </div>
+
+    <%= form_with url: owner_stand_event_tickets_path(@event), method: :get, class: "d-flex flex-wrap gap-2 ms-auto align-items-center" do |f| %>
+      <%= hidden_field_tag :status, params[:status] if params[:status].present? %>
+      <%= select_tag :buyer,
+            options_for_select([["Todos los compradores", ""]] + @buyers.map { |b| [b, b] }, params[:buyer]),
+            class: "form-select form-select-sm", style: "min-width: 180px;" %>
+      <%= select_tag :code,
+            options_for_select([["Todos los códigos", ""]] + @codes.map { |c| [c, c] }, params[:code]),
+            class: "form-select form-select-sm", style: "min-width: 160px;" %>
+      <%= f.submit "Filtrar", class: "btn btn-sm btn-outline-secondary" %>
+      <% if params[:buyer].present? || params[:code].present? %>
+        <%= link_to "✕", owner_stand_event_tickets_path(@event, status: params[:status]),
+            class: "btn btn-sm btn-outline-danger", title: "Limpiar filtros" %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <form id="bulk-tickets-form" action="<%= bulk_acreditar_owner_stand_event_tickets_path(@event) %>"
+        method="post" style="display:none;">
+    <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+    <input type="hidden" name="_method" value="patch">
+  </form>
+
+  <div id="bulk-toolbar" class="d-none mb-3 p-3 rounded-3 border border-warning bg-warning bg-opacity-10 d-flex flex-wrap align-items-center gap-2">
+    <span class="fw-semibold me-2"><span id="selected-count">0</span> ticket(s) seleccionado(s)</span>
+    <button type="button" id="btn-bulk-acreditar" class="btn btn-success btn-sm"
+            data-url="<%= bulk_acreditar_owner_stand_event_tickets_path(@event) %>"
+            data-confirm-msg="¿Acreditar los tickets seleccionados?">
+      <i class="fas fa-check me-1"></i> Acreditar seleccionados
+    </button>
+    <button type="button" id="btn-bulk-rechazar" class="btn btn-danger btn-sm"
+            data-url="<%= bulk_rechazar_owner_stand_event_tickets_path(@event) %>"
+            data-confirm-msg="¿Rechazar los tickets seleccionados?">
+      <i class="fas fa-times me-1"></i> Rechazar seleccionados
+    </button>
+    <button type="button" id="btn-deselect-all" class="btn btn-outline-secondary btn-sm ms-auto">
+      <i class="fas fa-square me-1"></i> Deseleccionar todo
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body px-4 pb-4">
+      <% if @tickets.any? %>
+        <%
+          pending_groups = @tickets.select(&:reservado?).group_by { |t| [t.guest_email, t.guest_name] }
+          non_pending    = @tickets.reject(&:reservado?)
+        %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 36px;">
+                  <input type="checkbox" id="select-all" class="form-check-input">
+                </th>
+                <th>Código</th>
+                <th>Comprador</th>
+                <th>Teléfono</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% pending_groups.each do |(email, name), group| %>
+                <% representative = group.first %>
+                <% total_amount   = group.sum(&:total_price) %>
+                <% all_ids        = group.map(&:id) %>
+                <tr class="table-warning">
+                  <td>
+                    <input type="checkbox" class="form-check-input group-checkbox"
+                           data-group-ids="<%= all_ids.join(',') %>">
+                  </td>
+                  <td>
+                    <% if group.size == 1 %>
+                      <strong style="color:#2E7D32;"><%= representative.ticket_code %></strong>
+                    <% else %>
+                      <span class="badge bg-secondary mb-1"><%= group.size %> tickets</span>
+                      <% group.each do |t| %>
+                        <small style="color:#2E7D32;" class="d-block"><%= t.ticket_code %></small>
+                      <% end %>
+                    <% end %>
+                  </td>
+                  <td>
+                    <strong><%= name %></strong>
+                    <% if email.present? %><br><small class="text-muted"><%= email %></small><% end %>
+                  </td>
+                  <td>
+                    <% if representative.guest_phone.present? %>
+                      <%= link_to representative.guest_phone, whatsapp_link(representative.guest_phone), target: "_blank", class: "text-success" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    $<%= number_with_precision(total_amount, precision: 2) %>
+                    <% if group.size > 1 %>
+                      <br><small class="text-muted">(<%= group.size %> × $<%= number_with_precision(representative.unit_price, precision: 2) %>)</small>
+                    <% end %>
+                  </td>
+                  <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                  <td><span class="badge bg-warning text-dark">Pendiente</span></td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <%= button_to acreditar_owner_stand_event_ticket_path(@event, representative),
+                          method: :patch,
+                          form: { data: { turbo_confirm: "¿Acreditar #{group.size > 1 ? "#{group.size} tickets de #{name}" : "ticket #{representative.ticket_code}"}? Confirma que el pago fue recibido." } },
+                          class: "btn btn-success btn-sm" do %>
+                        <i class="fas fa-check me-1"></i> Acreditar<% if group.size > 1 %> (<%= group.size %>)<% end %>
+                      <% end %>
+                      <%= button_to rechazar_owner_stand_event_ticket_path(@event, representative),
+                          method: :patch,
+                          form: { data: { turbo_confirm: "¿Rechazar #{group.size > 1 ? "#{group.size} tickets de #{name}" : "ticket #{representative.ticket_code}"}?" } },
+                          class: "btn btn-danger btn-sm" do %>
+                        <i class="fas fa-times me-1"></i> Rechazar<% if group.size > 1 %> (<%= group.size %>)<% end %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+
+              <% non_pending.each do |ticket| %>
+                <tr>
+                  <td></td>
+                  <td><strong style="color:#2E7D32;"><%= ticket.ticket_code %></strong></td>
+                  <td>
+                    <strong><%= ticket.guest_name %></strong>
+                    <% if ticket.guest_email.present? %><br><small class="text-muted"><%= ticket.guest_email %></small><% end %>
+                  </td>
+                  <td>
+                    <% if ticket.guest_phone.present? %>
+                      <%= link_to ticket.guest_phone, whatsapp_link(ticket.guest_phone), target: "_blank", class: "text-success" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td>$<%= number_with_precision(ticket.total_price, precision: 2) %></td>
+                  <td>
+                    <span class="badge <%= ticket_status_badge_class(ticket.status) %>">
+                      <%= ticket.status.humanize %>
+                    </span>
+                  </td>
+                  <td><small class="text-muted"><%= ticket.created_at.strftime('%d/%m/%Y %H:%M') %></small></td>
+                  <td>
+                    <% if ticket.activo? %>
+                      <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Acreditado</span>
+                    <% elsif ticket.cancelado? %>
+                      <span class="text-danger"><i class="fas fa-times-circle"></i> Rechazado</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-4">
+          <i class="fas fa-ticket-alt fa-3x mb-3 opacity-25"></i>
+          <p>No hay tickets con este filtro</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const selectAll     = document.getElementById('select-all');
+  const toolbar       = document.getElementById('bulk-toolbar');
+  const selectedCount = document.getElementById('selected-count');
+  const form          = document.getElementById('bulk-tickets-form');
+
+  function getCheckedGroups() { return document.querySelectorAll('.group-checkbox:checked'); }
+
+  function countSelected() {
+    let total = 0;
+    getCheckedGroups().forEach(cb => {
+      total += cb.getAttribute('data-group-ids').split(',').filter(Boolean).length;
+    });
+    return total;
+  }
+
+  function updateToolbar() {
+    const n = countSelected();
+    selectedCount.textContent = n;
+    toolbar.classList.toggle('d-none', n === 0);
+    toolbar.classList.toggle('d-flex', n > 0);
+  }
+
+  selectAll?.addEventListener('change', function () {
+    document.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = this.checked);
+    updateToolbar();
+  });
+
+  document.querySelectorAll('.group-checkbox').forEach(cb => {
+    cb.addEventListener('change', function () {
+      const all = document.querySelectorAll('.group-checkbox');
+      const checked = document.querySelectorAll('.group-checkbox:checked');
+      if (selectAll) selectAll.checked = all.length > 0 && all.length === checked.length;
+      updateToolbar();
+    });
+  });
+
+  document.getElementById('btn-deselect-all')?.addEventListener('click', function () {
+    document.querySelectorAll('.group-checkbox').forEach(cb => cb.checked = false);
+    if (selectAll) selectAll.checked = false;
+    updateToolbar();
+  });
+
+  ['btn-bulk-acreditar', 'btn-bulk-rechazar'].forEach(function(btnId) {
+    document.getElementById(btnId)?.addEventListener('click', function() {
+      const checked = getCheckedGroups();
+      if (checked.length === 0) { alert('Selecciona al menos un ticket.'); return; }
+      if (!confirm(this.getAttribute('data-confirm-msg'))) return;
+      form.querySelectorAll('input[name="ticket_ids[]"]').forEach(el => el.remove());
+      checked.forEach(cb => {
+        cb.getAttribute('data-group-ids').split(',').filter(Boolean).forEach(id => {
+          const input = document.createElement('input');
+          input.type = 'hidden'; input.name = 'ticket_ids[]'; input.value = id;
+          form.appendChild(input);
+        });
+      });
+      form.action = this.getAttribute('data-url');
+      form.submit();
+    });
+  });
+})();
+</script>

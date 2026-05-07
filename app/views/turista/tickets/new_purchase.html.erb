@@ -133,33 +133,63 @@
             </div>
 
             <!-- Transferencia bancaria -->
-            <% if @vendedores.any? %>
+            <% has_transferencia = @vendedores.any? || @stands_autonomos.any? %>
+            <% if has_transferencia %>
               <div class="form-check border rounded-3 p-3 mb-3" data-purchase-form-target="transferenciaOption">
                 <input type="radio" name="payment_method" value="transferencia"
                        class="form-check-input" id="payment_transferencia"
                        data-action="change->purchase-form#toggleVendedores click->purchase-form#toggleVendedores">
                 <label class="form-check-label w-100 ms-2" for="payment_transferencia">
                   <strong><i class="fas fa-exchange-alt me-2 text-success"></i> Transferencia Bancaria</strong>
-                  <br><small class="text-muted">Paga por transferencia a través de un vendedor</small>
+                  <br><small class="text-muted">Paga por transferencia a través de un vendedor o stand</small>
                 </label>
               </div>
 
-              <!-- Selector de vendedor (solo visible cuando elige transferencia) -->
+              <!-- Selector de vendedor/stand (solo visible cuando elige transferencia) -->
               <div id="vendedor-section" class="ms-4 mt-2" style="display: none;" data-purchase-form-target="vendedorSection">
-                <label class="form-label fw-bold">Selecciona tu vendedor</label>
-                <select name="vendedor_id" class="form-select mb-3"
+                <label class="form-label fw-bold">Selecciona tu vendedor o stand</label>
+
+                <%# campos ocultos — el JS los rellena según la selección %>
+                <input type="hidden" name="vendedor_id" id="ticket_vendedor_id" value="">
+                <input type="hidden" name="stand_id"    id="ticket_stand_id"    value="">
+
+                <select class="form-select mb-3"
                         data-purchase-form-target="vendedorSelect"
-                        data-action="change->purchase-form#onVendedorChange">
-                  <option value="">Seleccione un vendedor...</option>
-                  <% @vendedores.each do |v| %>
-                    <% ev = @event.event_vendedores.find { |ev| ev.user_id == v.id } %>
-                    <option value="<%= v.id %>" data-stand="<%= ev&.vendor_type_stand? ? '1' : '0' %>">
-                      <%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %>
-                      <% if ev&.vendor_type_stand? %> (Stand)<% end %>
-                    </option>
+                        data-action="change->purchase-form#onVendedorChange"
+                        onchange="
+                          var opt = this.options[this.selectedIndex];
+                          document.getElementById('ticket_vendedor_id').value = opt.dataset.vendedorId || '';
+                          document.getElementById('ticket_stand_id').value    = opt.dataset.standId    || '';
+                        ">
+                  <option value="">Seleccione...</option>
+
+                  <% if @vendedores.any? %>
+                    <optgroup label="Vendedores">
+                      <% @vendedores.each do |v| %>
+                        <% ev = @event.event_vendedores.find { |e| e.user_id == v.id } %>
+                        <option data-vendedor-id="<%= v.id %>"
+                                data-stand-id=""
+                                data-stand="<%= ev&.vendor_type_stand? ? '1' : '0' %>">
+                          <%= v.name %><% if v.phone.present? %> — <%= v.phone %><% end %>
+                          <% if ev&.vendor_type_stand? %> (Stand)<% end %>
+                        </option>
+                      <% end %>
+                    </optgroup>
+                  <% end %>
+
+                  <% if @stands_autonomos.any? %>
+                    <optgroup label="Stands">
+                      <% @stands_autonomos.each do |s| %>
+                        <option data-vendedor-id=""
+                                data-stand-id="<%= s.id %>"
+                                data-stand="1">
+                          <i class="fas fa-store"></i>
+                          <%= s.name %><% if s.location.present? %> — <%= s.location %><% end %>
+                        </option>
+                      <% end %>
+                    </optgroup>
                   <% end %>
                 </select>
-
               </div>
             <% end %>
           </div>
