@@ -19,6 +19,7 @@
                 <th>Código</th>
                 <th>Nombre</th>
                 <th>Ubicación</th>
+                <th>Propietario</th>
                 <th>Eventos</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -32,6 +33,15 @@
                   </td>
                   <td><strong><%= stand.name %></strong></td>
                   <td><small class="text-muted"><%= stand.location.presence || "—" %></small></td>
+                  <td>
+                    <% if stand.owner_user %>
+                      <span class="badge bg-warning text-dark">
+                        <i class="fas fa-crown me-1"></i><%= stand.owner_user.name %>
+                      </span>
+                    <% else %>
+                      <small class="text-muted">—</small>
+                    <% end %>
+                  </td>
                   <td>
                     <span class="badge bg-info text-dark"><%= stand.events.count %> eventos</span>
                   </td>

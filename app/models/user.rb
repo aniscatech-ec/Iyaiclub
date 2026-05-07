@@ -62,12 +62,15 @@ class User < ApplicationRecord
   # Callback para enviar correo de bienvenida y acreditar puntos al confirmar cuenta
   after_commit :on_account_confirmed, on: :update, if: :just_confirmed?
 
-  attr_accessor :skip_role_enforcement
+  has_one :owned_stand, class_name: "Stand", foreign_key: :owner_user_id, dependent: :nullify
+
+  attr_accessor :skip_role_enforcement, :skip_identity_documents
 
   private
 
   def identity_documents_required_for_afiliado
     return unless afiliado?
+    return if skip_identity_documents
     errors.add(:cedula_front,  "Cédula (anverso) es obligatoria para afiliados") unless cedula_front.attached?
     errors.add(:cedula_back,   "Cédula (reverso) es obligatoria para afiliados") unless cedula_back.attached?
     errors.add(:ruc_document,  "Documento RUC es obligatorio para afiliados") unless ruc_document.attached?

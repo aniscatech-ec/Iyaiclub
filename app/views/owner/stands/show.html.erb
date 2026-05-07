@@ -1,0 +1,99 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
+        Mi Stand
+      </h3>
+      <p class="text-muted mb-0 small">
+        <code style="color: var(--brand-orange);"><%= @stand.stand_code %></code>
+        <% if @stand.location.present? %>
+          &bull; <i class="fas fa-map-marker-alt ms-1 me-1"></i><%= @stand.location %>
+        <% end %>
+      </p>
+    </div>
+    <div>
+      <span class="badge <%= @stand.active? ? 'bg-success' : 'bg-secondary' %> fs-6 px-3 py-2">
+        <%= @stand.active? ? "Activo" : "Inactivo" %>
+      </span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <%# Info del stand %>
+    <div class="col-12 col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0"><i class="fas fa-store me-2 text-warning"></i>Datos del Stand</h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <ul class="list-unstyled mb-0">
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-barcode text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Código</small>
+                <code class="fw-semibold" style="color: var(--brand-orange);"><%= @stand.stand_code %></code>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-tag text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Nombre</small>
+                <span class="fw-semibold small"><%= @stand.name %></span>
+              </div>
+            </li>
+            <li class="d-flex align-items-center py-2">
+              <i class="fas fa-map-marker-alt text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Ubicación</small>
+                <span class="fw-semibold small"><%= @stand.location.presence || "—" %></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <%# Eventos asignados %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Eventos</h6>
+          <span class="badge bg-secondary rounded-pill"><%= @events.count %></span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <% if @events.any? %>
+            <ul class="list-unstyled mb-0">
+              <% @events.each do |event| %>
+                <li class="py-2 border-bottom">
+                  <span class="fw-semibold small d-block"><%= event.name %></span>
+                  <small class="text-muted">
+                    <i class="fas fa-calendar-day me-1"></i>
+                    <%= event.event_date&.strftime("%d/%m/%Y") || "—" %>
+                  </small>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted small mb-0">No hay eventos asignados aún.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Vendedores con progreso de ventas %>
+    <div class="col-12 col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar me-2 text-success"></i>Ventas por vendedor
+          </h6>
+          <span class="badge bg-secondary rounded-pill"><%= @vendors.count %> vendedor(es)</span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <%= render "shared/vendor_stats", vendors: @vendors %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

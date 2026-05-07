@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_05_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_06_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -735,9 +735,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_05_000001) do
     t.bigint "country_id"
     t.bigint "city_id"
     t.string "owner_lastname"
+    t.bigint "owner_user_id"
     t.index ["city_id"], name: "index_stands_on_city_id"
     t.index ["country_id"], name: "index_stands_on_country_id"
     t.index ["email"], name: "index_stands_on_email", unique: true
+    t.index ["owner_user_id"], name: "index_stands_on_owner_user_id"
     t.index ["ruc"], name: "index_stands_on_ruc", unique: true
     t.index ["stand_code"], name: "index_stands_on_stand_code", unique: true
   end
@@ -1047,6 +1049,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_05_000001) do
   add_foreign_key "shared_raffle_participations", "tickets"
   add_foreign_key "stands", "cities"
   add_foreign_key "stands", "countries"
+  add_foreign_key "stands", "users", column: "owner_user_id"
   add_foreign_key "subscriptions", "users", column: "vendedor_id"
   add_foreign_key "temporary_lodgings", "establishments"
   add_foreign_key "tickets", "events"

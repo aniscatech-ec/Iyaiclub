@@ -1,0 +1,118 @@
+<%# Local: vendors — Array<EventVendedor> con :user y :event ya cargados %>
+
+<% vendors_by_event = vendors.group_by(&:event) %>
+
+<% if vendors_by_event.any? %>
+  <% vendors_by_event.each_with_index do |(event, assignments), idx| %>
+    <% ev_sold    = assignments.sum(&:tickets_sold) %>
+    <% ev_pending = assignments.sum(&:tickets_pending) %>
+
+    <% unless idx == 0 %><hr class="my-3"><% end %>
+
+    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+      <div>
+        <span class="fw-semibold"><%= event.name %></span>
+        <small class="text-muted ms-2">
+          <i class="fas fa-calendar-day me-1"></i><%= event.event_date&.strftime("%d/%m/%Y") || "—" %>
+        </small>
+      </div>
+      <div class="d-flex gap-2">
+        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">
+          <i class="fas fa-ticket-alt me-1"></i><%= ev_sold %> vendidos
+        </span>
+        <% if ev_pending > 0 %>
+          <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2">
+            <i class="fas fa-clock me-1"></i><%= ev_pending %> pendientes
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="table-responsive mb-2">
+      <table class="table table-sm table-hover align-middle mb-0 border rounded-3 overflow-hidden">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-3">Vendedor</th>
+            <th class="text-center">Vendidos</th>
+            <th class="text-center">Pendientes</th>
+            <th class="text-center" style="min-width:110px;">Cuota</th>
+            <th style="min-width:130px;">Progreso</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% assignments.each do |ev| %>
+            <%
+              sold    = ev.tickets_sold
+              pending = ev.tickets_pending
+              has_q   = ev.quota.present?
+              pct     = has_q ? ev.quota_progress_percent : nil
+              bar_cls = if !has_q        then "bg-info"
+                        elsif pct >= 100 then "bg-success"
+                        elsif pct >= 60  then "bg-warning"
+                        else                  "bg-danger"
+                        end
+            %>
+            <tr>
+              <td class="ps-3">
+                <div class="fw-semibold small"><%= ev.user.name %></div>
+                <small class="text-muted"><%= ev.user.email %></small>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-success rounded-pill"><%= sold %></span>
+              </td>
+              <td class="text-center">
+                <% if pending > 0 %>
+                  <span class="badge bg-warning text-dark rounded-pill"><%= pending %></span>
+                <% else %>
+                  <span class="text-muted small">—</span>
+                <% end %>
+              </td>
+              <td class="text-center small">
+                <% if has_q %>
+                  <span class="fw-semibold"><%= sold %></span>
+                  <span class="text-muted">/ <%= ev.quota %></span>
+                  <% if ev.quota_met? %>
+                    <span class="badge bg-primary d-block mt-1" style="font-size:.65rem;">Completada</span>
+                  <% end %>
+                <% else %>
+                  <span class="text-muted">Sin límite</span>
+                <% end %>
+              </td>
+              <td>
+                <% if has_q %>
+                  <div class="progress mb-1" style="height:7px;">
+                    <div class="progress-bar <%= bar_cls %>"
+                         role="progressbar"
+                         style="width:<%= pct %>%"></div>
+                  </div>
+                  <small class="text-muted"><%= pct %>%</small>
+                <% else %>
+                  <small class="text-muted">—</small>
+                <% end %>
+              </td>
+              <td class="text-center">
+                <span class="badge <%= ev.active? ? 'bg-success' : 'bg-secondary' %>">
+                  <%= ev.active? ? "Activo" : "Inactivo" %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot class="table-light">
+          <tr class="fw-semibold small text-muted">
+            <td class="ps-3">Total</td>
+            <td class="text-center text-success"><%= ev_sold %></td>
+            <td class="text-center text-warning"><%= ev_pending > 0 ? ev_pending : "—" %></td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-users fa-2x mb-2 opacity-50"></i>
+    <p class="mb-0 small">No hay vendedores asignados al stand aún.</p>
+  </div>
+<% end %>

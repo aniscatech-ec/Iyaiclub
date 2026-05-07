@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, stand], local: true do |f| %>
+<%= form_with model: [:admin, stand], local: true, html: { novalidate: true, data: { turbo: false } } do |f| %>
   <% if stand.errors.any? %>
     <div class="alert alert-danger mb-4">
       <ul class="mb-0">
@@ -9,6 +9,7 @@
     </div>
   <% end %>
 
+  <%# ── Información del Stand ── %>
   <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-header bg-transparent border-0 pt-4 px-4">
       <h6 class="fw-bold mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Información del Stand</h6>
@@ -40,93 +41,176 @@
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-      <h6 class="fw-bold mb-0"><i class="fas fa-user-tie me-2 text-warning"></i>Datos del propietario</h6>
-      <% if stand.new_record? %>
-        <p class="text-muted small mb-0 mt-1">
-          Se creará automáticamente una cuenta de vendedor con estos datos y se enviará un correo de bienvenida.
-        </p>
-      <% end %>
+  <% if stand.new_record? %>
+    <%# ── Asignación de usuario (opcional) ── %>
+    <div class="card border-0 shadow-sm rounded-4 mb-4"
+         data-controller="stand-user-form"
+         data-stand-user-form-search-url-value="<%= search_users_admin_stands_path %>">
+
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h6 class="fw-bold mb-0"><i class="fas fa-user-tie me-2 text-warning"></i>Usuario del Stand <span class="text-muted fw-normal small">(opcional)</span></h6>
+        <p class="text-muted small mb-0 mt-1">Puedes asignar un usuario ahora o dejarlo sin asignar y gestionarlo después.</p>
+      </div>
+      <div class="card-body px-4 pb-4">
+
+        <%# Paso 1: tipo (ninguno / propietario / vendedor) %>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Tipo de usuario a asignar</label>
+          <div class="d-flex flex-wrap gap-3">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="stand[user_assignment_type]"
+                     id="type_none" value="" checked
+                     data-stand-user-form-target="typeRadio"
+                     data-action="change->stand-user-form#onTypeChange">
+              <label class="form-check-label" for="type_none">
+                <i class="fas fa-ban text-muted me-1"></i>
+                <strong>Ninguno</strong>
+                <small class="text-muted d-block">Asignar usuario después</small>
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="stand[user_assignment_type]"
+                     id="type_owner" value="owner"
+                     data-stand-user-form-target="typeRadio"
+                     data-action="change->stand-user-form#onTypeChange">
+              <label class="form-check-label" for="type_owner">
+                <i class="fas fa-crown text-warning me-1"></i>
+                <strong>Propietario</strong>
+                <small class="text-muted d-block">Afiliado que administra el stand</small>
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="stand[user_assignment_type]"
+                     id="type_vendor" value="vendor"
+                     data-stand-user-form-target="typeRadio"
+                     data-action="change->stand-user-form#onTypeChange">
+              <label class="form-check-label" for="type_vendor">
+                <i class="fas fa-tags text-primary me-1"></i>
+                <strong>Vendedor</strong>
+                <small class="text-muted d-block">Vendedor asignado al stand</small>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <%# Resto del formulario: se muestra solo si hay tipo seleccionado %>
+        <div data-stand-user-form-target="userFormBody" class="d-none">
+
+          <%# Paso 2: fuente (nuevo / existente) %>
+          <div class="mb-4">
+            <label class="form-label fw-semibold">¿Crear nuevo usuario o asignar uno existente?</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="stand[user_source]"
+                       id="source_new" value="new" checked
+                       data-stand-user-form-target="sourceRadio"
+                       data-action="change->stand-user-form#onSourceChange">
+                <label class="form-check-label" for="source_new">
+                  <i class="fas fa-user-plus me-1"></i> Crear nuevo usuario
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="stand[user_source]"
+                       id="source_existing" value="existing"
+                       data-stand-user-form-target="sourceRadio"
+                       data-action="change->stand-user-form#onSourceChange">
+                <label class="form-check-label" for="source_existing">
+                  <i class="fas fa-search me-1"></i> Asignar usuario existente
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <%# Sección: nuevo usuario %>
+          <div data-stand-user-form-target="newUserSection">
+            <div class="alert alert-info py-2 small mb-3">
+              <i class="fas fa-info-circle me-1"></i>
+              <span data-stand-user-form-target="roleHintText">
+                Se creará un usuario <strong>afiliado</strong> y se le asignará como propietario del stand.
+              </span>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Nombre(s)</label>
+                <input type="text" name="stand[new_user_name]" class="form-control"
+                       placeholder="Nombre(s)"
+                       data-stand-user-form-target="newUserField">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Apellido(s)</label>
+                <input type="text" name="stand[new_user_lastname]" class="form-control"
+                       placeholder="Apellido(s)"
+                       data-stand-user-form-target="newUserField">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Correo electrónico</label>
+              <input type="email" name="stand[new_user_email]" class="form-control"
+                     placeholder="usuario@ejemplo.com"
+                     data-stand-user-form-target="newUserField">
+              <div class="form-text">Se usará como usuario para ingresar a la plataforma.</div>
+            </div>
+            <div class="mb-3 d-none" data-stand-user-form-target="rucField">
+              <label class="form-label fw-semibold">RUC</label>
+              <input type="text" name="stand[new_user_ruc]" class="form-control"
+                     placeholder="1234567890001" maxlength="13" pattern="\d{13}"
+                     title="El RUC debe tener exactamente 13 dígitos">
+              <div class="form-text">RUC del vendedor o empresa (13 dígitos).</div>
+            </div>
+            <div class="row g-3"
+                 data-controller="location-select"
+                 data-location-select-country-id-value="new_user_country_id"
+                 data-location-select-province-id-value="new_user_province_id"
+                 data-location-select-city-id-value="new_user_city_id">
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">País</label>
+                <%= collection_select :stand, :new_user_country_id, Country.order(:name), :id, :name,
+                    { prompt: "Seleccione país..." },
+                    class: "form-select", id: "new_user_country_id",
+                    data: { "stand-user-form-target": "newUserField" } %>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">Provincia</label>
+                <select id="new_user_province_id" class="form-select">
+                  <option value="">Seleccione provincia...</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">Ciudad</label>
+                <select name="stand[new_user_city_id]" id="new_user_city_id" class="form-select"
+                        data-stand-user-form-target="newUserField">
+                  <option value="">Seleccione ciudad...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <%# Sección: usuario existente %>
+          <div data-stand-user-form-target="existingUserSection" class="d-none">
+            <div class="alert alert-secondary py-2 small mb-3">
+              <i class="fas fa-info-circle me-1"></i>
+              <span data-stand-user-form-target="existingRoleHintText">
+                Busca y selecciona un usuario <strong>afiliado</strong> existente para asignarle como propietario.
+              </span>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Buscar usuario</label>
+              <input type="text" class="form-control mb-2"
+                     placeholder="Escribe nombre o correo..."
+                     data-stand-user-form-target="searchInput"
+                     data-action="input->stand-user-form#onSearch">
+              <div class="list-group" data-stand-user-form-target="searchResults" style="max-height:220px;overflow-y:auto;"></div>
+              <input type="hidden" name="stand[existing_user_id]"
+                     data-stand-user-form-target="existingUserId">
+              <div class="form-text" data-stand-user-form-target="selectedUserLabel"></div>
+            </div>
+          </div>
+
+        </div><%# /userFormBody %>
+
+      </div>
     </div>
-    <div class="card-body px-4 pb-4">
-      <div class="row g-3 mb-3">
-        <div class="col-12 col-md-6">
-          <%= f.label :owner_name, "Nombre", class: "form-label fw-semibold" %>
-          <% if stand.new_record? %>
-            <%= f.text_field :owner_name, class: "form-control", placeholder: "Nombre(s)", required: true %>
-          <% else %>
-            <input type="text" class="form-control" value="<%= stand.owner_name %>" disabled>
-          <% end %>
-        </div>
-        <div class="col-12 col-md-6">
-          <%= f.label :owner_lastname, "Apellido", class: "form-label fw-semibold" %>
-          <% if stand.new_record? %>
-            <%= f.text_field :owner_lastname, class: "form-control", placeholder: "Apellido(s)", required: true %>
-          <% else %>
-            <input type="text" class="form-control" value="<%= stand.owner_lastname %>" disabled>
-          <% end %>
-        </div>
-      </div>
-      <% unless stand.new_record? %>
-        <div class="form-text mb-3" style="margin-top:-8px;">El nombre del propietario no puede modificarse desde aquí.</div>
-      <% end %>
-      <div class="mb-3">
-        <%= f.label :ruc, "RUC", class: "form-label fw-semibold" %>
-        <% if stand.new_record? %>
-          <%= f.text_field :ruc, class: "form-control", placeholder: "1234567890001",
-                           maxlength: 13, pattern: "\\d{13}", required: true,
-                           title: "El RUC debe tener exactamente 13 dígitos" %>
-          <div class="form-text">Número de RUC del propietario o empresa (13 dígitos).</div>
-        <% else %>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-            <input type="text" class="form-control" value="<%= stand.ruc %>" disabled>
-          </div>
-          <div class="form-text">El RUC no puede modificarse después de creado.</div>
-        <% end %>
-      </div>
-      <div class="mb-3">
-        <%= f.label :email, "Correo electrónico", class: "form-label fw-semibold" %>
-        <% if stand.new_record? %>
-          <%= f.email_field :email, class: "form-control", placeholder: "vendedor@ejemplo.com", required: true %>
-          <div class="form-text">Se usará como usuario para ingresar a la plataforma.</div>
-        <% else %>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-            <input type="text" class="form-control" value="<%= stand.email %>" disabled>
-          </div>
-          <div class="form-text">El correo no puede modificarse desde aquí.</div>
-        <% end %>
-      </div>
-      <% if stand.new_record? %>
-        <div class="row g-3"
-             data-controller="location-select"
-             data-location-select-country-id-value="stand_country_id"
-             data-location-select-province-id-value="stand_province_id"
-             data-location-select-city-id-value="stand_city_id">
-          <div class="col-12 col-md-4">
-            <%= f.label :country_id, "País", class: "form-label fw-semibold" %>
-            <%= f.collection_select :country_id, Country.order(:name), :id, :name,
-                { prompt: "Seleccione país..." },
-                class: "form-select", required: true, id: "stand_country_id" %>
-          </div>
-          <div class="col-12 col-md-4">
-            <label class="form-label fw-semibold">Provincia</label>
-            <select id="stand_province_id" class="form-select" required>
-              <option value="">Seleccione provincia...</option>
-            </select>
-          </div>
-          <div class="col-12 col-md-4">
-            <%= f.label :city_id, "Ciudad", class: "form-label fw-semibold" %>
-            <select name="stand[city_id]" id="stand_city_id" class="form-select" required>
-              <option value="">Seleccione ciudad...</option>
-            </select>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
+  <% end %>
 
   <div class="d-flex gap-2">
     <%= f.submit stand.new_record? ? "Crear Stand" : "Guardar Cambios",

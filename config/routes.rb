@@ -351,7 +351,22 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :stands
+    resources :stands do
+      collection do
+        get :search_users
+      end
+      member do
+        post   :assign_vendor
+        delete :remove_vendor
+      end
+    end
+  end
+
+  # Panel de propietario de stand (afiliado con stand asignado)
+  namespace :owner do
+    resource :stand, only: [:show] do
+      resources :vendedores, only: [:index, :new, :create, :destroy], controller: "stand_vendedores"
+    end
   end
 
 end

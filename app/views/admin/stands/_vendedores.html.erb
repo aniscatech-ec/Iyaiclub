@@ -1,0 +1,89 @@
+<div class="card border-0 shadow-sm rounded-4 mt-4">
+  <div class="card-header bg-transparent border-0 pt-4 px-4">
+    <h6 class="fw-bold mb-0">
+      <i class="fas fa-users me-2 text-success"></i>Vendedores asignados al Stand
+    </h6>
+    <p class="text-muted small mb-0 mt-1">
+      Los vendedores se asignan por evento. El stand debe estar asociado a al menos un evento.
+    </p>
+  </div>
+  <div class="card-body px-4 pb-4">
+
+    <% if events.any? %>
+      <% events.each do |event| %>
+        <% assigned = event.event_vendedores.where(stand: stand).includes(:user) %>
+        <% available = all_vendors.reject { |u| event.event_vendedores.exists?(user: u) } %>
+
+        <div class="mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div>
+              <span class="fw-semibold"><%= event.name %></span>
+              <small class="text-muted ms-2">
+                <i class="fas fa-calendar-day me-1"></i><%= event.event_date&.strftime("%d/%m/%Y") %>
+              </small>
+            </div>
+            <span class="badge bg-secondary rounded-pill"><%= assigned.count %> vendedor(es)</span>
+          </div>
+
+          <%# Vendedores ya asignados a este evento en este stand %>
+          <% if assigned.any? %>
+            <ul class="list-group list-group-flush mb-2 rounded-3 border">
+              <% assigned.each do |ev| %>
+                <li class="list-group-item d-flex align-items-center justify-content-between py-2 px-3">
+                  <div>
+                    <span class="fw-semibold small"><%= ev.user.name %></span>
+                    <small class="text-muted d-block"><%= ev.user.email %></small>
+                  </div>
+                  <%= button_to remove_vendor_admin_stand_path(stand),
+                      method: :delete,
+                      params: { event_vendedor_id: ev.id },
+                      form: { data: { turbo_confirm: "¿Quitar a #{ev.user.name} de este evento?" } },
+                      class: "btn btn-sm btn-outline-danger" do %>
+                    <i class="fas fa-user-minus"></i>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted small mb-2">Sin vendedores asignados en este evento.</p>
+          <% end %>
+
+          <%# Formulario para asignar nuevo vendedor %>
+          <% if available.any? %>
+            <%= form_with url: assign_vendor_admin_stand_path(stand), method: :post, local: true,
+                          html: { class: "d-flex gap-2 align-items-center" } do |f| %>
+              <%= hidden_field_tag :event_id, event.id %>
+              <select name="user_id" class="form-select form-select-sm" required>
+                <option value="">— Seleccionar vendedor —</option>
+                <% available.each do |u| %>
+                  <option value="<%= u.id %>"><%= u.name %> (<%= u.email %>)</option>
+                <% end %>
+              </select>
+              <button type="submit" class="btn btn-sm btn-success text-nowrap">
+                <i class="fas fa-plus me-1"></i> Asignar
+              </button>
+            <% end %>
+          <% else %>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Todos los vendedores disponibles ya están asignados a este evento.
+            </p>
+          <% end %>
+        </div>
+
+        <% unless event == events.last %>
+          <hr class="my-3">
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="text-center py-4 text-muted">
+        <i class="fas fa-calendar-times fa-2x mb-2 opacity-50"></i>
+        <p class="mb-0 small">
+          Este stand no está asignado a ningún evento todavía.<br>
+          Asigna el stand a un evento para poder gestionar vendedores.
+        </p>
+      </div>
+    <% end %>
+
+  </div>
+</div>

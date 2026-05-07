@@ -44,6 +44,37 @@
   </div>
 
   
+  <% if current_user.owned_stand.present? %>
+  <!-- Mi Stand -->
+  <div class="mt-5">
+    <h4>Mi Stand</h4>
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body d-flex align-items-center gap-3 p-4">
+            <div class="rounded-3 p-3 d-flex align-items-center justify-content-center"
+                 style="background: rgba(255,165,0,0.12); min-width:52px; min-height:52px;">
+              <i class="fas fa-store fa-lg" style="color: var(--brand-orange);"></i>
+            </div>
+            <div class="flex-grow-1 min-width-0">
+              <div class="fw-bold text-truncate"><%= current_user.owned_stand.name %></div>
+              <code class="small" style="color: var(--brand-orange);"><%= current_user.owned_stand.stand_code %></code>
+              <% if current_user.owned_stand.location.present? %>
+                <div class="text-muted small text-truncate">
+                  <i class="fas fa-map-marker-alt me-1"></i><%= current_user.owned_stand.location %>
+                </div>
+              <% end %>
+            </div>
+            <%= link_to owner_stand_path, class: "btn btn-warning btn-sm rounded-pill px-3 flex-shrink-0" do %>
+              <i class="fas fa-arrow-right"></i>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% end %>
+
   <!-- Gestión de establecimientos -->
   <div class="mt-5">
     <h4>Gestion de Establecimientos</h4>

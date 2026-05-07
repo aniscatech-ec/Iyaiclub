@@ -78,6 +78,18 @@
                 <span class="fw-semibold small"><%= @stand.email %></span>
               </div>
             </li>
+            <li class="d-flex align-items-center py-2 border-bottom">
+              <i class="fas fa-crown text-muted me-3" style="width:16px;"></i>
+              <div>
+                <small class="text-muted d-block">Propietario</small>
+                <% if @stand.owner_user %>
+                  <span class="fw-semibold small"><%= @stand.owner_user.name %></span>
+                  <small class="text-muted d-block"><%= @stand.owner_user.email %></small>
+                <% else %>
+                  <span class="text-muted small">Sin propietario asignado</span>
+                <% end %>
+              </div>
+            </li>
             <li class="d-flex align-items-center py-2">
               <i class="fas fa-toggle-on text-muted me-3" style="width:16px;"></i>
               <div>
@@ -94,7 +106,7 @@
 
     <%# Eventos asignados %>
     <div class="col-12 col-lg-7">
-      <div class="card border-0 shadow-sm rounded-4">
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
           <h6 class="fw-bold mb-0">
             <i class="fas fa-calendar-alt me-2 text-primary"></i>Eventos asignados
@@ -125,6 +137,18 @@
               <p class="mb-0 small">Este stand no está asignado a ningún evento.</p>
             </div>
           <% end %>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <i class="fas fa-chart-bar me-2 text-success"></i>Ventas por vendedor
+          </h6>
+          <span class="badge bg-secondary rounded-pill"><%= @vendors.count %> vendedor(es)</span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <%= render "shared/vendor_stats", vendors: @vendors %>
         </div>
       </div>
     </div>
