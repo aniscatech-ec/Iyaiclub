@@ -52,10 +52,10 @@ class Admin::EventsController < ApplicationController
 
   def destroy
     if @event.tickets.exists?
-      redirect_to admin_events_path, alert: "No se puede eliminar un evento con tickets vendidos."
+      redirect_to admin_events_path, alert: "No se puede eliminar un evento con tickets vendidos.", status: :see_other
     else
       @event.destroy
-      redirect_to admin_events_path, notice: "Evento eliminado correctamente."
+      redirect_to admin_events_path, notice: "Evento eliminado correctamente.", status: :see_other
     end
   end
 
