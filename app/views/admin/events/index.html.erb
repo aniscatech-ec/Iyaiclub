@@ -84,7 +84,9 @@
                         <i class="fas fa-edit"></i>
                       <% end %>
                       <%= button_to admin_event_path(event), method: :delete,
-                          form: { data: { turbo_confirm: "¿Eliminar este evento?" }, style: "display:inline" },
+                          form: { style: "display:inline" },
+                          data: { confirm: "¿Eliminar este evento?" },
+                          onclick: "return confirm('¿Eliminar este evento?')",
                           class: "btn btn-outline-danger btn-sm" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>
