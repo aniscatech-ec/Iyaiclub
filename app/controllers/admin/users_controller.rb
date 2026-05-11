@@ -76,8 +76,27 @@ class Admin::UsersController < ApplicationController
   end
 
   def destroy
-    @user.destroy
-    redirect_to admin_users_path, notice: "Usuario eliminado."
+    if @user == current_user
+      return redirect_to admin_users_path, alert: "No puedes eliminarte a ti mismo."
+    end
+
+    establishments = @user.establishments.where.not(id: nil)
+    if establishments.any?
+      names = establishments.limit(3).pluck(:name).join(", ")
+      more  = establishments.count > 3 ? " y #{establishments.count - 3} más" : ""
+      return redirect_to admin_users_path,
+        alert: "No se puede eliminar a #{@user.name} porque tiene establecimientos asociados: #{names}#{more}. Reasigna o elimina los establecimientos primero."
+    end
+
+    if @user.destroy
+      redirect_to admin_users_path, notice: "Usuario #{@user.name} eliminado correctamente."
+    else
+      redirect_to admin_users_path,
+        alert: "No se pudo eliminar al usuario: #{@user.errors.full_messages.join(', ')}"
+    end
+  rescue ActiveRecord::InvalidForeignKey => e
+    redirect_to admin_users_path,
+      alert: "No se puede eliminar al usuario porque tiene registros asociados en el sistema."
   end
 
   def establishments

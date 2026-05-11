@@ -164,29 +164,11 @@
               <%= content_tag wrapper_tag,
                     href: ad.link_url, target: "_blank", rel: "noopener noreferrer",
                     class: "text-decoration-none d-block" do %>
-                <div class="position-relative" style="height: 220px; overflow: hidden;">
+                <div style="height: 220px; overflow: hidden; background: #1a1a2e;">
                   <% if ad.image.attached? %>
-                    <%= image_tag ad.image, class: "position-absolute top-0 start-0 w-100 h-100",
-                          style: "object-fit: fill; width: 100%; height: 100%;" %>
-                  <% else %>
-                    <div class="position-absolute top-0 start-0 w-100 h-100"
-                         style="background: linear-gradient(135deg, #1a1a2e, #16213e);"></div>
+                    <%= image_tag url_for(ad.image),
+                          style: "width: 100%; height: 100%; object-fit: cover; display: block;" %>
                   <% end %>
-                  <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center px-4"
-                       style="background: linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.05) 100%);">
-                    <div class="text-white">
-                      <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                        <span class="badge bg-warning text-dark"><i class="fas fa-bullhorn me-1"></i> PUBLICIDAD</span>
-                        <% ad.tags_array.first(3).each do |tag| %>
-                          <span class="badge bg-white text-dark"><%= tag %></span>
-                        <% end %>
-                      </div>
-                      <h4 class="fw-bold mb-1"><%= ad.title %></h4>
-                      <% if ad.description.present? %>
-                        <p class="mb-0 small opacity-90"><%= ad.description %></p>
-                      <% end %>
-                    </div>
-                  </div>
                 </div>
               <% end %>
             </div>
