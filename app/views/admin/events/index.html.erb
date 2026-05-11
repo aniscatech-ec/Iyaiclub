@@ -83,10 +83,11 @@
                       <%= link_to edit_admin_event_path(event), class: "btn btn-outline-warning" do %>
                         <i class="fas fa-edit"></i>
                       <% end %>
+                      <% ticket_count = event.tickets.count %>
+                      <% confirm_msg = ticket_count > 0 ? "¿Eliminar el evento \"#{event.name}\"? Tiene #{ticket_count} ticket(s) vendido(s) que también serán eliminados. Esta acción es irreversible." : "¿Eliminar el evento \"#{event.name}\"? Esta acción es irreversible." %>
                       <%= button_to admin_event_path(event), method: :delete,
                           form: { style: "display:inline" },
-                          data: { confirm: "¿Eliminar este evento?" },
-                          onclick: "return confirm('¿Eliminar este evento?')",
+                          onclick: "return confirm('#{confirm_msg.gsub("'", "\\'")}')",
                           class: "btn btn-outline-danger btn-sm" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>
