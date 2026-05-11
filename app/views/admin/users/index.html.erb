@@ -42,9 +42,9 @@
           <i class="fa-solid fa-pen-to-square"></i>
         <% end %>
 
-        <%= link_to admin_user_path(user),
-                    data: { turbo_method: :delete, turbo_confirm: "¿Está seguro de eliminar este usuario?" },
-                    class: "btn btn-danger btn-sm" do %>
+        <%= button_to admin_user_path(user), method: :delete,
+                      form: { data: { turbo_confirm: "¿Está seguro de eliminar este usuario?" } },
+                      class: "btn btn-danger btn-sm" do %>
           <i class="fa-solid fa-trash-can"></i>
         <% end %>
 
