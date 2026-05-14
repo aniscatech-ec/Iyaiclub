@@ -17,12 +17,21 @@
         <% end %>
       </p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
+      <% unless @stand.activo? %>
+        <%= button_to activate_admin_stand_path(@stand), method: :post,
+            form: { style: "display:inline" },
+            onclick: "return confirm('¿Activar el stand \"#{@stand.name}\"? Se creará el usuario y se enviará el correo de bienvenida.')",
+            class: "btn btn-sm btn-success rounded-pill" do %>
+          <i class="fas fa-check me-1"></i> Activar Stand
+        <% end %>
+      <% end %>
       <%= link_to edit_admin_stand_path(@stand), class: "btn btn-sm btn-outline-warning rounded-pill" do %>
         <i class="fas fa-edit me-1"></i> Editar
       <% end %>
-      <%= link_to admin_stand_path(@stand),
-          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el stand '#{@stand.name}'?" },
+      <%= button_to admin_stand_path(@stand), method: :delete,
+          form: { style: "display:inline" },
+          onclick: "return confirm('¿Eliminar el stand \"#{@stand.name}\"?')",
           class: "btn btn-sm btn-outline-danger rounded-pill" do %>
         <i class="fas fa-trash me-1"></i> Eliminar
       <% end %>
@@ -31,6 +40,20 @@
       <% end %>
     </div>
   </div>
+
+  <% unless @stand.activo? %>
+    <div class="alert alert-warning rounded-4 d-flex align-items-center gap-3 mb-4" role="alert">
+      <i class="fas fa-clock fa-lg"></i>
+      <div>
+        <strong>Stand en estado reservado.</strong>
+        <% if @stand.has_pending_user? %>
+          Al activarlo se creará el usuario (<strong><%= @stand.pending_user_email %></strong>) y se le enviará el correo de bienvenida.
+        <% else %>
+          No tiene usuario asignado. Puedes activarlo directamente o asignar un usuario primero desde Editar.
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="row g-4">
     <%# Info del stand %>
@@ -94,9 +117,11 @@
               <i class="fas fa-toggle-on text-muted me-3" style="width:16px;"></i>
               <div>
                 <small class="text-muted d-block">Estado</small>
-                <span class="badge <%= @stand.active? ? 'bg-success' : 'bg-secondary' %>">
-                  <%= @stand.active? ? 'Activo' : 'Inactivo' %>
-                </span>
+                <% if @stand.activo? %>
+                  <span class="badge bg-success">Activo</span>
+                <% else %>
+                  <span class="badge bg-warning text-dark">Reservado</span>
+                <% end %>
               </div>
             </li>
           </ul>

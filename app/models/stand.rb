@@ -6,6 +6,8 @@ class Stand < ApplicationRecord
   belongs_to :city, optional: true
   belongs_to :owner_user, class_name: "User", optional: true
 
+  enum :status, { reservado: 0, activo: 1 }
+
   # Virtual attributes for user creation in the form
   attr_accessor :user_assignment_type,  # "owner" | "vendor" | ""
                 :user_source,           # "new" | "existing"
@@ -21,11 +23,10 @@ class Stand < ApplicationRecord
   validates :stand_code, presence: true, uniqueness: true
 
   before_validation :generate_stand_code, on: :create
-  after_create      :assign_stand_user, if: -> { user_assignment_type.present? }
+  after_create      :save_pending_user_data, if: -> { user_assignment_type.present? }
 
-  scope :active,          -> { where(active: true) }
-  scope :with_owner,      -> { where.not(owner_user_id: nil) }
-  scope :autonomous,      -> { with_owner }
+  scope :with_owner, -> { where.not(owner_user_id: nil) }
+  scope :autonomous, -> { with_owner }
 
   # ¿Opera como entidad vendedora autónoma?
   def autonomous?
@@ -48,6 +49,22 @@ class Stand < ApplicationRecord
     event_vendedores.where.not(vendor_type: :stand_autonomo).includes(:user).map(&:user).compact.uniq
   end
 
+  def has_pending_user?
+    pending_user_assignment_type.present?
+  end
+
+  # El admin activa el stand: crea/asigna el usuario y envía correo si corresponde
+  def activate!
+    return false if activo?
+
+    if has_pending_user?
+      assign_stand_user_from_pending
+    end
+
+    update!(status: :activo, active: true)
+    true
+  end
+
   private
 
   def generate_stand_code
@@ -59,6 +76,52 @@ class Stand < ApplicationRecord
         break
       end
     end
+  end
+
+  # Guarda los datos del usuario en columnas persistentes para procesarlos al activar
+  def save_pending_user_data
+    update_columns(
+      pending_user_assignment_type: user_assignment_type,
+      pending_user_source:          user_source,
+      pending_user_name:            new_user_name,
+      pending_user_lastname:        new_user_lastname,
+      pending_user_email:           new_user_email,
+      pending_user_ruc:             new_user_ruc,
+      pending_user_country_id:      new_user_country_id,
+      pending_user_city_id:         new_user_city_id,
+      pending_existing_user_id:     existing_user_id
+    )
+  end
+
+  def assign_stand_user_from_pending
+    self.user_assignment_type = pending_user_assignment_type
+    self.user_source          = pending_user_source
+    self.new_user_name        = pending_user_name
+    self.new_user_lastname    = pending_user_lastname
+    self.new_user_email       = pending_user_email
+    self.new_user_ruc         = pending_user_ruc
+    self.new_user_country_id  = pending_user_country_id
+    self.new_user_city_id     = pending_user_city_id
+    self.existing_user_id     = pending_existing_user_id
+
+    if pending_user_assignment_type == "owner"
+      assign_owner_user
+    else
+      assign_vendor_user
+    end
+
+    # Limpia los datos pendientes tras procesar
+    update_columns(
+      pending_user_assignment_type: nil,
+      pending_user_source:          nil,
+      pending_user_name:            nil,
+      pending_user_lastname:        nil,
+      pending_user_email:           nil,
+      pending_user_ruc:             nil,
+      pending_user_country_id:      nil,
+      pending_user_city_id:         nil,
+      pending_existing_user_id:     nil
+    )
   end
 
   def assign_stand_user
@@ -73,7 +136,6 @@ class Stand < ApplicationRecord
     user = resolve_user(role: :afiliado, skip_docs: true)
     return unless user
     update_columns(owner_user_id: user.id)
-    # Registrar como autónomo en eventos existentes
     events.each { |ev| register_as_autonomo_in(ev) }
   end
 

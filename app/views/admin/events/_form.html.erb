@@ -175,7 +175,7 @@
       </div>
 
       <%# Stands del evento %>
-      <% all_stands = Stand.active.order(:name) %>
+      <% all_stands = Stand.activo.order(:name) %>
       <% if all_stands.any? %>
         <div class="card border-0 shadow-sm rounded-4 mb-4">
           <div class="card-header bg-transparent border-0 pt-4 px-4">

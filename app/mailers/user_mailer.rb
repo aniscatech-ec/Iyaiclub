@@ -160,7 +160,8 @@ class UserMailer < ApplicationMailer
     )
   end
 
-  # Bienvenida masiva con enlace de creación de contraseña (para usuarios migrados desde encuesta)
+  # Bienvenida masiva con enlace de creación de contraseña (para usuarios migrados desde encuesta).
+  # Usar UserMailer.send_welcome_with_reset(user) en lugar de llamar este método directamente.
   def welcome_with_reset(user, reset_token)
     @user        = user
     @reset_token = reset_token
@@ -175,6 +176,13 @@ class UserMailer < ApplicationMailer
       subject: "🎉 ¡Bienvenido a IyaiClub! Configura tu contraseña",
       from:    email_from(:info)
     )
+  end
+
+  # Método de clase seguro: genera el token una sola vez y envía el correo.
+  # Uso: UserMailer.send_welcome_with_reset(user)
+  def self.send_welcome_with_reset(user)
+    raw_token = user.send(:set_reset_password_token)
+    UserMailer.welcome_with_reset(user, raw_token).deliver_now
   end
 
   private

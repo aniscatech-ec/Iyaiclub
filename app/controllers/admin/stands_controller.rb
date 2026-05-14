@@ -1,7 +1,7 @@
 class Admin::StandsController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!
-  before_action :set_stand, only: [:show, :edit, :update, :destroy, :assign_vendor, :remove_vendor]
+  before_action :set_stand, only: [:show, :edit, :update, :destroy, :assign_vendor, :remove_vendor, :activate]
   layout "dashboard"
 
   def index
@@ -23,7 +23,7 @@ class Admin::StandsController < ApplicationController
     assign_virtual_attributes(@stand)
 
     if @stand.save
-      redirect_to admin_stands_path, notice: "Stand creado correctamente."
+      redirect_to admin_stands_path, notice: "Stand \"#{@stand.name}\" creado y en estado reservado. Actívalo cuando el dueño esté listo."
     else
       render :new, status: :unprocessable_entity
     end
@@ -44,11 +44,26 @@ class Admin::StandsController < ApplicationController
 
   def destroy
     @stand.destroy!
-    redirect_to admin_stands_path, notice: "Stand eliminado."
+    redirect_to admin_stands_path, notice: "Stand eliminado.", status: :see_other
   rescue ActiveRecord::InvalidForeignKey
-    redirect_to admin_stands_path, alert: "No se puede eliminar este stand porque tiene registros asociados."
+    redirect_to admin_stands_path, alert: "No se puede eliminar este stand porque tiene registros asociados.", status: :see_other
   rescue ActiveRecord::RecordNotDestroyed => e
-    redirect_to admin_stands_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}"
+    redirect_to admin_stands_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}", status: :see_other
+  end
+
+  # POST /admin/stands/:id/activate
+  def activate
+    if @stand.activo?
+      return redirect_to admin_stand_path(@stand), alert: "Este stand ya está activo.", status: :see_other
+    end
+
+    if @stand.activate!
+      msg = "Stand \"#{@stand.name}\" activado correctamente."
+      msg += " Se ha enviado el correo de bienvenida al usuario." if @stand.owner_user.present? || @stand.vendor_users.any?
+      redirect_to admin_stand_path(@stand), notice: msg, status: :see_other
+    else
+      redirect_to admin_stand_path(@stand), alert: "No se pudo activar el stand.", status: :see_other
+    end
   end
 
   # POST /admin/stands/:id/assign_vendor

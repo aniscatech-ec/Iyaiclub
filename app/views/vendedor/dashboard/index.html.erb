@@ -76,8 +76,8 @@
               <% end %>
               <div>
                 <small class="text-muted d-block">Estado</small>
-                <span class="badge <%= @stand.active? ? 'bg-success' : 'bg-secondary' %>">
-                  <%= @stand.active? ? 'Activo' : 'Inactivo' %>
+                <span class="badge <%= @stand.activo? ? 'bg-success' : 'bg-warning text-dark' %>">
+                  <%= @stand.activo? ? 'Activo' : 'Reservado' %>
                 </span>
               </div>
             </div>

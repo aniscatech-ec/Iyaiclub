@@ -38,6 +38,10 @@
                       <span class="badge bg-warning text-dark">
                         <i class="fas fa-crown me-1"></i><%= stand.owner_user.name %>
                       </span>
+                    <% elsif stand.has_pending_user? %>
+                      <small class="text-muted fst-italic">
+                        <i class="fas fa-clock me-1"></i>Pendiente de activación
+                      </small>
                     <% else %>
                       <small class="text-muted">—</small>
                     <% end %>
@@ -46,20 +50,34 @@
                     <span class="badge bg-info text-dark"><%= stand.events.count %> eventos</span>
                   </td>
                   <td>
-                    <% if stand.active? %>
+                    <% if stand.activo? %>
                       <span class="badge bg-success">Activo</span>
                     <% else %>
-                      <span class="badge bg-secondary">Inactivo</span>
+                      <span class="badge bg-warning text-dark">Reservado</span>
                     <% end %>
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
+                      <%= link_to admin_stand_path(stand), class: "btn btn-outline-info", title: "Ver" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+                      <% unless stand.activo? %>
+                        <%= button_to activate_admin_stand_path(stand),
+                            method: :post,
+                            form: { style: "display:inline" },
+                            onclick: "return confirm('¿Activar el stand \"#{stand.name}\"? Se creará el usuario y se enviará el correo de bienvenida.')",
+                            class: "btn btn-outline-success btn-sm",
+                            title: "Activar" do %>
+                          <i class="fas fa-check"></i>
+                        <% end %>
+                      <% end %>
                       <%= link_to edit_admin_stand_path(stand), class: "btn btn-outline-secondary", title: "Editar" do %>
                         <i class="fas fa-edit"></i>
                       <% end %>
-                      <%= link_to admin_stand_path(stand),
-                          data: { turbo_method: :delete, turbo_confirm: "¿Eliminar el stand '#{stand.name}'?" },
-                          class: "btn btn-outline-danger", title: "Eliminar" do %>
+                      <%= button_to admin_stand_path(stand), method: :delete,
+                          form: { style: "display:inline" },
+                          onclick: "return confirm('¿Eliminar el stand \"#{stand.name}\"?')",
+                          class: "btn btn-outline-danger btn-sm", title: "Eliminar" do %>
                         <i class="fas fa-trash"></i>
                       <% end %>
                     </div>
