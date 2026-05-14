@@ -176,6 +176,18 @@ Rails.application.routes.draw do
           patch :bulk_rechazar
         end
       end
+      resources :stands, only: [] do
+        resources :tickets, only: [:index], controller: "stand_tickets" do
+          member do
+            patch :acreditar
+            patch :rechazar
+          end
+          collection do
+            patch :bulk_acreditar
+            patch :bulk_rechazar
+          end
+        end
+      end
     end
     resources :memberships, only: [:index, :destroy] do
       member do

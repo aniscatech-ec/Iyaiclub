@@ -1,12 +1,10 @@
 <div class="container-fluid px-3 px-md-4 py-4">
   <div class="mb-4">
-    <div>
-      <h3 class="fw-bold mb-1">
-        <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
-        Portal de Vendedor
-      </h3>
-      <p class="text-muted mb-0">Bienvenido, <%= current_user.name %></p>
-    </div>
+    <h3 class="fw-bold mb-1">
+      <i class="fas fa-store me-2" style="color: var(--brand-orange);"></i>
+      Portal de Vendedor
+    </h3>
+    <p class="text-muted mb-0">Bienvenido, <%= current_user.name %></p>
   </div>
 
   <!-- Resumen -->
@@ -27,7 +25,7 @@
     </div>
     <div class="col-6 col-md-4 col-lg-3">
       <div class="card border-0 shadow-sm rounded-4 text-center p-3">
-        <div class="display-4 fw-bold text-primary"><%= @events.count %></div>
+        <div class="display-4 fw-bold text-primary"><%= @total_events_count %></div>
         <small class="text-muted">Eventos Asignados</small>
       </div>
     </div>
@@ -43,61 +41,76 @@
     </div>
   </div>
 
-  <!-- Mi Stand -->
-  <% if @stand %>
-    <div class="card border-0 shadow-sm rounded-4 mb-4" style="border-left: 4px solid #ffc107 !important;">
-      <div class="card-header bg-transparent border-0 pt-4 px-4">
-        <h5 class="fw-bold mb-0">
-          <i class="fas fa-store me-2 text-warning"></i>
-          Mi Stand
-        </h5>
-      </div>
-      <div class="card-body px-4 pb-4">
-        <div class="row g-3 align-items-center">
-          <div class="col-12 col-md-8">
-            <div class="d-flex flex-wrap gap-4">
-              <div>
-                <small class="text-muted d-block">Nombre</small>
-                <span class="fw-bold fs-5"><%= @stand.name %></span>
-              </div>
-              <div>
-                <small class="text-muted d-block">Código</small>
-                <code class="fw-semibold" style="color: var(--brand-orange); font-size: 1rem;">
-                  <%= @stand.stand_code %>
-                </code>
-              </div>
-              <% if @stand.location.present? %>
-                <div>
-                  <small class="text-muted d-block">Ubicación</small>
-                  <span class="fw-semibold">
-                    <i class="fas fa-map-marker-alt me-1 text-muted"></i><%= @stand.location %>
-                  </span>
-                </div>
+  <!-- Stands asignados (con sus eventos) -->
+  <% if @stands.any? %>
+    <div class="mb-2">
+      <h5 class="fw-bold mb-3">
+        <i class="fas fa-store me-2 text-warning"></i>Mis Stands
+      </h5>
+    </div>
+    <% @stands.each do |stand| %>
+      <% stand_slots = @stand_slots.select { |s| s.stand_id == stand.id } %>
+      <div class="card border-0 shadow-sm rounded-4 mb-3" style="border-left: 4px solid #ffc107 !important;">
+        <div class="card-header bg-transparent border-0 pt-3 px-4 pb-2 d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3">
+            <div>
+              <span class="fw-bold fs-6">
+                <i class="fas fa-store me-2 text-warning"></i><%= stand.name %>
+              </span>
+              <code class="ms-2 small" style="color: var(--brand-orange);"><%= stand.stand_code %></code>
+              <% if stand.location.present? %>
+                <small class="text-muted ms-2"><i class="fas fa-map-marker-alt me-1"></i><%= stand.location %></small>
               <% end %>
-              <div>
-                <small class="text-muted d-block">Estado</small>
-                <span class="badge <%= @stand.activo? ? 'bg-success' : 'bg-warning text-dark' %>">
-                  <%= @stand.activo? ? 'Activo' : 'Reservado' %>
-                </span>
-              </div>
             </div>
           </div>
-          <% if @stand.events.any? %>
-            <div class="col-12 col-md-4">
-              <small class="text-muted d-block mb-2">Eventos asignados</small>
-              <div class="d-flex flex-wrap gap-2">
-                <% @stand.events.order(event_date: :desc).limit(3).each do |event| %>
-                  <span class="badge rounded-pill fw-normal px-3 py-2"
-                        style="background:#e8f4fd; color:#0369a1; border:1px solid #bae6fd; font-size:.8rem;">
-                    <i class="fas fa-calendar-day me-1"></i><%= event.name %>
-                  </span>
-                <% end %>
-              </div>
+          <span class="badge <%= stand.activo? ? 'bg-success' : 'bg-warning text-dark' %>">
+            <%= stand.activo? ? 'Activo' : 'Reservado' %>
+          </span>
+        </div>
+        <div class="card-body px-4 pb-3 pt-0">
+          <% if stand_slots.any? %>
+            <div class="row g-3">
+              <% stand_slots.each do |slot| %>
+                <% event = slot.event %>
+                <% pending  = Ticket.reservados.where(vendedor: current_user, event: event, stand: stand).count %>
+                <% acreditados = Ticket.where(vendedor: current_user, event: event, stand: stand, status: :activo).count %>
+                <div class="col-12 col-md-6 col-lg-4">
+                  <div class="card border rounded-3 h-100">
+                    <div class="card-body">
+                      <h6 class="fw-bold mb-2">
+                        <i class="fas fa-calendar-day me-1 text-primary"></i><%= event.name %>
+                      </h6>
+                      <p class="text-muted small mb-2">
+                        <i class="fas fa-calendar me-1"></i> <%= event.event_date&.strftime('%d/%m/%Y %H:%M') %>
+                      </p>
+                      <% if event.location.present? %>
+                        <p class="text-muted small mb-2">
+                          <i class="fas fa-map-marker-alt me-1"></i> <%= event.location %>
+                        </p>
+                      <% end %>
+                      <% if slot.has_quota? %>
+                        <p class="text-muted small mb-2">
+                          <i class="fas fa-ticket-alt me-1"></i> Cuota: <%= slot.tickets_sold %>/<%= slot.quota %>
+                        </p>
+                      <% end %>
+                      <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-warning text-dark"><%= pending %> pendientes</span>
+                        <span class="badge bg-success"><%= acreditados %> acreditados</span>
+                      </div>
+                      <%= link_to vendedor_event_stand_tickets_path(event, stand), class: "btn btn-primary btn-sm w-100" do %>
+                        <i class="fas fa-ticket-alt me-1"></i> Ver Tickets
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             </div>
+          <% else %>
+            <p class="text-muted small mb-0">Este stand no tiene eventos asignados actualmente.</p>
           <% end %>
         </div>
       </div>
-    </div>
+    <% end %>
   <% end %>
 
   <!-- Membresías -->
@@ -151,18 +164,18 @@
     </div>
   </div>
 
-  <!-- Eventos asignados -->
-  <div class="card border-0 shadow-sm rounded-4">
-    <div class="card-header bg-transparent border-0 pt-4 px-4">
-      <h5 class="fw-bold mb-0">
-        <i class="fas fa-calendar-alt me-2 text-primary"></i>
-        Mis Eventos
-      </h5>
-    </div>
-    <div class="card-body px-4 pb-4">
-      <% if @events.any? %>
+  <!-- Eventos directos (sin stand) -->
+  <% if @events_direct.any? %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h5 class="fw-bold mb-0">
+          <i class="fas fa-calendar-alt me-2 text-primary"></i>
+          Mis Eventos
+        </h5>
+      </div>
+      <div class="card-body px-4 pb-4">
         <div class="row g-3">
-          <% @events.each do |event| %>
+          <% @events_direct.each do |event| %>
             <% pending = event.tickets.reservados.where(vendedor: current_user).count %>
             <% acreditados = event.tickets.where(vendedor: current_user, status: :activo).count %>
             <div class="col-12 col-md-6 col-lg-4">
@@ -187,12 +200,16 @@
             </div>
           <% end %>
         </div>
-      <% else %>
-        <div class="text-center text-muted py-4">
-          <i class="fas fa-calendar-times fa-3x mb-3"></i>
-          <p>No tienes eventos asignados actualmente</p>
-        </div>
-      <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
+
+  <% if @events_direct.empty? && @stands.empty? %>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body text-center text-muted py-5">
+        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+        <p>No tienes eventos ni stands asignados actualmente</p>
+      </div>
+    </div>
+  <% end %>
 </div>
