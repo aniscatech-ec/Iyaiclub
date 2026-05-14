@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_07_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_05_13_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -736,12 +736,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_07_000002) do
     t.bigint "city_id"
     t.string "owner_lastname"
     t.bigint "owner_user_id"
+    t.integer "status", default: 0, null: false
+    t.string "pending_user_assignment_type"
+    t.string "pending_user_source"
+    t.string "pending_user_name"
+    t.string "pending_user_lastname"
+    t.string "pending_user_email"
+    t.string "pending_user_ruc"
+    t.bigint "pending_user_country_id"
+    t.bigint "pending_user_city_id"
+    t.bigint "pending_existing_user_id"
     t.index ["city_id"], name: "index_stands_on_city_id"
     t.index ["country_id"], name: "index_stands_on_country_id"
     t.index ["email"], name: "index_stands_on_email", unique: true
     t.index ["owner_user_id"], name: "index_stands_on_owner_user_id"
     t.index ["ruc"], name: "index_stands_on_ruc", unique: true
     t.index ["stand_code"], name: "index_stands_on_stand_code", unique: true
+    t.index ["status"], name: "index_stands_on_status"
   end
 
   create_table "subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
