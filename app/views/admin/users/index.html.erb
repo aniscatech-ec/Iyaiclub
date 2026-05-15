@@ -1,65 +1,215 @@
-<div class="d-flex gap-2 mb-3">
-  <%= link_to new_admin_user_path, class: "btn btn-primary btn-lg" do %>
-    <i class="fa-solid fa-plus"></i> Nuevo usuario
-  <% end %>
-  <%= link_to admin_referral_settings_path, class: "btn btn-outline-success btn-lg" do %>
-    <i class="fas fa-user-plus me-1"></i> Configurar Referidos
-  <% end %>
-</div>
+<div class="container-fluid px-3 px-md-4 py-4">
 
-<table class="table table-hover align-middle shadow-sm">
-  <thead class="table-dark">
-  <tr>
-    <th>Nombre</th>
-    <th>Email</th>
-    <th>Teléfono</th>
-    <th>Rol</th>
-    <th>Acciones</th>
-  </tr>
-  </thead>
-  <tbody>
-  <% @users.each do |user| %>
-    <tr>
-      <td><%= user.name %></td>
-      <td><%= user.email %></td>
-      <td><%= user.phone.presence || "-" %></td>
-      <td>
-        <% badge_class = case user.role
-                         when "admin" then "bg-danger"
-                         when "afiliado" then "bg-success"
-                         else "bg-secondary"
-                         end %>
-        <span class="badge <%= badge_class %>">
-          <%= user.role.titleize %>
-        </span>
-      </td>
-      <td class="d-flex flex-wrap gap-2">
-        <%= link_to admin_user_path(user), class: "btn btn-info btn-sm" do %>
-          <i class="fa-solid fa-eye"></i>
-        <% end %>
+  <%# ── Header ── %>
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fas fa-users me-2" style="color: var(--brand-orange);"></i>
+        Usuarios
+      </h3>
+      <p class="text-muted small mb-0"><%= @pagy&.count || @users.count %> usuarios encontrados</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <%= link_to new_admin_user_path, class: "btn btn-primary" do %>
+        <i class="fas fa-plus me-1"></i> Nuevo usuario
+      <% end %>
+      <%= link_to admin_referral_settings_path, class: "btn btn-outline-success" do %>
+        <i class="fas fa-share-nodes me-1"></i> Referidos
+      <% end %>
+    </div>
+  </div>
 
-        <%= link_to edit_admin_user_path(user), class: "btn btn-warning btn-sm" do %>
-          <i class="fa-solid fa-pen-to-square"></i>
-        <% end %>
+  <%# ── Filtros y búsqueda ── %>
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body py-3 px-4">
+      <%= form_with url: admin_users_path, method: :get, local: true, class: "row g-2 align-items-center" do |f| %>
+        <%# Búsqueda %>
+        <div class="col-12 col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <%= f.text_field :q, value: params[:q],
+                placeholder: "Buscar por nombre o correo...",
+                class: "form-control border-start-0 ps-0",
+                autocomplete: "off" %>
+            <% if params[:q].present? %>
+              <%= link_to admin_users_path(role: params[:role]), class: "btn btn-outline-secondary" do %>
+                <i class="fas fa-times"></i>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
 
-        <%= button_to admin_user_path(user), method: :delete,
-                      form: { style: "display:inline" },
-                      onclick: "return confirm('¿Está seguro de eliminar este usuario?')",
-                      class: "btn btn-danger btn-sm" do %>
-          <i class="fa-solid fa-trash-can"></i>
-        <% end %>
+        <%# Filtro por rol %>
+        <div class="col-12 col-sm-6 col-md-4">
+          <div class="d-flex gap-2 flex-wrap">
+            <% roles = [["Todos", ""], ["Admin", "administrador"], ["Afiliado", "afiliado"], ["Turista", "turista"], ["Vendedor", "vendedor"]] %>
+            <% roles.each do |label, value| %>
+              <% active = params[:role].to_s == value %>
+              <%= link_to admin_users_path(role: value, q: params[:q]),
+                  class: "btn btn-sm rounded-pill #{active ? role_btn_active_class(value) : 'btn-outline-secondary'}" do %>
+                <%= label %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
 
-        <%= link_to "Nueva Suscripción", new_admin_user_subscription_path(user),
-                    class: "btn btn-success btn-sm" %>
+        <%# Submit %>
+        <div class="col-12 col-sm-6 col-md-3 d-flex justify-content-md-end">
+          <%= f.hidden_field :role, value: params[:role] %>
+          <%= f.submit "Buscar", class: "btn btn-primary w-100 w-md-auto" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
-        <% if user.afiliado? %>
-          <%= link_to choose_type_establishments_path(user_id: user.id),
-                      class: "btn btn-outline-primary btn-sm" do %>
-            <i class="fa-solid fa-store"></i> Nuevo Establecimiento
+  <%# ── Tabla ── %>
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-0">
+      <% if @users.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr style="background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                <th class="px-4 py-3 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Usuario</th>
+                <th class="py-3 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Contacto</th>
+                <th class="py-3 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Rol</th>
+                <th class="py-3 text-muted small fw-semibold text-uppercase" style="letter-spacing:.05em;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @users.each do |user| %>
+                <tr>
+                  <%# Avatar + nombre + email %>
+                  <td class="px-4 py-3">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                           style="width:40px; height:40px; background: linear-gradient(135deg, var(--brand-orange) 0%, #f7c59f 100%); color:#fff; font-size:.9rem; font-weight:700;">
+                        <%= user.name.split.map(&:first).first(2).join.upcase %>
+                      </div>
+                      <div class="overflow-hidden">
+                        <div class="fw-semibold text-truncate" style="max-width:200px;"><%= user.name %></div>
+                        <small class="text-muted text-truncate d-block" style="max-width:200px;"><%= user.email %></small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <%# Teléfono %>
+                  <td class="py-3">
+                    <% if user.phone.present? %>
+                      <a href="tel:<%= user.phone %>" class="text-decoration-none text-body">
+                        <i class="fas fa-phone-alt me-1 text-muted" style="font-size:.8rem;"></i>
+                        <%= user.phone %>
+                      </a>
+                    <% else %>
+                      <span class="text-muted">—</span>
+                    <% end %>
+                  </td>
+
+                  <%# Rol %>
+                  <td class="py-3">
+                    <% badge = case user.role
+                               when "administrador" then ["bg-danger", "fa-shield-halved", "Admin"]
+                               when "afiliado"      then ["bg-success", "fa-star", "Afiliado"]
+                               when "vendedor"      then ["bg-primary", "fa-tags", "Vendedor"]
+                               else                      ["bg-secondary", "fa-user", user.role.titleize]
+                               end %>
+                    <span class="badge <%= badge[0] %> rounded-pill px-3 py-2">
+                      <i class="fas <%= badge[1] %> me-1"></i><%= badge[2] %>
+                    </span>
+                  </td>
+
+                  <%# Acciones %>
+                  <td class="py-3 pe-4">
+                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                      <%= link_to admin_user_path(user),
+                          class: "btn btn-sm btn-outline-secondary rounded-pill",
+                          title: "Ver perfil" do %>
+                        <i class="fas fa-eye"></i>
+                      <% end %>
+
+                      <%= link_to edit_admin_user_path(user),
+                          class: "btn btn-sm btn-outline-warning rounded-pill",
+                          title: "Editar" do %>
+                        <i class="fas fa-pen"></i>
+                      <% end %>
+
+                      <%= button_to admin_user_path(user), method: :delete,
+                          form: { style: "display:inline" },
+                          onclick: "return confirm('¿Eliminar a #{user.name}? Esta acción no se puede deshacer.')",
+                          class: "btn btn-sm btn-outline-danger rounded-pill",
+                          title: "Eliminar" do %>
+                        <i class="fas fa-trash"></i>
+                      <% end %>
+
+                      <%= link_to new_admin_user_subscription_path(user),
+                          class: "btn btn-sm btn-outline-success rounded-pill",
+                          title: "Nueva suscripción" do %>
+                        <i class="fas fa-id-card"></i>
+                      <% end %>
+
+                      <% if user.afiliado? %>
+                        <%= link_to choose_type_establishments_path(user_id: user.id),
+                            class: "btn btn-sm btn-outline-primary rounded-pill",
+                            title: "Nuevo establecimiento" do %>
+                          <i class="fas fa-store"></i>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-users-slash fa-3x mb-3 opacity-50"></i>
+          <p class="mb-1 fw-semibold">No se encontraron usuarios</p>
+          <small>Prueba con otros filtros o crea un nuevo usuario.</small>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Paginación ── %>
+  <% if @pagy && @pagy.pages > 1 %>
+    <div class="d-flex justify-content-center mt-4">
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <% if @pagy.prev %>
+            <li class="page-item">
+              <%= link_to "«", admin_users_path(page: @pagy.prev, role: params[:role], q: params[:q]), class: "page-link" %>
+            </li>
+          <% else %>
+            <li class="page-item disabled"><span class="page-link">«</span></li>
           <% end %>
-        <% end %>
-      </td>
-    </tr>
+
+          <% @pagy.series.each do |item| %>
+            <% if item == :gap %>
+              <li class="page-item disabled"><span class="page-link">…</span></li>
+            <% elsif item == @pagy.page %>
+              <li class="page-item active">
+                <span class="page-link" style="background-color: var(--brand-orange); border-color: var(--brand-orange);"><%= item %></span>
+              </li>
+            <% else %>
+              <li class="page-item">
+                <%= link_to item, admin_users_path(page: item, role: params[:role], q: params[:q]), class: "page-link" %>
+              </li>
+            <% end %>
+          <% end %>
+
+          <% if @pagy.next %>
+            <li class="page-item">
+              <%= link_to "»", admin_users_path(page: @pagy.next, role: params[:role], q: params[:q]), class: "page-link" %>
+            </li>
+          <% else %>
+            <li class="page-item disabled"><span class="page-link">»</span></li>
+          <% end %>
+        </ul>
+      </nav>
+    </div>
   <% end %>
-  </tbody>
-</table>
+
+</div>

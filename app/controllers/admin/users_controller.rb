@@ -15,22 +15,22 @@ class Admin::UsersController < ApplicationController
   # end
 
   def index
-    @users = User.all
+    @users = User.order(:name)
 
-    # Filtrar por rol si se recibe
     if params[:role].present? && User.roles.key?(params[:role])
       @users = @users.where(role: User.roles[params[:role]])
     end
 
-    # Filtrar por query para búsqueda (autocomplete)
     if params[:q].present?
       query = "%#{params[:q].downcase}%"
       @users = @users.where("LOWER(name) LIKE ? OR LOWER(email) LIKE ?", query, query)
     end
 
     respond_to do |format|
-      format.html # para tu vista normal
-      format.json { render json: @users.limit(20).select(:id, :name, :email) } # para el autocomplete
+      format.html do
+        @pagy, @users = pagy(@users, limit: 30)
+      end
+      format.json { render json: @users.limit(20).select(:id, :name, :email) }
     end
   end
 

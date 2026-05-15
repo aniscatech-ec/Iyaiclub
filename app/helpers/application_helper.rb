@@ -41,4 +41,14 @@ module ApplicationHelper
     else 'bg-secondary'
     end
   end
+
+  def role_btn_active_class(role)
+    case role.to_s
+    when "administrador" then "btn-danger"
+    when "afiliado"      then "btn-success"
+    when "vendedor"      then "btn-primary"
+    when "turista"       then "btn-secondary"
+    else                      "btn-dark"
+    end
+  end
 end
