@@ -11,7 +11,7 @@
 
     <% if events.any? %>
       <% events.each do |event| %>
-        <% assigned = event.event_vendedores.where(stand: stand).includes(:user) %>
+        <% assigned = event.event_vendedores.where(stand: stand).where.not(vendor_type: :stand_autonomo).includes(:user) %>
         <% available = all_vendors.reject { |u| event.event_vendedores.exists?(user: u) } %>
 
         <div class="mb-4">

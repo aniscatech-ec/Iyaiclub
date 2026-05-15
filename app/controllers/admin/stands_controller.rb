@@ -1,7 +1,7 @@
 class Admin::StandsController < ApplicationController
   before_action :authenticate_user!
   before_action :authenticate_admin!
-  before_action :set_stand, only: [:show, :edit, :update, :destroy, :assign_vendor, :remove_vendor, :activate]
+  before_action :set_stand, only: [:show, :edit, :update, :destroy, :assign_vendor, :remove_vendor, :activate, :update_owner]
   layout "dashboard"
 
   def index
@@ -66,6 +66,28 @@ class Admin::StandsController < ApplicationController
     end
   end
 
+  # PATCH /admin/stands/:id/update_owner
+  def update_owner
+    user = @stand.owner_user
+    unless user
+      return redirect_to admin_stand_path(@stand), alert: "Este stand no tiene propietario asignado.", status: :see_other
+    end
+
+    user_attrs = owner_user_params
+    if user_attrs[:password].blank?
+      user_attrs.delete(:password)
+      user_attrs.delete(:password_confirmation)
+    end
+
+    if user.update(user_attrs)
+      redirect_to admin_stand_path(@stand), notice: "Datos del propietario actualizados correctamente.", status: :see_other
+    else
+      @vendors = EventVendedor.includes(:user, :event).where(stand: @stand).order(created_at: :desc)
+      flash.now[:alert] = "Error al actualizar: #{user.errors.full_messages.join(', ')}"
+      render :show, status: :unprocessable_entity
+    end
+  end
+
   # POST /admin/stands/:id/assign_vendor
   def assign_vendor
     event  = Event.find(params[:event_id])
@@ -114,6 +136,10 @@ class Admin::StandsController < ApplicationController
 
   def stand_params
     params.require(:stand).permit(:name, :location, :active)
+  end
+
+  def owner_user_params
+    params.require(:owner_user).permit(:name, :email, :phone, :password, :password_confirmation, :role)
   end
 
   def assign_virtual_attributes(stand)

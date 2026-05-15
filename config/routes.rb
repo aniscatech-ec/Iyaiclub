@@ -371,6 +371,7 @@ Rails.application.routes.draw do
         post   :assign_vendor
         delete :remove_vendor
         post   :activate
+        patch  :update_owner
       end
     end
   end

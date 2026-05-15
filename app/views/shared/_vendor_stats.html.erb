@@ -55,8 +55,8 @@
             %>
             <tr>
               <td class="ps-3">
-                <div class="fw-semibold small"><%= ev.user.name %></div>
-                <small class="text-muted"><%= ev.user.email %></small>
+                <div class="fw-semibold small"><%= ev.display_name %></div>
+                <small class="text-muted"><%= ev.user&.email %></small>
               </td>
               <td class="text-center">
                 <span class="badge bg-success rounded-pill"><%= sold %></span>
