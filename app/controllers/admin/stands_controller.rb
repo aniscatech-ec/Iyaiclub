@@ -79,12 +79,15 @@ class Admin::StandsController < ApplicationController
       user_attrs.delete(:password_confirmation)
     end
 
+    user.skip_reconfirmation!
     if user.update(user_attrs)
       redirect_to admin_stand_path(@stand), notice: "Datos del propietario actualizados correctamente.", status: :see_other
     else
-      @vendors = EventVendedor.includes(:user, :event).where(stand: @stand).order(created_at: :desc)
+      @events      = @stand.events.order(:name)
+      @all_vendors = User.where(role: :vendedor).order(:name)
+      @vendors     = EventVendedor.includes(:user, :event).where(stand: @stand).order(created_at: :desc)
       flash.now[:alert] = "Error al actualizar: #{user.errors.full_messages.join(', ')}"
-      render :show, status: :unprocessable_entity
+      render :edit, status: :unprocessable_entity
     end
   end
 
