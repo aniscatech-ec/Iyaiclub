@@ -1,52 +1,52 @@
 class Owner::StandVendedoresController < Owner::BaseController
-  before_action :set_event, only: [:new, :create]
-
   def index
-    @vendors = EventVendedor.includes(:user, :event)
-                            .where(stand: current_stand)
-                            .order(created_at: :desc)
+    vendors = EventVendedor.includes(:user, :event)
+                           .where(stand: current_stand, vendor_type: :stand)
+                           .order(created_at: :desc)
+    @vendors_by_event = vendors.group_by(&:event)
   end
 
   def new
-    @vendedor = EventVendedor.new
-    @available_vendors = User.where(role: :vendedor)
-                             .where.not(id: @event.vendedores.select(:id))
-                             .order(:name)
+    @stand_events    = current_stand.events.order(:created_at)
+    @available_vendors = User.where(role: :vendedor).order(:name)
   end
 
   def create
-    user = User.find_by(id: params[:user_id])
-
-    if user.nil?
-      return redirect_to owner_stand_vendedores_path, alert: "Usuario no encontrado."
+    event = current_stand.events.find_by(id: params[:event_id])
+    unless event
+      return redirect_to owner_stand_vendedores_path, alert: "Evento no encontrado o no pertenece a tu stand."
     end
 
-    vendedor = @event.event_vendedores.build(
+    user = User.find_by(id: params[:user_id])
+    unless user
+      return redirect_to new_owner_stand_vendedor_path, alert: "Usuario no encontrado."
+    end
+
+    unless user.vendedor?
+      return redirect_to new_owner_stand_vendedor_path, alert: "El usuario seleccionado no tiene rol de vendedor."
+    end
+
+    vendedor = event.event_vendedores.build(
       user:        user,
       stand:       current_stand,
       vendor_type: :stand,
-      active:      true
+      active:      true,
+      quota:       params[:quota].presence
     )
 
     if vendedor.save
-      redirect_to owner_stand_path, notice: "Vendedor asignado correctamente."
+      redirect_to owner_stand_vendedores_path, notice: "#{user.name} fue asignado como vendedor correctamente."
     else
-      redirect_to owner_stand_path, alert: vendedor.errors.full_messages.join(", ")
+      redirect_to new_owner_stand_vendedor_path, alert: vendedor.errors.full_messages.join(", ")
     end
   end
 
   def destroy
-    assignment = EventVendedor.where(stand: current_stand).find(params[:id])
+    assignment = EventVendedor.where(stand: current_stand, vendor_type: :stand).find(params[:id])
+    vendor_name = assignment.user.name
     assignment.destroy!
-    redirect_to owner_stand_vendedores_path, notice: "Vendedor eliminado del stand."
+    redirect_to owner_stand_vendedores_path, notice: "#{vendor_name} fue removido del stand."
   rescue ActiveRecord::RecordNotFound
     redirect_to owner_stand_vendedores_path, alert: "Asignación no encontrada."
-  end
-
-  private
-
-  def set_event
-    @event = current_stand.events.find_by(id: params[:event_id])
-    redirect_to owner_stand_path, alert: "Evento no encontrado." unless @event
   end
 end

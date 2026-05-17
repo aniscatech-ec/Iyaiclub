@@ -5,6 +5,9 @@
     <%= link_to owner_memberships_path, class: "btn btn-outline-primary" do %>
       <i class="fas fa-id-card me-1"></i> Gestionar Membresías
     <% end %>
+    <%= link_to owner_stand_vendedores_path, class: "btn btn-outline-success" do %>
+      <i class="fas fa-users me-1"></i> Gestionar Vendedores
+    <% end %>
     <% if @events.any? %>
       <div class="dropdown">
         <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">

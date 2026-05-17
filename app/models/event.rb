@@ -64,7 +64,7 @@ class Event < ApplicationRecord
       return subtotal if ev&.vendor_type_stand?
     end
 
-    if combo_active? && user.present? && quantity >= combo_quantity
+    if combo_active? && quantity >= combo_quantity
       complete_lots = quantity / combo_quantity
       [subtotal - combo_discount.to_f * complete_lots, 0].max
     else

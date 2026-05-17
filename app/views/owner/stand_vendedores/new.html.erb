@@ -1,0 +1,151 @@
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><%= link_to "Mi Stand", owner_stand_path %></li>
+      <li class="breadcrumb-item"><%= link_to "Vendedores", owner_stand_vendedores_path %></li>
+      <li class="breadcrumb-item active">Asignar Vendedor</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <h4 class="fw-bold mb-0"><i class="fas fa-user-plus me-2 text-success"></i>Asignar Vendedor al Stand</h4>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-7">
+
+      <%# ── Formulario de asignación ── %>
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 p-4 pb-2">
+          <h6 class="fw-bold mb-0"><i class="fas fa-calendar-check me-2 text-primary"></i>Seleccionar Evento y Vendedor</h6>
+        </div>
+        <div class="card-body p-4 pt-2">
+
+          <% if @stand_events.empty? %>
+            <div class="alert alert-warning rounded-3 mb-0">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Sin eventos asignados.</strong>
+              El stand no está asignado a ningún evento activo. Contacta al administrador.
+            </div>
+          <% else %>
+            <%= form_with url: owner_stand_vendedores_path, method: :post, local: true,
+                          data: { controller: "owner-assign-vendor" } do |f| %>
+
+              <%# Selector de evento %>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-calendar-alt me-1 text-muted"></i>Evento
+                </label>
+                <select name="event_id" id="event_id" class="form-select" required
+                        data-owner-assign-vendor-target="eventSelect"
+                        data-action="change->owner-assign-vendor#filterVendors">
+                  <option value="">— Selecciona un evento —</option>
+                  <% @stand_events.each do |event| %>
+                    <option value="<%= event.id %>"><%= event.name %> (<%= event.event_date&.strftime("%d/%m/%Y") || "Sin fecha" %>)</option>
+                  <% end %>
+                </select>
+              </div>
+
+              <%# Selector de vendedor %>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-user me-1 text-muted"></i>Vendedor
+                </label>
+                <% if @available_vendors.any? %>
+                  <select name="user_id" id="user_id" class="form-select" required>
+                    <option value="">— Selecciona un vendedor —</option>
+                    <% @available_vendors.each do |v| %>
+                      <option value="<%= v.id %>">
+                        <%= v.name %> <%= v.lastname %> — <%= v.email %>
+                      </option>
+                    <% end %>
+                  </select>
+                  <div class="form-text text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Solo se muestran usuarios con rol <strong>vendedor</strong>.
+                    Si necesitas agregar un nuevo vendedor, contacta al administrador.
+                  </div>
+                <% else %>
+                  <div class="alert alert-info rounded-3 mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No hay vendedores disponibles registrados en el sistema.
+                    Pide al administrador que cree cuentas de vendedor.
+                  </div>
+                <% end %>
+              </div>
+
+              <%# Cuota opcional %>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-hashtag me-1 text-muted"></i>Cuota de tickets <span class="text-muted fw-normal">(opcional)</span>
+                </label>
+                <input type="number" name="quota" id="quota" class="form-control"
+                       min="1" placeholder="Sin límite si se deja vacío">
+                <div class="form-text text-muted">
+                  Máximo de tickets que este vendedor puede vender en el evento seleccionado.
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <%= f.submit "Asignar Vendedor",
+                    class: "btn btn-success px-4",
+                    disabled: @available_vendors.empty? %>
+                <%= link_to "Cancelar", owner_stand_vendedores_path, class: "btn btn-outline-secondary" %>
+              </div>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+
+    </div>
+
+    <%# ── Panel informativo lateral ── %>
+    <div class="col-12 col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4 bg-light">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-info"></i>¿Qué hace un vendedor?</h6>
+          <ul class="list-unstyled mb-0 small text-muted">
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              Puede vender tickets del stand en el evento asignado.
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              Accede al panel de vendedor para ver y gestionar sus tickets.
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              Si tiene cuota asignada, no puede superar ese límite de ventas.
+            </li>
+            <li class="mb-0">
+              <i class="fas fa-info-circle text-info me-2"></i>
+              El stand sigue operando de forma autónoma como venta directa independientemente de los vendedores.
+            </li>
+          </ul>
+
+          <% if @stand_events.any? %>
+            <hr class="my-3">
+            <h6 class="fw-bold mb-2 small text-muted text-uppercase">Eventos disponibles</h6>
+            <ul class="list-unstyled mb-0">
+              <% @stand_events.each do |event| %>
+                <li class="d-flex align-items-center py-1 border-bottom">
+                  <i class="fas fa-calendar-alt text-muted me-2 small"></i>
+                  <div>
+                    <span class="small fw-semibold"><%= event.name %></span>
+                    <small class="text-muted d-block">
+                      <%= event.event_date&.strftime("%d %b %Y") || "Sin fecha" %>
+                    </small>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

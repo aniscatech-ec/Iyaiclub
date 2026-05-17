@@ -56,14 +56,12 @@
             </li>
             <% if @event.combo_active? %>
               <li class="list-group-item px-0">
-                <div class="d-flex align-items-center gap-2" style="color: #EB633B;">
-                  <i class="fas fa-lock"></i>
+                <div class="d-flex align-items-center gap-2 text-success">
+                  <i class="fas fa-tags"></i>
                   <small>
-                    <strong>Precio combo exclusivo para afiliados:</strong>
+                    <strong>Precio combo disponible:</strong>
                     $<%= number_with_precision(@event.combo_discount, precision: 2) %> de descuento
-                    por cada <%= @event.combo_quantity %> tickets.
-                    <%= link_to "Regístrate gratis", new_user_registration_path, style: "color: #EB633B; font-weight: bold;" %>
-                    para obtenerlo.
+                    por cada <%= @event.combo_quantity %> tickets comprados.
                   </small>
                 </div>
               </li>
@@ -77,8 +75,8 @@
                     data: { controller: "purchase-form", turbo: false,
                             "purchase-form-unit-price":     @event.price_for(nil),
                             "purchase-form-stand-price":    @event.stand_price.to_f,
-                            "purchase-form-combo-quantity": 0,
-                            "purchase-form-combo-discount": 0 } do |f| %>
+                            "purchase-form-combo-quantity": @event.combo_quantity.to_i,
+                            "purchase-form-combo-discount": @event.combo_discount.to_f } do |f| %>
 
         <!-- Datos del comprador -->
         <%= render "guest_fields" %>
