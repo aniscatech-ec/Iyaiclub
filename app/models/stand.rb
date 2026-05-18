@@ -53,6 +53,17 @@ class Stand < ApplicationRecord
     pending_user_assignment_type.present?
   end
 
+  def send_welcome_email(user)
+    raw_token, hashed_token = Devise.token_generator.generate(User, :reset_password_token)
+    user.update_columns(
+      reset_password_token:   hashed_token,
+      reset_password_sent_at: Time.now.utc
+    )
+    UserMailer.welcome_stand_vendor(user, self, raw_token).deliver_now
+  rescue => e
+    Rails.logger.error "[Stand#send_welcome_email] Error enviando correo a #{user.email}: #{e.message}"
+  end
+
   # El admin activa el stand: crea/asigna el usuario y envía correo si corresponde
   def activate!
     return false if activo?
@@ -137,6 +148,7 @@ class Stand < ApplicationRecord
     return unless user
     update_columns(owner_user_id: user.id)
     events.each { |ev| register_as_autonomo_in(ev) }
+    send_welcome_email(user)
   end
 
   def assign_vendor_user
@@ -182,12 +194,4 @@ class Stand < ApplicationRecord
     end
   end
 
-  def send_welcome_email(user)
-    raw_token, hashed_token = Devise.token_generator.generate(User, :reset_password_token)
-    user.update_columns(
-      reset_password_token:   hashed_token,
-      reset_password_sent_at: Time.now.utc
-    )
-    UserMailer.welcome_stand_vendor(user, self, raw_token).deliver_now
-  end
 end

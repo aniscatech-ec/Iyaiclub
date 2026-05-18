@@ -51,6 +51,17 @@ class Admin::StandsController < ApplicationController
     redirect_to admin_stands_path, alert: "No se pudo eliminar: #{e.record.errors.full_messages.join(', ')}", status: :see_other
   end
 
+  # POST /admin/stands/:id/resend_welcome
+  def resend_welcome
+    user = @stand.owner_user
+    unless user
+      return redirect_to admin_stand_path(@stand), alert: "Este stand no tiene propietario asignado.", status: :see_other
+    end
+
+    @stand.send(:send_welcome_email, user)
+    redirect_to admin_stand_path(@stand), notice: "Correo de bienvenida reenviado a #{user.email}.", status: :see_other
+  end
+
   # POST /admin/stands/:id/activate
   def activate
     if @stand.activo?

@@ -177,6 +177,14 @@
               </li>
             </ul>
           </div>
+          <div class="card-footer bg-transparent border-0 px-4 pb-4 pt-0">
+            <%= link_to resend_welcome_admin_stand_path(@stand),
+                data: { turbo_method: :post,
+                        turbo_confirm: "¿Reenviar el correo de bienvenida con el link para crear contraseña a #{user.email}?" },
+                class: "btn btn-sm btn-outline-primary w-100" do %>
+              <i class="fas fa-envelope me-1"></i> Reenviar correo de bienvenida
+            <% end %>
+          </div>
         </div>
       </div>
     <% end %>

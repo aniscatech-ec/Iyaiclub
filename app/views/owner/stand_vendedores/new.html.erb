@@ -57,7 +57,7 @@
                     <option value="">— Selecciona un vendedor —</option>
                     <% @available_vendors.each do |v| %>
                       <option value="<%= v.id %>">
-                        <%= v.name %> <%= v.lastname %> — <%= v.email %>
+                        <%= v.name %> — <%= v.email %>
                       </option>
                     <% end %>
                   </select>
