@@ -54,11 +54,7 @@ class Stand < ApplicationRecord
   end
 
   def send_welcome_email(user)
-    raw_token, hashed_token = Devise.token_generator.generate(User, :reset_password_token)
-    user.update_columns(
-      reset_password_token:   hashed_token,
-      reset_password_sent_at: Time.now.utc
-    )
+    raw_token = user.send(:set_reset_password_token)
     UserMailer.welcome_stand_vendor(user, self, raw_token).deliver_now
   rescue => e
     Rails.logger.error "[Stand#send_welcome_email] Error enviando correo a #{user.email}: #{e.message}"
@@ -189,7 +185,6 @@ class Stand < ApplicationRecord
     user.skip_identity_documents = true if skip_docs
 
     if user.save
-      send_welcome_email(user)
       user
     end
   end
